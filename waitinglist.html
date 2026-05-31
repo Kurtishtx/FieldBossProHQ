@@ -88,7 +88,7 @@
     }
 
     .app-dropdown { position:relative; }
-    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid #e07b00; background:#111; padding:3px 10px; font-size:13px; font-weight:600; height:28px; min-width:160px; cursor:pointer; text-align:left; border-radius:3px; color:#fff; }
+    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid #666; background:#555; padding:3px 10px; font-size:13px; font-weight:600; height:28px; min-width:160px; cursor:pointer; text-align:left; border-radius:3px; color:#fff; }
     .app-btn:hover { background:#333; border-color:#333; }
     .app-btn::after { content:'▼'; font-size:9px; color:#ccc; flex-shrink:0; }
     .saved-filters-panel { display:none; position:absolute; top:100%; left:0; z-index:300; width:280px; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.2); }
@@ -124,7 +124,7 @@
     .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#f3f3f3; border:1px solid #ddd; border-radius:12px; padding:4px 9px; font-size:12px; color:#222; font-weight:700; }
     .jt-pill-count { background:#e07820; color:#fff; font-weight:700; border-radius:10px; padding:0 6px; font-size:11px; }
 
-    .map-section { position:relative; width:100%; height:380px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
+    .map-section { position:relative; width:100%; height:491px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
     .map-toggle { position:absolute; top:10px; right:10px; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; z-index:10; }
     .map-toggle button { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; }
     .map-toggle button.active { background:#f0f0f0; font-weight:700; }
@@ -332,14 +332,14 @@
 </div>
 
 <!-- Routing section -->
-<div id="routing-section" style="display:none; background:#fffde0; border-bottom:2px solid #e0d000; padding:10px 16px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+<div id="routing-section" style="display:none; background:#111; border-bottom:2px solid #000; padding:10px 16px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
   <div>
-    <strong style="font-size:14px; color:#333;">Routing</strong>
-    <div style="font-size:12.5px; color:#555; margin-top:2px;">Click pins on the map in the order you want to visit them. Save your changes when finished.</div>
+    <strong style="font-size:14px; color:#fff;">Routing</strong>
+    <div style="font-size:12.5px; color:#ccc; margin-top:2px;">Click pins on the map in the order you want to visit them. Save your changes when finished.</div>
   </div>
   <div style="display:flex; gap:8px; flex-shrink:0;">
-    <button onclick="saveRouteOrder()" style="background:#e07820; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Update Today's Route Only</button>
-    <button onclick="cancelRouteOrder()" style="background:#888; color:#fff; border:none; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Cancel</button>
+    <button onclick="saveRouteOrder()" style="background:#e8c000; color:#000; border:2px solid #fff; padding:7px 18px; font-size:13px; font-weight:700; cursor:pointer; border-radius:3px;">Update Today's Route Only</button>
+    <button onclick="cancelRouteOrder()" style="background:#555; color:#fff; border:2px solid #fff; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Cancel</button>
   </div>
 </div>
 
@@ -382,6 +382,12 @@
       <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign To</label>
       <select id="sched-assign" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
         <option value="">— assign later —</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+      <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign to Trucks</label>
+      <select id="sched-truck" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
+        <option value="">— no truck —</option>
       </select>
     </div>
     <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
@@ -1522,6 +1528,7 @@
     schedCalYear = now.getFullYear(); schedCalMonth = now.getMonth(); schedSelDate = null;
     document.getElementById('sched-date-input').value = '';
     loadSchedAssign();
+    loadSchedTrucks();
     buildSchedCal();
     document.getElementById('sched-modal-overlay').style.display = 'flex';
   }
@@ -1542,6 +1549,18 @@
       var opt = document.createElement('option');
       opt.value = e.id;
       opt.textContent = e.last_name + ', ' + e.first_name;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function loadSchedTrucks() {
+    var sel = document.getElementById('sched-truck');
+    sel.innerHTML = '<option value="">— no truck —</option>';
+    var { data } = await sb.from('trucks').select('id, name').eq('active', true).order('name');
+    (data || []).forEach(function(t) {
+      var opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name;
       sel.appendChild(opt);
     });
   }
@@ -1586,8 +1605,9 @@
     document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
     if (!ids.length) { closeSchedModal(); return; }
     var assignTo = document.getElementById('sched-assign').value || null;
+    var truckId  = document.getElementById('sched-truck').value  || null;
     var updates = ids.map(function(id) {
-      return sb.from('Services').update({ scheduled_date: schedSelDate, dispatched: true, status: 'scheduled', assigned_to: assignTo }).eq('id', id);
+      return sb.from('Services').update({ scheduled_date: schedSelDate, dispatched: true, status: 'scheduled', assigned_to: assignTo, truck_id: truckId }).eq('id', id);
     });
     await Promise.all(updates);
     sendAlert('scheduled', ids);

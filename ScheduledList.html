@@ -88,8 +88,8 @@
     }
 
     .app-dropdown { position:relative; }
-    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid #e07b00; background:#111; padding:3px 10px; font-size:13px; font-weight:600; height:28px; min-width:160px; cursor:pointer; text-align:left; border-radius:3px; color:#fff; }
-    .app-btn:hover { background:#333; border-color:#333; }
+    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid #666; background:#555; padding:3px 10px; font-size:13px; font-weight:600; height:28px; min-width:160px; cursor:pointer; text-align:left; border-radius:3px; color:#fff; }
+    .app-btn:hover { background:#444; border-color:#444; }
     .app-btn::after { content:'▼'; font-size:9px; color:#ccc; flex-shrink:0; }
     .saved-filters-panel { display:none; position:absolute; top:100%; left:0; z-index:300; width:280px; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.2); }
     .saved-filters-panel.show { display:flex; flex-direction:column; }
@@ -124,7 +124,7 @@
     .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#f3f3f3; border:1px solid #ddd; border-radius:12px; padding:4px 9px; font-size:12px; color:#222; font-weight:700; }
     .jt-pill-count { background:#e07820; color:#fff; font-weight:700; border-radius:10px; padding:0 6px; font-size:11px; }
 
-    .map-section { position:relative; width:100%; height:380px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
+    .map-section { position:relative; width:100%; height:491px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
     .map-toggle { position:absolute; top:10px; right:10px; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; z-index:10; }
     .map-toggle button { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; }
     .map-toggle button.active { background:#f0f0f0; font-weight:700; }
@@ -245,6 +245,7 @@
     <button class="ms-btn" id="status-ms-btn" onclick="toggleStatusDropdown(event)">-- Select --</button>
     <div class="ms-dropdown" id="status-ms-dropdown">
       <div class="ms-item"><input type="checkbox" value="scheduled" id="st-scheduled" onchange="applyStatusFilter()"/><label for="st-scheduled" style="cursor:pointer;margin-left:3px;">Scheduled</label></div>
+      <div class="ms-item"><input type="checkbox" value="completed" id="st-completed" onchange="applyStatusFilter()"/><label for="st-completed" style="cursor:pointer;margin-left:3px;">Completed</label></div>
       <div class="ms-item"><input type="checkbox" value="canceled" id="st-canceled" onchange="applyStatusFilter()"/><label for="st-canceled" style="cursor:pointer;margin-left:3px;">Canceled</label></div>
       <div class="ms-item"><input type="checkbox" value="skipped" id="st-skipped" onchange="applyStatusFilter()"/><label for="st-skipped" style="cursor:pointer;margin-left:3px;">Skipped</label></div>
     </div>
@@ -268,19 +269,21 @@
   <div class="drp-wrap" id="drp-wrap">
     <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading…</div>
     <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <div class="drp-quick-row" style="margin-top:0; flex-wrap:wrap;">
+          <span>Past</span> <a onclick="drpQuick(1,0)">1Day</a> <a onclick="drpQuick(3,0)">3Days</a> <a onclick="drpQuick(5,0)">5Days</a>
+          &nbsp;&nbsp;<span>Next</span> <a onclick="drpQuick(0,3)">3Days</a> <a onclick="drpQuick(0,5)">5Days</a> <a onclick="drpQuick(0,7)">7Days</a>
+          &nbsp;&nbsp;<span>Weekly</span> <a onclick="drpThisWeek()">This Week</a> <a onclick="drpNextWeek()">Next Week</a>
+        </div>
+        <button class="drp-close-btn" onclick="closeDRP()" style="flex-shrink:0; margin-left:16px;">Apply</button>
+      </div>
       <div class="drp-months">
         <div id="drp-month-left"></div>
         <div id="drp-month-right"></div>
       </div>
-      <div class="drp-quick-row">
-        <span>Past</span> <a onclick="drpQuick(1,0)">1Day</a> <a onclick="drpQuick(3,0)">3Days</a> <a onclick="drpQuick(5,0)">5Days</a>
-        &nbsp;&nbsp;<span>Next</span> <a onclick="drpQuick(0,3)">3Days</a> <a onclick="drpQuick(0,5)">5Days</a> <a onclick="drpQuick(0,7)">7Days</a>
-        &nbsp;&nbsp;<span>Weekly</span> <a onclick="drpThisWeek()">This Week</a> <a onclick="drpNextWeek()">Next Week</a>
-        <button class="drp-close-btn" style="margin-left:auto;" onclick="closeDRP()">Apply</button>
-      </div>
     </div>
   </div>
-  <label><input type="checkbox" id="use-min-days" checked/> Use Min Days Since</label>
+  <input type="checkbox" id="use-min-days" checked style="display:none;"/>
   <div class="toolbar-right">
     <button class="btn-map-toggle" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
     <button class="btn-print" onclick="window.print()">Print</button>
@@ -394,14 +397,14 @@
 </div>
 
 <!-- Routing section -->
-<div id="routing-section" style="display:none; background:#fffde0; border-bottom:2px solid #e0d000; padding:10px 16px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+<div id="routing-section" style="display:none; background:#111; border-bottom:2px solid #000; padding:10px 16px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
   <div>
-    <strong style="font-size:14px; color:#333;">Routing</strong>
-    <div style="font-size:12.5px; color:#555; margin-top:2px;">Click pins on the map in the order you want to visit them. Save your changes when finished.</div>
+    <strong style="font-size:14px; color:#fff;">Routing</strong>
+    <div style="font-size:12.5px; color:#ccc; margin-top:2px;">Click pins on the map in the order you want to visit them. Save your changes when finished.</div>
   </div>
   <div style="display:flex; gap:8px; flex-shrink:0;">
-    <button onclick="saveRouteOrder()" style="background:#e07820; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Update Today's Route Only</button>
-    <button onclick="cancelRouteOrder()" style="background:#888; color:#fff; border:none; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Cancel</button>
+    <button onclick="saveRouteOrder()" style="background:#e8c000; color:#000; border:2px solid #fff; padding:7px 18px; font-size:13px; font-weight:700; cursor:pointer; border-radius:3px;">Update Today's Route Only</button>
+    <button onclick="cancelRouteOrder()" style="background:#555; color:#fff; border:2px solid #fff; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Cancel</button>
   </div>
 </div>
 
@@ -758,7 +761,7 @@
 
     filtered.sort(function(a, b) {
       var av, bv;
-      if (sortCol === 'order') { av = 0; bv = 0; }
+      if (sortCol === 'order') { av = a.route_order ? parseInt(a.route_order) : 9999; bv = b.route_order ? parseInt(b.route_order) : 9999; }
       else if (sortCol === 'client') { av = a.client_name || ''; bv = b.client_name || ''; }
       else if (sortCol === 'service') { av = a.service || ''; bv = b.service || ''; }
       else if (sortCol === 'amount') { av = parseFloat(a.amount) || 0; bv = parseFloat(b.amount) || 0; }
@@ -1014,6 +1017,13 @@
 
   function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
   function closeDRP() { document.getElementById('drp-popup').classList.remove('open'); renderTable(); }
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('drp-popup');
+    if (popup && popup.classList.contains('open')) {
+      var wrap = document.getElementById('drp-wrap');
+      if (wrap && !wrap.contains(e.target)) { closeDRP(); }
+    }
+  });
 
   function drpRender() {
     document.getElementById('drp-month-left').innerHTML = drpBuildMonth(drpLY, drpLM, 'L');
@@ -1055,6 +1065,7 @@
     var dt = new Date(ds + 'T00:00:00');
     if (!drpSelecting || !drpStart) { drpStart = dt; drpEnd = null; drpSelecting = true; }
     else { if (dt < drpStart) { drpEnd = drpStart; drpStart = dt; } else drpEnd = dt; drpSelecting = false; }
+    document.querySelectorAll('.day-tab').forEach(function(b) { b.classList.remove('active'); });
     drpRender(); drpUpdateInput();
   }
 
@@ -1831,61 +1842,19 @@
     document.getElementById('actions-dd').style.display = 'none';
     var checked = document.querySelectorAll('.row-cb:checked');
     if (!checked.length) { alert('Select at least one service.'); return; }
-    if (!confirm('Mark ' + checked.length + ' service(s) as complete and generate invoice(s)?')) return;
+    if (!confirm('Mark ' + checked.length + ' service(s) as complete?')) return;
 
     var ids = [];
     checked.forEach(function(cb) { ids.push(cb.dataset.id); });
 
-    /* Update each service to completed status with full timestamp */
     var completedAt = new Date().toISOString();
     await Promise.all(ids.map(function(id) {
       return sb.from('Services').update({ status: 'completed', completed_date: completedAt }).eq('id', id);
     }));
 
-    /* Collect service data for invoice generation */
-    var completedSvcs = services.filter(function(s) { return ids.indexOf(String(s.id)) >= 0; });
-
-    /* Generate invoices grouped by property */
-    await generateInvoicesFromServices(completedSvcs);
-
     sendAlert('completed', ids);
     loadServices();
     showToast('Marked complete — invoices generated', 'success');
-  }
-
-  async function generateInvoicesFromServices(svcs) {
-    if (!svcs || !svcs.length) return;
-    var { data: lastInv } = await sb.from('Invoices').select('inv_num').order('id', { ascending: false }).limit(1).single();
-    var last = lastInv && lastInv.inv_num ? parseInt(lastInv.inv_num) : 0;
-    var nextNum = isNaN(last) ? 1001 : last + 1;
-    var todayStr = new Date().toISOString().split('T')[0];
-
-    var groups = {};
-    svcs.forEach(function(s) {
-      var key = s.property_id || ('no-' + s.id);
-      if (!groups[key]) groups[key] = { property_id: s.property_id, client_name: s.client_name, address: s.address, lines: [] };
-      groups[key].lines.push({ name: s.service || '', description: s.notes || '', date: s.scheduled_date || todayStr, rate: parseFloat(s.amount) || 0, qty: 1, amount: parseFloat(s.amount) || 0 });
-    });
-
-    var inserts = Object.values(groups).map(function(g) {
-      var total = g.lines.reduce(function(acc, l) { return acc + l.amount; }, 0);
-      return {
-        property_id: g.property_id || null,
-        client_name: g.client_name || '',
-        address: g.address || null,
-        date: new Date().toISOString().split('T')[0],
-        inv_num: String(nextNum++),
-        inv_total: total,
-        inv_bal: total,
-        service_lines: g.lines,
-        deleted: false,
-        past_due: false,
-        incomplete: false
-      };
-    });
-
-    var { error } = await sb.from('Invoices').insert(inserts);
-    if (error) console.error('Invoice insert error:', error);
   }
 
   initDRP();
@@ -1903,6 +1872,7 @@
   /* ── Chemical Application Log ── */
   var chemLogServiceIds = [];
   var chemMixProducts = [];
+  var _existingChemRecordId = null;
 
   async function openChemLog(e) {
     if (e) e.preventDefault();
@@ -1928,32 +1898,55 @@
     document.getElementById('chem-prop-state').value = 'TX';
     document.getElementById('chem-prop-zip').value   = '';
 
-    // Treatment
-    document.getElementById('chem-area').value          = '';
-    document.getElementById('chem-area-location').value = '';
-    document.getElementById('chem-target-pest').value   = '';
-    document.getElementById('chem-equipment').value    = '';
-    document.getElementById('chem-total-applied').value = '';
+    // Check for existing mobile record for this service
+    _existingChemRecordId = null;
+    var existingRec = null;
+    if (first.id) {
+      var { data: existingData } = await sb.from('chemical_applications').select('*').eq('service_id', first.id).maybeSingle();
+      if (existingData) {
+        existingRec = existingData;
+        _existingChemRecordId = existingData.id;
+      }
+    }
 
-    // Weather
-    document.getElementById('chem-wind-speed').value    = '';
-    document.getElementById('chem-wind-dir').value      = '';
-    document.getElementById('chem-temp').value          = '';
-    document.getElementById('chem-weather-notes').value = '';
+    // Show/hide mobile banner
+    var banner = document.getElementById('chem-mobile-banner');
+    if (banner) banner.style.display = existingRec ? 'flex' : 'none';
 
-    // Applicator
-    document.getElementById('chem-tech-name').value     = first.assigned_to || '';
-    document.getElementById('chem-tech-license').value  = '';
-    document.getElementById('chem-biz-license').value   = '';
+    // Pre-fill from existing mobile record if found, otherwise use defaults
+    var rec = existingRec || {};
+    var recDate = rec.applied_at ? rec.applied_at.split('T')[0] : (first.completed_date && first.completed_date.includes('T') ? new Date(first.completed_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+    document.getElementById('chem-app-date').value = recDate;
+    document.getElementById('chem-start-time').value = rec.start_time || '';
+    document.getElementById('chem-end-time').value   = rec.end_time   || '';
 
-    // Additional
-    document.getElementById('chem-reentry').value       = '';
-    document.getElementById('chem-special').value       = '';
-    document.getElementById('chem-drift').value         = '';
+    document.getElementById('chem-customer-name').value = rec.client_name  || first.client_name || '';
+    document.getElementById('chem-prop-address').value  = rec.address       || first.address     || '';
+    document.getElementById('chem-prop-city').value     = rec.property_city  || '';
+    document.getElementById('chem-prop-state').value    = rec.property_state || 'TX';
+    document.getElementById('chem-prop-zip').value      = rec.property_zip   || '';
 
-    document.getElementById('chem-products-list').innerHTML = '<div style="color:#aaa;font-size:12.5px;font-style:italic;">Select a mix to see products.</div>';
+    document.getElementById('chem-area').value          = rec.area_treated  || '';
+    document.getElementById('chem-area-location').value = rec.area_location || '';
+    document.getElementById('chem-target-pest').value   = rec.target_pest   || '';
+    document.getElementById('chem-equipment').value     = rec.equipment_used || '';
+    document.getElementById('chem-total-applied').value = rec.total_applied  || '';
 
-    if (first.property_id) {
+    document.getElementById('chem-wind-speed').value    = rec.wind_speed    || '';
+    document.getElementById('chem-wind-dir').value      = rec.wind_direction || '';
+    document.getElementById('chem-temp').value          = rec.temperature    || '';
+    document.getElementById('chem-weather-notes').value = rec.weather_notes  || '';
+
+    document.getElementById('chem-tech-name').value     = rec.technician_name        || first.assigned_to || '';
+    document.getElementById('chem-tech-license').value  = rec.tech_license_number    || '';
+    document.getElementById('chem-biz-license').value   = rec.business_license_number || '';
+
+    document.getElementById('chem-reentry').value       = rec.reentry_interval    || '';
+    document.getElementById('chem-special').value       = rec.special_instructions || '';
+    document.getElementById('chem-drift').value         = rec.drift_prevention     || '';
+
+    // If no existing record, pull area from property
+    if (!existingRec && first.property_id) {
       var { data: prop } = await sb.from('Properties').select('area_treated, city, state, zip').eq('id', first.property_id).single();
       if (prop) {
         if (prop.city)  document.getElementById('chem-prop-city').value  = prop.city;
@@ -1961,11 +1954,16 @@
         if (prop.zip)   document.getElementById('chem-prop-zip').value   = prop.zip;
         if (prop.area_treated) {
           var at = prop.area_treated;
-          var sqft = at.lawn_care || at.lawn_insect || at.flower_beds || at.mosquito || '';
-          document.getElementById('chem-area').value = sqft;
+          var catalogEntry = serviceCatalog.find(function(c) { return c.name === first.service; });
+          var aa = (catalogEntry && catalogEntry.associated_areas) ? catalogEntry.associated_areas : {};
+          var areaKeys = ['lawn_care', 'lawn_insect', 'flower_beds', 'mosquito', 'mosquito_linear_ft'];
+          var matchedKey = areaKeys.find(function(k) { return aa[k] && at[k]; });
+          document.getElementById('chem-area').value = matchedKey ? at[matchedKey] : '';
         }
       }
     }
+
+    document.getElementById('chem-products-list').innerHTML = '<div style="color:#aaa;font-size:12.5px;font-style:italic;">Select a mix to see products.</div>';
 
     var { data: mixes } = await sb.from('Product Mixes').select('id, name, mix_products').order('name');
     var mixSel = document.getElementById('chem-mix');
@@ -2102,8 +2100,16 @@
       };
     });
 
-    var { error } = await sb.from('chemical_applications').insert(inserts);
-    if (error) { alert('Error saving: ' + error.message); return; }
+    var saveError = null;
+    if (_existingChemRecordId && inserts.length === 1) {
+      var { error } = await sb.from('chemical_applications').update(inserts[0]).eq('id', _existingChemRecordId);
+      saveError = error;
+    } else {
+      var { error } = await sb.from('chemical_applications').insert(inserts);
+      saveError = error;
+    }
+    if (saveError) { alert('Error saving: ' + saveError.message); return; }
+    _existingChemRecordId = null;
     document.getElementById('chem-log-overlay').style.display = 'none';
     showToast('Chemical application logged (TDA record saved).', 'success');
   }
@@ -2289,6 +2295,12 @@
       <div id="chem-svc-label" style="font-size:11.5px; color:#aaa; margin-top:2px;"></div>
     </div>
     <button onclick="document.getElementById('chem-log-overlay').style.display='none'" style="background:none;border:1px solid #888;color:#fff;width:26px;height:26px;cursor:pointer;font-size:13px;border-radius:2px;line-height:1;">&#10005;</button>
+  </div>
+
+  <!-- Mobile record banner -->
+  <div id="chem-mobile-banner" style="display:none; align-items:center; gap:10px; background:#fff8e1; border-bottom:2px solid #f0a500; padding:10px 16px; font-size:13px; color:#7a5000;">
+    <span style="font-size:16px;">&#9888;</span>
+    <span><strong>Partial record from mobile.</strong> Area, weather &amp; times are pre-filled — complete the chemical/mix details below before saving.</span>
   </div>
 
   <div style="padding:0 0 16px;">

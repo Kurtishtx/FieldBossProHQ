@@ -442,6 +442,10 @@
           <input type="checkbox" id="area-mosquito" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
           Mosquito Control Sq Ft
         </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" id="area-mosquito-linear" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
+          Mosquito Control Linear Ft
+        </label>
       </div>
 
     </div><!-- /right col -->
@@ -491,7 +495,8 @@
       document.getElementById('area-lawn-care').checked   = !!aa.lawn_care;
       document.getElementById('area-lawn-insect').checked = !!aa.lawn_insect;
       document.getElementById('area-flower-beds').checked = !!aa.flower_beds;
-      document.getElementById('area-mosquito').checked    = !!aa.mosquito;
+      document.getElementById('area-mosquito').checked        = !!aa.mosquito;
+      document.getElementById('area-mosquito-linear').checked = !!aa.mosquito_linear_ft;
     }
   }
   initEdit();
@@ -558,7 +563,8 @@
         lawn_care:   document.getElementById('area-lawn-care').checked,
         lawn_insect: document.getElementById('area-lawn-insect').checked,
         flower_beds: document.getElementById('area-flower-beds').checked,
-        mosquito:    document.getElementById('area-mosquito').checked,
+        mosquito:           document.getElementById('area-mosquito').checked,
+        mosquito_linear_ft: document.getElementById('area-mosquito-linear').checked,
       },
     };
   }

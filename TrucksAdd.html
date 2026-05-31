@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Truck</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .dialog {
+      max-width: 560px;
+      margin: 40px auto;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+      background: #fff;
+    }
+    .dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid #eee;
+    }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn {
+      background: none; border: 1px solid #bbb; padding: 2px 7px;
+      font-size: 13px; cursor: pointer; color: #555; border-radius: 2px;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    .dialog-body { padding: 20px 24px 24px; }
+
+    .field-row {
+      display: flex; align-items: center;
+      gap: 14px; margin-bottom: 16px;
+    }
+    .field-row label {
+      width: 70px; font-weight: 700; font-size: 14px; color: #333; flex-shrink: 0;
+    }
+    .field-row input[type="text"] {
+      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none;
+      border-radius: 2px;
+    }
+    .field-row input[type="text"]:focus { border-color: #e07820; }
+
+    .field-row-active {
+      display: flex; align-items: center;
+      gap: 14px; margin-bottom: 16px;
+    }
+    .field-row-active label {
+      width: 70px; font-weight: 700; font-size: 14px; color: #333; flex-shrink: 0;
+    }
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+    .toggle {
+      position: relative; width: 42px; height: 22px; cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: #ccc; border-radius: 22px; transition: .2s;
+    }
+    .toggle-slider:before {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s;
+    }
+    .toggle input:checked + .toggle-slider { background: #e07820; }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .toggle-label { font-size: 13px; color: #555; }
+
+    .dialog-footer {
+      padding: 0 24px 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .btn-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 28px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save-new {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 20px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; text-decoration: none; }
+    .btn-cancel:hover { text-decoration: underline; }
+    .btn-delete {
+      margin-left: auto; background: none; border: 1px solid #c0392b; color: #c0392b;
+      padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer;
+    }
+    .btn-delete:hover { background: #fdecea; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add Truck</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
+  <div class="dialog-body">
+    <div class="field-row">
+      <label for="truck-name">Name</label>
+      <input type="text" id="truck-name" autocomplete="off" placeholder="e.g. Truck 1"/>
+    </div>
+    <div class="field-row-active" id="active-row" style="display:none;">
+      <label>Active</label>
+      <div class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="truck-active" checked/>
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label" id="active-label">Active</span>
+      </div>
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="save(false)">Save</button>
+    <button class="btn-save-new" id="btn-save-new" onclick="save(true)">Save &amp; New</button>
+    <a class="btn-cancel" onclick="cancel()">Cancel</a>
+    <button class="btn-delete" id="btn-delete" style="display:none;" onclick="deleteTruck()">Delete</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var editId = null;
+
+  var activeToggle = document.getElementById('truck-active');
+  activeToggle.addEventListener('change', function() {
+    document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
+  });
+
+  async function init() {
+    var params = new URLSearchParams(window.location.search);
+    editId = params.get('id') || null;
+    if (editId) {
+      document.getElementById('page-title').textContent = 'Edit Truck';
+      document.getElementById('btn-save-new').style.display = 'none';
+      document.getElementById('btn-delete').style.display = '';
+      document.getElementById('active-row').style.display = 'flex';
+      var { data, error } = await sb.from('trucks').select('*').eq('id', editId).single();
+      if (error || !data) { alert('Truck not found.'); cancel(); return; }
+      document.getElementById('truck-name').value = data.name || '';
+      activeToggle.checked = data.active !== false;
+      document.getElementById('active-label').textContent = activeToggle.checked ? 'Active' : 'Inactive';
+    }
+  }
+
+  async function save(andNew) {
+    var name = document.getElementById('truck-name').value.trim();
+    if (!name) { alert('Please enter a truck name.'); return; }
+    var payload = { name: name };
+    if (editId) payload.active = activeToggle.checked;
+
+    var error;
+    if (editId) {
+      ({ error } = await sb.from('trucks').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await sb.from('trucks').insert(payload));
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+
+    if (andNew) {
+      document.getElementById('truck-name').value = '';
+    } else {
+      cancel();
+    }
+  }
+
+  async function deleteTruck() {
+    if (!editId) return;
+    if (!confirm('Delete this truck? It will be removed from any unscheduled services.')) return;
+    var { error } = await sb.from('trucks').delete().eq('id', editId);
+    if (error) { alert('Error: ' + error.message); return; }
+    cancel();
+  }
+
+  function cancel() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('trucks');
+    } else {
+      window.location.href = 'Trucks.html';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

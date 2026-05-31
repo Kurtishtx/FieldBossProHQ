@@ -137,11 +137,12 @@
         <th>Mix Used</th>
         <th>Area Treated</th>
         <th>Total Applied</th>
+        <th>Weather</th>
         <th>Technician</th>
       </tr>
     </thead>
     <tbody id="report-body">
-      <tr><td colspan="8" class="empty-msg">Select a date range above and click Generate Report.</td></tr>
+      <tr><td colspan="9" class="empty-msg">Select a date range above and click Generate Report.</td></tr>
     </tbody>
   </table>
 </div>
@@ -236,7 +237,7 @@
     tbody.innerHTML = '';
 
     if (!allRows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No chemical applications found for this date range.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No chemical applications found for this date range.</td></tr>';
       document.getElementById('summary-bar').style.display = 'none';
       document.getElementById('btn-print').style.display = 'none';
       return;
@@ -259,15 +260,37 @@
       var areaStr = (r.area_treated || '—') + ' ' + (r.area_unit || '');
       if (r.area_location) areaStr += '<br/><span style="font-size:11px;color:#555;">' + r.area_location + '</span>';
 
+      var isIncomplete = !r.mix_id || !r.mix_name;
+      var incompleteBadge = isIncomplete ? ' <span style="background:#f0a500;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;vertical-align:middle;">NEEDS COMPLETION</span>' : '';
+
+      var mixCell = r.mix_name ? r.mix_name : '<span style="color:#b36b00;font-style:italic;">Not set</span>';
+      if (r.products && r.products.length) {
+        mixCell += '<div style="margin-top:5px;display:flex;flex-direction:column;gap:2px;">';
+        r.products.forEach(function(p) {
+          mixCell += '<div style="font-size:11px;color:#444;border-left:2px solid #e07820;padding-left:5px;">' +
+            '<strong>' + (p.product_name || '—') + '</strong>' +
+            (p.application_rate ? ' &nbsp;<span style="color:#666;">' + p.application_rate + '</span>' : '') +
+            (p.total_amount_used ? ' &nbsp;<span style="color:#888;">(' + p.total_amount_used + ' ' + (p.amount_unit || '') + ' used)</span>' : '') +
+            '</div>';
+        });
+        mixCell += '</div>';
+      }
+
       var tr = document.createElement('tr');
+      if (isIncomplete) tr.style.background = '#fffbf0';
       tr.innerHTML =
         '<td>' + (hasExpand ? '<button class="expand-btn" onclick="toggleProds(' + i + ', this)">+</button>' : '') + '</td>' +
         '<td>' + dateStr + '</td>' +
-        '<td>' + (r.client_name || '—') + '</td>' +
+        '<td>' + (r.client_name || '—') + incompleteBadge + '</td>' +
         '<td>' + (r.address || '—') + '</td>' +
-        '<td>' + (r.mix_name || '—') + '</td>' +
+        '<td>' + mixCell + '</td>' +
         '<td class="mono">' + areaStr + '</td>' +
         '<td class="mono">' + (r.total_applied || '—') + ' ' + (r.total_applied_unit || '') + '</td>' +
+        '<td style="font-size:12px;line-height:1.6;">' +
+          (r.temperature ? '<div>&#x1F321; ' + r.temperature + '°F</div>' : '') +
+          (r.wind_speed ? '<div>&#x1F4A8; ' + r.wind_speed + ' mph' + (r.wind_direction ? ' ' + r.wind_direction : '') + '</div>' : '') +
+          (!r.temperature && !r.wind_speed ? '—' : '') +
+        '</td>' +
         '<td>' + (r.technician_name || '—') + '</td>';
       tbody.appendChild(tr);
 
@@ -315,7 +338,7 @@
           expandedHtml += '</div></div>';
         }
 
-        prodTr.innerHTML = '<td colspan="8"><div class="products-inner">' + expandedHtml + '</div></td>';
+        prodTr.innerHTML = '<td colspan="9"><div class="products-inner">' + expandedHtml + '</div></td>';
         tbody.appendChild(prodTr);
       }
     });

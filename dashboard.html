@@ -188,7 +188,7 @@
       border-radius: 8px;
       box-shadow: 0 8px 24px rgba(0,0,0,.15);
       z-index: 1000;
-      max-height: 400px;
+      max-height: 600px;
       overflow-y: auto;
     }
     .global-search-dropdown.open { display: block; }
@@ -863,6 +863,8 @@
     companyinfo:  'CompanyInfo.html',
     userroles:      'UserRoles.html',
     cancelreasons:  'CancellationReasons.html',
+    trucks:         'Trucks.html',
+    trucksadd:      'TrucksAdd.html',
     documents:          'Documents.html',
     documentsadd:       'DocumentsAdd.html',
     documentsettings:   'DocumentSettings.html',
@@ -907,6 +909,8 @@
     companyinfo:  'Company Information',
     userroles:      'User Roles & Rights',
     cancelreasons:  'Cancellation Reasons',
+    trucks:         'Trucks',
+    trucksadd:      'Trucks',
     documents:          'Documents',
     documentsadd:       'Invoice Email Template',
     documentsettings:   'Document Settings',
@@ -952,31 +956,42 @@
     dd.classList.add('open');
     var like = '%' + q + '%';
     var [cRes, pRes, lRes] = await Promise.all([
-      sbMain.from('Clients').select('id,name,email,phone,cell,address').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',cell.ilike.' + like + ',address.ilike.' + like).limit(5),
-      sbMain.from('Properties').select('id,name,address,city').or('name.ilike.' + like + ',address.ilike.' + like + ',city.ilike.' + like).limit(5),
-      sbMain.from('Leads').select('id,name,email,phone,address').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',address.ilike.' + like).limit(5)
+      sbMain.from('Clients').select('id,name,email,phone,cell,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',cell.ilike.' + like + ',address.ilike.' + like).limit(5),
+      sbMain.from('Properties').select('id,name,address,city,customer_id').or('address.ilike.' + like + ',city.ilike.' + like + ',name.ilike.' + like).limit(5),
+      sbMain.from('Leads').select('id,name,email,phone,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',address.ilike.' + like).limit(5)
     ]);
     var clients = cRes.data || [], props = pRes.data || [], leads = lRes.data || [];
     if (!clients.length && !props.length && !leads.length) {
       dd.innerHTML = '<div class="search-no-results">No results for "' + q + '"</div>'; return;
     }
+    function sriSub(parts) {
+      return parts.filter(Boolean).map(function(p) { return '<span>' + p + '</span>'; }).join(' &nbsp;|&nbsp; ');
+    }
     var html = '';
     if (clients.length) {
       html += '<div class="search-group-label">&#128101; Clients</div>';
       clients.forEach(function(c) {
-        html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'"><div><div class="sri-main">' + (c.name||'') + '</div><div class="sri-sub">' + (c.email||c.phone||c.cell||c.address||'') + '</div></div></div>';
+        var phone = c.cell || c.phone || '';
+        html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'">' +
+          '<div><div class="sri-main">' + (c.name||'') + '</div>' +
+          '<div class="sri-sub">' + sriSub([c.address, c.email, phone]) + '</div></div></div>';
       });
     }
     if (props.length) {
       html += '<div class="search-group-label">&#127968; Properties</div>';
       props.forEach(function(p) {
-        html += '<div class="search-result-item" onclick="loadPage(\'propprofile?id=' + p.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'"><div><div class="sri-main">' + (p.name||p.address||'') + '</div><div class="sri-sub">' + [p.address,p.city].filter(Boolean).join(', ') + '</div></div></div>';
+        var addr = [p.address, p.city].filter(Boolean).join(', ');
+        html += '<div class="search-result-item" onclick="loadPage(\'propprofile?id=' + p.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'">' +
+          '<div><div class="sri-main">' + (addr || '') + '</div>' +
+          '<div class="sri-sub">' + (p.name || '') + '</div></div></div>';
       });
     }
     if (leads.length) {
       html += '<div class="search-group-label">&#127919; Leads</div>';
       leads.forEach(function(l) {
-        html += '<div class="search-result-item" onclick="loadPage(\'leadsprofile?id=' + l.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'"><div><div class="sri-main">' + (l.name||'') + '</div><div class="sri-sub">' + (l.email||l.phone||l.address||'') + '</div></div></div>';
+        html += '<div class="search-result-item" onclick="loadPage(\'leadsprofile?id=' + l.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'">' +
+          '<div><div class="sri-main">' + (l.name||'') + '</div>' +
+          '<div class="sri-sub">' + sriSub([l.address, l.email, l.phone]) + '</div></div></div>';
       });
     }
     dd.innerHTML = html;

@@ -90,7 +90,7 @@
     /* ── Map section ── */
     #map-section {
       position: relative;
-      height: 300px;
+      height: 491px;
       flex-shrink: 0;
       overflow: hidden;
       border-bottom: 1px solid #bbb;
@@ -396,8 +396,7 @@
       font-size: 14px;
     }
   </style>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM"></script>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
@@ -422,10 +421,6 @@
 <!-- Map section -->
 <div id="map-section" style="display:none">
   <div id="map" style="width:100%;height:100%;"></div>
-  <div class="map-sat-toggle">
-    <button onclick="setMapView(this)">Map</button>
-    <button class="active" onclick="setMapView(this)">Satellite</button>
-  </div>
 </div>
 
 <!-- Filters bar -->
@@ -505,21 +500,19 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
   );
 
-  var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
   var map = null, mapMarkers = [], mapInitialized = false;
 
   function initMapIfNeeded() {
     if (mapInitialized) return;
     mapInitialized = true;
-    mapboxgl.accessToken = MAPBOX_TOKEN;
-    map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/satellite-streets-v12',
-      center: [-97.033, 32.725],
-      zoom: 9
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: { lat: 32.725, lng: -97.033 },
+      zoom: 9,
+      mapTypeId: 'satellite',
+      mapTypeControl: true,
+      streetViewControl: false,
+      fullscreenControl: true
     });
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.addControl(new mapboxgl.FullscreenControl(), 'bottom-right');
   }
 
   var mapVisible = false;
@@ -529,17 +522,10 @@
     document.getElementById('map-toggle-btn').textContent = mapVisible ? 'Hide Map' : 'Show Map';
     if (mapVisible) {
       initMapIfNeeded();
-      setTimeout(function() { if (map) { map.resize(); loadMarkers(); } }, 100);
-    }
-  }
-
-  function setMapView(btn) {
-    btn.parentElement.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    if (map) {
-      map.setStyle(btn.textContent.trim() === 'Satellite'
-        ? 'mapbox://styles/mapbox/satellite-streets-v12'
-        : 'mapbox://styles/mapbox/streets-v12');
+      setTimeout(function() {
+        google.maps.event.trigger(map, 'resize');
+        loadMarkers();
+      }, 100);
     }
   }
 
@@ -723,38 +709,46 @@
     loadLeads();
   }
 
-  function createPinEl(name) {
-    var el = document.createElement('div');
-    el.title = name || '';
-    el.style.cssText = 'cursor:pointer;width:32px;height:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));';
-    el.innerHTML =
-      '<svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg">' +
-      '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" ' +
-      'fill="#e07820" stroke="#ffffff" stroke-width="1.2"/>' +
-      '<circle cx="12" cy="9" r="2.8" fill="#ffffff"/></svg>';
-    return el;
-  }
-
   function loadMarkers() {
-    mapMarkers.forEach(function(m) { m.remove(); });
+    mapMarkers.forEach(function(m) { m.setMap(null); });
     mapMarkers = [];
+    if (!map) return;
     var checkedIds = [];
     document.querySelectorAll('#lead-tbody tr').forEach(function(tr) {
       var cb = tr.querySelector('input[type="checkbox"]');
       if (cb && cb.checked) checkedIds.push(tr.dataset.id);
     });
+    var bounds = new google.maps.LatLngBounds();
     checkedIds.forEach(function(id) {
       var r = leads.find(function(l) { return String(l.id) === id; });
       if (!r || !r.lat || !r.lng) return;
-      var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        '<strong>' + (r.name || '') + '</strong><br>' + (r.address || '') + ' ' + (r.city || '')
-      );
-      var marker = new mapboxgl.Marker({ element: createPinEl(r.name) })
-        .setLngLat([r.lng, r.lat])
-        .setPopup(popup)
-        .addTo(map);
+      var pos = { lat: parseFloat(r.lat), lng: parseFloat(r.lng) };
+      var marker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        title: r.name || r.address || '',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: '#e07820',
+          fillOpacity: 1,
+          strokeColor: '#fff',
+          strokeWeight: 2
+        }
+      });
+      var infoWindow = new google.maps.InfoWindow({
+        content: '<strong>' + (r.name || '') + '</strong><br>' + (r.address || '') + ' ' + (r.city || '')
+      });
+      marker.addListener('click', function() { infoWindow.open(map, marker); });
       mapMarkers.push(marker);
+      bounds.extend(pos);
     });
+    if (mapMarkers.length === 1) {
+      map.setCenter(mapMarkers[0].getPosition());
+      map.setZoom(16);
+    } else if (mapMarkers.length > 1) {
+      map.fitBounds(bounds);
+    }
   }
 
   loadLeads();

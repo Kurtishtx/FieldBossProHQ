@@ -32,32 +32,33 @@
     /* ── Split buttons ── */
     .btn-group { display: flex; }
     .btn-main-outline {
-      background: #fff; color: #e07820; border: 1px solid #e07820;
-      padding: 7px 18px; font-size: 13px; font-weight: 600;
-      cursor: pointer; border-radius: 4px 0 0 4px; border-right: none;
+      background: #fff; color: #e07820; border: 3px solid #e07820;
+      padding: 7px 18px; font-size: 13.5px; font-weight: 700;
+      cursor: pointer; border-radius: 6px 0 0 6px; border-right: none;
     }
     .btn-main-outline:hover { background: #fff5ec; }
     .btn-caret-outline {
-      background: #fff; color: #e07820; border: 1px solid #e07820;
-      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 4px 4px 0;
+      background: #fff; color: #e07820; border: 3px solid #e07820;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 6px 6px 0;
     }
     .btn-caret-outline:hover { background: #fff5ec; }
     .btn-main {
-      background: #e07820; color: #fff; border: none;
-      padding: 7px 18px; font-size: 13px; font-weight: 600;
-      border-right: 1px solid rgba(255,255,255,.35);
-      cursor: pointer; border-radius: 4px 0 0 4px;
+      background: #e07820; color: #fff;
+      border: 3px solid #111; border-right: 1px solid rgba(255,255,255,.35);
+      padding: 7px 18px; font-size: 13.5px; font-weight: 700;
+      cursor: pointer; border-radius: 6px 0 0 6px;
     }
     .btn-main:hover { background: #c96a10; }
     .btn-caret {
-      background: #e07820; color: #fff; border: none;
-      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 4px 4px 0;
+      background: #e07820; color: #fff;
+      border: 3px solid #111; border-left: none;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 6px 6px 0;
     }
     .btn-caret:hover { background: #c96a10; }
 
     /* ── Dropdown ── */
     .dropdown { position: relative; display: inline-flex; }
-    .dropdown + .dropdown { margin-left: 6px; }
+    .dropdown + .dropdown { margin-left: 0; }
     .dropdown-menu {
       display: none; position: absolute; top: 100%; right: 0; z-index: 200;
       background: #fff; border: 1px solid #ccc;
@@ -296,8 +297,11 @@
     #pkg-modal-rows input[type="number"]::-webkit-outer-spin-button,
     #pkg-modal-rows input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     #pkg-modal-rows input[type="number"] { -moz-appearance: textfield; }
+    .btn-map-toggle { background:#111; border:3px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
+    .btn-map-toggle:hover { background:#222; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM"></script>
 </head>
 <body>
 
@@ -375,6 +379,7 @@
     <a class="edit-link" href="#" onclick="openPropEditModal(event)">Edit</a>
   </div>
   <div style="display:flex; gap:6px; align-items:center;">
+    <button class="btn-map-toggle" id="map-toggle-btn" onclick="togglePropMap()" style="display:none;">Show Map</button>
     <div class="dropdown">
       <div class="btn-group">
         <button class="btn-main-outline">Send</button>
@@ -434,6 +439,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Google Map -->
+  <div id="prop-map" style="width:100%; height:355px; background:#e8e8e8; margin-bottom:8px; display:none;"></div>
 
   <!-- Tags -->
   <div class="tags-row" id="tags-row">
@@ -572,6 +580,10 @@
           <span class="dl">Mosquito Control Sq Ft</span>
           <input type="text" class="dv-text at-inp" data-at-key="mosquito" placeholder="—"/>
         </div>
+        <div class="details-cell">
+          <span class="dl">Mosquito Control Linear Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="mosquito_linear_ft" placeholder="—"/>
+        </div>
       </div>
       <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
     </div>
@@ -632,6 +644,41 @@
     document.getElementById('display-addr2').textContent   = prop.addr2 || '';
     document.getElementById('display-city').textContent    = cityLine;
     document.getElementById('display-mapcode').textContent = prop.map_code || '';
+
+    var _propLat = prop.lat ? parseFloat(prop.lat) : null;
+    var _propLng = prop.lng ? parseFloat(prop.lng) : null;
+    var _propMapInit = false;
+
+    if (_propLat && _propLng) {
+      document.getElementById('map-toggle-btn').style.display = 'inline-block';
+    } else {
+      document.getElementById('map-toggle-btn').style.display = 'none';
+    }
+
+    window.togglePropMap = function() {
+      var mapEl = document.getElementById('prop-map');
+      var btn = document.getElementById('map-toggle-btn');
+      var showing = mapEl.style.display !== 'none';
+      if (showing) {
+        mapEl.style.display = 'none';
+        btn.textContent = 'Show Map';
+      } else {
+        mapEl.style.display = 'block';
+        btn.textContent = 'Hide Map';
+        if (!_propMapInit && _propLat && _propLng) {
+          _propMapInit = true;
+          var propMap = new google.maps.Map(mapEl, {
+            center: { lat: _propLat, lng: _propLng },
+            zoom: 17,
+            mapTypeId: 'satellite',
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false
+          });
+          new google.maps.Marker({ position: { lat: _propLat, lng: _propLng }, map: propMap });
+        }
+      }
+    };
     document.getElementById('display-state').textContent   = prop.state || '';
 
     if (prop.created_at) {
@@ -868,7 +915,7 @@
     }
 
     var query = sb.from('Services').select('*').eq('property_id', propId);
-    if (filter === 'upcoming') query = query.or('status.eq.scheduled,dispatched.eq.false,dispatched.is.null').neq('status','canceled').neq('status','skipped');
+    if (filter === 'upcoming') query = query.or('status.is.null,status.eq.pending,status.eq.scheduled');
     if (filter === 'history')  query = query.eq('dispatched', true);
     var { data: recs } = await query.order('scheduled_date', { ascending: true });
     recs = recs || [];

@@ -273,6 +273,10 @@
       <div class="cf-label">Mosquito Control Sq Ft</div>
       <input class="cf-input" type="text" id="area-mosquito" placeholder=""/>
     </div>
+    <div class="cf-row">
+      <div class="cf-label">Mosquito Control Linear Ft</div>
+      <input class="cf-input" type="text" id="area-mosquito-linear" placeholder=""/>
+    </div>
   </div>
 
   <div class="modal-footer">
@@ -366,7 +370,8 @@
       set('area-lawn-care',   at.lawn_care);
       set('area-lawn-insect', at.lawn_insect);
       set('area-flower-beds', at.flower_beds);
-      set('area-mosquito',    at.mosquito);
+      set('area-mosquito',         at.mosquito);
+      set('area-mosquito-linear',  at.mosquito_linear_ft);
 
       await loadClientOptions(p.customer_id);
       await loadSalesTaxOptions(p.sales_tax_id || null);
@@ -468,7 +473,8 @@
       lawn_care:   document.getElementById('area-lawn-care').value.trim(),
       lawn_insect: document.getElementById('area-lawn-insect').value.trim(),
       flower_beds: document.getElementById('area-flower-beds').value.trim(),
-      mosquito:    document.getElementById('area-mosquito').value.trim()
+      mosquito:           document.getElementById('area-mosquito').value.trim(),
+      mosquito_linear_ft: document.getElementById('area-mosquito-linear').value.trim()
     };
 
     var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
