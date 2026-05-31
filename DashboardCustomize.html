@@ -131,6 +131,8 @@
     <div class="qa-row"><span class="qa-name"><span class="qicon">&#128276;</span> Alerts</span><label class="switch"><input type="checkbox" id="sqa-alerts"/><span class="slider"></span></label><label class="switch"><input type="checkbox" id="qa-alerts"/><span class="slider"></span></label></div>
     <div class="qa-row"><span class="qa-name"><span class="qicon">&#128172;</span> Texts</span><label class="switch"><input type="checkbox" id="sqa-texts"/><span class="slider"></span></label><label class="switch"><input type="checkbox" id="qa-texts"/><span class="slider"></span></label></div>
     <div class="qa-row"><span class="qa-name"><span class="qicon">&#9879;</span> Chemical Tracking</span><label class="switch"><input type="checkbox" id="sqa-chemtracking"/><span class="slider"></span></label><label class="switch"><input type="checkbox" id="qa-chemtracking"/><span class="slider"></span></label></div>
+    <div class="qa-row"><span class="qa-name"><span class="qicon">&#128119;</span> Employee List</span><label class="switch"><input type="checkbox" id="sqa-employeelist"/><span class="slider"></span></label><label class="switch"><input type="checkbox" id="qa-employeelist"/><span class="slider"></span></label></div>
+    <div class="qa-row"><span class="qa-name"><span class="qicon">&#128336;</span> Employee Hours</span><label class="switch"><input type="checkbox" id="sqa-employeehours"/><span class="slider"></span></label><label class="switch"><input type="checkbox" id="qa-employeehours"/><span class="slider"></span></label></div>
   </div>
 
   <!-- Stat Cards -->
@@ -208,8 +210,8 @@
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   var STAT_KEYS = ['customers','properties','leads','revenue_today','revenue_week','revenue_month','revenue_year','owed','services_week','services_month','services_year','props_serviced_week','props_serviced_month','props_serviced_year'];
-  var QA_KEYS   = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking'];
-  var SQA_KEYS  = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking'];
+  var QA_KEYS   = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking','employeelist','employeehours'];
+  var SQA_KEYS  = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking','employeelist','employeehours'];
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();

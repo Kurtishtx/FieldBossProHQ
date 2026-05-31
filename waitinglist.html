@@ -379,12 +379,6 @@
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
-      <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign To</label>
-      <select id="sched-assign" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
-        <option value="">— assign later —</option>
-      </select>
-    </div>
-    <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
       <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign to Trucks</label>
       <select id="sched-truck" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
         <option value="">— no truck —</option>
@@ -1604,10 +1598,9 @@
     var ids = [];
     document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
     if (!ids.length) { closeSchedModal(); return; }
-    var assignTo = document.getElementById('sched-assign').value || null;
     var truckId  = document.getElementById('sched-truck').value  || null;
     var updates = ids.map(function(id) {
-      return sb.from('Services').update({ scheduled_date: schedSelDate, dispatched: true, status: 'scheduled', assigned_to: assignTo, truck_id: truckId }).eq('id', id);
+      return sb.from('Services').update({ scheduled_date: schedSelDate, dispatched: true, status: 'scheduled', truck_id: truckId }).eq('id', id);
     });
     await Promise.all(updates);
     sendAlert('scheduled', ids);

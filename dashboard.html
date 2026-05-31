@@ -560,6 +560,12 @@
       <div class="quick-card" id="qa-card-chemtracking" onclick="loadPage('chemtracking')" style="display:none">
         <div class="qicon">&#9879;</div><div class="qname">Chemical Tracking</div>
       </div>
+      <div class="quick-card" id="qa-card-employeelist" onclick="loadPage('employeelist')" style="display:none">
+        <div class="qicon">&#128119;</div><div class="qname">Employee List</div>
+      </div>
+      <div class="quick-card" id="qa-card-employeehours" onclick="loadPage('employeehours')" style="display:none">
+        <div class="qicon">&#128336;</div><div class="qname">Employee Hours</div>
+      </div>
     </div>
     </div><!-- /qa-section -->
     <div class="section-title" style="margin-top:28px">Overview</div>
@@ -749,14 +755,19 @@
 
   window.loadDashboardSettings = async function loadDashboardSettings() {
     var { data: authData } = await sbMain.auth.getUser();
-    if (!authData || !authData.user) return;
-    var { data } = await sbMain.from('dashboard_settings').select('*').eq('user_id', authData.user.id).single();
+    var uid = authData && authData.user ? authData.user.id : null;
+    var data = null;
+    if (uid) {
+      var { data: settingsData } = await sbMain.from('dashboard_settings').select('*').eq('user_id', uid).single();
+      data = settingsData;
+    }
 
     var allStats = ['customers','properties','leads','revenue-today','revenue-week','revenue-month','revenue-year','owed','services-week','services-month','services-year','props-serviced-week','props-serviced-month','props-serviced-year'];
-    var allQA = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking'];
+    var allQA = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking','employeelist','employeehours'];
 
     // Always load sidebar quick access regardless of dashboard_settings
-    var { data: sqaPref } = await sbMain.from('user_preferences').select('pref_value').eq('user_id', authData.user.id).eq('pref_key', 'sidebar_qa').single();
+    var sqaPref = null;
+    if (uid) { var { data: sqaPrefData } = await sbMain.from('user_preferences').select('pref_value').eq('user_id', uid).eq('pref_key', 'sidebar_qa').single(); sqaPref = sqaPrefData; }
     var sqaEnabled = false, sqa = [];
     if (sqaPref && sqaPref.pref_value) {
       try { var sqaData = JSON.parse(sqaPref.pref_value); sqaEnabled = sqaData.enabled === true; sqa = sqaData.items || []; } catch(e) {}
@@ -776,7 +787,9 @@
       payments:     { icon: '&#128178;', label: 'Payments' },
       alerts:       { icon: '&#128276;', label: 'Alerts' },
       texts:        { icon: '&#128172;', label: 'Texts' },
-      chemtracking: { icon: '&#9879;',   label: 'Chemical Tracking' },
+      chemtracking:  { icon: '&#9879;',   label: 'Chemical Tracking' },
+      employeelist:  { icon: '&#128119;', label: 'Employee List' },
+      employeehours: { icon: '&#128336;', label: 'Employee Hours' },
     };
     if (sqaContainer) {
       sqaContainer.innerHTML = '';
@@ -865,6 +878,9 @@
     cancelreasons:  'CancellationReasons.html',
     trucks:         'Trucks.html',
     trucksadd:      'TrucksAdd.html',
+    employeelist:   'EmployeeList.html',
+    employeeadd:    'EmployeeAdd.html',
+    employeehours:  'EmployeeHours.html',
     documents:          'Documents.html',
     documentsadd:       'DocumentsAdd.html',
     documentsettings:   'DocumentSettings.html',
@@ -911,6 +927,9 @@
     cancelreasons:  'Cancellation Reasons',
     trucks:         'Trucks',
     trucksadd:      'Trucks',
+    employeelist:   'Employees',
+    employeeadd:    'Employees',
+    employeehours:  'Employee Hours',
     documents:          'Documents',
     documentsadd:       'Invoice Email Template',
     documentsettings:   'Document Settings',

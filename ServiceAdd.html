@@ -178,7 +178,6 @@
           <th style="width:22px;"></th>
           <th style="min-width:200px;">Service</th>
           <th style="width:140px;">Start Date</th>
-          <th style="min-width:180px;">Assigned To</th>
           <th style="width:70px;">Qty</th>
           <th style="width:100px;">Rate</th>
           <th style="width:150px;">Discount</th>
@@ -411,7 +410,6 @@
       '<td><button class="del-btn" onclick="removeRow(' + idx + ')">&#10005;</button></td>' +
       '<td><select class="svc-sel" onchange="calcTotals()" style="width:100%;">' + serviceOptions + '</select></td>' +
       '<td><input type="date" value="' + today + '" style="width:100%;"/></td>' +
-      '<td><select style="width:100%;"><option value="">Select Resource(s)</option></select></td>' +
       '<td><input type="number" class="qty-inp" value="1" step="1" min="0" oninput="calcTotals(this)" style="width:100%; text-align:right;"/></td>' +
       '<td><input type="text" class="rate-inp" value="0.00" oninput="calcTotals(this)" style="width:100%; text-align:right;"/></td>' +
       '<td><select class="disc-sel" onchange="calcTotals(this)" style="width:100%;">' + discountOptions + '</select></td>' +
@@ -452,11 +450,9 @@
     var totalAmount = 0;
     var firstSvcName = '';
     var firstStartDate = '';
-    var firstAssigned = '';
     document.querySelectorAll('#svc-rows tr').forEach(function(tr, i) {
       var svcSel  = tr.querySelector('.svc-sel');
       var dateInp = tr.querySelector('input[type="date"]');
-      var resSel  = tr.querySelectorAll('select')[1];
       var qtyInp  = tr.querySelector('.qty-inp');
       var rateInp = tr.querySelector('.rate-inp');
       var discSel = tr.querySelector('.disc-sel');
@@ -466,8 +462,8 @@
       var lineTotal = qty * rate * (1 - pct / 100);
       totalAmount += lineTotal;
       var svcName = svcSel ? svcSel.options[svcSel.selectedIndex].textContent : '';
-      if (i === 0) { firstSvcName = svcName; firstStartDate = dateInp ? dateInp.value : ''; firstAssigned = resSel ? resSel.value : ''; }
-      rows.push({ service_name: svcName, service_id: svcSel ? svcSel.value : '', start_date: dateInp ? dateInp.value : '', assigned_to: resSel ? resSel.value : '', qty: qty, rate: rate, discount_pct: pct, total: lineTotal });
+      if (i === 0) { firstSvcName = svcName; firstStartDate = dateInp ? dateInp.value : ''; }
+      rows.push({ service_name: svcName, service_id: svcSel ? svcSel.value : '', start_date: dateInp ? dateInp.value : '', qty: qty, rate: rate, discount_pct: pct, total: lineTotal });
     });
 
     var { data: sessionData } = await sb.auth.getSession();
@@ -483,7 +479,6 @@
       job_type:       'one_time',
       service:        firstSvcName,
       scheduled_date: firstStartDate || null,
-      assigned_to:    firstAssigned,
       amount:         totalAmount,
       dispatched:     false,
       status:         'pending',
