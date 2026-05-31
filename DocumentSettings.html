@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Document Settings</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; background: #f0f0f0; color: #333; }
+
+    /* ── Step 1: Settings form ── */
+    #step-settings { display: block; }
+    .page-title { font-size: 20px; font-weight: 800; color: #222; padding: 24px 28px 0; }
+    .form-card { background: #fff; margin: 20px 0 0 0; }
+    .form-row {
+      display: flex; align-items: center;
+      padding: 18px 28px; border-bottom: 1px solid #e8e8e8; gap: 20px;
+    }
+    .form-row label { font-size: 15px; color: #555; width: 200px; flex-shrink: 0; }
+    .form-row input, .form-row select {
+      flex: 1; border: none; border-bottom: 1px solid #ccc;
+      padding: 6px 0; font-size: 15px; font-family: inherit;
+      outline: none; background: transparent; color: #222;
+    }
+    .form-row input:focus { border-bottom-color: #444; }
+    .form-row select { border: 1px solid #ccc; padding: 8px 10px; border-radius: 2px; background: #fff; cursor: pointer; }
+    .toggle-row { display: flex; flex-direction: column; gap: 16px; padding: 18px 28px; border-bottom: 1px solid #e8e8e8; }
+    .toggle-item { display: flex; align-items: center; gap: 14px; }
+    .toggle-label { font-size: 15px; font-weight: 700; color: #222; flex: 1; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track { position: absolute; inset: 0; background: #ccc; border-radius: 24px; cursor: pointer; transition: background .2s; }
+    .toggle-track::after { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform .2s; }
+    .toggle-switch input:checked + .toggle-track { background: #3d8f5f; }
+    .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+    .footer { padding: 24px 28px; background: #f8f8f8; border-top: 1px solid #eee; }
+    .btn-save { background: #3d8f5f; color: #fff; border: none; padding: 12px 36px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #2f7049; }
+    .hidden { display: none; }
+
+    /* ── Step 2: Template picker ── */
+    #step-templates { display: none; padding: 32px 28px; }
+    #step-templates h2 { font-size: 24px; font-weight: 800; color: #111; margin-bottom: 28px; }
+    .tpl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .tpl-card { display: flex; flex-direction: column; border: 2px solid #d0d0d0; border-radius: 6px; overflow: hidden; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+    .tpl-card:hover { border-color: #2272c3; box-shadow: 0 0 0 3px rgba(34,114,195,.12); }
+    .tpl-preview { flex: 1; background: #f9f9f9; padding: 14px; font-size: 9.5px; color: #555; line-height: 1.5; min-height: 320px; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; }
+    .tp-header { background: #e8f0fb; padding: 7px; text-align: center; color: #2272c3; font-weight: 700; font-size: 10px; margin-bottom: 10px; }
+    .tp-logo { background: #e8f4ed; padding: 6px 10px; font-size: 10px; font-weight: 700; color: #27a567; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+    .tp-logo::before { content: '🌿'; font-size: 13px; }
+    .tp-body { padding: 0 2px; }
+    .tp-inv-num { font-size: 11px; font-weight: 700; color: #2272c3; margin: 7px 0 3px; }
+    .tp-due { background: #e8f0fb; padding: 5px; text-align: center; margin: 7px 0; font-size: 9px; color: #666; }
+    .tp-total { font-size: 17px; font-weight: 800; color: #111; text-align: center; margin: 5px 0; }
+    .tp-btn { background: #2272c3; color: #fff; text-align: center; padding: 4px; border-radius: 3px; font-size: 8px; font-weight: 700; margin: 6px auto; width: 56px; }
+    .tp-btn-green { background: #3d8f5f; }
+    .tp-footer { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 7px; text-align: center; font-size: 8.5px; color: #888; line-height: 1.8; }
+    .tp-blank-label { font-size: 28px; font-weight: 800; color: #111; padding: 60px 16px; text-align: left; }
+    .tpl-use-btn { background: #3d8f5f; color: #fff; border: none; width: 100%; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .tpl-use-btn:hover { background: #2f7049; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Step 1: Settings -->
+<div id="step-settings">
+  <div class="page-title">Document Settings</div>
+  <div class="form-card">
+    <div class="form-row">
+      <label>Select Document Type</label>
+      <select id="doc-type" onchange="onTypeChange(this.value)">
+        <option value="">Select Document Type</option>
+        <option>Blank</option>
+        <option>Estimate</option>
+        <option>Invoice</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Name</label>
+      <input type="text" id="doc-name" placeholder=""/>
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <input type="text" id="doc-desc" placeholder=""/>
+    </div>
+    <div class="form-row">
+      <label>Subject</label>
+      <input type="text" id="doc-subject" placeholder=""/>
+    </div>
+    <div class="toggle-row hidden" id="extra-fields">
+      <div class="toggle-item">
+        <span class="toggle-label">Include PDF In Email</span>
+        <label class="toggle-switch"><input type="checkbox" id="doc-include-pdf"/><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-item">
+        <span class="toggle-label" id="default-label">Default Invoice Document?</span>
+        <label class="toggle-switch"><input type="checkbox" id="doc-is-default"/><span class="toggle-track"></span></label>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="btn-save" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2: Template picker -->
+<div id="step-templates">
+  <h2>Select a starting point:</h2>
+  <div class="tpl-grid">
+
+    <!-- Template 1: Simple -->
+    <div class="tpl-card">
+      <div class="tpl-preview">
+        <div class="tp-header">[companyname]</div>
+        <div class="tp-body">
+          <div>Dear [clientfname],</div>
+          <div style="margin:5px 0;">Your invoice is attached. Please pay the invoice at your earliest convenience. Thank you for your business. We appreciate it very much.</div>
+          <div>Sincerely,<br>[companyname]</div>
+          <div class="tp-inv-num">INVOICE #[invoicenumber]</div>
+          <div class="tp-due">DUE [invoiceduedate]</div>
+          <div class="tp-total">[invoicetotal]</div>
+          <div class="tp-btn" style="margin:5px auto;">PAY NOW</div>
+        </div>
+        <div class="tp-footer">[companyname]<br>[companyaddress]<br>[companycity], [companystate] [companyzip]<br>[companyphonenumber] | [companyemail]</div>
+      </div>
+      <button class="tpl-use-btn" onclick="useTemplate('simple')">Use Template</button>
+    </div>
+
+    <!-- Template 2: Logo + Detail -->
+    <div class="tpl-card">
+      <div class="tpl-preview">
+        <div class="tp-logo">Drop Your Logo Here</div>
+        <div class="tp-body">
+          <div>[clientname]<br>[billingaddress1]<br>[billingcity], [billingstate] [billingzip]</div>
+          <div style="margin:7px 0;">Dear [clientfname],</div>
+          <div style="margin-bottom:5px;">Your invoice is attached. Please pay the invoice at your earliest convenience. Thank you for your business.</div>
+          <div>Sincerely,<br>[companyname]</div>
+          <div class="tp-inv-num">INVOICE #[invoicenumber]</div>
+          <div style="font-size:8.5px;margin-bottom:4px;">Invoice Date [dateofinvoice]<br>Due Date [invoiceduedate]</div>
+          <div class="tp-btn" style="margin:4px auto;">Pay Now</div>
+          <div style="font-size:8.5px;margin-top:5px;">[Example_Grid_1]</div>
+          <div class="tp-inv-num">[invoicetotal]</div>
+        </div>
+      </div>
+      <button class="tpl-use-btn" onclick="useTemplate('logo-detail')">Use Template</button>
+    </div>
+
+    <!-- Template 3: Logo + Compact -->
+    <div class="tpl-card">
+      <div class="tpl-preview">
+        <div class="tp-logo">Drop Your Logo Here</div>
+        <div class="tp-body">
+          <div class="tp-inv-num">INVOICE #[invoicenumber]</div>
+          <div style="font-size:11px;font-weight:700;margin:6px 0;">Hello [clientfname]</div>
+          <div style="margin-bottom:5px;">Your invoice is ready to view and pay online.</div>
+          <div style="font-size:8.5px;margin-bottom:5px;">[Example_Grid_1]</div>
+          <div class="tp-btn tp-btn-green" style="margin:5px auto;width:48px;">PAY NOW</div>
+          <div style="font-size:10px;font-weight:700;text-align:center;margin:7px 0;">TOTAL [invoicetotal]</div>
+          <div style="font-size:8.5px;color:#888;text-align:center;margin-top:8px;">[companywebsite]</div>
+        </div>
+        <div class="tp-footer">Contact us at [companyphonenumber] | [companyemail]</div>
+      </div>
+      <button class="tpl-use-btn" onclick="useTemplate('logo-compact')">Use Template</button>
+    </div>
+
+    <!-- Template 4: Blank -->
+    <div class="tpl-card">
+      <div class="tpl-preview">
+        <div class="tp-blank-label">Blank</div>
+      </div>
+      <button class="tpl-use-btn" onclick="useTemplate('blank')">Use Template</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var newDocId = null;
+
+  var TEMPLATES = {
+    'simple': [
+      { type:'para', html:'<p contenteditable="true" style="text-align:center;font-weight:700;font-size:15px;">[companyname]</p>' },
+      { type:'para', html:'<p contenteditable="true">Dear [clientfname],</p>' },
+      { type:'para', html:'<p contenteditable="true">Your invoice is attached. Please pay the invoice at your earliest convenience. Thank you for your business. We appreciate it very much.</p>' },
+      { type:'para', html:'<p contenteditable="true">Sincerely,<br>[companyname]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="font-weight:700;">INVOICE #[invoicenumber]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="text-align:center;background:#e8f0fb;padding:8px;">DUE [invoiceduedate]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="text-align:center;font-size:28px;font-weight:800;">[invoicetotal]</p>' },
+      { type:'button', html:'<div class="email-btn" contenteditable="true">PAY NOW</div>' },
+      { type:'divider', html:'<hr/>' },
+      { type:'para', html:'<p contenteditable="true" style="text-align:center;font-size:12px;color:#888;">[companyname]<br>[companyaddress]<br>[companycity], [companystate] [companyzip]<br>[companyphonenumber] | [companyemail]</p>' }
+    ],
+    'logo-detail': [
+      { type:'image', html:'<div class="img-ph">Drop Your Logo Here</div>' },
+      { type:'para', html:'<p contenteditable="true">[clientname]<br>[billingaddress1]<br>[billingcity], [billingstate] [billingzip]</p>' },
+      { type:'para', html:'<p contenteditable="true">Dear [clientfname],</p>' },
+      { type:'para', html:'<p contenteditable="true">Your invoice is attached. Please pay the invoice at your earliest convenience. Thank you for your business. We appreciate it very much.</p>' },
+      { type:'para', html:'<p contenteditable="true">Sincerely,<br>[companyname]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="font-weight:700;color:#2272c3;font-size:16px;">INVOICE #[invoicenumber]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="font-size:13px;">Invoice Date [dateofinvoice]<br>Due Date [invoiceduedate]</p>' },
+      { type:'button', html:'<div class="email-btn" contenteditable="true">Pay Now</div>' },
+      { type:'para', html:'<p contenteditable="true">[Example_Grid_1]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="font-weight:700;color:#2272c3;font-size:20px;">[invoicetotal]</p>' }
+    ],
+    'logo-compact': [
+      { type:'image', html:'<div class="img-ph">Drop Your Logo Here</div>' },
+      { type:'para', html:'<p contenteditable="true" style="font-weight:700;font-size:16px;">INVOICE #[invoicenumber]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="font-size:15px;font-weight:700;">Hello [clientfname]</p>' },
+      { type:'para', html:'<p contenteditable="true">Your invoice is ready to view and pay online.</p>' },
+      { type:'para', html:'<p contenteditable="true">[Example_Grid_1]</p>' },
+      { type:'button', html:'<div class="email-btn" contenteditable="true" style="background:#3d8f5f;">PAY NOW</div>' },
+      { type:'para', html:'<p contenteditable="true" style="text-align:center;font-weight:700;font-size:14px;">TOTAL [invoicetotal]</p>' },
+      { type:'divider', html:'<hr/>' },
+      { type:'para', html:'<p contenteditable="true" style="text-align:center;font-size:12px;color:#888;">[companywebsite]<br>Contact us at [companyphonenumber] | [companyemail]</p>' }
+    ],
+    'blank': []
+  };
+
+  function onTypeChange(val) {
+    var show = val === 'Invoice' || val === 'Estimate';
+    document.getElementById('extra-fields').classList.toggle('hidden', !show);
+    if (val === 'Invoice') document.getElementById('default-label').textContent = 'Default Invoice Document?';
+    if (val === 'Estimate') document.getElementById('default-label').textContent = 'Default Estimate Document?';
+  }
+
+  async function saveSettings() {
+    var type = document.getElementById('doc-type').value;
+    var name = document.getElementById('doc-name').value.trim();
+    if (!name) { alert('Please enter a document name.'); document.getElementById('doc-name').focus(); return; }
+
+    var payload = {
+      doc_type:    type,
+      name:        name,
+      description: document.getElementById('doc-desc').value.trim(),
+      subject:     document.getElementById('doc-subject').value.trim(),
+      blocks:      [],
+      active:      true
+    };
+
+    var { data, error } = await sb.from('documents').insert(payload).select().single();
+    if (error) { alert('Error: ' + error.message); return; }
+
+    newDocId = data.id;
+    document.getElementById('step-settings').style.display = 'none';
+    document.getElementById('step-templates').style.display = 'block';
+  }
+
+  async function useTemplate(key) {
+    var blocks = TEMPLATES[key] || [];
+    var { error } = await sb.from('documents').update({ blocks: blocks }).eq('id', newDocId);
+    if (error) { alert('Error saving template: ' + error.message); return; }
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('documentsadd?id=' + newDocId);
+    }
+  }
+</script>
+</body>
+</html>
+

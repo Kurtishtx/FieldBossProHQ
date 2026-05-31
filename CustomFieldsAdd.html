@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Custom Field</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: #ebebeb; height: 100%; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 100%;
+      padding: 30px 16px 40px;
+      overflow-y: auto;
+    }
+
+    .modal {
+      background: #fff;
+      border: 1px solid #999;
+      border-radius: 4px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35);
+      width: 100%;
+      max-width: 620px;
+    }
+
+    /* ── Header ── */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid #eee;
+    }
+    .modal-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111;
+    }
+    .close-btn {
+      background: none;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      width: 26px;
+      height: 26px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    /* ── Section badge ── */
+    .section-badge {
+      display: inline-block;
+      background: #3a3a3a;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 4px;
+      margin: 18px 20px 14px;
+    }
+
+    /* ── Form rows ── */
+    .form-body { padding: 0 20px 10px; }
+
+    .fr {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+    .fr label {
+      width: 130px;
+      min-width: 130px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #333;
+    }
+    .fr label.light { font-weight: 400; color: #555; }
+
+    .fr input[type="text"],
+    .fr input[type="number"] {
+      flex: 1;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      padding: 6px 10px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #222;
+    }
+    .fr input[type="text"]:focus,
+    .fr input[type="number"]:focus {
+      outline: none;
+      border-color: #f5c800;
+      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    }
+
+    .fr select {
+      flex: 1;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      padding: 6px 10px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #222;
+      background: #fff;
+      cursor: pointer;
+    }
+    .fr select:focus {
+      outline: none;
+      border-color: #f5c800;
+      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    }
+
+    .fr input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+
+    /* ── Footer ── */
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px 20px;
+      border-top: 1px solid #eee;
+      margin-top: 6px;
+    }
+    .btn-save {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 9px 28px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a15; }
+    .btn-save-new {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 9px 22px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-save-new:hover { background: #c96a15; }
+    .btn-cancel {
+      background: none;
+      border: none;
+      color: #444;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .btn-cancel:hover { color: #111; }
+    .or-text { font-size: 13px; color: #666; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="modal">
+
+  <div class="modal-header">
+    <h1 id="page-title">Add Custom Field</h1>
+    <button class="close-btn" onclick="cancel()">&#10007;</button>
+  </div>
+
+  <div class="section-badge">Details</div>
+
+  <div class="form-body">
+    <div class="fr">
+      <label for="field-name">Name</label>
+      <input type="text" id="field-name" autofocus/>
+    </div>
+    <div class="fr">
+      <label for="field-desc">Description</label>
+      <input type="text" id="field-desc"/>
+    </div>
+    <div class="fr">
+      <label for="field-order">Display Order</label>
+      <input type="number" id="field-order" value="0" min="0" style="max-width:120px;"/>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-save" onclick="saveField(false)">Save</button>
+    <button class="btn-save-new" onclick="saveField(true)">Save &amp; New</button>
+    <span class="or-text">or</span>
+    <button class="btn-cancel" onclick="cancel()">Cancel</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var editId = new URLSearchParams(window.location.search).get('id');
+
+  async function init() {
+    if (!editId) return;
+    document.getElementById('page-title').textContent = 'Edit Custom Field';
+    var { data } = await sb.from('custom_fields').select('*').eq('id', editId).single();
+    if (!data) return;
+    document.getElementById('field-name').value  = data.name || '';
+    document.getElementById('field-desc').value  = data.description || '';
+    document.getElementById('field-order').value = data.display_order !== undefined ? data.display_order : 0;
+    document.getElementById('field-assoc').value = data.applies_to || 'Customer';
+  }
+  init();
+
+  async function saveField(andNew) {
+    var name = document.getElementById('field-name').value.trim();
+    if (!name) { alert('Please enter a field name.'); document.getElementById('field-name').focus(); return; }
+
+    var payload = {
+      name:          name,
+      description:   document.getElementById('field-desc').value.trim(),
+      applies_to:    'All',
+      display_order: parseInt(document.getElementById('field-order').value) || 0,
+      active:        true,
+      key:           name.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    };
+
+    var error;
+    if (editId) {
+      ({ error } = await sb.from('custom_fields').update(payload).eq('id', editId));
+    } else {
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      payload.user_id = uid;
+      ({ error } = await sb.from('custom_fields').insert(payload));
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+
+    if (andNew) {
+      editId = null;
+      document.getElementById('page-title').textContent = 'Add Custom Field';
+      document.getElementById('field-name').value    = '';
+      document.getElementById('field-desc').value    = '';
+      document.getElementById('field-assoc').value   = 'Customer';
+      document.getElementById('field-type').value    = 'Text';
+      document.getElementById('field-order').value   = '0';
+      document.getElementById('field-print').checked  = false;
+      document.getElementById('field-export').checked = false;
+      document.getElementById('field-name').focus();
+    } else {
+      window.history.back();
+    }
+  }
+
+  function cancel() { window.history.back(); }
+</script>
+</body>
+</html>
+

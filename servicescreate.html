@@ -1,0 +1,601 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Service</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      padding: 24px 28px 40px;
+      overflow-y: auto;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* ── Title row ── */
+    .title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .title-row h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #111;
+    }
+    .close-btn {
+      background: none;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 18px;
+    }
+    .tab-active {
+      background: #3a3a3a;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: default;
+    }
+    .tab-link {
+      background: none;
+      border: none;
+      color: #444;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+    }
+    .tab-link:hover { text-decoration: underline; color: #111; }
+
+    /* ── Form card ── */
+    .form-card {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
+    .section-header {
+      background: #3a3a3a;
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 4px 4px 0 0;
+    }
+    .form-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 48px;
+      padding: 12px 20px 20px;
+    }
+
+    /* ── Form rows ── */
+    .form-col { display: flex; flex-direction: column; }
+    .form-row {
+      display: flex;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 12px;
+    }
+    .form-row:last-child { border-bottom: none; }
+    .form-label {
+      width: 160px;
+      min-width: 160px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.3;
+    }
+    .form-label.bold { font-weight: 700; color: #333; }
+    .form-field { flex: 1; }
+
+    /* ── Inputs ── */
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 5px 8px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #f5c800;
+      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    }
+    textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 6px 8px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+      resize: vertical;
+      min-height: 80px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #f5c800;
+      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+
+    /* Standard select */
+    .std-select {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 5px 28px 5px 8px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+      appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 8px center;
+      cursor: pointer;
+    }
+    .std-select:focus { outline: none; border-color: #f5c800; }
+
+    /* ── Custom Service Mode dropdown ── */
+    .custom-select-wrap { position: relative; }
+    .custom-select-btn {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 5px 28px 5px 8px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 8px center;
+      cursor: pointer;
+      text-align: left;
+      appearance: none;
+      display: flex;
+      align-items: center;
+    }
+    .custom-select-btn:focus { outline: none; border-color: #f5c800; }
+
+    .custom-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15);
+      z-index: 100;
+    }
+    .custom-dropdown.open { display: block; }
+
+    .dropdown-filter-bar {
+      background: #555;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dropdown-filter-label {
+      color: #ddd;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .dropdown-filter-input {
+      flex: 1;
+      border: 1px solid #888;
+      border-radius: 2px;
+      padding: 3px 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+      background: #fff;
+    }
+    .dropdown-filter-clear {
+      background: none;
+      border: none;
+      color: #ddd;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+    .dropdown-options { max-height: 180px; overflow-y: auto; }
+    .dropdown-option {
+      padding: 7px 10px;
+      font-size: 13.5px;
+      cursor: pointer;
+      color: #333;
+    }
+    .dropdown-option:hover { background: #f0f0f0; }
+    .dropdown-option.selected { background: #fdfbe8; color: #111; font-weight: 600; }
+    .dropdown-scroll-btn {
+      text-align: center;
+      padding: 3px;
+      background: #f5f5f5;
+      border-top: 1px solid #eee;
+      cursor: pointer;
+      font-size: 11px;
+      color: #888;
+    }
+
+    /* ── Task Color ── */
+    .color-wrap { display: flex; align-items: center; gap: 8px; }
+    .color-badge {
+      background: #0000ff;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      letter-spacing: .3px;
+    }
+    .color-input-hidden { opacity: 0; width: 0; height: 0; position: absolute; }
+
+    /* ── QuickBooks note ── */
+    .qb-note {
+      font-size: 12px;
+      color: #555;
+      font-style: italic;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* ── Footer ── */
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 8px 0 20px;
+    }
+    .btn-save {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 28px;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a15; }
+    .btn-save-new {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 28px;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-save-new:hover { background: #c96a15; }
+    .footer-or { font-size: 14px; color: #555; }
+    .btn-cancel {
+      background: none;
+      border: none;
+      color: #444;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .btn-cancel:hover { color: #111; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Title row -->
+<div class="title-row">
+  <h1>Add Service</h1>
+  <button class="close-btn" onclick="history.back()">&#10005;</button>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-active">Details</button>
+  <button class="tab-link">Estimates</button>
+  <button class="tab-link">Rate Matrix</button>
+  <button class="tab-link">Job Costing/Analysis</button>
+</div>
+
+<!-- Form card -->
+<div class="form-card">
+  <div class="section-header">Service Details</div>
+  <div class="form-body">
+
+    <!-- LEFT COLUMN -->
+    <div class="form-col">
+
+      <div class="form-row">
+        <div class="form-label bold">Service</div>
+        <div class="form-field">
+          <input type="text" id="service-name"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">Only use for Estimates</div>
+        <div class="form-field">
+          <input type="checkbox" id="estimates-only"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">Track Chemicals</div>
+        <div class="form-field">
+          <input type="checkbox" id="track-chemicals"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label bold">Sales Tax Code</div>
+        <div class="form-field">
+          <select class="std-select" id="sales-tax-code">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label bold">Service Mode</div>
+        <div class="form-field">
+          <div class="custom-select-wrap" id="svc-mode-wrap">
+            <button class="custom-select-btn" onclick="toggleSvcMode(event)" id="svc-mode-btn">
+              <span id="svc-mode-label">Flat Rate</span>
+            </button>
+            <div class="custom-dropdown" id="svc-mode-dropdown">
+              <div class="dropdown-filter-bar">
+                <span class="dropdown-filter-label">Filter:</span>
+                <input class="dropdown-filter-input" id="svc-mode-filter" placeholder="Enter keywords" oninput="filterSvcMode(this.value)"/>
+                <button class="dropdown-filter-clear" onclick="clearSvcFilter()">&#10005;</button>
+              </div>
+              <div class="dropdown-options" id="svc-mode-options">
+                <div class="dropdown-option selected" onclick="selectSvcMode('Flat Rate', this)">Flat Rate</div>
+                <div class="dropdown-option" onclick="selectSvcMode('Hourly', this)">Hourly</div>
+                <div class="dropdown-option" onclick="selectSvcMode('Per Unit', this)">Per Unit</div>
+              </div>
+              <div class="dropdown-scroll-btn">&#9660;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row" style="align-items: flex-start;">
+        <div class="form-label bold" style="padding-top:4px;">Invoice Description</div>
+        <div class="form-field">
+          <textarea id="invoice-desc"></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">Active</div>
+        <div class="form-field">
+          <input type="checkbox" id="is-active" checked/>
+        </div>
+      </div>
+
+    </div><!-- /left col -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="form-col">
+
+      <div class="form-row">
+        <div class="form-label">Default Rate</div>
+        <div class="form-field">
+          <input type="number" id="default-rate" value="0.00" step="0.01" min="0"/>
+        </div>
+      </div>
+
+      <div class="form-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+        <div class="form-label" style="width:auto; font-weight:700; color:#333;">This service is associated with</div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" id="area-lawn-care" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
+          Lawn Sq Ft
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" id="area-lawn-insect" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
+          Lawn Insect Sq Ft
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" id="area-flower-beds" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
+          Flower Bed(s) Sq Ft
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" id="area-mosquito" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
+          Mosquito Control Sq Ft
+        </label>
+      </div>
+
+    </div><!-- /right col -->
+
+  </div><!-- /form-body -->
+</div><!-- /form-card -->
+
+<!-- Footer -->
+<div class="form-footer">
+  <button class="btn-save" onclick="saveService()">Save</button>
+  <button class="btn-save-new" onclick="saveAndNew()">Save &amp; New</button>
+  <span class="footer-or">or</span>
+  <button class="btn-cancel" onclick="history.back()">Cancel</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var serviceId = new URLSearchParams(window.location.search).get('id');
+  var existing = null;
+
+  async function initEdit() {
+    // Load sales taxes
+    var { data: taxes } = await sb.from('sales_taxes').select('id, name').order('name');
+    var taxSel = document.getElementById('sales-tax-code');
+    taxSel.innerHTML = '<option value="">-- Select --</option>';
+    (taxes || []).forEach(function(t) {
+      var o = document.createElement('option');
+      o.value = t.id;
+      o.textContent = t.name;
+      taxSel.appendChild(o);
+    });
+
+    if (!serviceId) return;
+    var { data } = await sb.from('Services').select('*').eq('id', serviceId).single();
+    if (data) {
+      existing = data;
+      document.getElementById('service-name').value  = data.name || '';
+      document.getElementById('default-rate').value  = data.default_rate || '0.00';
+      document.getElementById('is-active').checked   = data.active !== false;
+      if (data.sales_tax_id) taxSel.value = data.sales_tax_id;
+      var aa = data.associated_areas || {};
+      document.getElementById('area-lawn-care').checked   = !!aa.lawn_care;
+      document.getElementById('area-lawn-insect').checked = !!aa.lawn_insect;
+      document.getElementById('area-flower-beds').checked = !!aa.flower_beds;
+      document.getElementById('area-mosquito').checked    = !!aa.mosquito;
+    }
+  }
+  initEdit();
+
+  /* ── Service Mode custom dropdown ── */
+  function toggleSvcMode(e) {
+    e.stopPropagation();
+    document.getElementById('svc-mode-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', function(e) {
+    if (!document.getElementById('svc-mode-wrap').contains(e.target)) {
+      document.getElementById('svc-mode-dropdown').classList.remove('open');
+    }
+  });
+
+  function selectSvcMode(val, el) {
+    document.getElementById('svc-mode-label').textContent = val;
+    document.querySelectorAll('#svc-mode-options .dropdown-option').forEach(function(o) {
+      o.classList.remove('selected');
+    });
+    el.classList.add('selected');
+    document.getElementById('svc-mode-dropdown').classList.remove('open');
+    document.getElementById('svc-mode-filter').value = '';
+    filterSvcMode('');
+  }
+
+  function filterSvcMode(kw) {
+    kw = kw.toLowerCase();
+    document.querySelectorAll('#svc-mode-options .dropdown-option').forEach(function(o) {
+      o.style.display = o.textContent.toLowerCase().includes(kw) ? '' : 'none';
+    });
+  }
+
+  function clearSvcFilter() {
+    document.getElementById('svc-mode-filter').value = '';
+    filterSvcMode('');
+  }
+
+  /* ── Task Color ── */
+  function updateColor(hex) {
+    var badge = document.getElementById('color-badge');
+    badge.style.background = hex;
+    badge.textContent = hex.toUpperCase();
+    badge.style.color = isLight(hex) ? '#333' : '#fff';
+  }
+
+  function isLight(hex) {
+    var r = parseInt(hex.slice(1,3),16),
+        g = parseInt(hex.slice(3,5),16),
+        b = parseInt(hex.slice(5,7),16);
+    return (r*299 + g*587 + b*114) / 1000 > 128;
+  }
+
+  /* ── Save actions ── */
+  function collectService() {
+    var name = document.getElementById('service-name').value.trim();
+    if (!name) { alert('Please enter a service name.'); return null; }
+    return {
+      name:        name,
+      active:      document.getElementById('is-active').checked,
+      defaultRate: parseFloat(document.getElementById('default-rate').value) || 0,
+      salesTaxId:  document.getElementById('sales-tax-code').value || null,
+      associatedAreas: {
+        lawn_care:   document.getElementById('area-lawn-care').checked,
+        lawn_insect: document.getElementById('area-lawn-insect').checked,
+        flower_beds: document.getElementById('area-flower-beds').checked,
+        mosquito:    document.getElementById('area-mosquito').checked,
+      },
+    };
+  }
+
+  async function saveService() {
+    var svc = collectService();
+    if (!svc) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, sales_tax_id: svc.salesTaxId, associated_areas: svc.associatedAreas, user_id: uid };
+    if (existing) {
+      var { error } = await sb.from('Services').update(record).eq('id', existing.id);
+    } else {
+      var { error } = await sb.from('Services').insert(record);
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+    history.back();
+  }
+
+  async function saveAndNew() {
+    var svc = collectService();
+    if (!svc) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, sales_tax_id: svc.salesTaxId, user_id: uid });
+    if (error) { alert('Error: ' + error.message); return; }
+    document.getElementById('service-name').value = '';
+    document.getElementById('invoice-desc').value = '';
+    document.getElementById('default-rate').value = '0.00';
+    document.getElementById('estimates-only').checked = false;
+    document.getElementById('track-chemicals').checked = false;
+    document.getElementById('is-active').checked = true;
+    document.getElementById('sales-tax-code').value = '';
+    document.getElementById('service-name').focus();
+    existing = null;
+  }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,843 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lead Profile</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #ebebeb; }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
+    .topbar-left h1 { font-size: 18px; font-weight: 700; }
+    .topbar-left a { color: #444; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .topbar-left a:hover { text-decoration: underline; }
+    .font-btn {
+      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
+      padding: 2px 7px; cursor: pointer; font-size: 13px; color: #555; font-weight: 700;
+    }
+
+    /* ── Split buttons ── */
+    .btn-group { display: flex; }
+    .btn-main-outline {
+      background: #fff; color: #e07820; border: 1px solid #e07820;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border-radius: 4px 0 0 4px;
+      border-right: none;
+    }
+    .btn-main-outline:hover { background: #fff5ec; }
+    .btn-caret-outline {
+      background: #fff; color: #e07820; border: 1px solid #e07820;
+      padding: 7px 10px; font-size: 12px; cursor: pointer;
+      border-radius: 0 4px 4px 0;
+    }
+    .btn-caret-outline:hover { background: #fff5ec; }
+    .btn-main {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      border-right: 1px solid rgba(255,255,255,.35);
+      cursor: pointer; border-radius: 4px 0 0 4px;
+    }
+    .btn-main:hover { background: #c96a10; }
+    .btn-caret {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 10px; font-size: 12px; cursor: pointer;
+      border-radius: 0 4px 4px 0;
+    }
+    .btn-caret:hover { background: #c96a10; }
+
+    /* ── Dropdown ── */
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown + .dropdown { margin-left: 6px; }
+    .dropdown-menu {
+      display: none; position: absolute; top: 100%; right: 0;
+      z-index: 200; background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2); min-width: 200px; padding: 4px 0;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-menu .dd-title {
+      padding: 6px 14px 4px; font-weight: 700; font-size: 12.5px;
+      color: #333; border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a {
+      display: block; padding: 6px 14px; color: #444;
+      text-decoration: none; font-size: 13px;
+    }
+    .dropdown-menu a:hover { background: #f0f5ff; }
+
+    /* ── Page layout ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 12px; }
+
+    /* ── Lead info card ── */
+    .lead-card {
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 12px 16px;
+      display: flex;
+      gap: 30px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .lead-card-col { flex: 1; line-height: 1.8; }
+    .lead-card-col a { color: #444; text-decoration: none; }
+    .lead-card-col a:hover { text-decoration: underline; }
+
+    /* ── Revenue box ── */
+    .revenue-col { display: flex; flex-direction: column; min-width: 160px; }
+    .revenue-box {
+      background: #3a3a3a;
+      color: #fff;
+      text-align: center;
+      padding: 18px 20px 10px;
+      font-size: 26px;
+      font-weight: 700;
+      flex: 1;
+    }
+    .revenue-box .rev-label {
+      font-size: 13px;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    /* ── Two-column panels ── */
+    .panels-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .panel { flex: 1; background: #fff; border: 1px solid #ccc; }
+    .panel-header {
+      background: #3a3a3a; color: #fff; padding: 5px 10px;
+      font-size: 13px; font-weight: 600; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .panel-header a { color: #9dd4ff; text-decoration: none; font-size: 12.5px; }
+    .panel-header a:hover { text-decoration: underline; }
+    .panel-body { padding: 8px 10px; min-height: 60px; }
+
+    /* ── Tags row ── */
+    .tags-row {
+      background: #fff; border: 1px solid #ccc; padding: 8px 10px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      gap: 0; margin-bottom: 10px;
+    }
+    .tag-select-row { display: flex; align-items: center; gap: 6px; }
+    .tag-select-box {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid #bbb; padding: 4px 10px; font-size: 13px; cursor: pointer;
+      min-width: 220px; background: #fff; border-radius: 2px; user-select: none;
+    }
+    .tag-select-box:hover { border-color: #999; }
+    .tag-apply-btn {
+      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+    }
+    .tag-apply-btn:hover { background: #ddd; }
+    .tag-create-btn {
+      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+    }
+    .tag-create-btn:hover { background: #ddd; }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #e07820; color: #fff; border-radius: 3px;
+      padding: 2px 8px; font-size: 12px; font-weight: 600;
+    }
+    .tag-chip-remove {
+      background: none; border: none; color: rgba(255,255,255,.8);
+      cursor: pointer; font-size: 13px; padding: 0; line-height: 1;
+    }
+    .tag-chip-remove:hover { color: #fff; }
+    .tag-dropdown {
+      display: none; position: absolute; top: calc(100% + 2px); left: 0;
+      z-index: 300; background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18); min-width: 280px; max-height: 280px;
+      overflow-y: auto;
+    }
+    .tag-dropdown.show { display: block; }
+    .tag-filter-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-bottom: 1px solid #eee; background: #3a3a3a;
+      position: sticky; top: 0;
+    }
+    .tag-filter-row label { color: #ccc; font-size: 12.5px; white-space: nowrap; }
+    .tag-filter-row input {
+      flex: 1; border: 1px solid #666; padding: 3px 7px; font-size: 12.5px;
+      background: #fff; outline: none; border-radius: 2px;
+    }
+    .tag-filter-clear { color: #ccc; cursor: pointer; font-size: 15px; }
+    .tag-dd-item { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #333; }
+    .tag-dd-item:hover, .tag-dd-item.selected { background: #f0f0f0; }
+    .tag-dd-item.selected { font-weight: 600; color: #e07820; }
+    .tag-dd-empty { padding: 10px 12px; color: #aaa; font-size: 12.5px; font-style: italic; }
+    /* Create Tag modal */
+    .create-tag-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 1100; align-items: center; justify-content: center;
+    }
+    .create-tag-overlay.show { display: flex; }
+    .create-tag-box {
+      background: #fff; padding: 24px 28px; min-width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25); border-radius: 2px;
+    }
+    .create-tag-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .create-tag-box input {
+      width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; margin-bottom: 14px;
+    }
+    .create-tag-box input:focus { border-color: #e07820; }
+    .create-tag-actions { display: flex; align-items: center; gap: 10px; }
+    .create-tag-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 8px 24px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .create-tag-save:hover { background: #c96a10; }
+    .create-tag-cancel { color: #555; font-size: 13px; cursor: pointer; }
+    .create-tag-cancel:hover { text-decoration: underline; }
+
+    /* ── Section ── */
+    .sec { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .sec-hdr {
+      background: #3a3a3a; color: #fff; padding: 5px 10px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sec-hdr a { color: #e07820; text-decoration: none; font-size: 12.5px; font-weight: 600; }
+    .sec-hdr a:hover { text-decoration: underline; }
+    .sec-hdr .tab-links { display: flex; gap: 0; align-items: center; }
+    .sec-hdr .tab-links a {
+      color: #e07820; font-size: 12.5px; font-weight: 600;
+      padding: 0 6px; border-left: 1px solid #777;
+      text-decoration: none;
+    }
+    .sec-hdr .tab-links a:first-child { border-left: none; }
+    .sec-hdr .tab-links a:hover { text-decoration: underline; }
+    .sec-hdr .tab-links a.active { color: #fff; font-weight: 700; }
+
+    .add-btn {
+      display: block; width: calc(100% - 16px); margin: 8px;
+      padding: 8px; background: #3a3a3a; border: none;
+      color: #fff; font-size: 13px; cursor: pointer; text-align: center;
+      border-radius: 2px;
+    }
+    .add-btn:hover { background: #222; }
+
+    /* ── Activity ── */
+    .activity-filter {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; flex-wrap: wrap;
+    }
+    .activity-filter .filter-count { color: #444; font-size: 12.5px; cursor: pointer; }
+    .activity-filter .refresh-btn {
+      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
+      width: 26px; height: 26px; cursor: pointer; font-size: 14px; color: #555;
+    }
+    .activity-filter input[type="text"] {
+      border: 1px solid #bbb; padding: 4px 8px;
+      font-size: 12.5px; height: 28px; min-width: 240px;
+    }
+    .activity-filter .search-icon { color: #444; font-size: 14px; cursor: pointer; }
+    .sort-area { margin-left: auto; text-align: right; font-size: 12.5px; }
+    .sort-area strong { cursor: pointer; color: #333; }
+    .sort-area .updated { font-size: 11.5px; color: #888; display: block; }
+
+    .note-box {
+      margin: 8px 10px; border: 1px solid #e8d9b5; background: #fffdf0;
+      padding: 10px 12px; color: #aaa; font-style: italic; font-size: 13px;
+      border-radius: 2px;
+    }
+    .divider { border: none; border-top: 1px solid #eee; margin: 0 10px; }
+    .no-records { padding: 8px 10px; color: #555; font-size: 13px; }
+
+    /* ── Details ── */
+    .details-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 10px; background: #3a3a3a; color: #fff; font-weight: 600;
+    }
+
+    /* ── Attachments ── */
+    .attach-outer { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .attach-tabs { display: flex; padding: 0; border-bottom: 1px solid #ccc; }
+    .attach-tab {
+      padding: 6px 14px; border-right: 1px solid #ccc;
+      background: #e8e8e8; font-size: 12.5px; cursor: pointer; color: #333;
+    }
+    .attach-tab.active { background: #fff; font-weight: 600; }
+    .attach-tab:hover { background: #f5f5f5; }
+    .attach-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; font-size: 12.5px; border-bottom: 1px solid #eee;
+    }
+    .pg-btns { display: flex; gap: 2px; align-items: center; }
+    .pg-btn {
+      padding: 2px 7px; border: 1px solid #bbb; background: #f0f0f0;
+      cursor: pointer; font-size: 12px; border-radius: 2px;
+    }
+    .pg-btn.active { background: #f5c800; color: #111; }
+
+    /* ── Details / Custom Fields grid ── */
+    .details-body { display: none; border-top: 1px solid #e0e0e0; }
+    .details-body.open { display: block; }
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 4px 0 8px;
+    }
+    .details-cell {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 7px 16px;
+      border-bottom: 1px solid #f3f3f3;
+    }
+    .details-cell .dl {
+      color: #888; font-size: 12.5px; white-space: nowrap; flex-shrink: 0;
+    }
+    .details-cell .dv-text {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; font-weight: 600; color: #111;
+      font-family: inherit; width: 100%; min-width: 0;
+      border-bottom: 1px solid transparent;
+    }
+    .details-cell .dv-text:focus { border-bottom-color: #f5c800; }
+    .details-cell .dv-check {
+      width: 15px; height: 15px; accent-color: #888888; cursor: pointer;
+    }
+    .details-empty {
+      padding: 14px 16px; color: #aaa; font-size: 13px; font-style: italic;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Contact modal overlay -->
+<div id="contact-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1001; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:560px; max-height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="contact-modal-iframe" src="" style="width:100%; height:680px; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Lead Modal Overlay -->
+<div id="lead-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:1120px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="lead-modal-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- ── Top bar ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1 id="lead-title">New Lead</h1>
+    <span>&#8211;</span>
+    <a href="#" onclick="openLeadModal(event)">Edit</a>
+  </div>
+  <div style="display:flex; gap:6px; align-items:center;">
+
+    <!-- Send (outlined) -->
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main-outline">Send</button>
+        <button class="btn-caret-outline" onclick="toggleDropdown('send-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="send-menu">
+        <a href="#">Text</a>
+        <a href="#">Email</a>
+      </div>
+    </div>
+
+    <!-- More (filled) -->
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main">More</button>
+        <button class="btn-caret" onclick="toggleDropdown('more-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="more-menu">
+        <div class="dd-title">More Options</div>
+        <a href="#">Show Lead on Map</a>
+        <a href="#">Lead Measurements</a>
+        <a href="#">Fill Out Form</a>
+        <a href="#">Add Ticket</a>
+        <a href="#">Account Statement</a>
+        <a href="#">Lead Balance Report</a>
+        <a href="#">Lead History Report</a>
+        <a href="#">View Audit Trail</a>
+        <a href="#">Convert to Client</a>
+        <a href="#">Cancel Lead</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── Lead info card ── -->
+  <div class="lead-card">
+    <div class="lead-card-col">
+      <div id="display-name" style="font-weight:600;"></div>
+      <div id="display-address"></div>
+      <div id="display-city"></div>
+    </div>
+    <div class="lead-card-col">
+      <div><span style="color:#888;font-size:12px;">Cell: </span><span id="display-cell"></span></div>
+      <div><span style="color:#888;font-size:12px;">Home: </span><span id="display-home"></span></div>
+      <div><span style="color:#888;font-size:12px;">Email: </span><a href="#" id="display-email"></a></div>
+    </div>
+    <div class="lead-card-col">
+      <div>Date Acquired: <span id="display-date"></span></div>
+      <div id="display-card">No Card On File (<a href="#">Add</a>)</div>
+    </div>
+    <div class="revenue-col">
+      <div class="revenue-box">
+        $0.00
+        <div class="rev-label">Revenue Potential</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Related Properties + Contacts ── -->
+  <!-- ── Tags ── -->
+  <div class="tags-row" id="tags-row">
+    <div class="tag-select-row">
+      <div style="position:relative;">
+        <div class="tag-select-box" onclick="toggleTagDropdown(event)">
+          <span id="tag-select-label">Select Tag</span>
+          <span>&#9660;</span>
+        </div>
+        <div class="tag-dropdown" id="tag-dropdown">
+          <div class="tag-filter-row">
+            <label>Filter:</label>
+            <input type="text" id="tag-filter" placeholder="Enter keywords" oninput="filterTagList()"/>
+            <span class="tag-filter-clear" onclick="clearTagFilter()">&#10005;</span>
+          </div>
+          <div id="tag-dd-list"><div class="tag-dd-empty">Loading...</div></div>
+        </div>
+      </div>
+      <button class="tag-apply-btn" onclick="applySelectedTag()">Apply</button>
+      <button class="tag-create-btn" onclick="showCreateTagModal()">Create Tag</button>
+    </div>
+    <div id="tag-chips-row" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;"></div>
+  </div>
+
+  <!-- Create Tag modal -->
+  <div class="create-tag-overlay" id="create-tag-overlay" onclick="if(event.target===this)hideCreateTagModal()">
+    <div class="create-tag-box">
+      <h3>Create Tag</h3>
+      <input type="text" id="new-tag-name" placeholder="Tag name" autocomplete="off"/>
+      <div class="create-tag-actions">
+        <button class="create-tag-save" onclick="saveNewTag()">Save</button>
+        <span class="create-tag-cancel" onclick="hideCreateTagModal()">Cancel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panels-row">
+    <div class="panel">
+      <div class="panel-header">
+        <span>Contacts &ndash; <a href="#" onclick="openContactModal(event)">(Add Contact)</a></span>
+        <a href="#">All</a>
+      </div>
+      <div class="panel-body" id="contacts-list">
+        <div id="contacts-empty" class="props-empty" style="padding:16px;color:#aaa;font-size:13px;text-align:center;font-style:italic;">No contacts added yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Estimates ── -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="sec-hdr"><span>Estimates</span></div>
+    <button class="add-btn">&#10010; &nbsp;Add an Estimate</button>
+  </div>
+
+  <!-- ── Activity ── -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="sec-hdr">
+      <span>Activity</span>
+      <div class="tab-links">
+        <a href="#" class="active">All History</a>
+        <a href="#">Past Visits</a>
+        <a href="#">Future Visits</a>
+        <a href="#">Future Events</a>
+        <a href="#">Transactions</a>
+        <a href="#">Estimates</a>
+      </div>
+    </div>
+    <div class="activity-filter">
+      <span class="filter-count">Filter by: (0/17) items</span>
+      <button class="refresh-btn">&#8635;</button>
+      <input type="text" placeholder="Sun 11/23/2025 - Sat 05/23/2026"/>
+      <span class="search-icon">&#128269;</span>
+      <div class="sort-area">
+        sorted: <strong>Newest to Oldest &#9660;</strong>
+        <span class="updated">Updated: (now)</span>
+      </div>
+    </div>
+    <div class="note-box">Add a Note...</div>
+    <hr class="divider"/>
+    <div class="no-records">No records found</div>
+  </div>
+
+  <!-- ── Details (Custom Fields) ── -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="details-hdr">
+      <span>Custom Fields</span>
+    </div>
+    <div class="details-body open" id="details-body">
+      <div class="details-grid" id="details-grid"></div>
+      <div class="details-empty" id="details-empty" style="display:none;">
+        No custom fields for Leads yet.
+        <a href="#" onclick="window.parent.loadPage('customfields');return false;" style="color:#444;">Add Custom Fields</a>
+      </div>
+      <div id="cf-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Attachments ── -->
+  <div class="attach-outer">
+    <div class="attach-tabs">
+      <div class="attach-tab active">Attachments</div>
+      <div class="attach-tab">Mobile Attachments</div>
+      <div class="attach-tab">All</div>
+    </div>
+    <div class="attach-meta">
+      <span>Total: &nbsp;0</span>
+      <span style="display:flex;align-items:center;gap:6px;">
+        Page Size:
+        <input type="text" value="10" style="width:36px;border:1px solid #bbb;padding:2px 4px;font-size:12px;"/>
+        <div class="pg-btns">
+          <button class="pg-btn">&#9664;&#9664;</button>
+          <button class="pg-btn">&#9664;</button>
+          <button class="pg-btn active">1</button>
+          <button class="pg-btn">&#9654;</button>
+          <button class="pg-btn">&#9654;&#9654;</button>
+        </div>
+      </span>
+    </div>
+    <div class="no-records">No records to display.</div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  /* ── Load lead from Supabase ── */
+  (async function() {
+    var leadId = new URLSearchParams(window.location.search).get('id');
+    if (!leadId) return;
+    var { data: lead } = await sb.from('Leads').select('*').eq('id', leadId).single();
+    if (!lead) return;
+
+    var fullName = lead.name || 'Lead';
+    document.getElementById('lead-title').textContent = fullName;
+    document.getElementById('display-name').textContent = fullName;
+    document.getElementById('display-address').textContent = lead.address || '';
+    var cityLine = [lead.city, lead.state, lead.zip].filter(Boolean).join(', ');
+    document.getElementById('display-city').textContent = cityLine;
+    document.getElementById('display-cell').textContent = lead.cell || lead.phone || '';
+    document.getElementById('display-home').textContent = lead.home_phone || '';
+    var emailEl = document.getElementById('display-email');
+    if (lead.email) { emailEl.textContent = lead.email; emailEl.href = 'mailto:' + lead.email; }
+    if (lead.created_at) {
+      document.getElementById('display-date').textContent = new Date(lead.created_at).toLocaleDateString();
+    }
+
+    await renderDetailsGrid();
+    await loadTags(lead);
+  })();
+
+  function toggleDropdown(id) {
+    var menu = document.getElementById(id);
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+      if (m.id !== id) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+        m.classList.remove('show');
+      });
+    }
+    if (!e.target.closest('.tag-select-box') && !e.target.closest('.tag-dropdown')) {
+      var dd = document.getElementById('tag-dropdown');
+      if (dd) dd.classList.remove('show');
+    }
+  });
+
+  /* Activity tab switching */
+  document.querySelectorAll('.tab-links a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.tab-links a').forEach(function(l) { l.classList.remove('active'); });
+      link.classList.add('active');
+    });
+  });
+
+  /* Attachment tabs */
+  document.querySelectorAll('.attach-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.attach-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+
+  /* ── Details / Custom Fields ── */
+  var CF_ENTITY_TYPE = 'Lead';
+  var CF_STORE_KEY   = 'spb_leads';
+  var cfRecordId     = new URLSearchParams(window.location.search).get('id');
+
+  function cfEscAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
+  function cfEscHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  async function renderDetailsGrid() {
+    var grid  = document.getElementById('details-grid');
+    var empty = document.getElementById('details-empty');
+    var { data: fieldRows } = await sb.from('custom_fields').select('*')
+      .eq('active', true).order('display_order');
+    var fields = fieldRows || [];
+
+    if (!fields.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+
+    var saved = {};
+    if (cfRecordId) {
+      var { data: rec } = await sb.from('Leads').select('custom_fields').eq('id', cfRecordId).single();
+      if (rec && rec.custom_fields) saved = rec.custom_fields;
+    }
+
+    grid.innerHTML = '';
+    fields.forEach(function(f) {
+      var val  = saved[f.key] !== undefined ? saved[f.key] : '';
+      var cell = document.createElement('div');
+      cell.className = 'details-cell';
+      var inp;
+      if (f.type === 'Checkbox') {
+        inp = '<input type="checkbox" class="dv-check" data-key="' + cfEscAttr(f.key) + '"' + (val ? ' checked' : '') + '/>';
+      } else if (f.type === 'Number') {
+        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+      } else if (f.type === 'Date') {
+        inp = '<input type="date" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '"/>';
+      } else {
+        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+      }
+      cell.innerHTML = '<span class="dl">' + cfEscHtml(f.name) + '</span>' + inp;
+      grid.appendChild(cell);
+    });
+
+    grid.addEventListener('change', saveCfValues);
+    grid.addEventListener('input',  saveCfValues);
+  }
+
+  function openLeadModal(e) {
+    if (e) e.preventDefault();
+    var id = new URLSearchParams(window.location.search).get('id');
+    var src = 'LeadsAdd.html' + (id ? '?id=' + id : '');
+    document.getElementById('lead-modal-iframe').src = src;
+    document.getElementById('lead-modal-overlay').style.display = 'flex';
+  }
+
+  function closeLeadModal(saved) {
+    document.getElementById('lead-modal-overlay').style.display = 'none';
+    document.getElementById('lead-modal-iframe').src = '';
+    if (saved) window.location.reload();
+  }
+
+  document.getElementById('lead-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeLeadModal(false);
+  });
+
+  var cfSaveTimer;
+  function saveCfValues() {
+    clearTimeout(cfSaveTimer);
+    cfSaveTimer = setTimeout(async function() {
+      if (!cfRecordId) return;
+      var values = {};
+      document.querySelectorAll('#details-grid [data-key]').forEach(function(i) {
+        values[i.dataset.key] = i.type === 'checkbox' ? i.checked : i.value;
+      });
+      var { error } = await sb.from('Leads').update({ custom_fields: values }).eq('id', cfRecordId);
+      var msg = document.getElementById('cf-saved-msg');
+      if (error) { msg.textContent = 'Error saving'; return; }
+      msg.textContent = 'Saved';
+      setTimeout(function() { msg.textContent = ''; }, 1500);
+    }, 600);
+  }
+
+  /* ── Tags ── */
+  var allTags = [];
+  var leadTagNames = [];
+  var selectedTagName = null;
+  var currentLeadId = null;
+
+  async function loadTags(lead) {
+    currentLeadId = lead.id;
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    leadTagNames = Array.isArray(lead.lead_tags) ? lead.lead_tags : [];
+    renderTagChips();
+  }
+
+  function renderTagChips() {
+    var chipsRow = document.getElementById('tag-chips-row');
+    chipsRow.innerHTML = '';
+    leadTagNames.forEach(function(name) {
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.innerHTML = escHtml(name) + '<button class="tag-chip-remove" onclick="removeTag(\'' + name.replace(/'/g,"\\'") + '\')">&#10005;</button>';
+      chipsRow.appendChild(chip);
+    });
+    chipsRow.style.display = leadTagNames.length ? 'flex' : 'none';
+  }
+
+  function toggleTagDropdown(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('tag-dropdown');
+    var showing = dd.classList.toggle('show');
+    if (showing) { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+  }
+
+  function buildTagList(filter) {
+    var list = document.getElementById('tag-dd-list');
+    var filtered = allTags.filter(function(t) {
+      return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
+    });
+    if (!filtered.length) {
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      return;
+    }
+    list.innerHTML = '';
+    filtered.forEach(function(t) {
+      var item = document.createElement('div');
+      item.className = 'tag-dd-item' + (selectedTagName === t.name ? ' selected' : '');
+      item.textContent = t.name;
+      item.onclick = function(e) {
+        e.stopPropagation();
+        selectedTagName = t.name;
+        document.getElementById('tag-select-label').textContent = t.name;
+        document.getElementById('tag-dropdown').classList.remove('show');
+      };
+      list.appendChild(item);
+    });
+  }
+
+  function filterTagList() { buildTagList(document.getElementById('tag-filter').value); }
+  function clearTagFilter() { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+
+  async function applySelectedTag() {
+    if (!selectedTagName) { alert('Please select a tag first.'); return; }
+    if (leadTagNames.indexOf(selectedTagName) !== -1) return;
+    leadTagNames.push(selectedTagName);
+    renderTagChips();
+    var { error } = await sb.from('Leads').update({ lead_tags: leadTagNames }).eq('id', currentLeadId);
+    if (error) { alert('Tag save failed: ' + error.message); return; }
+    selectedTagName = null;
+    document.getElementById('tag-select-label').textContent = 'Select Tag';
+  }
+
+  async function removeTag(name) {
+    leadTagNames = leadTagNames.filter(function(n){ return n !== name; });
+    renderTagChips();
+    var { error } = await sb.from('Leads').update({ lead_tags: leadTagNames }).eq('id', currentLeadId);
+    if (error) alert('Tag save failed: ' + error.message);
+  }
+
+  function showCreateTagModal() {
+    document.getElementById('tag-dropdown').classList.remove('show');
+    document.getElementById('new-tag-name').value = '';
+    document.getElementById('create-tag-overlay').classList.add('show');
+    setTimeout(function(){ document.getElementById('new-tag-name').focus(); }, 50);
+  }
+
+  function hideCreateTagModal() {
+    document.getElementById('create-tag-overlay').classList.remove('show');
+  }
+
+  async function saveNewTag() {
+    var name = document.getElementById('new-tag-name').value.trim();
+    if (!name) { document.getElementById('new-tag-name').focus(); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('tags').insert({ name: name, active: true, user_id: uid });
+    if (error) { alert('Error: ' + error.message); return; }
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    hideCreateTagModal();
+  }
+
+  document.getElementById('new-tag-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') saveNewTag();
+    if (e.key === 'Escape') hideCreateTagModal();
+  });
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Contact modal ── */
+  function openContactModal(e, id) {
+    if (e) e.preventDefault();
+    var leadId = new URLSearchParams(window.location.search).get('id');
+    var overlay = document.getElementById('contact-modal-overlay');
+    var iframe  = document.getElementById('contact-modal-iframe');
+    var src = 'ContactAdd.html?entityType=lead&entityId=' + leadId;
+    if (id) src = 'ContactAdd.html?id=' + id + '&entityType=lead&entityId=' + leadId;
+    iframe.src = src;
+    overlay.style.display = 'flex';
+  }
+
+  function closeContactModal(saved) {
+    var overlay = document.getElementById('contact-modal-overlay');
+    var iframe  = document.getElementById('contact-modal-iframe');
+    overlay.style.display = 'none';
+    iframe.src = '';
+    if (saved) loadContacts();
+  }
+
+  document.getElementById('contact-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeContactModal(false);
+  });
+
+  async function loadContacts() {
+    var leadId = new URLSearchParams(window.location.search).get('id');
+    var list   = document.getElementById('contacts-list');
+    var empty  = document.getElementById('contacts-empty');
+    var { data: contacts } = await sb.from('Contacts').select('*')
+      .eq('entity_type', 'lead').eq('entity_id', leadId).order('first_name');
+    contacts = contacts || [];
+    list.querySelectorAll('.contact-row').forEach(function(r) { r.remove(); });
+    if (!contacts.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    contacts.forEach(function(c) {
+      var row = document.createElement('div');
+      row.className = 'contact-row';
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0f0f0;cursor:pointer;';
+      var phone = c.cell_phone || c.home_phone || c.work_phone || '';
+      row.innerHTML =
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:13px;">' + escHtml(c.name || ((c.first_name||'') + ' ' + (c.last_name||'')).trim()) + '</div>' +
+          '<div style="font-size:12px;color:#666;">' + escHtml(c.contact_type || '') + (phone ? ' &nbsp;|&nbsp; ' + escHtml(phone) : '') + '</div>' +
+        '</div>' +
+        '<span style="font-size:12px;color:#2272c3;">Edit</span>';
+      row.addEventListener('click', function() { openContactModal(null, c.id); });
+      list.insertBefore(row, empty);
+    });
+  }
+
+  loadContacts();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Import</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .page-topbar {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 16px 20px 10px; border-bottom: 1px solid #eee;
+    }
+    .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .page-topbar .sub { font-size: 13px; color: #888; margin-top: 3px; }
+
+    .toolbar {
+      background: #3a3a3a; display: flex; align-items: center;
+      padding: 7px 14px;
+    }
+    .toolbar-title { color: #ccc; font-size: 12.5px; font-weight: 600; letter-spacing: .3px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 14px; text-align: left; font-size: 12.5px;
+      font-weight: 600; color: #555; border-bottom: 1px solid #ddd;
+    }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
+    tbody tr:hover { background: #f9f9f9; }
+    tbody td { padding: 14px 14px; color: #333; vertical-align: middle; }
+
+    .import-icon { font-size: 22px; margin-right: 10px; vertical-align: middle; }
+    .import-name { font-size: 14px; font-weight: 700; color: #2272c3; }
+    .import-desc { font-size: 12.5px; color: #888; margin-top: 3px; }
+    .import-arrow { color: #bbb; font-size: 18px; }
+    .badge-ready { display:inline-block; background:#e07820; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:8px; vertical-align:middle; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-topbar">
+  <div>
+    <h1>&#128228; Import</h1>
+    <div class="sub">Bring your existing data into SprayBossPro from another platform.</div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <span class="toolbar-title">Select an import source to get started</span>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>What's Imported</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr onclick="navigate('sapimport')">
+      <td>
+        <span class="import-icon">&#128228;</span>
+        <span class="import-name">Service AutoPilot Users</span>
+        <div class="import-desc" style="margin-left:32px;">Switch from SAP — import clients, properties, services, products &amp; waiting list</div>
+      </td>
+      <td style="color:#555;">Clients, Properties, Services, Products, Waiting List</td>
+      <td class="import-arrow">&#8250;</td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+  function navigate(page) {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage(page);
+    } else {
+      window.location.href = page + '.html';
+    }
+  }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chemical Application Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 11px; background: #fff; color: #000; font-weight: 700; }
+
+    .report-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 7px 14px 5px; border-bottom: 2px solid #000;
+    }
+    .report-header h1 { font-size: 13px; font-weight: 800; color: #000; }
+    .report-header .meta { font-size: 9.5px; color: #000; font-weight: 700; margin-top: 1px; }
+    .print-btn { background: #2272c3; color: #fff; border: none; padding: 4px 11px; font-size: 10.5px; font-weight: 700; border-radius: 3px; cursor: pointer; }
+
+    .summary-row { display: flex; gap: 0; background: #e0e0e0; border-bottom: 1px solid #000; }
+    .sum-cell { flex: 1; padding: 3px 8px; border-right: 1px solid #000; text-align: center; }
+    .sum-cell:last-child { border-right: none; }
+    .sum-label { font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .sum-val { font-size: 12px; font-weight: 800; color: #000; }
+
+    table.main { width: 100%; border-collapse: collapse; font-size: 10px; }
+
+    thead tr { background: #000; color: #fff; }
+    thead th {
+      padding: 3px 5px; font-weight: 800; font-size: 9.5px;
+      text-align: left; border-right: 1px solid #444; white-space: nowrap;
+    }
+    thead th:last-child { border-right: none; }
+
+    tbody tr.app-row { border-bottom: 1px solid #bbb; }
+    tbody tr.app-row:nth-child(4n+1),
+    tbody tr.app-row:nth-child(4n+2) { background: #f0f0f0; }
+    tbody td { padding: 2px 5px; vertical-align: top; line-height: 1.2; font-weight: 700; color: #000; }
+
+    .detail-row td { padding: 2px 5px 3px 12px; background: #e6e6e6 !important; border-bottom: 2px solid #888; }
+
+    .detail-inner { display: flex; gap: 0; }
+    .prod-section { flex: 0 0 56%; border-right: 1px solid #999; padding-right: 7px; }
+    .tda-section  { flex: 1; padding-left: 7px; }
+
+    .sec-hdr { font-size: 8px; font-weight: 800; text-transform: uppercase; color: #000; border-bottom: 1px solid #888; margin-bottom: 2px; letter-spacing: .3px; padding-bottom: 1px; }
+
+    .prod-mini-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
+    .prod-mini-table td { padding: 1px 4px; border-bottom: 1px solid #ccc; color: #000; font-weight: 700; }
+    .prod-mini-table tr:last-child td { border-bottom: none; }
+    .prod-mini-table .lh { font-weight: 800; }
+    .prod-mini-table .epa { font-family: 'Courier New', monospace; font-weight: 700; }
+    .prod-mini-table .amt { font-family: 'Courier New', monospace; font-weight: 700; }
+
+    .tda-grid { display: flex; flex-wrap: wrap; gap: 0; }
+    .tda-item { width: 50%; font-size: 9px; line-height: 1.35; padding: 0 2px; }
+    .tda-item.full { width: 100%; }
+    .tda-lbl { font-weight: 800; text-transform: uppercase; font-size: 8px; letter-spacing: .2px; }
+
+    .col-date  { width: 72px; }
+    .col-client { width: 100px; }
+    .col-addr  { width: 115px; }
+    .col-mix   { width: 95px; }
+    .col-pest  { width: 88px; }
+    .col-area  { width: 72px; text-align: right; }
+    .col-app   { width: 60px; text-align: right; }
+    .col-tech  { width: 80px; }
+
+    .td-date { font-size: 9.5px; }
+    .mix-tag { display:inline-block; background:#bbb; color:#000; padding:1px 4px; border-radius:5px; font-size:9px; font-weight:800; }
+    .mono { font-family: 'Courier New', monospace; font-weight: 700; }
+
+    @media print {
+      .print-btn { display: none !important; }
+      body { font-size: 10px; }
+      @page { margin: 9mm 8mm; size: letter; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="report-header">
+  <div>
+    <h1>&#9879; Chemical Application Report &nbsp;&nbsp; <span style="font-size:11px;font-weight:700;">May 1 – May 30, 2026</span></h1>
+    <div class="meta">SprayBossPro &nbsp;|&nbsp; All Mixes &nbsp;|&nbsp; All Clients &nbsp;|&nbsp; Generated: 5/30/2026 12:00 PM</div>
+  </div>
+  <button class="print-btn" onclick="window.print()">&#128438; Print / Save PDF</button>
+</div>
+
+<div class="summary-row">
+  <div class="sum-cell"><div class="sum-label">Applications</div><div class="sum-val">5</div></div>
+  <div class="sum-cell"><div class="sum-label">Properties</div><div class="sum-val">5</div></div>
+  <div class="sum-cell"><div class="sum-label">Total Area</div><div class="sum-val">34,500 sq ft</div></div>
+  <div class="sum-cell"><div class="sum-label">Total Applied</div><div class="sum-val">17.3 gal</div></div>
+  <div class="sum-cell"><div class="sum-label">Products Used</div><div class="sum-val">4</div></div>
+</div>
+
+<table class="main">
+  <thead>
+    <tr>
+      <th class="col-date">Date / Time</th>
+      <th class="col-client">Client</th>
+      <th class="col-addr">Address</th>
+      <th class="col-mix">Mix</th>
+      <th class="col-pest">Target Pest</th>
+      <th class="col-area" style="text-align:right;">Area</th>
+      <th class="col-app" style="text-align:right;">Applied</th>
+      <th class="col-tech">Technician</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- 1 -->
+    <tr class="app-row">
+      <td class="td-date col-date">05/03/2026<br/>8:14–8:52 AM</td>
+      <td class="col-client"><strong>James Harmon</strong></td>
+      <td class="col-addr">412 Ridgewood Ln<br/>Katy, TX 77494</td>
+      <td class="col-mix"><span class="mix-tag">Lawn Pro Mix A</span></td>
+      <td class="col-pest">Broadleaf weeds, nutsedge</td>
+      <td class="col-area mono">6,800 sq ft<br/>Front &amp; Back</td>
+      <td class="col-app mono">3.4 gal</td>
+      <td class="col-tech">Mike Johnson<br/>TDA-1023456</td>
+    </tr>
+    <tr class="detail-row">
+      <td colspan="8">
+        <div class="detail-inner">
+          <div class="prod-section">
+            <div class="sec-hdr">Products Applied</div>
+            <table class="prod-mini-table">
+              <tr><td class="lh">Dismiss NXT</td><td class="epa">EPA 66330-376</td><td class="amt">2.7 fl oz used</td><td>0.8 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+              <tr><td class="lh">Tenacity Herbicide</td><td class="epa">EPA 100-1489</td><td class="amt">1.4 fl oz used</td><td>0.4 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+            </table>
+          </div>
+          <div class="tda-section">
+            <div class="sec-hdr">TDA Required Info</div>
+            <div class="tda-grid">
+              <div class="tda-item"><span class="tda-lbl">Equipment:</span> Spray - Truck Mounted</div>
+              <div class="tda-item"><span class="tda-lbl">Reentry:</span> 4 hours</div>
+              <div class="tda-item"><span class="tda-lbl">Wind:</span> 6 mph SW</div>
+              <div class="tda-item"><span class="tda-lbl">Temp:</span> 74°F</div>
+              <div class="tda-item"><span class="tda-lbl">Biz Lic#:</span> SB-2023-001</div>
+              <div class="tda-item"><span class="tda-lbl">Notes:</span> Full front &amp; back yard</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- 2 -->
+    <tr class="app-row">
+      <td class="td-date col-date">05/08/2026<br/>9:45–10:30 AM</td>
+      <td class="col-client"><strong>Sandra Whitfield</strong></td>
+      <td class="col-addr">2201 Briarwood Dr<br/>Sugar Land, TX 77479</td>
+      <td class="col-mix"><span class="mix-tag">Mosquito Guard</span></td>
+      <td class="col-pest">Mosquitoes, fleas, ticks</td>
+      <td class="col-area mono">9,200 sq ft<br/>Front &amp; Back</td>
+      <td class="col-app mono">4.6 gal</td>
+      <td class="col-tech">Mike Johnson<br/>TDA-1023456</td>
+    </tr>
+    <tr class="detail-row">
+      <td colspan="8">
+        <div class="detail-inner">
+          <div class="prod-section">
+            <div class="sec-hdr">Products Applied</div>
+            <table class="prod-mini-table">
+              <tr><td class="lh">Talstar P Professional</td><td class="epa">EPA 279-3206</td><td class="amt">3.7 fl oz used</td><td>0.8 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+              <tr><td class="lh">Bifen IT</td><td class="epa">EPA 53883-264</td><td class="amt">1.8 fl oz used</td><td>0.4 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+            </table>
+          </div>
+          <div class="tda-section">
+            <div class="sec-hdr">TDA Required Info</div>
+            <div class="tda-grid">
+              <div class="tda-item"><span class="tda-lbl">Equipment:</span> Spray - Truck Mounted</div>
+              <div class="tda-item"><span class="tda-lbl">Reentry:</span> 2 hours</div>
+              <div class="tda-item"><span class="tda-lbl">Wind:</span> 4 mph SE</div>
+              <div class="tda-item"><span class="tda-lbl">Temp:</span> 79°F</div>
+              <div class="tda-item"><span class="tda-lbl">Biz Lic#:</span> SB-2023-001</div>
+              <div class="tda-item"><span class="tda-lbl">Notes:</span> Perimeter + flower beds</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- 3 -->
+    <tr class="app-row">
+      <td class="td-date col-date">05/14/2026<br/>7:30–8:10 AM</td>
+      <td class="col-client"><strong>Derek &amp; Pam Okafor</strong></td>
+      <td class="col-addr">5518 Autumn Creek Ct<br/>Cypress, TX 77433</td>
+      <td class="col-mix"><span class="mix-tag">Lawn Pro Mix A</span></td>
+      <td class="col-pest">Nutsedge, crabgrass</td>
+      <td class="col-area mono">5,500 sq ft<br/>Back Only</td>
+      <td class="col-app mono">2.8 gal</td>
+      <td class="col-tech">Mike Johnson<br/>TDA-1023456</td>
+    </tr>
+    <tr class="detail-row">
+      <td colspan="8">
+        <div class="detail-inner">
+          <div class="prod-section">
+            <div class="sec-hdr">Products Applied</div>
+            <table class="prod-mini-table">
+              <tr><td class="lh">Dismiss NXT</td><td class="epa">EPA 66330-376</td><td class="amt">2.2 fl oz used</td><td>0.8 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+              <tr><td class="lh">Tenacity Herbicide</td><td class="epa">EPA 100-1489</td><td class="amt">1.1 fl oz used</td><td>0.4 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+            </table>
+          </div>
+          <div class="tda-section">
+            <div class="sec-hdr">TDA Required Info</div>
+            <div class="tda-grid">
+              <div class="tda-item"><span class="tda-lbl">Equipment:</span> Spray - Truck Mounted</div>
+              <div class="tda-item"><span class="tda-lbl">Reentry:</span> 4 hours</div>
+              <div class="tda-item"><span class="tda-lbl">Wind:</span> 3 mph S</div>
+              <div class="tda-item"><span class="tda-lbl">Temp:</span> 72°F</div>
+              <div class="tda-item"><span class="tda-lbl">Biz Lic#:</span> SB-2023-001</div>
+              <div class="tda-item"><span class="tda-lbl">Notes:</span> —</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- 4 -->
+    <tr class="app-row">
+      <td class="td-date col-date">05/21/2026<br/>10:20–11:05 AM</td>
+      <td class="col-client"><strong>Luis Castillo</strong></td>
+      <td class="col-addr">318 Pecan Grove Blvd<br/>Richmond, TX 77406</td>
+      <td class="col-mix"><span class="mix-tag">Grub Control Mix</span></td>
+      <td class="col-pest">White grubs</td>
+      <td class="col-area mono">7,800 sq ft<br/>Back Only</td>
+      <td class="col-app mono">3.9 gal</td>
+      <td class="col-tech">Mike Johnson<br/>TDA-1023456</td>
+    </tr>
+    <tr class="detail-row">
+      <td colspan="8">
+        <div class="detail-inner">
+          <div class="prod-section">
+            <div class="sec-hdr">Products Applied</div>
+            <table class="prod-mini-table">
+              <tr><td class="lh">Merit 0.5G</td><td class="epa">EPA 3125-498</td><td class="amt">15.6 oz used</td><td>2.0 oz/1,000 sq ft &nbsp;|&nbsp; Spreader - Broadcast</td></tr>
+              <tr><td class="lh">Dylox 6.2G</td><td class="epa">EPA 432-1349</td><td class="amt">46.8 oz used</td><td>6.0 oz/1,000 sq ft &nbsp;|&nbsp; Spreader - Broadcast</td></tr>
+            </table>
+          </div>
+          <div class="tda-section">
+            <div class="sec-hdr">TDA Required Info</div>
+            <div class="tda-grid">
+              <div class="tda-item"><span class="tda-lbl">Equipment:</span> Spreader - Broadcast</div>
+              <div class="tda-item"><span class="tda-lbl">Reentry:</span> Water in, 24 hrs</div>
+              <div class="tda-item"><span class="tda-lbl">Wind:</span> 5 mph N</div>
+              <div class="tda-item"><span class="tda-lbl">Temp:</span> 83°F</div>
+              <div class="tda-item"><span class="tda-lbl">Biz Lic#:</span> SB-2023-001</div>
+              <div class="tda-item"><span class="tda-lbl">Notes:</span> Back yard grub activity</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- 5 -->
+    <tr class="app-row">
+      <td class="td-date col-date">05/28/2026<br/>8:55–9:30 AM</td>
+      <td class="col-client"><strong>Angela Torres</strong></td>
+      <td class="col-addr">7741 Stone Hollow Dr<br/>Pearland, TX 77584</td>
+      <td class="col-mix"><span class="mix-tag">Mosquito Guard</span></td>
+      <td class="col-pest">Mosquitoes, fleas</td>
+      <td class="col-area mono">5,200 sq ft<br/>Front Only</td>
+      <td class="col-app mono">2.6 gal</td>
+      <td class="col-tech">Mike Johnson<br/>TDA-1023456</td>
+    </tr>
+    <tr class="detail-row">
+      <td colspan="8">
+        <div class="detail-inner">
+          <div class="prod-section">
+            <div class="sec-hdr">Products Applied</div>
+            <table class="prod-mini-table">
+              <tr><td class="lh">Talstar P Professional</td><td class="epa">EPA 279-3206</td><td class="amt">2.1 fl oz used</td><td>0.8 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+              <tr><td class="lh">Bifen IT</td><td class="epa">EPA 53883-264</td><td class="amt">1.0 fl oz used</td><td>0.4 fl oz/1,000 sq ft &nbsp;|&nbsp; Spray - Truck</td></tr>
+            </table>
+          </div>
+          <div class="tda-section">
+            <div class="sec-hdr">TDA Required Info</div>
+            <div class="tda-grid">
+              <div class="tda-item"><span class="tda-lbl">Equipment:</span> Spray - Truck Mounted</div>
+              <div class="tda-item"><span class="tda-lbl">Reentry:</span> 2 hours</div>
+              <div class="tda-item"><span class="tda-lbl">Wind:</span> 7 mph E</div>
+              <div class="tda-item"><span class="tda-lbl">Temp:</span> 86°F</div>
+              <div class="tda-item"><span class="tda-lbl">Biz Lic#:</span> SB-2023-001</div>
+              <div class="tda-item"><span class="tda-lbl">Notes:</span> Re-treatment, heavy pressure</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+  </tbody>
+</table>
+
+</body>
+</html>
+

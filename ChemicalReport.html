@@ -1,0 +1,396 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chemical Tracking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ebebeb; color: #333; }
+
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:#fff; border-bottom:1px solid #ddd; }
+    .page-header h1 { font-size:22px; font-weight:800; color:#111; }
+    .btn-print { background:#e07820; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; display:none; }
+    .btn-print:hover { background:#c96a15; }
+
+    .date-range-section { background:#fff; border-bottom:1px solid #ddd; padding:18px 20px 14px; }
+    .date-range-title { font-size:11px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px; }
+    .date-range-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .date-box { display:flex; flex-direction:column; gap:4px; }
+    .date-box label { font-size:11px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:.4px; }
+    .date-box input[type="date"] {
+      border:1.5px solid #ccc; border-radius:5px; padding:8px 12px;
+      font-size:14px; font-family:inherit; background:#fff; cursor:pointer; min-width:160px;
+    }
+    .date-box input[type="date"]:focus { outline:none; border-color:#2272c3; box-shadow:0 0 0 2px rgba(34,114,195,.12); }
+    .date-arrow { font-size:20px; color:#bbb; margin-top:18px; }
+
+    .preset-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+    .preset-label { font-size:11px; color:#999; font-weight:600; margin-right:2px; }
+    .btn-preset { background:#f2f5fa; color:#2272c3; border:1px solid #d0e0f8; padding:5px 13px; font-size:12px; font-weight:600; border-radius:20px; cursor:pointer; transition:background .15s; }
+    .btn-preset:hover { background:#dce8f8; }
+    .btn-preset.active { background:#2272c3; color:#fff; border-color:#2272c3; }
+
+    .generate-row { display:flex; align-items:center; gap:12px; margin-top:14px; border-top:1px solid #f0f0f0; padding-top:14px; flex-wrap:wrap; }
+    .filter-inline { display:flex; align-items:center; gap:8px; }
+    .filter-inline label { font-size:12.5px; color:#666; font-weight:600; }
+    .filter-inline input, .filter-inline select { border:1px solid #ccc; border-radius:4px; padding:6px 9px; font-size:13px; font-family:inherit; background:#fff; }
+    .btn-generate { background:#2272c3; color:#fff; border:none; padding:9px 30px; font-size:14px; font-weight:700; border-radius:5px; cursor:pointer; letter-spacing:.2px; margin-left:auto; }
+    .btn-generate:hover { background:#1a5ea0; }
+
+    .summary-bar { display:flex; gap:16px; padding:10px 20px; background:#fff; border-bottom:1px solid #eee; flex-wrap:wrap; }
+    .summary-card { background:#f0f6ff; border:1px solid #d0e4f8; border-radius:4px; padding:8px 16px; min-width:140px; }
+    .summary-card .sc-label { font-size:11.5px; color:#555; text-transform:uppercase; letter-spacing:.4px; }
+    .summary-card .sc-val { font-size:20px; font-weight:800; color:#1a5ea0; margin-top:2px; }
+
+    .table-wrap { padding:16px 20px; }
+    table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
+    thead tr { background:#3a3a3a; color:#fff; }
+    thead th { padding:9px 10px; text-align:left; font-weight:600; font-size:12.5px; white-space:nowrap; border-right:1px solid #555; }
+    thead th:last-child { border-right:none; }
+    tbody tr { border-bottom:1px solid #eee; }
+    tbody tr:hover { background:#f5f9ff; }
+    tbody td { padding:8px 10px; vertical-align:top; }
+    tbody td.mono { font-family:monospace; }
+
+    .expand-btn { background:none; border:none; cursor:pointer; color:#2272c3; font-size:12px; text-decoration:underline; padding:0; }
+    .products-row { display:none; }
+    .products-row.open { display:table-row; }
+    .products-inner { padding:8px 16px; background:#f8fbff; }
+    .prod-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+    .prod-table th { background:#e8f0fe; padding:5px 8px; text-align:left; font-weight:600; color:#2272c3; }
+    .prod-table td { padding:5px 8px; border-bottom:1px solid #e8f0fe; }
+
+    .tda-details { margin-top:6px; }
+    .tda-section-hdr { font-size:11.5px; font-weight:700; color:#2272c3; background:#e8f0fe; padding:3px 8px; margin:6px 0 4px; border-left:3px solid #2272c3; }
+    .tda-detail-grid { display:flex; flex-wrap:wrap; gap:2px 0; padding:0 4px; }
+    .tda-detail-item { font-size:12.5px; min-width:200px; flex:0 0 50%; padding:1px 4px; }
+    .tda-detail-label { font-weight:700; color:#333; }
+
+    .empty-msg { text-align:center; padding:40px; color:#aaa; font-style:italic; }
+
+    @media print {
+      .date-range-section, .btn-print { display:none !important; }
+      body { background:#fff; }
+      @page { margin:12mm 10mm; size:letter; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>&#9879; Chemical Tracking</h1>
+  <button class="btn-print" id="btn-print" onclick="window.print()">&#128438; Print Report</button>
+</div>
+
+<div class="date-range-section">
+  <div class="date-range-title">Select Report Period</div>
+  <div class="date-range-row">
+    <div class="date-box">
+      <label>From</label>
+      <input type="date" id="filter-from"/>
+    </div>
+    <div class="date-arrow">&#8594;</div>
+    <div class="date-box">
+      <label>To</label>
+      <input type="date" id="filter-to"/>
+    </div>
+  </div>
+  <div class="preset-row">
+    <span class="preset-label">Quick:</span>
+    <button class="btn-preset active" id="preset-thismonth" onclick="setPreset('thismonth', this)">This Month</button>
+    <button class="btn-preset" id="preset-lastmonth" onclick="setPreset('lastmonth', this)">Last Month</button>
+    <button class="btn-preset" id="preset-last30" onclick="setPreset('last30', this)">Last 30 Days</button>
+    <button class="btn-preset" id="preset-thisyear" onclick="setPreset('thisyear', this)">This Year</button>
+  </div>
+  <div class="generate-row">
+    <div class="filter-inline">
+      <label>Client</label>
+      <input type="text" id="filter-client" placeholder="Search client..." style="width:170px;"/>
+    </div>
+    <div class="filter-inline">
+      <label>Mix</label>
+      <select id="filter-mix" style="width:170px;">
+        <option value="">All Mixes</option>
+      </select>
+    </div>
+    <button class="btn-generate" onclick="loadReport()">&#9660;&nbsp; Generate Report</button>
+  </div>
+</div>
+
+<div class="summary-bar" id="summary-bar" style="display:none;">
+  <div class="summary-card"><div class="sc-label">Applications</div><div class="sc-val" id="sum-count">0</div></div>
+  <div class="summary-card"><div class="sc-label">Properties</div><div class="sc-val" id="sum-props">0</div></div>
+  <div class="summary-card"><div class="sc-label">Total Area (sq ft)</div><div class="sc-val" id="sum-area">0</div></div>
+  <div class="summary-card"><div class="sc-label">Total Applied (gal)</div><div class="sc-val" id="sum-applied">0</div></div>
+</div>
+
+<div class="table-wrap">
+  <table id="report-table">
+    <thead>
+      <tr>
+        <th style="width:30px;"></th>
+        <th>Date Applied</th>
+        <th>Client</th>
+        <th>Address</th>
+        <th>Mix Used</th>
+        <th>Area Treated</th>
+        <th>Total Applied</th>
+        <th>Technician</th>
+      </tr>
+    </thead>
+    <tbody id="report-body">
+      <tr><td colspan="8" class="empty-msg">Select a date range above and click Generate Report.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var allRows = [];
+
+  function setPreset(preset, btn) {
+    document.querySelectorAll('.btn-preset').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    var today = new Date();
+    var from, to;
+    if (preset === 'thismonth') {
+      from = new Date(today.getFullYear(), today.getMonth(), 1);
+      to   = today;
+    } else if (preset === 'lastmonth') {
+      from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      to   = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (preset === 'last30') {
+      from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29);
+      to   = today;
+    } else if (preset === 'thisyear') {
+      from = new Date(today.getFullYear(), 0, 1);
+      to   = today;
+    }
+    document.getElementById('filter-from').value = from.toISOString().split('T')[0];
+    document.getElementById('filter-to').value   = to.toISOString().split('T')[0];
+  }
+
+  (async function init() {
+    setPreset('thismonth', document.getElementById('preset-thismonth'));
+
+    var { data: mixes } = await sb.from('Product Mixes').select('id, name').order('name');
+    var mixSel = document.getElementById('filter-mix');
+    (mixes || []).forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.name;
+      mixSel.appendChild(opt);
+    });
+
+    document.getElementById('filter-from').addEventListener('change', function() {
+      document.querySelectorAll('.btn-preset').forEach(function(b) { b.classList.remove('active'); });
+    });
+    document.getElementById('filter-to').addEventListener('change', function() {
+      document.querySelectorAll('.btn-preset').forEach(function(b) { b.classList.remove('active'); });
+    });
+  })();
+
+  async function loadReport() {
+    var from   = document.getElementById('filter-from').value;
+    var to     = document.getElementById('filter-to').value;
+    var client = document.getElementById('filter-client').value.trim().toLowerCase();
+    var mixId  = document.getElementById('filter-mix').value;
+
+    if (!from || !to) { alert('Please select a date range.'); return; }
+
+    var btn = document.querySelector('.btn-generate');
+    btn.textContent = 'Loading…';
+    btn.disabled = true;
+
+    var query = sb.from('chemical_applications')
+      .select('*')
+      .gte('applied_at', from + 'T00:00:00')
+      .lte('applied_at', to + 'T23:59:59')
+      .order('applied_at', { ascending: false });
+
+    if (mixId) query = query.eq('mix_id', mixId);
+
+    var { data, error } = await query;
+    btn.innerHTML = '&#9660;&nbsp; Generate Report';
+    btn.disabled = false;
+
+    if (error) { alert('Error loading report: ' + error.message); return; }
+
+    allRows = (data || []).filter(function(r) {
+      if (!client) return true;
+      return (r.client_name || '').toLowerCase().includes(client) || (r.address || '').toLowerCase().includes(client);
+    });
+
+    renderReport();
+  }
+
+  function renderReport() {
+    var tbody = document.getElementById('report-body');
+    tbody.innerHTML = '';
+
+    if (!allRows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No chemical applications found for this date range.</td></tr>';
+      document.getElementById('summary-bar').style.display = 'none';
+      document.getElementById('btn-print').style.display = 'none';
+      return;
+    }
+
+    var totalArea = 0, totalApplied = 0, propSet = new Set();
+
+    allRows.forEach(function(r, i) {
+      totalArea    += parseFloat(r.area_treated)  || 0;
+      totalApplied += parseFloat(r.total_applied) || 0;
+      if (r.property_id) propSet.add(r.property_id);
+
+      var hasProds = r.products && r.products.length;
+      var hasExpand = hasProds || r.target_pest || r.technician_name || r.start_time || r.notes;
+
+      var dateStr = r.applied_at ? new Date(r.applied_at).toLocaleDateString() : '—';
+      if (r.start_time || r.end_time) {
+        dateStr += '<br/><span style="font-size:11px;color:#555;">' + (r.start_time || '') + (r.end_time ? ' – ' + r.end_time : '') + '</span>';
+      }
+      var areaStr = (r.area_treated || '—') + ' ' + (r.area_unit || '');
+      if (r.area_location) areaStr += '<br/><span style="font-size:11px;color:#555;">' + r.area_location + '</span>';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (hasExpand ? '<button class="expand-btn" onclick="toggleProds(' + i + ', this)">+</button>' : '') + '</td>' +
+        '<td>' + dateStr + '</td>' +
+        '<td>' + (r.client_name || '—') + '</td>' +
+        '<td>' + (r.address || '—') + '</td>' +
+        '<td>' + (r.mix_name || '—') + '</td>' +
+        '<td class="mono">' + areaStr + '</td>' +
+        '<td class="mono">' + (r.total_applied || '—') + ' ' + (r.total_applied_unit || '') + '</td>' +
+        '<td>' + (r.technician_name || '—') + '</td>';
+      tbody.appendChild(tr);
+
+      if (hasExpand) {
+        var prodTr = document.createElement('tr');
+        prodTr.className = 'products-row';
+        prodTr.id = 'prod-row-' + i;
+
+        var expandedHtml = '';
+
+        if (hasProds) {
+          expandedHtml += '<div class="tda-section-hdr">Products Applied</div>';
+          expandedHtml += '<table class="prod-table"><thead><tr><th>Product</th><th>EPA Reg #</th><th>Amount Used</th><th>Rate</th></tr></thead><tbody>';
+          r.products.forEach(function(p) {
+            expandedHtml += '<tr>' +
+              '<td>' + (p.product_name || '—') + '</td>' +
+              '<td class="mono">' + (p.epa_reg || '—') + '</td>' +
+              '<td class="mono">' + (p.total_amount_used || '—') + ' ' + (p.amount_unit || '') + '</td>' +
+              '<td>' + (p.application_rate || '—') + '</td>' +
+              '</tr>';
+          });
+          expandedHtml += '</tbody></table>';
+        }
+
+        var tdaItems = [
+          ['Target Pest', r.target_pest],
+          ['Equipment', r.equipment_used],
+          ['Tech License #', r.tech_license_number],
+          ['Business License #', r.business_license_number],
+          ['Wind Speed', r.wind_speed],
+          ['Wind Direction', r.wind_direction],
+          ['Temperature', r.temperature ? r.temperature + '°F' : null],
+          ['Weather Notes', r.weather_notes],
+          ['Reentry Interval', r.reentry_interval],
+          ['Special Instructions', r.special_instructions],
+          ['Drift Prevention', r.drift_prevention],
+          ['Notes', r.notes]
+        ].filter(function(d) { return d[1]; });
+
+        if (tdaItems.length) {
+          expandedHtml += '<div class="tda-details"><div class="tda-section-hdr">Application Details</div><div class="tda-detail-grid">';
+          tdaItems.forEach(function(d) {
+            expandedHtml += '<div class="tda-detail-item"><span class="tda-detail-label">' + d[0] + ':</span> ' + d[1] + '</div>';
+          });
+          expandedHtml += '</div></div>';
+        }
+
+        prodTr.innerHTML = '<td colspan="8"><div class="products-inner">' + expandedHtml + '</div></td>';
+        tbody.appendChild(prodTr);
+      }
+    });
+
+    document.getElementById('sum-count').textContent   = allRows.length;
+    document.getElementById('sum-props').textContent   = propSet.size;
+    document.getElementById('sum-area').textContent    = totalArea.toLocaleString();
+    document.getElementById('sum-applied').textContent = totalApplied.toFixed(1);
+    document.getElementById('summary-bar').style.display = 'flex';
+    document.getElementById('btn-print').style.display = '';
+  }
+
+  function toggleProds(i, btn) {
+    var row = document.getElementById('prod-row-' + i);
+    if (!row) return;
+    var open = row.classList.toggle('open');
+    btn.textContent = open ? '−' : '+';
+  }
+
+  function exportCSV() {
+    if (!allRows.length) { alert('Generate the report first.'); return; }
+    var headers = [
+      'Date Applied','Start Time','End Time','Client','Address',
+      'Mix','Target Pest','Area Treated','Area Unit','Treatment Location',
+      'Total Applied','Applied Unit','Equipment','Technician','Tech License #',
+      'Business License #','Wind Speed','Wind Direction','Temperature',
+      'Weather Notes','Reentry Interval','Special Instructions','Drift Prevention','Notes',
+      'Product','EPA Reg #','Amount Used','Amount Unit','Rate'
+    ];
+    var lines = [headers.join(',')];
+    allRows.forEach(function(r) {
+      var base = [
+        '"' + (r.applied_at ? new Date(r.applied_at).toLocaleDateString() : '') + '"',
+        '"' + (r.start_time || '') + '"',
+        '"' + (r.end_time || '') + '"',
+        '"' + (r.client_name || '') + '"',
+        '"' + (r.address || '') + '"',
+        '"' + (r.mix_name || '') + '"',
+        '"' + (r.target_pest || '') + '"',
+        r.area_treated || '',
+        '"' + (r.area_unit || '') + '"',
+        '"' + (r.area_location || '') + '"',
+        r.total_applied || '',
+        '"' + (r.total_applied_unit || '') + '"',
+        '"' + (r.equipment_used || '') + '"',
+        '"' + (r.technician_name || '') + '"',
+        '"' + (r.tech_license_number || '') + '"',
+        '"' + (r.business_license_number || '') + '"',
+        '"' + (r.wind_speed || '') + '"',
+        '"' + (r.wind_direction || '') + '"',
+        '"' + (r.temperature || '') + '"',
+        '"' + (r.weather_notes || '') + '"',
+        '"' + (r.reentry_interval || '') + '"',
+        '"' + (r.special_instructions || '') + '"',
+        '"' + (r.drift_prevention || '') + '"',
+        '"' + (r.notes || '') + '"'
+      ];
+      var prods = r.products && r.products.length ? r.products : [{}];
+      prods.forEach(function(p) {
+        lines.push(base.concat([
+          '"' + (p.product_name || '') + '"',
+          '"' + (p.epa_reg || '') + '"',
+          p.total_amount_used || '',
+          '"' + (p.amount_unit || '') + '"',
+          '"' + (p.application_rate || '') + '"'
+        ]).join(','));
+      });
+    });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'chemical_report_' + document.getElementById('filter-from').value + '_to_' + document.getElementById('filter-to').value + '.csv';
+    a.click();
+  }
+</script>
+</body>
+</html>
+

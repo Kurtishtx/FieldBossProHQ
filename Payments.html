@@ -1,0 +1,527 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payments</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-shrink: 0;
+      font-size: 13.5px;
+    }
+    .filter-bar-label {
+      font-weight: 700;
+      color: #333;
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+    .filter-link {
+      background: none;
+      border: none;
+      color: #444;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 2px 8px;
+      text-decoration: none;
+    }
+    .filter-link:hover { text-decoration: underline; color: #111; }
+    .filter-link.active { font-weight: 700; color: #111; text-decoration: underline; }
+
+    /* ── Page header ── */
+    .page-header {
+      padding: 10px 20px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .showing-count {
+      font-size: 14px;
+      font-weight: 400;
+      color: #555;
+    }
+        .btn-orange-filled {
+      background: #e07820;
+      border: 3px solid #111;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #3a3a3a;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 6px; position: relative; }
+
+    .btn-green-main {
+      background: #e8c000;
+      color: #000;
+      border: 2px solid #fff; border-right: none;
+      border-radius: 3px 0 0 3px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-green-main:hover { background: #d4ae00; }
+    .btn-green-caret {
+      background: #e8c000;
+      color: #000;
+      border: 2px solid #fff;
+      border-left: 1px solid rgba(0,0,0,.15);
+      border-radius: 0 3px 3px 0;
+      padding: 6px 9px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-green-caret:hover { background: #d4ae00; }
+
+    .refresh-btn {
+      background: #555;
+      color: #ccc;
+      border: 1px solid #666;
+      border-radius: 3px;
+      padding: 4px 8px;
+      font-size: 15px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .refresh-btn:hover { background: #666; color: #fff; }
+
+    /* Actions dropdown */
+    .actions-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      z-index: 200;
+      min-width: 200px;
+      padding: 4px 0;
+    }
+    .actions-dropdown.open { display: block; }
+    .dropdown-header {
+      font-size: 13px;
+      font-weight: 700;
+      color: #222;
+      padding: 7px 16px 5px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 3px;
+    }
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+      cursor: pointer;
+    }
+    .dropdown-item:hover { background: #f5f5f5; }
+
+    /* Pagination */
+    .pagination-area {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #ccc;
+    }
+    .pagination-area .pg-label { margin-right: 4px; }
+    .pagination-area input {
+      width: 46px;
+      padding: 3px 6px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 3px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+      margin-right: 6px;
+    }
+    .pg-btn {
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.7);
+      border: none;
+      padding: 4px 7px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      min-width: 26px;
+    }
+    .pg-btn:hover { background: rgba(255,255,255,.2); }
+    .pg-current {
+      background: #f5c800;
+      color: #111;
+      border: none;
+      padding: 4px 9px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      min-width: 26px;
+    }
+    .pg-num {
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.7);
+      border: none;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: pointer;
+      min-width: 26px;
+    }
+    .pg-num:hover { background: rgba(255,255,255,.2); }
+    .pg-dots {
+      color: rgba(255,255,255,.5);
+      font-size: 12px;
+      padding: 0 2px;
+    }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      background: #3a3a3a;
+      padding: 5px 10px 0;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+      border-top: 1px solid #2a2a2a;
+    }
+    .tab-btn {
+      background: #bbb;
+      color: #111;
+      border: none;
+      border-radius: 4px 4px 0 0;
+      padding: 5px 16px;
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
+    .tab-btn:hover:not(.active) { background: #aaa; color: #111; }
+
+    /* ── Table ── */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      background: #fff;
+      border-bottom: 2px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:first-child { width: 34px; text-align: center; cursor: default; }
+    thead th .sort-icon  { color: #bbb; font-size: 10px; margin-left: 3px; }
+    thead th .sort-asc   { color: #555; font-size: 10px; margin-left: 3px; }
+    thead th .sort-desc  { color: #555; font-size: 10px; margin-left: 3px; }
+
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:hover { background: #fdfbe8; }
+    tbody td { padding: 8px 12px; color: #333; vertical-align: top; }
+    tbody td:first-child { text-align: center; vertical-align: middle; }
+
+    input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+
+    .date-link {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .date-link:hover { text-decoration: underline; color: #111; }
+
+    .client-name {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .client-name:hover { text-decoration: underline; color: #111; }
+    .client-addr {
+      font-size: 12px;
+      color: #777;
+      margin-top: 2px;
+    }
+
+    .money { text-align: right; }
+
+    .empty-msg {
+      text-align: center;
+      color: #aaa;
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <span class="filter-bar-label">Select a Filter:</span>
+  <button class="filter-link" onclick="setFilter(this,'refnum')">Reference #</button>
+  <button class="filter-link" onclick="setFilter(this,'date')">Date</button>
+  <button class="filter-link" onclick="setFilter(this,'client')">Client</button>
+  <button class="filter-link" onclick="setFilter(this,'address')">Address</button>
+  <button class="filter-link" onclick="setFilter(this,'paymethod')">Payment Method</button>
+</div>
+
+<!-- Page header -->
+<div class="page-header">
+  <h1>Payments <span class="showing-count" id="showing-count">(Showing 0 of 0)</span></h1>
+  <button class="btn-orange-filled">Add Payment</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div style="display:flex;position:relative;">
+    <button class="btn-green-main">Actions</button>
+    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
+
+    <div class="actions-dropdown" id="actions-dropdown">
+      <div class="dropdown-header">Actions</div>
+      <button class="dropdown-item" onclick="alert('Payment entry form coming soon.')">Add Payment</button>
+      <button class="dropdown-item" onclick="deleteSelectedPayments()">Delete</button>
+      <button class="dropdown-item" onclick="exportPayments()">Export</button>
+    </div>
+    </div>
+
+    <button class="refresh-btn" title="Refresh">&#8635;</button>
+  </div>
+
+  <div class="pagination-area">
+    <span class="pg-label">Page Size:</span>
+    <input type="text" value="100" id="page-size" style="width:48px;text-align:center;"/>
+    <button class="pg-btn">|&lt;</button>
+    <button class="pg-btn">&lt;</button>
+    <button class="pg-current">1</button>
+    <button class="pg-num">2</button>
+    <button class="pg-num">3</button>
+    <button class="pg-num">4</button>
+    <button class="pg-num">5</button>
+    <span class="pg-dots">...</span>
+    <button class="pg-btn">&gt;</button>
+    <button class="pg-btn">&gt;|</button>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="setTab(this,'last30')">Last 30 Days</button>
+  <button class="tab-btn" onclick="setTab(this,'deleted')">Deleted</button>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th onclick="sortTable('date')">Date <span class="sort-desc">&#8595;</span></th>
+        <th onclick="sortTable('client')">Client <span class="sort-asc">&#8593;</span></th>
+        <th onclick="sortTable('amount')" style="text-align:right;">Amount <span class="sort-icon">&#8597;</span></th>
+        <th onclick="sortTable('unusedAmt')" style="text-align:right;">Unused Amt <span class="sort-icon">&#8597;</span></th>
+        <th onclick="sortTable('refundedAmt')" style="text-align:right;">Refunded Amt <span class="sort-icon">&#8597;</span></th>
+        <th onclick="sortTable('referenceNum')">Reference # <span class="sort-icon">&#8597;</span></th>
+        <th onclick="sortTable('paymentMethod')">Payment Method <span class="sort-icon">&#8597;</span></th>
+      </tr>
+    </thead>
+    <tbody id="payment-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg">No payments found.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  /* ── Dropdown ── */
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+  });
+
+  /* ── Filter bar ── */
+  function setFilter(btn, filter) {
+    document.querySelectorAll('.filter-link').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+
+  /* ── Tabs ── */
+  var currentTab = 'last30';
+  function setTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentTab = tab;
+    renderTable();
+  }
+
+  /* ── Data ── */
+  var payments = [];
+
+  async function loadPayments() {
+    var { data, error } = await sb.from('Payments').select('*').order('date', { ascending: false });
+    if (error) { console.error(error); return; }
+    payments = data || [];
+    renderTable();
+  }
+
+  /* ── Helpers ── */
+  function fmt(v) {
+    return '$' + (v !== undefined ? parseFloat(v).toFixed(2) : '0.00');
+  }
+
+  /* ── Render ── */
+  function renderTable() {
+    var tbody    = document.getElementById('payment-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+
+    var filtered = payments.filter(function(p) {
+      if (currentTab === 'deleted') return p.deleted;
+      return !p.deleted;
+    });
+
+    document.getElementById('showing-count').textContent =
+      '(Showing ' + filtered.length + ' of ' + payments.length + ')';
+
+    if (filtered.length === 0) {
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    filtered.forEach(function(p) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" data-id="' + p.id + '"/></td>' +
+        '<td><a class="date-link">' + (p.date || '') + '</a></td>' +
+        '<td>' +
+          '<a class="client-name">' + (p.client_name || '') + (p.star ? ' &#11088;' : '') + '</a>' +
+          '<div class="client-addr">' + (p.address || '') + '</div>' +
+        '</td>' +
+        '<td class="money">' + fmt(p.amount) + '</td>' +
+        '<td class="money">' + fmt(p.unused_amt) + '</td>' +
+        '<td class="money">' + fmt(p.refunded_amt) + '</td>' +
+        '<td>' + (p.reference_num || '') + '</td>' +
+        '<td>' + (p.payment_method || '') + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('#payment-tbody input[type="checkbox"]')
+      .forEach(function(c) { c.checked = cb.checked; });
+  }
+
+  function sortTable(col) { /* wire when live data is connected */ }
+
+  function getSelectedPaymentIds() {
+    return Array.from(document.querySelectorAll('#payment-tbody input[type="checkbox"].row-cb:checked'))
+      .map(function(cb) { return cb.getAttribute('data-id'); });
+  }
+
+  async function deleteSelectedPayments() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedPaymentIds();
+    if (!ids.length) { alert('Check the box next to each payment to delete first.'); return; }
+    if (!confirm('Delete ' + ids.length + ' payment(s)? This cannot be undone.')) return;
+    var { error } = await sb.from('Payments').update({ deleted: true }).in('id', ids);
+    if (error) { alert('Delete failed: ' + error.message); return; }
+    loadPayments();
+  }
+
+  function exportPayments() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var rows = [['Date','Client','Address','Amount','Unused Amt','Refunded Amt','Reference #','Payment Method']];
+    payments.forEach(function(p) {
+      rows.push([p.date||'', p.client_name||'', p.address||'',
+        p.amount||0, p.unused_amt||0, p.refunded_amt||0,
+        p.reference_num||'', p.payment_method||'']);
+    });
+    var csv = rows.map(function(r) {
+      return r.map(function(v) { return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
+    }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'payments.csv';
+    a.click();
+  }
+
+  loadPayments();
+</script>
+</body>
+</html>
+

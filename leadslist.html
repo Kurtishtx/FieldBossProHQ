@@ -1,0 +1,813 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leads</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Top bar ── */
+    .page-topbar {
+      background: #fff;
+      border-bottom: 1px solid #d8d8d8;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
+    .filter-icon-btn {
+      background: #ebebeb;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 6px 11px;
+      cursor: pointer;
+      font-size: 15px;
+      color: #333;
+      line-height: 1;
+      transition: background .15s;
+    }
+    .filter-icon-btn:hover { background: #ddd; }
+
+    .lead-search {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 13.5px;
+      width: 220px;
+      font-family: inherit;
+      color: #222;
+      background: #f5f5f5;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .lead-search:focus {
+      outline: none;
+      border-color: #f5c800;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(245,200,0,.2);
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .btn-orange-outline {
+      background: #111;
+      border: 3px solid #e07820;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-orange-outline:hover { background: #222; }
+        .btn-orange-filled {
+      background: #e07820;
+      border: 3px solid #111;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
+
+    /* ── Map section ── */
+    #map-section {
+      position: relative;
+      height: 300px;
+      flex-shrink: 0;
+      overflow: hidden;
+      border-bottom: 1px solid #bbb;
+    }
+
+    .map-side-icons {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 10;
+    }
+    .map-icon-btn {
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+      transition: background .15s;
+    }
+    .map-icon-btn:hover { background: #222; }
+
+    .map-sat-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    }
+    .map-sat-toggle button {
+      background: none;
+      border: none;
+      padding: 6px 16px;
+      font-size: 12.5px;
+      cursor: pointer;
+      font-family: inherit;
+      color: #888;
+      font-weight: 500;
+      transition: background .15s, color .15s;
+    }
+    .map-sat-toggle button.active { background: #333; color: #fff; font-weight: 700; }
+    .map-sat-toggle button:hover:not(.active) { background: #ebebeb; color: #333; }
+
+    /* ── Filters bar (BLACK) ── */
+    .filters-bar {
+      background: #111;
+      color: rgba(255,255,255,.8);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
+      letter-spacing: .3px;
+    }
+    .filters-bar:hover { background: #222; }
+
+    .filters-row {
+      background: #e8e8e8;
+      border-bottom: 1px solid #d0d0d0;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-filter-action {
+      background: #ddd;
+      border: 1px solid #c4c4c4;
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      color: #333;
+      font-weight: 500;
+      transition: background .15s;
+    }
+    .btn-filter-action:hover { background: #ccc; }
+    .btn-clear-filters {
+      margin-left: auto;
+      background: #ddd;
+      border: 1px solid #c4c4c4;
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      color: #555;
+      transition: background .15s;
+    }
+    .btn-clear-filters:hover { background: #ccc; }
+
+    /* ── Results bar ── */
+    .results-bar {
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #555;
+      background: #e0e0e0;
+      border-bottom: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #3a3a3a;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .actions-split { display: flex; align-items: stretch; position: relative; }
+    .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
+    .btn-green-main:hover { background: #d4ae00; }
+    .btn-green-caret { background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15); border-radius: 0 3px 3px 0; padding: 5px 8px; font-size: 12px; cursor: pointer; }
+    .btn-green-caret:hover { background: #d4ae00; }
+
+    .actions-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+      z-index: 200;
+      min-width: 180px;
+      padding: 4px 0;
+    }
+    .actions-dropdown.open { display: block; }
+    .dropdown-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      padding: 8px 14px 4px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 3px;
+    }
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #222;
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .dropdown-item:hover { background: #f5f5f5; color: #111; }
+
+    .pagination-area {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: rgba(255,255,255,.7);
+    }
+    .pagination-area input {
+      width: 50px;
+      padding: 3px 6px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 4px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+    }
+    .pg-btn {
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.75);
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background .15s;
+    }
+    .pg-btn:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .pg-current {
+      background: #f5c800;
+      color: #111;
+      border: none;
+      padding: 4px 9px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .btn-columns {
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12.5px;
+      margin-left: 6px;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .btn-columns:hover { background: rgba(255,255,255,.22); color: #fff; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      background: #3a3a3a;
+      padding: 0 14px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+      border-top: 1px solid #2a2a2a;
+      overflow-x: auto;
+    }
+    .tabs-bar::-webkit-scrollbar { height: 3px; }
+    .tabs-bar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); }
+    .tab-btn {
+      background: #bbb;
+      color: #111;
+      border: none;
+      border-radius: 5px 5px 0 0;
+      padding: 7px 16px;
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
+    .tab-btn:hover:not(.active) { background: #aaa; }
+
+    /* ── Table ── */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead th {
+      background: #fff;
+      border-bottom: 2px solid #ddd;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      white-space: nowrap;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    thead th:first-child { width: 36px; text-align: center; }
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .1s; }
+    tbody tr:hover { background: #fdfbe8; }
+    tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+    .lead-link {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .lead-link:hover { text-decoration: underline; color: #111; }
+
+    .empty-msg {
+      text-align: center;
+      color: #aaa;
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+  </style>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Lead Modal Overlay -->
+<div id="lead-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:1120px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="lead-modal-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="page-topbar">
+  <div class="topbar-left">
+  </div>
+  <div class="topbar-right">
+    <button class="btn-orange-outline" id="map-toggle-btn" onclick="toggleMap()">Show Map</button>
+    <button class="btn-orange-filled" onclick="openLeadModal()">Add Lead</button>
+  </div>
+</div>
+
+<!-- Map section -->
+<div id="map-section" style="display:none">
+  <div id="map" style="width:100%;height:100%;"></div>
+  <div class="map-sat-toggle">
+    <button onclick="setMapView(this)">Map</button>
+    <button class="active" onclick="setMapView(this)">Satellite</button>
+  </div>
+</div>
+
+<!-- Filters bar -->
+<div class="filters-bar" onclick="toggleFilters()">
+  <span>&#9783; Filters</span>
+  <span id="filters-arrow">&#9660;</span>
+</div>
+<div class="filters-row" id="filters-row" style="display:none">
+  <button class="btn-filter-action">Search</button>
+  <button class="btn-filter-action">Add Filter</button>
+  <button class="btn-clear-filters">Clear Filters</button>
+</div>
+
+<!-- Results count -->
+<div class="results-bar" id="results-bar">0 items in 1 pages</div>
+
+<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#3a3a3a;color:#fff;font-size:13px;">
+  <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> lead(s)? This cannot be undone.</span>
+  <button onclick="confirmDelete()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
+  <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #aaa;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="actions-split">
+    <button class="btn-green-main">Actions</button>
+    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
+    <div class="actions-dropdown" id="actions-dropdown">
+      <div class="dropdown-header">Actions</div>
+      <button class="dropdown-item" onclick="openLeadModal()">Add Lead</button>
+      <button class="dropdown-item" onclick="convertLead()">Convert Lead</button>
+      <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
+      <button class="dropdown-item" onclick="makeLeadsActive(true)">Make Active</button>
+      <button class="dropdown-item" onclick="makeLeadsActive(false)">Make Inactive</button>
+      <button class="dropdown-item" onclick="exportLeads()">Export</button>
+    </div>
+  </div>
+  <div id="pagination-bar" style="display:none;align-items:center;gap:6px;font-size:13px;color:#ccc;">
+    <button onclick="goPage(-1)" style="background:rgba(255,255,255,.12);border:none;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;">&#9664;</button>
+    <span>Page <strong id="pg-current-num" style="color:#e8c000;">1</strong> of <strong id="pg-total-num" style="color:#fff;">1</strong></span>
+    <button onclick="goPage(1)" style="background:rgba(255,255,255,.12);border:none;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;">&#9654;</button>
+  </div>
+  </div>
+
+<!-- Tabs -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="setTab(this, 'leads')">Leads</button>
+  <button class="tab-btn" onclick="setTab(this, 'closed')">Closed Leads</button>
+  <button class="tab-btn" onclick="setTab(this, 'all')">Leads and Closed Leads</button>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th>Lead Name</th>
+        <th>Address</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Zip</th>
+        <th>Lead Since</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody id="lead-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg">No leads found.</div>
+</div>
+<div style="height:28px;background:#3a3a3a;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
+  var map = null, mapMarkers = [], mapInitialized = false;
+
+  function initMapIfNeeded() {
+    if (mapInitialized) return;
+    mapInitialized = true;
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: [-97.033, 32.725],
+      zoom: 9
+    });
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+    map.addControl(new mapboxgl.FullscreenControl(), 'bottom-right');
+  }
+
+  var mapVisible = false;
+  function toggleMap() {
+    mapVisible = !mapVisible;
+    document.getElementById('map-section').style.display = mapVisible ? '' : 'none';
+    document.getElementById('map-toggle-btn').textContent = mapVisible ? 'Hide Map' : 'Show Map';
+    if (mapVisible) {
+      initMapIfNeeded();
+      setTimeout(function() { if (map) { map.resize(); loadMarkers(); } }, 100);
+    }
+  }
+
+  function setMapView(btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    if (map) {
+      map.setStyle(btn.textContent.trim() === 'Satellite'
+        ? 'mapbox://styles/mapbox/satellite-streets-v12'
+        : 'mapbox://styles/mapbox/streets-v12');
+    }
+  }
+
+  var filtersOpen = false;
+  function toggleFilters() {
+    filtersOpen = !filtersOpen;
+    document.getElementById('filters-row').style.display = filtersOpen ? '' : 'none';
+    document.getElementById('filters-arrow').innerHTML = filtersOpen ? '&#9650;' : '&#9660;';
+  }
+
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+  });
+
+  var currentTab = 'leads';
+  function setTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentTab = tab;
+    renderTable();
+  }
+
+  var leads = [];
+  var currentPage = 1, totalCount = 0, PAGE_SIZE = 1000;
+
+  function goPage(dir) {
+    var totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+    currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+    loadLeads();
+  }
+
+  async function loadLeads() {
+    var { count } = await sb.from('Leads').select('*', { count: 'exact', head: true });
+    totalCount = count || 0;
+    var totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var { data, error } = await sb.from('Leads').select('*').order('name', { ascending: true }).range(start, start + PAGE_SIZE - 1);
+    document.getElementById('pagination-bar').style.display = totalCount > PAGE_SIZE ? 'flex' : 'none';
+    document.getElementById('pg-current-num').textContent = currentPage;
+    document.getElementById('pg-total-num').textContent = totalPages;
+    if (error) { console.error(error); return; }
+    leads = data || [];
+    renderTable();
+    loadMarkers();
+  }
+
+  function renderTable() {
+    var tbody = document.getElementById('lead-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+    var filtered = leads.filter(function(l) {
+      if (currentTab === 'leads')  return !l.closed;
+      if (currentTab === 'closed') return l.closed;
+      return true;
+    });
+    document.getElementById('results-bar').textContent = Math.min(currentPage * PAGE_SIZE, totalCount) + ' / ' + totalCount + ' leads';
+    if (filtered.length === 0) { emptyMsg.style.display = ''; return; }
+    emptyMsg.style.display = 'none';
+    filtered.forEach(function(l) {
+      var tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.dataset.id = l.id;
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" data-id="' + l.id + '" onclick="event.stopPropagation()" onchange="if(map)loadMarkers()"/></td>' +
+        '<td><a class="lead-link" style="cursor:pointer;color:#2272c3;font-weight:600;" onclick="event.stopPropagation();goToLead(\'' + l.id + '\')">' + (l.name || '') + '</a></td>' +
+        '<td>' + (l.address || '') + '</td>' +
+        '<td>' + (l.city || '') + '</td>' +
+        '<td>' + (l.state || '') + '</td>' +
+        '<td>' + (l.zip || '') + '</td>' +
+        '<td>' + (l.created_at ? new Date(l.created_at).toLocaleDateString() : '') + '</td>' +
+        '<td>' + (l.type || 'Lead') + '</td>';
+      tr.addEventListener('click', function(e) {
+        if (e.target.type === 'checkbox') return;
+        goToLead(l.id);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function goToLead(id) {
+    window.location.href = 'leadsprofile.html?id=' + id;
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('#lead-tbody input[type="checkbox"]')
+      .forEach(function(c) { c.checked = cb.checked; });
+    if (map) loadMarkers();
+  }
+
+  function getSelectedIds() {
+    return Array.from(document.querySelectorAll('.row-cb:checked')).map(function(cb) { return cb.getAttribute('data-id'); });
+  }
+
+  function deleteSelected() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Check the box next to each lead you want to delete first.'); return; }
+    document.getElementById('delete-confirm-count').textContent = ids.length;
+    var bar = document.getElementById('delete-confirm-bar');
+    bar.dataset.ids = JSON.stringify(ids);
+    bar.style.display = 'flex';
+  }
+
+  async function convertLead() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Check the box next to a lead to convert first.'); return; }
+    if (ids.length > 1) { alert('Please select only one lead to convert at a time.'); return; }
+
+    var { data: lead, error: leadErr } = await sb.from('Leads').select('*').eq('id', ids[0]).single();
+    if (leadErr || !lead) { alert('Could not load lead data.'); return; }
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    // Split name into first/last
+    var nameParts = (lead.name || '').trim().split(' ');
+    var firstName = nameParts[0] || '';
+    var lastName  = nameParts.slice(1).join(' ') || '';
+    var fullName  = lead.name || 'Client';
+    var addr      = lead.address || '';
+    var city      = lead.city || '';
+    var state     = lead.state || '';
+    var zip       = lead.zip || '';
+    var phone     = lead.cell || lead.phone || '';
+
+    // Create client — billing address same as service address
+    var clientPayload = {
+      user_id:    uid,
+      name:       fullName,
+      first_name: firstName,
+      last_name:  lastName,
+      email:      lead.email || '',
+      phone:      phone,
+      cell:       phone,
+      home_phone: lead.home_phone || '',
+      addr1:      addr,
+      city:       city,
+      state:      state,
+      zip:        zip,
+      address:    [addr, city, state].filter(Boolean).join(', '),
+      notes:      lead.notes || '',
+    };
+
+    var { data: newClient, error: clientErr } = await sb.from('Clients').insert(clientPayload).select('id').single();
+    if (clientErr || !newClient) { alert('Error creating client: ' + (clientErr ? clientErr.message : 'unknown')); return; }
+
+    // Create property with same address
+    var propPayload = {
+      user_id:     uid,
+      customer_id: newClient.id,
+      address:     addr,
+      city:        city,
+      state:       state,
+      zip:         zip,
+    };
+    await sb.from('Properties').insert(propPayload);
+
+    // Navigate to new client profile
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('clientprofile?id=' + newClient.id);
+    } else {
+      window.location.href = 'ClientProfile.html?id=' + newClient.id;
+    }
+  }
+
+  async function confirmDelete() {
+    var bar = document.getElementById('delete-confirm-bar');
+    var ids = JSON.parse(bar.dataset.ids || '[]');
+    bar.style.display = 'none';
+    var CHUNK = 50;
+    for (var i = 0; i < ids.length; i += CHUNK) {
+      var { error } = await sb.from('Leads').delete().in('id', ids.slice(i, i + CHUNK));
+      if (error) { alert('Error deleting: ' + error.message); return; }
+    }
+    loadLeads();
+  }
+
+  function createPinEl(name) {
+    var el = document.createElement('div');
+    el.title = name || '';
+    el.style.cssText = 'cursor:pointer;width:32px;height:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));';
+    el.innerHTML =
+      '<svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" ' +
+      'fill="#e07820" stroke="#ffffff" stroke-width="1.2"/>' +
+      '<circle cx="12" cy="9" r="2.8" fill="#ffffff"/></svg>';
+    return el;
+  }
+
+  function loadMarkers() {
+    mapMarkers.forEach(function(m) { m.remove(); });
+    mapMarkers = [];
+    var checkedIds = [];
+    document.querySelectorAll('#lead-tbody tr').forEach(function(tr) {
+      var cb = tr.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked) checkedIds.push(tr.dataset.id);
+    });
+    checkedIds.forEach(function(id) {
+      var r = leads.find(function(l) { return String(l.id) === id; });
+      if (!r || !r.lat || !r.lng) return;
+      var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+        '<strong>' + (r.name || '') + '</strong><br>' + (r.address || '') + ' ' + (r.city || '')
+      );
+      var marker = new mapboxgl.Marker({ element: createPinEl(r.name) })
+        .setLngLat([r.lng, r.lat])
+        .setPopup(popup)
+        .addTo(map);
+      mapMarkers.push(marker);
+    });
+  }
+
+  loadLeads();
+
+  async function makeLeadsActive(active) {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Check the box next to each lead you want to update first.'); return; }
+    var CHUNK = 50;
+    for (var i = 0; i < ids.length; i += CHUNK) {
+      var { error } = await sb.from('Leads').update({ closed: !active }).in('id', ids.slice(i, i + CHUNK));
+      if (error) { alert('Update failed: ' + error.message); return; }
+    }
+    loadLeads();
+  }
+
+  function exportLeads() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var rows = [['Name','Address','City','State','Zip','Lead Since','Type']];
+    leads.forEach(function(l) {
+      rows.push([l.name||'', l.address||'', l.city||'', l.state||'', l.zip||'',
+        l.created_at ? new Date(l.created_at).toLocaleDateString() : '', l.type||'Lead']);
+    });
+    downloadCSV(rows, 'leads.csv');
+  }
+
+  function downloadCSV(rows, filename) {
+    var csv = rows.map(function(r) {
+      return r.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = filename;
+    a.click();
+  }
+
+  function openLeadModal(id) {
+    var src = 'LeadsAdd.html' + (id ? '?id=' + id : '');
+    document.getElementById('lead-modal-iframe').src = src;
+    var overlay = document.getElementById('lead-modal-overlay');
+    overlay.style.display = 'flex';
+  }
+
+  function closeLeadModal(saved) {
+    document.getElementById('lead-modal-overlay').style.display = 'none';
+    document.getElementById('lead-modal-iframe').src = '';
+    if (saved) loadLeads();
+  }
+
+  document.getElementById('lead-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeLeadModal(false);
+  });
+</script>
+</body>
+</html>
+

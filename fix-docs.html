@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Fix Corrupted Documents</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+    h2 { margin-bottom: 20px; }
+    .log { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 16px; min-height: 200px; font-family: monospace; font-size: 13px; white-space: pre-wrap; }
+    button { background: #e07820; color: #fff; border: none; padding: 10px 24px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; margin-bottom: 16px; }
+    button:hover { background: #c96a10; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+  <h2>Fix Corrupted Document Blocks</h2>
+  <button onclick="runFix()">Run Fix</button>
+  <div class="log" id="log">Click "Run Fix" to scan and clear corrupted blocks data...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    var sb = supabase.createClient(
+      "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+    );
+
+    function log(msg) {
+      document.getElementById('log').textContent += '\n' + msg;
+    }
+
+    function isCorrupted(blocks) {
+      if (!Array.isArray(blocks)) return true;
+      for (var i = 0; i < blocks.length; i++) {
+        var item = blocks[i];
+        if (!item || typeof item !== 'object') return true;
+        if (typeof item.html === 'string' && item.html.length > 30000) return true;
+        if (Array.isArray(item.cols)) {
+          for (var j = 0; j < item.cols.length; j++) {
+            var colBlocks = item.cols[j].blocks || [];
+            for (var k = 0; k < colBlocks.length; k++) {
+              if (colBlocks[k] && typeof colBlocks[k].html === 'string' && colBlocks[k].html.length > 30000) return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    var VALID_TYPES = new Set(['title','para','list','image','button','divider','spacer','social','html','video','icons','menu','text','row']);
+
+    function blockLooksCorrupted(html) {
+      if (typeof html !== 'string') return false;
+      if (html.length > 5000) return true;
+      if (/function\s+\w+\(/.test(html)) return true;
+      if (/var\s+\w+\s*=/.test(html)) return true;
+      if (/document\.getElementById/.test(html)) return true;
+      return false;
+    }
+
+    function docIsCorrupted(blocks) {
+      if (!Array.isArray(blocks)) return true;
+      for (var i = 0; i < blocks.length; i++) {
+        var item = blocks[i];
+        if (!item || typeof item !== 'object') return true;
+        if (item.type && !VALID_TYPES.has(item.type)) return true;
+        if (blockLooksCorrupted(item.html)) return true;
+        if (Array.isArray(item.cols)) {
+          for (var j = 0; j < item.cols.length; j++) {
+            var colBlocks = (item.cols[j] && item.cols[j].blocks) || [];
+            for (var k = 0; k < colBlocks.length; k++) {
+              if (blockLooksCorrupted(colBlocks[k] && colBlocks[k].html)) return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    async function runFix() {
+      document.getElementById('log').textContent = 'Scanning documents table...';
+      var { data, error } = await sb.from('documents').select('id, name, blocks');
+      if (error) { log('ERROR: ' + error.message); return; }
+      log('Found ' + data.length + ' document(s).\n');
+
+      var fixed = 0;
+      for (var i = 0; i < data.length; i++) {
+        var doc = data[i];
+        var blocks = doc.blocks;
+        log('--- "' + doc.name + '" (id=' + doc.id + ')');
+        log('    blocks type: ' + (Array.isArray(blocks) ? 'array[' + blocks.length + ']' : typeof blocks));
+        if (Array.isArray(blocks)) {
+          blocks.forEach(function(b, idx) {
+            var htmlSnip = typeof b.html === 'string' ? b.html.substring(0, 80).replace(/\n/g,' ') : '(none)';
+            log('    block[' + idx + '] type=' + b.type + ' htmlLen=' + (b.html||'').length + ' snippet: ' + htmlSnip);
+          });
+        }
+
+        if (docIsCorrupted(blocks)) {
+          log('    *** CORRUPTED — clearing...');
+          var { error: upErr } = await sb.from('documents').update({ blocks: [] }).eq('id', doc.id);
+          if (upErr) { log('    ERROR: ' + upErr.message); }
+          else { log('    FIXED.'); fixed++; }
+        } else {
+          log('    OK');
+        }
+        log('');
+      }
+      log('Done. Fixed ' + fixed + ' corrupted document(s).');
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Cancellation Reason</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .dialog {
+      max-width: 560px;
+      margin: 40px auto;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+      background: #fff;
+    }
+    .dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid #eee;
+    }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn {
+      background: none; border: 1px solid #bbb; padding: 2px 7px;
+      font-size: 13px; cursor: pointer; color: #555; border-radius: 2px;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    .dialog-body { padding: 20px 24px 24px; }
+
+    .field-row {
+      display: flex; align-items: center;
+      gap: 14px; margin-bottom: 16px;
+    }
+    .field-row label {
+      width: 70px; font-weight: 700; font-size: 14px; color: #333; flex-shrink: 0;
+    }
+    .field-row input[type="text"],
+    .field-row select {
+      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none;
+      border-radius: 2px;
+    }
+    .field-row input[type="text"]:focus,
+    .field-row select:focus { border-color: #e07820; }
+
+    .dialog-footer {
+      padding: 0 24px 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .btn-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 28px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save-new {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 20px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add Cancellation Reason</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
+  <div class="dialog-body">
+    <div class="field-row">
+      <label for="reason-name">Name</label>
+      <input type="text" id="reason-name" autocomplete="off"/>
+    </div>
+    <div class="field-row">
+      <label for="reason-type">Type</label>
+      <select id="reason-type">
+        <option value="Client">Client</option>
+        <option value="Job">Job</option>
+        <option value="Service">Service</option>
+        <option value="Contract">Contract</option>
+      </select>
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveReason(false)">Save</button>
+    <button class="btn-save-new" onclick="saveReason(true)">Save &amp; New</button>
+    <span style="color:#555;">or</span>
+    <span class="btn-cancel" onclick="cancel()">Cancel</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var reasonId = new URLSearchParams(window.location.search).get('id');
+  var existingReason = null;
+
+  async function init() {
+    if (reasonId) {
+      var { data } = await sb.from('cancellation_reasons').select('*').eq('id', reasonId).single();
+      if (data) {
+        existingReason = data;
+        document.getElementById('page-title').textContent = 'Edit Cancellation Reason';
+        document.getElementById('reason-name').value = data.name || '';
+        document.getElementById('reason-type').value = data.type || 'Client';
+      }
+    }
+    document.getElementById('reason-name').focus();
+  }
+
+  async function saveReason(andNew) {
+    var name = document.getElementById('reason-name').value.trim();
+    if (!name) { alert('Please enter a name.'); document.getElementById('reason-name').focus(); return; }
+    var type = document.getElementById('reason-type').value;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    if (existingReason) {
+      var { error } = await sb.from('cancellation_reasons').update({ name: name, type: type }).eq('id', existingReason.id);
+      if (error) { alert('Error: ' + error.message); return; }
+    } else {
+      var { error } = await sb.from('cancellation_reasons').insert({ name: name, type: type, active: true, user_id: uid });
+      if (error) { alert('Error: ' + error.message); return; }
+    }
+
+    if (andNew) {
+      document.getElementById('reason-name').value = '';
+      document.getElementById('reason-type').value = 'Client';
+      document.getElementById('reason-name').focus();
+      existingReason = null;
+      reasonId = null;
+      document.getElementById('page-title').textContent = 'Add Cancellation Reason';
+    } else {
+      window.location.href = 'CancellationReasons.html';
+    }
+  }
+
+  function cancel() {
+    window.location.href = 'CancellationReasons.html';
+  }
+
+  init();
+</script>
+</body>
+</html>
+

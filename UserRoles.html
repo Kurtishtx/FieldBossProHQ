@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roles</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ebebeb; }
+
+    .page-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; background: #fff; border-bottom: 1px solid #ddd;
+    }
+    .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .btn-add {
+      background: #e07820; color: #fff; border: none;
+      padding: 8px 20px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-add:hover { background: #c96a10; }
+
+    .toolbar {
+      background: #3a3a3a; display: flex; align-items: center;
+      padding: 8px 14px; gap: 10px;
+    }
+    .dropdown { position: relative; }
+    .btn-group { display: flex; }
+    .btn-actions { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none;
+      padding: 5px 14px; font-size: 13px; font-weight: 700;
+      cursor: pointer; border-radius: 3px 0 0 3px;
+    }
+    .btn-actions:hover { background: #d4ae00; }
+    .btn-actions-caret {
+      background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15);
+      padding: 5px 8px; font-size: 12px; cursor: pointer; border-radius: 0 3px 3px 0;
+    }
+    .btn-actions-caret:hover { background: #d4ae00; }
+    .dd-menu {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
+      background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      min-width: 180px; padding: 4px 0;
+    }
+    .dd-menu.show { display: block; }
+    .dd-menu a {
+      display: block; padding: 8px 14px; color: #444;
+      text-decoration: none; font-size: 13px; cursor: pointer;
+    }
+    .dd-menu a:hover { background: #f5f5f5; }
+
+    .toolbar-tabs { display: flex; gap: 2px; margin-left: 4px; }
+    .tab-btn {
+      padding: 5px 14px; border: none; cursor: pointer;
+      font-size: 12.5px; font-weight: 600; font-family: inherit;
+      background: #555; color: #ccc; border-radius: 3px;
+    }
+    .tab-btn.active { background: #fff; color: #222; }
+    .tab-btn:hover:not(.active) { background: #666; }
+
+    .table-wrap { background: #fff; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f0f0f0; }
+    thead th {
+      padding: 10px 14px; text-align: left; font-size: 12px;
+      font-weight: 700; color: #555; border-bottom: 2px solid #ddd;
+      text-transform: uppercase; letter-spacing: .3px;
+    }
+    thead th:first-child { width: 36px; text-align: center; }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
+    tbody tr:hover { background: #fdfbe8; }
+    tbody td { padding: 11px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+    .role-link { color: #e07820; font-weight: 600; }
+    .empty-msg { padding: 32px; text-align: center; color: #888; background: #fff; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-topbar">
+  <h1>Roles <span class="showing-count" id="results-count"></span></h1>
+  <button class="btn-add" onclick="window.location.href='UserRolesAdd.html'">Add Role</button>
+</div>
+
+<div class="toolbar">
+  <div class="dropdown">
+    <div class="btn-group">
+      <button class="btn-actions">Actions</button>
+      <button class="btn-actions-caret" onclick="toggleDD(event)">&#9660;</button>
+    </div>
+    <div class="dd-menu" id="actions-dd">
+      <a onclick="deleteSelected()">Delete Selected</a>
+      <a onclick="setActiveSelected(true)">Activate Selected</a>
+      <a onclick="setActiveSelected(false)">Deactivate Selected</a>
+    </div>
+  </div>
+  <div class="toolbar-tabs">
+    <button class="tab-btn active" onclick="setFilter('active',this)">Active</button>
+    <button class="tab-btn" onclick="setFilter('inactive',this)">Inactive</button>
+    <button class="tab-btn" onclick="setFilter('all',this)">All</button>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
+        <th>Role Name</th>
+        <th>Description</th>
+        <th>Active</th>
+        <th>Modified</th>
+      </tr>
+    </thead>
+    <tbody id="roles-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg" style="display:none;">No roles found.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var roles = [];
+  var filter = 'active';
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function toggleDD(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dd').classList.toggle('show');
+  }
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dd').classList.remove('show');
+  });
+
+  function setFilter(f, btn) {
+    filter = f;
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function toggleAll(checked) {
+    document.querySelectorAll('#roles-tbody input[type="checkbox"]').forEach(function(cb){ cb.checked = checked; });
+  }
+
+  function getSelected() {
+    var ids = [];
+    document.querySelectorAll('#roles-tbody input[type="checkbox"]:checked').forEach(function(cb){ ids.push(cb.dataset.id); });
+    return ids;
+  }
+
+  async function deleteSelected() {
+    var ids = getSelected();
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' role(s)?')) return;
+    await sb.from('roles').delete().in('id', ids);
+    document.getElementById('actions-dd').classList.remove('show');
+    loadRoles();
+  }
+
+  async function setActiveSelected(active) {
+    var ids = getSelected();
+    if (!ids.length) return;
+    await sb.from('roles').update({ active: active }).in('id', ids);
+    document.getElementById('actions-dd').classList.remove('show');
+    loadRoles();
+  }
+
+  async function loadRoles() {
+    var { data, error } = await sb.from('roles').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    roles = data || [];
+    renderTable();
+  }
+
+  function renderTable() {
+    var tbody = document.getElementById('roles-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    var filtered = roles.filter(function(r){
+      if (filter === 'active')   return r.active !== false;
+      if (filter === 'inactive') return r.active === false;
+      return true;
+    });
+    tbody.innerHTML = '';
+    if (!filtered.length) { emptyMsg.style.display = ''; return; }
+    emptyMsg.style.display = 'none';
+    filtered.forEach(function(r) {
+      var tr = document.createElement('tr');
+      var modified = r.updated_at ? new Date(r.updated_at).toLocaleDateString() : (r.created_at ? new Date(r.created_at).toLocaleDateString() : '');
+      tr.innerHTML =
+        '<td><input type="checkbox" data-id="' + r.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td><span class="role-link">' + esc(r.name) + '</span></td>' +
+        '<td>' + esc(r.description) + '</td>' +
+        '<td>' + (r.active !== false ? 'Active' : 'Inactive') + '</td>' +
+        '<td>' + modified + '</td>';
+      tr.addEventListener('click', function(e){
+        if (e.target.type === 'checkbox') return;
+        window.location.href = 'UserRolesAdd.html?id=' + r.id;
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  loadRoles();
+</script>
+</body>
+</html>
+

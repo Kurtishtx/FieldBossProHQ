@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Tag</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .dialog {
+      max-width: 520px; margin: 40px auto;
+      border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff;
+    }
+    .dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px; border-bottom: 1px solid #eee;
+    }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn {
+      background: none; border: 1px solid #bbb; padding: 2px 7px;
+      font-size: 13px; cursor: pointer; color: #555; border-radius: 2px;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    .dialog-body { padding: 20px 24px; }
+
+    .field-row {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+    }
+    .field-row label { width: 110px; color: #666; font-size: 13px; flex-shrink: 0; }
+
+    .field-row input[type="text"] {
+      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
+    }
+    .field-row input[type="text"]:focus { border-color: #e07820; }
+
+    .category-wrap { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .category-wrap select {
+      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none;
+      border-radius: 2px; background: #fff; cursor: pointer;
+    }
+    .category-wrap select:focus { border-color: #e07820; }
+    .add-new-link {
+      color: #e07820; font-size: 13px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; text-decoration: underline;
+    }
+    .add-new-link:hover { color: #c96a10; }
+
+    .new-cat-row {
+      display: none; align-items: center; gap: 8px;
+      margin-top: -8px; margin-bottom: 16px; padding-left: 124px;
+    }
+    .new-cat-row.show { display: flex; }
+    .new-cat-row input {
+      flex: 1; border: 1px solid #ccc; padding: 6px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
+    }
+    .new-cat-row input:focus { border-color: #e07820; }
+    .btn-cat-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 6px 14px; font-size: 12.5px; font-weight: 700;
+      border-radius: 3px; cursor: pointer;
+    }
+    .btn-cat-save:hover { background: #c96a10; }
+    .btn-cat-cancel {
+      background: none; border: none; color: #888; cursor: pointer; font-size: 12.5px;
+    }
+
+    .checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .checkbox-row label.cb-lbl { width: 110px; color: #666; font-size: 13px; flex-shrink: 0; }
+    .checkbox-row input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #e07820; }
+
+    .dialog-footer {
+      padding: 4px 24px 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .btn-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 30px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .btn-cancel { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; margin-left: 4px; }
+    .btn-cancel:hover { color: #1a5ea0; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add Tag</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
+  <div class="dialog-body">
+
+    <div class="field-row">
+      <label>Add Tag</label>
+      <input type="text" id="tag-name" autocomplete="off" placeholder="Tag name"/>
+    </div>
+
+    <div class="field-row">
+      <label>Categories</label>
+      <div class="category-wrap">
+        <select id="tag-category">
+          <option value="">Select Category</option>
+        </select>
+        <span class="add-new-link" onclick="showNewCat()">Add New</span>
+      </div>
+    </div>
+
+    <div class="new-cat-row" id="new-cat-row">
+      <input type="text" id="new-cat-name" placeholder="New category name"/>
+      <button class="btn-cat-save" onclick="saveNewCat()">Save</button>
+      <button class="btn-cat-cancel" onclick="hideNewCat()">Cancel</button>
+    </div>
+
+    <div class="checkbox-row">
+      <label class="cb-lbl">Automation Tag</label>
+      <input type="checkbox" id="automation-tag"/>
+    </div>
+
+  </div>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveTag()">Save</button>
+    <span style="color:#888;">or</span>
+    <span class="btn-cancel" onclick="cancel()">Cancel</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var tagId = new URLSearchParams(window.location.search).get('id');
+  var existingTag = null;
+  var cats = [];
+
+  function loadCategoryDropdown(selected) {
+    var sel = document.getElementById('tag-category');
+    sel.innerHTML = '<option value="">Select Category</option>';
+    cats.forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c.name;
+      opt.textContent = c.name;
+      if (selected && c.name === selected) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function init() {
+    var { data: catData } = await sb.from('tag_categories').select('*').order('created_at', { ascending: false });
+    cats = catData || [];
+    loadCategoryDropdown();
+    if (tagId) {
+      var { data } = await sb.from('tags').select('*').eq('id', tagId).single();
+      if (data) {
+        existingTag = data;
+        document.getElementById('page-title').textContent = 'Edit Tag';
+        document.getElementById('tag-name').value = data.name || '';
+        loadCategoryDropdown(data.color);
+      }
+    }
+    document.getElementById('tag-name').focus();
+  }
+
+  function showNewCat() {
+    document.getElementById('new-cat-row').classList.add('show');
+    document.getElementById('new-cat-name').focus();
+  }
+
+  function hideNewCat() {
+    document.getElementById('new-cat-row').classList.remove('show');
+    document.getElementById('new-cat-name').value = '';
+  }
+
+  async function saveNewCat() {
+    var name = document.getElementById('new-cat-name').value.trim();
+    if (!name) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('tag_categories').insert({ name: name, active: true, user_id: uid });
+    if (error) { alert('Error: ' + error.message); return; }
+    var { data: catData } = await sb.from('tag_categories').select('*').order('created_at', { ascending: false });
+    cats = catData || [];
+    loadCategoryDropdown(name);
+    hideNewCat();
+  }
+
+  async function saveTag() {
+    var name = document.getElementById('tag-name').value.trim();
+    if (!name) { alert('Please enter a tag name.'); document.getElementById('tag-name').focus(); return; }
+    var category = document.getElementById('tag-category').value;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    if (existingTag) {
+      var { error } = await sb.from('tags').update({ name: name, color: category }).eq('id', existingTag.id);
+      if (error) { alert('Error: ' + error.message); return; }
+    } else {
+      var { error } = await sb.from('tags').insert({ name: name, color: category, active: true, user_id: uid });
+      if (error) { alert('Error: ' + error.message); return; }
+    }
+
+    window.location.href = 'Tags.html';
+  }
+
+  function cancel() {
+    window.location.href = 'Tags.html';
+  }
+
+  document.getElementById('new-cat-name').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') saveNewCat();
+    if (e.key === 'Escape') hideNewCat();
+  });
+
+  init();
+</script>
+</body>
+</html>
+

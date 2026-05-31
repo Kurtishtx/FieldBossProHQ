@@ -1,0 +1,1330 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Property Profile</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ebebeb; }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; background: #fff; border-bottom: 1px solid #ccc;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .topbar-left h1 { font-size: 18px; font-weight: 700; color: #111; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: #e07820; text-decoration: none; font-size: 13px; font-weight: 600;
+      border: 1px solid #e07820; border-radius: 4px; padding: 3px 10px;
+    }
+    .back-link:hover { background: #fff5ec; }
+    .topbar-left a.edit-link { color: #444; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .topbar-left a.edit-link:hover { text-decoration: underline; }
+    .gear-btn {
+      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
+      padding: 2px 7px; cursor: pointer; font-size: 14px; color: #555;
+    }
+    .gear-btn:hover { background: #ddd; }
+
+    /* ── Split buttons ── */
+    .btn-group { display: flex; }
+    .btn-main-outline {
+      background: #fff; color: #e07820; border: 1px solid #e07820;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border-radius: 4px 0 0 4px; border-right: none;
+    }
+    .btn-main-outline:hover { background: #fff5ec; }
+    .btn-caret-outline {
+      background: #fff; color: #e07820; border: 1px solid #e07820;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 4px 4px 0;
+    }
+    .btn-caret-outline:hover { background: #fff5ec; }
+    .btn-main {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      border-right: 1px solid rgba(255,255,255,.35);
+      cursor: pointer; border-radius: 4px 0 0 4px;
+    }
+    .btn-main:hover { background: #c96a10; }
+    .btn-caret {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 4px 4px 0;
+    }
+    .btn-caret:hover { background: #c96a10; }
+
+    /* ── Dropdown ── */
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown + .dropdown { margin-left: 6px; }
+    .dropdown-menu {
+      display: none; position: absolute; top: 100%; right: 0; z-index: 200;
+      background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2); min-width: 200px; padding: 4px 0;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-menu .dd-title {
+      padding: 6px 14px 4px; font-weight: 700; font-size: 12.5px;
+      color: #333; border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a {
+      display: block; padding: 7px 14px; color: #444;
+      text-decoration: none; font-size: 13px; cursor: pointer;
+    }
+    .dropdown-menu a:hover { background: #f5f5f5; }
+
+    /* ── Page layout ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 12px; }
+
+    /* ── Property info card ── */
+    .prop-card {
+      background: #f5f5f5; border: 1px solid #ccc; padding: 12px 16px;
+      display: flex; gap: 30px; margin-bottom: 10px; font-size: 13px;
+    }
+    .prop-card-col { flex: 1; line-height: 1.9; font-size: 14px; color: #111; }
+    .prop-card-col .col-name { font-weight: 700; font-size: 15px; color: #111; }
+    .prop-card-col a { color: #111; text-decoration: none; }
+    .prop-card-col a:hover { text-decoration: underline; }
+    .prop-card-col .col-label { color: #111; font-size: 14px; }
+
+    .status-col { display: flex; flex-direction: column; min-width: 160px; }
+    .status-box {
+      background: #3a3a3a; color: #fff; text-align: center;
+      padding: 14px 20px 10px; flex: 1;
+    }
+    .status-box .status-badge {
+      display: inline-block; background: #27a567; color: #fff;
+      border-radius: 3px; padding: 3px 12px; font-size: 15px; font-weight: 700;
+    }
+    .status-box .status-badge.inactive { background: #888; }
+    .status-box .status-label { font-size: 13px; font-weight: 400; margin-top: 4px; }
+    .status-detail {
+      background: #f9f9f9; border: 1px solid #ccc; border-top: none;
+      padding: 6px 10px; font-size: 12.5px;
+    }
+    .status-detail .sd-row { display: flex; justify-content: space-between; padding: 1px 0; }
+
+    /* ── Tags ── */
+    .tags-row {
+      background: #fff; border: 1px solid #ccc; padding: 7px 10px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin-bottom: 10px;
+    }
+    .tag-select-row { display: flex; align-items: center; gap: 6px; }
+    .tag-select-box {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid #bbb; padding: 4px 10px; font-size: 13px; cursor: pointer;
+      min-width: 220px; background: #fff; border-radius: 2px; user-select: none;
+    }
+    .tag-select-box:hover { border-color: #999; }
+    .tag-apply-btn {
+      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+    }
+    .tag-apply-btn:hover { background: #ddd; }
+    .tag-create-btn {
+      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+    }
+    .tag-create-btn:hover { background: #ddd; }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #e07820; color: #fff; border-radius: 3px;
+      padding: 2px 8px; font-size: 12px; font-weight: 600;
+    }
+    .tag-chip-remove {
+      background: none; border: none; color: rgba(255,255,255,.8);
+      cursor: pointer; font-size: 13px; padding: 0; line-height: 1;
+    }
+    .tag-chip-remove:hover { color: #fff; }
+    .tag-dropdown {
+      display: none; position: absolute; top: calc(100% + 2px); left: 0;
+      z-index: 300; background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18); min-width: 280px; max-height: 280px;
+      overflow-y: auto;
+    }
+    .tag-dropdown.show { display: block; }
+    .tag-filter-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-bottom: 1px solid #eee; background: #3a3a3a;
+      position: sticky; top: 0;
+    }
+    .tag-filter-row label { color: #ccc; font-size: 12.5px; white-space: nowrap; }
+    .tag-filter-row input {
+      flex: 1; border: 1px solid #666; padding: 3px 7px; font-size: 12.5px;
+      background: #fff; outline: none; border-radius: 2px;
+    }
+    .tag-filter-clear { color: #ccc; cursor: pointer; font-size: 15px; }
+    .tag-dd-item {
+      padding: 8px 12px; font-size: 13px; cursor: pointer; color: #333;
+    }
+    .tag-dd-item:hover, .tag-dd-item.selected { background: #f0f0f0; }
+    .tag-dd-item.selected { font-weight: 600; color: #e07820; }
+    .tag-dd-empty { padding: 10px 12px; color: #aaa; font-size: 12.5px; font-style: italic; }
+
+    /* Create Tag modal */
+    .create-tag-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 1100; align-items: center; justify-content: center;
+    }
+    .create-tag-overlay.show { display: flex; }
+    .create-tag-box {
+      background: #fff; padding: 24px 28px; min-width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25); border-radius: 2px;
+    }
+    .create-tag-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .create-tag-box input {
+      width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; margin-bottom: 14px;
+    }
+    .create-tag-box input:focus { border-color: #e07820; }
+    .create-tag-actions { display: flex; align-items: center; gap: 10px; }
+    .create-tag-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 8px 24px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .create-tag-save:hover { background: #c96a10; }
+    .create-tag-cancel { color: #555; font-size: 13px; cursor: pointer; }
+    .create-tag-cancel:hover { text-decoration: underline; }
+
+    /* ── Sections ── */
+    .sec { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .sec-hdr {
+      background: #3a3a3a; color: #fff; padding: 6px 10px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sec-hdr .hdr-links a {
+      color: #9dd4ff; text-decoration: none; font-size: 12px; font-weight: 400; margin-left: 6px;
+    }
+    .sec-hdr .hdr-links a:hover { text-decoration: underline; }
+    .sec-hdr .tab-links { display: flex; align-items: center; }
+    .sec-hdr .tab-links a {
+      color: #e07820; font-size: 12.5px; font-weight: 600;
+      padding: 0 6px; border-left: 1px solid #777; text-decoration: none;
+    }
+    .sec-hdr .tab-links a:first-child { border-left: none; }
+    .sec-hdr .tab-links a.active { color: #fff; }
+    .sec-hdr .tab-links a:hover { text-decoration: underline; }
+
+    .add-btn-wrap { position: relative; margin: 8px; }
+    .add-btn {
+      display: block; width: 100%;
+      padding: 7px; background: #3a3a3a; border: none;
+      color: #fff; font-size: 13px; cursor: pointer; text-align: center; border-radius: 2px;
+    }
+    .add-btn:hover { background: #222; }
+
+    /* ── 3-column row ── */
+    .main-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+    .col-jobs { flex: 1; min-width: 0; }
+    .col-accounting { flex: 1; min-width: 0; }
+    .col-right { flex: 0 0 200px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Activity ── */
+    .activity-filter {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px; flex-wrap: wrap;
+    }
+    .activity-filter .filter-count { color: #444; font-size: 12.5px; cursor: pointer; }
+    .activity-filter .refresh-btn {
+      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
+      width: 26px; height: 26px; cursor: pointer; font-size: 14px; color: #555;
+    }
+    .activity-filter input[type="text"] {
+      border: 1px solid #bbb; padding: 4px 8px; font-size: 12.5px; height: 28px; min-width: 240px;
+    }
+    .sort-area { margin-left: auto; text-align: right; font-size: 12.5px; }
+    .sort-area strong { cursor: pointer; color: #333; }
+    .sort-area .updated { font-size: 11.5px; color: #888; display: block; }
+    .note-box {
+      margin: 8px 10px; border: 1px solid #e8d9b5; background: #fffdf0;
+      padding: 10px 12px; color: #aaa; font-style: italic; font-size: 13px; border-radius: 2px;
+    }
+    .no-records { padding: 8px 10px; color: #555; font-size: 13px; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 0 10px; }
+    .show-more-btn {
+      display: block; width: 100%; padding: 8px; background: #e0e0e0;
+      border: none; cursor: pointer; font-size: 13px; text-align: center;
+    }
+    .show-more-btn:hover { background: #d0d0d0; }
+
+    /* ── Details / Custom Fields ── */
+    .details-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 10px; background: #3a3a3a; color: #fff; font-weight: 600;
+    }
+    .details-body { display: none; border-top: 1px solid #e0e0e0; }
+    .details-body.open { display: block; }
+    .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px 0 8px; }
+    .details-cell { display: flex; align-items: baseline; gap: 10px; padding: 7px 16px; border-bottom: 1px solid #f3f3f3; }
+    .details-cell .dl { color: #888; font-size: 12.5px; white-space: nowrap; flex-shrink: 0; }
+    .details-cell .dv-text {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; font-weight: 600; color: #111;
+      font-family: inherit; width: 100%; min-width: 0;
+      border-bottom: 1px solid transparent;
+    }
+    .details-cell .dv-text:focus { border-bottom-color: #f5c800; }
+    .details-cell .dv-check { width: 15px; height: 15px; accent-color: #888888; cursor: pointer; }
+    .details-empty { padding: 14px 16px; color: #aaa; font-size: 13px; font-style: italic; }
+
+    /* ── Attachments ── */
+    .attach-outer { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .attach-tabs { display: flex; border-bottom: 1px solid #ccc; }
+    .attach-tab {
+      padding: 6px 14px; border-right: 1px solid #ccc;
+      background: #e8e8e8; font-size: 12.5px; cursor: pointer; color: #333;
+    }
+    .attach-tab.active { background: #fff; font-weight: 600; }
+    .attach-tab:hover { background: #f5f5f5; }
+    .attach-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; font-size: 12.5px; border-bottom: 1px solid #eee;
+    }
+    .upload-btn {
+      margin: 8px 10px; padding: 4px 14px; border: 1px solid #bbb;
+      background: #f5f5f5; font-size: 12.5px; cursor: pointer; border-radius: 3px;
+    }
+    .upload-btn:hover { background: #e8e8e8; }
+    .pg-btns { display: flex; gap: 2px; align-items: center; }
+    .pg-btn {
+      padding: 2px 7px; border: 1px solid #bbb; background: #f0f0f0;
+      cursor: pointer; font-size: 12px; border-radius: 2px;
+    }
+    .pg-btn.active { background: #f5c800; color: #111; }
+    #pkg-modal-rows input[type="number"]::-webkit-outer-spin-button,
+    #pkg-modal-rows input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    #pkg-modal-rows input[type="number"] { -moz-appearance: textfield; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Add Package Plan modal -->
+<div id="pkg-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1050; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:520px; max-width:96vw; border-radius:4px; box-shadow:0 8px 40px rgba(0,0,0,.4); overflow:hidden;">
+    <div style="background:#3a3a3a; color:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;">
+      <span style="font-size:15px; font-weight:700;">Add Package Plan</span>
+      <button onclick="closePkgModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer; line-height:1;">&#10005;</button>
+    </div>
+    <div style="padding:20px 20px 10px;">
+      <label style="font-size:13px; font-weight:600; color:#333; display:block; margin-bottom:6px;">Select Package</label>
+      <select id="pkg-modal-select" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;">
+        <option value="">-- Choose a package --</option>
+      </select>
+      <div id="pkg-modal-preview" style="margin-top:14px; display:none;">
+        <div style="font-size:12px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">Services in this package</div>
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <thead><tr style="background:#f0f0f0;">
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd;">Name</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd;">Service</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd;">Start</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd;">End</th>
+            <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd;">Min Days</th>
+            <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #ddd;">Rate</th>
+          </tr></thead>
+          <tbody id="pkg-modal-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="padding:12px 20px 18px; display:flex; justify-content:flex-end; gap:10px;">
+      <button onclick="closePkgModal()" style="background:#f0f0f0; border:1px solid #bbb; border-radius:3px; padding:7px 20px; font-size:13px; cursor:pointer;">Cancel</button>
+      <button onclick="confirmAddPackage()" style="background:#e07820; color:#fff; border:none; border-radius:3px; padding:7px 24px; font-size:13px; font-weight:700; cursor:pointer;">Add Services to Property</button>
+    </div>
+  </div>
+</div>
+
+<!-- Service add modal overlay -->
+<div id="service-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:860px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="service-modal-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Jobs/Services popup modal -->
+<div id="jobs-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:900; align-items:flex-start; justify-content:center; padding-top:60px;">
+  <div style="background:#fff; width:96vw; max-width:1100px; max-height:80vh; display:flex; flex-direction:column; border-radius:4px; box-shadow:0 8px 40px rgba(0,0,0,.4); overflow:hidden;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid #eee;">
+      <h2 id="jobs-modal-title" style="font-size:22px; font-weight:800; color:#111;">All Upcoming</h2>
+      <button onclick="closeJobsModal()" style="background:none; border:1px solid #bbb; border-radius:3px; padding:2px 9px; font-size:18px; cursor:pointer; color:#555; line-height:1.4;">&#10005;</button>
+    </div>
+    <div style="overflow:auto; flex:1;">
+      <table id="jobs-modal-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead id="jobs-modal-thead"></thead>
+        <tbody id="jobs-modal-tbody"></tbody>
+      </table>
+      <div id="jobs-modal-empty" style="display:none; padding:20px; color:#aaa; font-style:italic;">No records found.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Property edit modal overlay -->
+<div id="prop-edit-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:1120px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="prop-edit-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1 id="prop-title">Property Profile</h1>
+    <span>&#8211;</span>
+    <a class="back-link" id="back-link" href="#" onclick="goBack(event)">&#8592; Client</a>
+    <a class="edit-link" href="#" onclick="openPropEditModal(event)">Edit</a>
+  </div>
+  <div style="display:flex; gap:6px; align-items:center;">
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main-outline">Send</button>
+        <button class="btn-caret-outline" onclick="toggleDropdown('send-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="send-menu">
+        <a href="#">Text</a>
+        <a href="#">Email</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main">More</button>
+        <button class="btn-caret" onclick="toggleDropdown('more-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="more-menu">
+        <div class="dd-title">More Options</div>
+        <a href="#">Show Property on Map</a>
+        <a href="#">Property Measurements</a>
+        <a href="#">Add Job</a>
+        <a href="#">Add Estimate</a>
+        <a href="#">Fill Out Form</a>
+        <a href="#">View Audit Trail</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Property info card -->
+  <div class="prop-card">
+    <div class="prop-card-col">
+      <div class="col-name" id="display-address">—</div>
+      <div id="display-addr2"></div>
+      <div id="display-city"></div>
+      <div><span class="col-label">Map Code: </span><span id="display-mapcode"></span></div>
+    </div>
+    <div class="prop-card-col">
+      <div><span class="col-label">Client: </span><a id="display-client" href="#">—</a></div>
+      <div><span class="col-label">Phone: </span><span id="display-phone"></span></div>
+      <div><span class="col-label">Email: </span><span id="display-email"></span></div>
+    </div>
+    <div class="prop-card-col">
+      <div><span class="col-label">Added: </span><span id="display-added"></span></div>
+      <div><span class="col-label">State: </span><span id="display-state"></span></div>
+      <div><span class="col-label">Sales Tax: </span><span id="display-sales-tax">—</span></div>
+    </div>
+    <div class="status-col">
+      <div class="status-box">
+        <div class="status-badge" id="status-badge">Active</div>
+        <div class="status-label">Property Status</div>
+      </div>
+      <div class="status-detail">
+        <div class="sd-row"><span>Services</span><span id="stat-jobs">0</span></div>
+        <div class="sd-row"><span>Estimates</span><span>0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="tags-row" id="tags-row">
+    <div class="tag-select-row">
+      <div style="position:relative;">
+        <div class="tag-select-box" onclick="toggleTagDropdown(event)">
+          <span id="tag-select-label">Select Tag</span>
+          <span>&#9660;</span>
+        </div>
+        <div class="tag-dropdown" id="tag-dropdown">
+          <div class="tag-filter-row">
+            <label>Filter:</label>
+            <input type="text" id="tag-filter" placeholder="Enter keywords" oninput="filterTagList()"/>
+            <span class="tag-filter-clear" onclick="clearTagFilter()">&#10005;</span>
+          </div>
+          <div id="tag-dd-list"><div class="tag-dd-empty">Loading...</div></div>
+        </div>
+      </div>
+      <button class="tag-apply-btn" onclick="applySelectedTag()">Apply</button>
+      <button class="tag-create-btn" onclick="showCreateTagModal()">Create Tag</button>
+    </div>
+    <div id="tag-chips-row" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;"></div>
+  </div>
+
+  <!-- Create Tag modal -->
+  <div class="create-tag-overlay" id="create-tag-overlay" onclick="if(event.target===this)hideCreateTagModal()">
+    <div class="create-tag-box">
+      <h3>Create Tag</h3>
+      <input type="text" id="new-tag-name" placeholder="Tag name" autocomplete="off"/>
+      <div class="create-tag-actions">
+        <button class="create-tag-save" onclick="saveNewTag()">Save</button>
+        <span class="create-tag-cancel" onclick="hideCreateTagModal()">Cancel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs / Open Estimates / Right col -->
+  <div class="main-row">
+    <div class="col-jobs">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span>Services</span>
+          <span class="hdr-links">
+            <a href="#" class="jobs-tab-link" data-filter="all" onclick="loadJobsPanel('all',event)">All Services</a> |
+            <a href="#" class="jobs-tab-link" data-filter="upcoming" onclick="loadJobsPanel('upcoming',event)">All Upcoming</a> |
+            <a href="#" class="jobs-tab-link" data-filter="history" onclick="loadJobsPanel('history',event)">All History</a>
+          </span>
+        </div>
+        <div class="add-btn-wrap" style="position:relative;">
+          <button class="add-btn" onclick="toggleServiceMenu(event)">&#10010; &nbsp;Add A Service</button>
+          <div id="service-menu" style="display:none; position:absolute; top:100%; left:8px; right:8px; background:#fff; border:4px solid #e07820; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:300; padding:4px 0;">
+            <a href="#" onclick="event.preventDefault(); openPkgModal();" style="display:block; padding:10px 14px; color:#444; text-decoration:none; font-size:13px; font-weight:700; border-bottom:2px solid #f5c800;" onmouseover="this.style.background='#fff5ec'" onmouseout="this.style.background=''">Add Package Plan</a>
+            <a href="#" onclick="event.preventDefault(); openServiceModal();" style="display:block; padding:10px 14px; color:#444; text-decoration:none; font-size:13px; font-weight:700;" onmouseover="this.style.background='#fff5ec'" onmouseout="this.style.background=''">Add A One Time Service</a>
+          </div>
+        </div>
+        <div id="pkg-cards" style="padding:4px 8px 2px;"></div>
+      </div>
+    </div>
+    <div class="col-accounting">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span>Invoices</span>
+          <span class="hdr-links"><a href="#" onclick="window.parent.loadPage&&window.parent.loadPage('invoices');return false;">All</a></span>
+        </div>
+        <div class="add-btn-wrap"><button class="add-btn" onclick="openAddInvoiceForProperty()">&#10010; &nbsp;Add Invoice</button></div>
+        <div id="property-invoices-list" style="padding:4px 8px 4px;"></div>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span>Open Estimates</span>
+          <span class="hdr-links" style="font-weight:400;font-size:12px;">(0) <a href="#">All</a></span>
+        </div>
+        <div class="add-btn-wrap"><button class="add-btn">&#10010; Add an Estimate</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="sec-hdr">
+      <span>Activity</span>
+      <div class="tab-links">
+        <a href="#" class="active">All History</a>
+        <a href="#">Past Visits</a>
+        <a href="#">Future Visits</a>
+        <a href="#">Future Events</a>
+        <a href="#">Estimates</a>
+      </div>
+    </div>
+    <div class="activity-filter">
+      <span class="filter-count">Filter by: (0/17) items</span>
+      <button class="refresh-btn">&#8635;</button>
+      <input type="text" placeholder="Date range..."/>
+      <div class="sort-area">
+        sorted: <strong>Newest to Oldest &#9660;</strong>
+        <span class="updated">Updated: (now)</span>
+      </div>
+    </div>
+    <div class="note-box">Add a Note...</div>
+    <hr class="divider"/>
+    <div class="no-records">No records found</div>
+    <button class="show-more-btn">Show More</button>
+  </div>
+
+  <!-- Details / Custom Fields -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="details-hdr">
+      <span>Details</span>
+    </div>
+    <div class="details-body open" id="details-body">
+      <div class="details-grid" id="details-grid"></div>
+      <div class="details-empty" id="details-empty" style="display:none;">
+        No custom fields for Properties yet.
+        <a href="#" onclick="window.parent.loadPage('customfields');return false;" style="color:#444;">Add Custom Fields</a>
+      </div>
+      <div id="cf-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
+
+      <!-- Area Treated -->
+      <div style="background:#4a4a4a;color:#fff;padding:6px 10px;font-size:13px;font-weight:600;">Area Treated</div>
+      <div class="details-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="details-cell">
+          <span class="dl">Lawn Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="lawn_care" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Lawn Insect Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="lawn_insect" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Flower Bed(s) Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="flower_beds" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Mosquito Control Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="mosquito" placeholder="—"/>
+        </div>
+      </div>
+      <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Attachments -->
+  <div class="attach-outer">
+    <div class="attach-tabs">
+      <div class="attach-tab active">Attachments</div>
+      <div class="attach-tab">Mobile Attachments</div>
+      <div class="attach-tab">All</div>
+    </div>
+    <div class="attach-meta">
+      <span>Total: &nbsp;0</span>
+      <span style="display:flex;align-items:center;gap:6px;">
+        Page Size:
+        <input type="text" value="10" style="width:36px;border:1px solid #bbb;padding:2px 4px;font-size:12px;"/>
+        <div class="pg-btns">
+          <button class="pg-btn">&#9664;&#9664;</button>
+          <button class="pg-btn">&#9664;</button>
+          <button class="pg-btn active">1</button>
+          <button class="pg-btn">&#9654;</button>
+          <button class="pg-btn">&#9654;&#9654;</button>
+        </div>
+      </span>
+    </div>
+    <div class="no-records">No records to display.</div>
+    <button class="upload-btn">Upload</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var propId = new URLSearchParams(window.location.search).get('id');
+  var prop   = null;
+  var owner  = null;
+
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ── Load property record from Supabase ── */
+  async function initProperty() {
+    if (!propId) return;
+    var { data } = await sb.from('Properties').select('*').eq('id', propId).single();
+    prop = data;
+    if (!prop) return;
+
+    var addrLine = prop.address || '';
+    var cityLine = [prop.city, prop.state, prop.zip].filter(Boolean).join(', ');
+
+    document.getElementById('prop-title').textContent      = addrLine || 'Property Profile';
+    document.getElementById('display-address').textContent = addrLine;
+    document.getElementById('display-addr2').textContent   = prop.addr2 || '';
+    document.getElementById('display-city').textContent    = cityLine;
+    document.getElementById('display-mapcode').textContent = prop.map_code || '';
+    document.getElementById('display-state').textContent   = prop.state || '';
+
+    if (prop.created_at) {
+      document.getElementById('display-added').textContent = new Date(prop.created_at).toLocaleDateString();
+    }
+
+    var badge = document.getElementById('status-badge');
+    if (prop.active === false) { badge.textContent = 'Inactive'; badge.classList.add('inactive'); }
+
+    if (prop.sales_tax_id) {
+      var { data: taxData } = await sb.from('sales_taxes').select('name, tax_rate').eq('id', prop.sales_tax_id).single();
+      if (taxData) {
+        document.getElementById('display-sales-tax').textContent =
+          taxData.name + ' (' + (parseFloat(taxData.tax_rate) * 100).toFixed(2) + '%)';
+      }
+    }
+
+    if (prop.customer_id) {
+      var { data: clientData } = await sb.from('Clients').select('*').eq('id', prop.customer_id).single();
+      owner = clientData;
+    }
+
+    if (owner) {
+      var clientEl = document.getElementById('display-client');
+      clientEl.textContent = owner.name || '';
+      clientEl.onclick = function(e) {
+        e.preventDefault();
+        if (window.parent && window.parent.loadPage) {
+          window.parent.loadPage('clientprofile?id=' + owner.id);
+        } else {
+          window.location.href = 'ClientProfile.html?id=' + owner.id;
+        }
+      };
+
+      document.getElementById('display-phone').textContent = owner.phone || '';
+      document.getElementById('display-email').textContent = owner.email || '';
+
+      var backLink = document.getElementById('back-link');
+      backLink.textContent = '← ' + (owner.name || 'Client');
+      backLink.href = 'ClientProfile.html?id=' + owner.id;
+    }
+
+    loadTags();
+    loadDetailsGrid();
+    loadAreaTreated();
+    loadPackageCards();
+    loadPropertyInvoices();
+  }
+  initProperty();
+
+  function openPropEditModal(e) {
+    if (e) e.preventDefault();
+    var overlay = document.getElementById('prop-edit-overlay');
+    var iframe  = document.getElementById('prop-edit-iframe');
+    iframe.src  = 'PropertiesAdd.html?id=' + propId;
+    overlay.style.display = 'flex';
+  }
+
+  function closePropertyModal(saved) {
+    var overlay = document.getElementById('prop-edit-overlay');
+    var iframe  = document.getElementById('prop-edit-iframe');
+    overlay.style.display = 'none';
+    iframe.src = '';
+    if (saved) window.location.reload();
+  }
+
+  document.getElementById('prop-edit-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePropertyModal(false);
+  });
+
+  function goBack(e) {
+    e.preventDefault();
+    if (owner) {
+      if (window.parent && window.parent.loadPage) {
+        window.parent.loadPage('clientprofile?id=' + owner.id);
+      } else {
+        window.location.href = 'ClientProfile.html?id=' + owner.id;
+      }
+    } else {
+      window.history.back();
+    }
+  }
+
+  /* ── Tags ── */
+  var allTags = [];
+  var propTagNames = [];
+  var selectedTagName = null;
+
+  async function loadTags() {
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    if (prop && prop.property_tags) {
+      propTagNames = Array.isArray(prop.property_tags) ? prop.property_tags : [];
+    }
+    renderTagChips();
+  }
+
+  function renderTagChips() {
+    var chipsRow = document.getElementById('tag-chips-row');
+    chipsRow.innerHTML = '';
+    propTagNames.forEach(function(name) {
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.innerHTML = escHtml(name) + '<button class="tag-chip-remove" onclick="removeTag(\'' + name.replace(/'/g,"\\'") + '\')">&#10005;</button>';
+      chipsRow.appendChild(chip);
+    });
+    chipsRow.style.display = propTagNames.length ? 'flex' : 'none';
+  }
+
+  function toggleTagDropdown(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('tag-dropdown');
+    var showing = dd.classList.toggle('show');
+    if (showing) { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+  }
+
+  function buildTagList(filter) {
+    var list = document.getElementById('tag-dd-list');
+    var filtered = allTags.filter(function(t) {
+      return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
+    });
+    if (!filtered.length) {
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      return;
+    }
+    list.innerHTML = '';
+    filtered.forEach(function(t) {
+      var item = document.createElement('div');
+      item.className = 'tag-dd-item' + (selectedTagName === t.name ? ' selected' : '');
+      item.textContent = t.name;
+      item.onclick = function(e) {
+        e.stopPropagation();
+        selectedTagName = t.name;
+        document.getElementById('tag-select-label').textContent = t.name;
+        document.getElementById('tag-dropdown').classList.remove('show');
+      };
+      list.appendChild(item);
+    });
+  }
+
+  function filterTagList() { buildTagList(document.getElementById('tag-filter').value); }
+  function clearTagFilter() { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+
+  async function applySelectedTag() {
+    if (!selectedTagName) { alert('Please select a tag first.'); return; }
+    if (propTagNames.indexOf(selectedTagName) !== -1) return;
+    propTagNames.push(selectedTagName);
+    renderTagChips();
+    var { error } = await sb.from('Properties').update({ property_tags: propTagNames }).eq('id', propId);
+    if (error) { alert('Tag save failed: ' + error.message); return; }
+    selectedTagName = null;
+    document.getElementById('tag-select-label').textContent = 'Select Tag';
+  }
+
+  async function removeTag(name) {
+    propTagNames = propTagNames.filter(function(n){ return n !== name; });
+    renderTagChips();
+    var { error } = await sb.from('Properties').update({ property_tags: propTagNames }).eq('id', propId);
+    if (error) alert('Tag save failed: ' + error.message);
+  }
+
+  function showCreateTagModal() {
+    document.getElementById('tag-dropdown').classList.remove('show');
+    document.getElementById('new-tag-name').value = '';
+    document.getElementById('create-tag-overlay').classList.add('show');
+    setTimeout(function(){ document.getElementById('new-tag-name').focus(); }, 50);
+  }
+
+  function hideCreateTagModal() { document.getElementById('create-tag-overlay').classList.remove('show'); }
+
+  async function saveNewTag() {
+    var name = document.getElementById('new-tag-name').value.trim();
+    if (!name) { document.getElementById('new-tag-name').focus(); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('tags').insert({ name: name, active: true, user_id: uid });
+    if (error) { alert('Error: ' + error.message); return; }
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    hideCreateTagModal();
+  }
+
+  document.getElementById('new-tag-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') saveNewTag();
+    if (e.key === 'Escape') hideCreateTagModal();
+  });
+
+  /* ── Services popup modal ── */
+  function closeJobsModal() {
+    document.getElementById('jobs-modal-overlay').style.display = 'none';
+  }
+  document.getElementById('jobs-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeJobsModal();
+  });
+
+  async function loadJobsPanel(filter, e) {
+    if (e) e.preventDefault();
+
+    var titles = { all: 'All Services', upcoming: 'All Upcoming', history: 'All History' };
+    document.getElementById('jobs-modal-title').textContent = titles[filter] || 'Services';
+    document.getElementById('jobs-modal-overlay').style.display = 'flex';
+
+    var thead = document.getElementById('jobs-modal-thead');
+    var tbody = document.getElementById('jobs-modal-tbody');
+    var empty = document.getElementById('jobs-modal-empty');
+    tbody.innerHTML = '<tr><td colspan="10" style="padding:16px;color:#aaa;">Loading...</td></tr>';
+    empty.style.display = 'none';
+
+    var th = 'style="padding:10px 12px;text-align:left;white-space:nowrap;font-weight:600;font-size:13px;"';
+    var thr = 'style="padding:10px 12px;text-align:right;white-space:nowrap;font-weight:600;font-size:13px;"';
+    var thc = 'style="padding:10px 12px;text-align:center;white-space:nowrap;font-weight:600;font-size:13px;"';
+
+    if (filter === 'upcoming') {
+      thead.innerHTML = '<tr style="background:#555;color:#fff;">' +
+        '<th ' + thc + ' style="width:36px;padding:10px 8px;"></th>' +
+        '<th ' + th + '>Type</th><th ' + th + '>Service</th>' +
+        '<th ' + th + '>Date of Service</th><th ' + th + '>Description</th>' +
+        '<th ' + th + '>Assigned to</th>' +
+        '<th ' + thr + '>Amount</th>' +
+        '<th ' + thc + ' style="width:50px;">Priority</th></tr>';
+    } else if (filter === 'history') {
+      thead.innerHTML = '<tr style="background:#555;color:#fff;">' +
+        '<th ' + thc + ' style="width:36px;padding:10px 8px;"></th>' +
+        '<th ' + th + '>Type</th><th ' + th + '>Service</th>' +
+        '<th ' + th + '>Date of Service</th><th ' + th + '>Description</th>' +
+        '<th ' + th + '>Assigned to</th><th ' + thr + '>Men</th>' +
+        '<th ' + thr + '>Time</th><th ' + thr + '>Amount</th></tr>';
+    } else {
+      thead.innerHTML = '<tr style="background:#555;color:#fff;">' +
+        '<th ' + th + '>Service</th><th ' + thr + '>Rate</th>' +
+        '<th ' + th + '>Effective</th><th ' + th + '>Terminated</th>' +
+        '<th ' + thc + '>Start/Pause</th><th ' + th + '>Status</th>' +
+        '<th ' + thc + '>Audit</th><th style="width:36px;"></th></tr>';
+    }
+
+    var query = sb.from('Services').select('*').eq('property_id', propId);
+    if (filter === 'upcoming') query = query.or('status.eq.scheduled,dispatched.eq.false,dispatched.is.null').neq('status','canceled').neq('status','skipped');
+    if (filter === 'history')  query = query.eq('dispatched', true);
+    var { data: recs } = await query.order('scheduled_date', { ascending: true });
+    recs = recs || [];
+    tbody.innerHTML = '';
+    if (!recs.length) { empty.style.display = ''; return; }
+
+    var auditIcon    = '<span style="font-size:17px;color:#666;cursor:pointer;" title="Audit">&#128100;</span>';
+    var waitingIcon  = '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#2272c3;border-radius:50%;color:#fff;font-size:12px;font-weight:900;line-height:1;" title="Waiting List">W</span>';
+    var scheduledIcon= '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#e07820;border-radius:50%;border:2px solid #000;color:#000;font-size:12px;font-weight:900;line-height:1;" title="Scheduled">S</span>';
+    var lockIcon     = '<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#666;border-radius:3px;color:#fff;font-size:14px;line-height:1;">&#128274;</span>';
+
+    recs.forEach(function(j) {
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #eee';
+      var td = 'style="padding:9px 12px;"';
+      var tdr = 'style="padding:9px 12px;text-align:right;"';
+      var tdc = 'style="padding:9px 12px;text-align:center;"';
+      var dateStr = j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric'}) : '—';
+      var amtStr  = '$' + parseFloat(j.amount || j.price || 0).toFixed(2);
+      var typeStr = j.job_type === 'one_time' ? 'One Time' : (j.job_type || '—');
+      var delBtn  = '<button onclick="deleteService(\'' + j.id + '\',this)" style="background:none;border:none;cursor:pointer;padding:0;font-size:20px;color:#cc2222;line-height:1;">&#10006;</button>';
+
+      if (filter === 'upcoming') {
+        var rowIcon = j.status === 'scheduled' ? scheduledIcon : waitingIcon;
+
+        /* build period display */
+        var todayISO = (function(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
+        var fmtISO = function(iso){ if(!iso) return ''; var p=iso.split('-'); return p[1]+'/'+p[2]+'/'+p[0]; };
+        var isOverdue = !!(j.end_date && j.end_date < todayISO);
+        var periodStr;
+        if (j.start_date || j.end_date) {
+          periodStr = (j.start_date ? fmtISO(j.start_date) : '') + (j.start_date && j.end_date ? ' – ' : '') + (j.end_date ? fmtISO(j.end_date) : '');
+          if (isOverdue) periodStr += ' <span style="color:#cc2222;font-weight:700;">⚠ Late</span>';
+        } else {
+          periodStr = dateStr;
+        }
+
+        if (isOverdue) { tr.style.background = '#fff0f0'; tr.style.borderLeft = '3px solid #cc2222'; }
+        tr.style.cursor = 'pointer';
+        tr.innerHTML =
+          '<td ' + tdc + '>' + rowIcon + '</td>' +
+          '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
+          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + td + '>' + periodStr + '</td>' +
+          '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +
+          '<td ' + tdr + '>' + amtStr + '</td>' +
+          '<td ' + tdc + '>' + delBtn + '</td>';
+        tr.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          openServiceModal(j.id);
+        });
+      } else if (filter === 'history') {
+        tr.innerHTML =
+          '<td ' + tdc + '>' + lockIcon + '</td>' +
+          '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
+          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + td + '>' + dateStr + '</td>' +
+          '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +
+          '<td ' + tdr + '>' + (j.men_count || '—') + '</td>' +
+          '<td ' + tdr + '>' + (j.time_spent || '—') + '</td>' +
+          '<td ' + tdr + '>' + amtStr + '</td>';
+      } else {
+        var statusText  = j.dispatched ? 'Canceled' : 'Running';
+        var statusColor = j.dispatched ? '#888' : '#27a567';
+        tr.style.cursor = 'pointer';
+        tr.innerHTML =
+          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + tdr + '>' + amtStr + '</td>' +
+          '<td ' + td + '>' + dateStr + '</td>' +
+          '<td ' + td + '>—</td>' +
+          '<td ' + tdc + '>' + pauseIcon + '</td>' +
+          '<td ' + td + '><span style="color:' + statusColor + ';font-weight:600;">' + statusText + '</span></td>' +
+          '<td ' + tdc + '>' + auditIcon + '</td>' +
+          '<td ' + tdc + '>' + delBtn + '</td>';
+        tr.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          openServiceModal(j.id);
+        });
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function deleteService(id, btn) {
+    if (!confirm('Delete this service?')) return;
+    var { error, count } = await sb.from('Services').delete().eq('id', id).select();
+    if (error) { alert('Error: ' + error.message); return; }
+    btn.closest('tr').remove();
+  }
+
+  /* ── Service modal ── */
+  function openServiceModal(id) {
+    var src = 'ServiceAdd.html?entityType=property&propertyId=' + propId;
+    if (id) src += '&id=' + id;
+    document.getElementById('service-modal-iframe').src = src;
+    document.getElementById('service-modal-overlay').style.display = 'flex';
+    document.getElementById('service-menu').style.display = 'none';
+  }
+  function closeServiceModal(saved) {
+    document.getElementById('service-modal-overlay').style.display = 'none';
+    document.getElementById('service-modal-iframe').src = '';
+    if (saved) window.location.reload();
+  }
+  document.getElementById('service-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeServiceModal(false);
+  });
+
+  /* ── Package Plan modal ── */
+  var allPackages = [];
+  var pkgServiceRows = [];
+
+  async function openPkgModal() {
+    document.getElementById('service-menu').style.display = 'none';
+    var overlay = document.getElementById('pkg-modal-overlay');
+    overlay.style.display = 'flex';
+    if (!allPackages.length) {
+      var { data } = await sb.from('Packages').select('id, name').eq('active', true).order('name');
+      allPackages = data || [];
+      var sel = document.getElementById('pkg-modal-select');
+      sel.innerHTML = '<option value="">-- Choose a package --</option>' +
+        allPackages.map(function(p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join('');
+    }
+    document.getElementById('pkg-modal-preview').style.display = 'none';
+    document.getElementById('pkg-modal-rows').innerHTML = '';
+  }
+
+  function closePkgModal() {
+    document.getElementById('pkg-modal-overlay').style.display = 'none';
+    pkgServiceRows = [];
+  }
+
+  document.getElementById('pkg-modal-select').addEventListener('change', async function() {
+    var pkgId = this.value;
+    document.getElementById('pkg-modal-preview').style.display = 'none';
+    pkgServiceRows = [];
+    if (!pkgId) return;
+    var { data } = await sb.from('package_services').select('*').eq('package_id', pkgId).order('id');
+    pkgServiceRows = data || [];
+    var tbody = document.getElementById('pkg-modal-rows');
+    if (!pkgServiceRows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:10px; color:#aaa; font-style:italic;">No services in this package.</td></tr>';
+    } else {
+      function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
+      tbody.innerHTML = pkgServiceRows.map(function(r, i) {
+        return '<tr style="border-bottom:1px solid #f0f0f0;">' +
+          '<td style="padding:5px 8px;">' + (r.name || '—') + '</td>' +
+          '<td style="padding:5px 8px;">' + (r.service_name || '—') + '</td>' +
+          '<td style="padding:5px 8px;">' + fmtDate(r.start_date) + '</td>' +
+          '<td style="padding:5px 8px;">' + fmtDate(r.end_date) + '</td>' +
+          '<td style="padding:5px 8px; text-align:center;">' + (r.min_days || 0) + '</td>' +
+          '<td style="padding:5px 8px; text-align:right; white-space:nowrap;">' +
+            '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:right; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
+            ' <button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;">&#8595;</button>' +
+            ' <button title="Apply discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+    document.getElementById('pkg-modal-preview').style.display = 'block';
+  });
+
+  function fillRateBelow(rowIndex) {
+    var inputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var val = inputs[rowIndex] ? inputs[rowIndex].value : '';
+    inputs.forEach(function(inp, i) { if (i > rowIndex) inp.value = val; });
+  }
+
+  async function confirmAddPackage() {
+    if (!pkgServiceRows.length) { alert('Please select a package with services.'); return; }
+    if (!prop) { alert('Property not loaded yet.'); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var clientName = (owner && (owner.name || ((owner.first_name || '') + ' ' + (owner.last_name || '')).trim())) || ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim() || prop.company_name || '';
+    var rateInputs = document.querySelectorAll('#pkg-modal-rows input[type="number"]');
+    var inserts = pkgServiceRows.map(function(r, i) {
+      var rate = rateInputs[i] ? parseFloat(rateInputs[i].value) || 0 : (r.default_rate || 0);
+      return {
+        user_id: uid,
+        property_id: propId,
+        customer_id: prop.customer_id || null,
+        client_name: clientName,
+        address: prop.address || '',
+        service: r.service_name || '',
+        amount: rate,
+        min_days: r.min_days || 0,
+        package_service_id: r.id,
+        start_date: r.start_date || null,
+        end_date: r.end_date || null,
+        dispatched: false,
+        status: 'pending'
+      };
+    });
+    var { error } = await sb.from('Services').insert(inserts);
+    if (error) { alert('Error adding services: ' + error.message); return; }
+    closePkgModal();
+    loadServices('upcoming');
+    loadPackageCards();
+    alert(pkgServiceRows.length + ' service(s) added from package.');
+  }
+
+  /* ── Waiting list cards (packages + individual services) ── */
+  async function loadPackageCards() {
+    var container = document.getElementById('pkg-cards');
+    if (!container || !propId) return;
+
+    var { data: svcRows } = await sb.from('Services')
+      .select('id, service, amount, start_date, package_service_id')
+      .eq('property_id', propId)
+      .neq('dispatched', true);
+
+    if (!svcRows || !svcRows.length) { container.innerHTML = ''; return; }
+
+    /* resolve package names for services that have a package_service_id */
+    var psIds = svcRows.map(function(r) { return r.package_service_id; })
+      .filter(function(v, i, a) { return v && a.indexOf(v) === i; });
+
+    var psMap = {}, pkgMap = {};
+    if (psIds.length) {
+      var { data: psRows } = await sb.from('package_services').select('id, package_id').in('id', psIds);
+      (psRows || []).forEach(function(r) { psMap[r.id] = r.package_id; });
+      var pkgIds = Object.values(psMap).filter(function(v, i, a) { return v && a.indexOf(v) === i; });
+      if (pkgIds.length) {
+        var { data: pkgRows } = await sb.from('Packages').select('id, name').in('id', pkgIds);
+        (pkgRows || []).forEach(function(p) { pkgMap[p.id] = p.name; });
+      }
+    }
+
+    /* group package services by package; individual services stay separate */
+    var groups = {}, oneSvcs = [];
+    svcRows.forEach(function(r) {
+      var pkgId = psMap[r.package_service_id];
+      if (pkgId) {
+        if (!groups[pkgId]) groups[pkgId] = { name: pkgMap[pkgId] || 'Package', svcs: [] };
+        groups[pkgId].svcs.push(r);
+      } else {
+        oneSvcs.push(r);
+      }
+    });
+
+    var html = '';
+
+    /* package cards */
+    Object.keys(groups).forEach(function(pid) {
+      var g = groups[pid];
+      var total = g.svcs.reduce(function(s, r) { return s + (parseFloat(r.amount) || 0); }, 0);
+      var start = g.svcs.map(function(r) { return r.start_date; }).filter(Boolean).sort()[0] || '';
+      var startDisplay = start ? new Date(start + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+      html +=
+        '<div style="border-left:5px solid #3a9a3a;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);">' +
+          '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package</div>' +
+          '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
+            '<span style="font-weight:700;color:#222;">' + g.name + ' (' + g.svcs.length + ')</span>' +
+            '<span><strong>Rate:</strong> $' + total.toFixed(2) + '</span>' +
+            (startDisplay ? '<span><strong>Start:</strong> ' + startDisplay + '</span>' : '') +
+          '</div>' +
+        '</div>';
+    });
+
+    /* individual service cards */
+    oneSvcs.forEach(function(r) {
+      var amount = parseFloat(r.amount) || 0;
+      var start = r.start_date ? new Date(r.start_date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+      html +=
+        '<div style="border-left:5px solid #5588cc;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);">' +
+          '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Service</div>' +
+          '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
+            '<span style="font-weight:700;color:#222;">' + (r.service || '—') + '</span>' +
+            '<span><strong>Rate:</strong> $' + amount.toFixed(2) + '</span>' +
+            (start ? '<span><strong>Start:</strong> ' + start + '</span>' : '') +
+          '</div>' +
+        '</div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  /* ── Service menu ── */
+  function toggleServiceMenu(e) {
+    e.stopPropagation();
+    var menu = document.getElementById('service-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  /* ── Dropdowns ── */
+  function toggleDropdown(id) {
+    var menu = document.getElementById(id);
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+      if (m.id !== id) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.add-btn-wrap')) {
+      var sm = document.getElementById('service-menu');
+      if (sm) sm.style.display = 'none';
+    }
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.classList.remove('show'); });
+    }
+    if (!e.target.closest('.tag-select-row')) {
+      document.getElementById('tag-dropdown').classList.remove('show');
+    }
+  });
+
+  /* ── Activity tabs ── */
+  document.querySelectorAll('.tab-links a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.tab-links a').forEach(function(l) { l.classList.remove('active'); });
+      link.classList.add('active');
+    });
+  });
+
+  /* ── Attachment tabs ── */
+  document.querySelectorAll('.attach-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.attach-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+
+  /* ── Details / Custom Fields (Property type) ── */
+  async function loadDetailsGrid() {
+    var grid  = document.getElementById('details-grid');
+    var empty = document.getElementById('details-empty');
+    var { data: fieldRows } = await sb.from('custom_fields').select('*')
+      .eq('active', true).order('display_order');
+    var fields = fieldRows || [];
+
+    if (!fields.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+
+    var saved = (prop && prop.custom_fields) ? prop.custom_fields : {};
+    grid.innerHTML = '';
+    fields.forEach(function(f) {
+      var val  = saved[f.key] !== undefined ? saved[f.key] : '';
+      var cell = document.createElement('div');
+      cell.className = 'details-cell';
+      var inp;
+      if (f.type === 'Checkbox') {
+        inp = '<input type="checkbox" class="dv-check" data-key="' + cfEscAttr(f.key) + '"' + (val ? ' checked' : '') + '/>';
+      } else if (f.type === 'Number') {
+        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+      } else if (f.type === 'Date') {
+        inp = '<input type="date" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '"/>';
+      } else {
+        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+      }
+      cell.innerHTML = '<span class="dl">' + escHtml(f.name) + '</span>' + inp;
+      grid.appendChild(cell);
+    });
+
+    grid.addEventListener('change', saveCfValues);
+    grid.addEventListener('input',  saveCfValues);
+  }
+
+  function cfEscAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
+
+  var cfSaveTimer;
+  function saveCfValues() {
+    clearTimeout(cfSaveTimer);
+    cfSaveTimer = setTimeout(async function() {
+      if (!propId) return;
+      var values = {};
+      document.querySelectorAll('#details-grid [data-key]').forEach(function(i) {
+        values[i.dataset.key] = i.type === 'checkbox' ? i.checked : i.value;
+      });
+      var { error } = await sb.from('Properties').update({ custom_fields: values }).eq('id', propId);
+      var msg = document.getElementById('cf-saved-msg');
+      if (error) { msg.textContent = 'Error saving'; return; }
+      if (prop) prop.custom_fields = values;
+      msg.textContent = 'Saved';
+      setTimeout(function() { msg.textContent = ''; }, 1500);
+    }, 600);
+  }
+
+  /* ── Area Treated ── */
+  function loadAreaTreated() {
+    var at = (prop && prop.area_treated) ? prop.area_treated : {};
+    document.querySelectorAll('.at-inp').forEach(function(inp) {
+      inp.value = at[inp.dataset.atKey] || '';
+    });
+    document.querySelectorAll('.at-inp').forEach(function(inp) {
+      inp.addEventListener('change', saveAreaTreated);
+      inp.addEventListener('input',  saveAreaTreated);
+    });
+  }
+
+  var atSaveTimer;
+  function saveAreaTreated() {
+    clearTimeout(atSaveTimer);
+    atSaveTimer = setTimeout(async function() {
+      if (!propId) return;
+      var values = {};
+      document.querySelectorAll('.at-inp').forEach(function(inp) {
+        values[inp.dataset.atKey] = inp.value;
+      });
+      var { error } = await sb.from('Properties').update({ area_treated: values }).eq('id', propId);
+      var msg = document.getElementById('at-saved-msg');
+      if (error) { msg.textContent = 'Error saving'; return; }
+      if (prop) prop.area_treated = values;
+      msg.textContent = 'Saved';
+      setTimeout(function() { msg.textContent = ''; }, 1500);
+    }, 600);
+  }
+
+  /* ── Property Invoices ── */
+  async function loadPropertyInvoices() {
+    if (!propId) return;
+    var container = document.getElementById('property-invoices-list');
+    if (!container) return;
+    var { data } = await sb.from('Invoices')
+      .select('id, inv_num, date, inv_total, inv_bal, client_name, service_lines')
+      .eq('property_id', propId)
+      .eq('deleted', false)
+      .order('date', { ascending: false })
+      .limit(10);
+    if (!data || !data.length) {
+      container.innerHTML = '<div style="padding:6px 4px;color:#aaa;font-size:12.5px;font-style:italic;">No invoices yet.</div>';
+      return;
+    }
+    container.innerHTML = data.map(function(inv) {
+      var bal  = parseFloat(inv.inv_bal)   || 0;
+      var tot  = parseFloat(inv.inv_total) || 0;
+      var paid = bal === 0 && tot > 0;
+      var color = paid ? '#27a567' : '#e07820';
+      var label = paid ? 'Paid' : 'Open';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 4px;border-bottom:1px solid #f0f0f0;font-size:12.5px;">' +
+        '<div>' +
+          '<span style="font-weight:700;color:#2272c3;cursor:pointer;">Inv #' + (inv.inv_num || inv.id) + '</span>' +
+          '<span style="color:#888;margin-left:6px;">' + (inv.date || '') + '</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="color:' + color + ';font-weight:600;font-size:11.5px;">' + label + '</span>' +
+          '<span style="font-weight:700;">$' + tot.toFixed(2) + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openAddInvoiceForProperty() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('invoices');
+      setTimeout(function() {
+        var iframe = window.parent.document.getElementById('page-frame');
+        if (iframe && iframe.contentWindow && iframe.contentWindow.openAddInvoiceModal) {
+          var clientName = (prop && ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim()) || '';
+          var addr = [prop && prop.address, prop && prop.city].filter(Boolean).join(', ');
+          iframe.contentWindow.openAddInvoiceModal({ property_id: propId, client_name: clientName, address: addr });
+        }
+      }, 600);
+    }
+  }
+</script>
+</body>
+</html>
+

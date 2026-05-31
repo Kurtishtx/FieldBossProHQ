@@ -1,0 +1,365 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Package Plans</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Page header ── */
+    .page-header { padding: 10px 20px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111;
+    }
+    .showing-count { font-size: 14px; font-weight: 400; color: #555; margin-left: 6px; }
+        .btn-orange-filled {
+      background: #e07820;
+      border: 3px solid #111;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #3a3a3a;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 6px;
+    }
+    .actions-split { display: flex; align-items: stretch; position: relative; }
+    .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
+    .btn-green-main:hover { background: #d4ae00; }
+    .btn-green-caret { background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15); border-radius: 0 3px 3px 0; padding: 5px 8px; font-size: 12px; cursor: pointer; }
+    .btn-green-caret:hover { background: #d4ae00; }
+    .actions-dropdown {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0;
+      background: #fff; border: 1px solid #ccc; border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18); z-index: 200; min-width: 180px; padding: 4px 0;
+    }
+    .actions-dropdown.open { display: block; }
+    .dropdown-header { font-size: 13px; font-weight: 700; color: #222; padding: 7px 16px 5px; border-bottom: 1px solid #eee; margin-bottom: 3px; }
+    .dropdown-item { display: block; width: 100%; background: none; border: none; text-align: left; padding: 7px 16px; font-size: 13.5px; font-family: inherit; color: #333; cursor: pointer; }
+    .dropdown-item:hover { background: #f5f5f5; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      background: #3a3a3a;
+      padding: 0 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+      border-top: 1px solid #2a2a2a;
+    }
+    .tab-btn {
+      background: #bbb;
+      color: #111;
+      border: none;
+      border-radius: 4px 4px 0 0;
+      padding: 5px 16px;
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
+    .tab-btn:hover:not(.active) { background: #aaa; color: #111; }
+
+    /* ── Table ── */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 8px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      white-space: nowrap;
+      font-size: 12.5px;
+    }
+    thead th:first-child { width: 36px; text-align: center; }
+
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:hover { background: #fdfbe8; }
+    tbody tr.expired { background: #fde8e8; }
+    tbody tr.expired:hover { background: #fad5d5; }
+
+    tbody td { padding: 9px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+    .pkg-link {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .pkg-link:hover { text-decoration: underline; color: #111; }
+
+    /* ── Footer bar ── */
+    .footer-bar {
+      background: #2a2a2a;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #aaa;
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Page header -->
+<div class="page-header">
+  <h1>Package Plans <span class="showing-count" id="results-count"></span></h1>
+  <button class="btn-orange-filled" onclick="window.location.href='PackagePlansAdd.html'">Add Package</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="actions-split">
+    <button class="btn-green-main">Actions</button>
+    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
+    <div class="actions-dropdown" id="actions-dropdown">
+      <div class="dropdown-header">Actions</div>
+      <button class="dropdown-item" onclick="window.location.href='PackagePlansAdd.html'">Add Package Plan</button>
+      <button class="dropdown-item" onclick="copySelected()">Copy</button>
+      <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
+      <button class="dropdown-item" onclick="setSelectedInactive()">Inactivate</button>
+      <button class="dropdown-item" onclick="setSelectedActive()">Activate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="setTab(this,'active')">Active</button>
+  <button class="tab-btn" onclick="setTab(this,'inactive')">Inactive</button>
+  <button class="tab-btn" onclick="setTab(this,'all')">All</button>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th>Package Name</th>
+        <th>Description</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Renewal Date</th>
+        <th>Active</th>
+      </tr>
+    </thead>
+    <tbody id="pkg-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg">No package plans found.</div>
+</div>
+<div style="height:28px;background:#3a3a3a;"></div>
+
+<!-- Footer bar -->
+<div class="footer-bar"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  /* ── Tabs ── */
+  var currentTab = 'active';
+  function setTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentTab = tab;
+    renderTable();
+  }
+
+  /* ── Dropdown ── */
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+  });
+
+  /* ── Data ── */
+  var packages = [];
+
+  async function loadPackages() {
+    var { data, error } = await sb.from('Packages').select('*').order('name', { ascending: true });
+    if (error) { console.error(error); return; }
+    packages = data || [];
+    renderTable();
+  }
+
+  /* ── Render ── */
+  function renderTable() {
+    var tbody    = document.getElementById('pkg-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+
+    var filtered = packages.filter(function(p) {
+      if (currentTab === 'active')   return p.active;
+      if (currentTab === 'inactive') return !p.active;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    var today = new Date();
+    filtered.forEach(function(p) {
+      var tr = document.createElement('tr');
+      tr.dataset.pkgId = p.id;
+      tr.style.cursor = 'pointer';
+      var endDate = p.end_date ? new Date(p.end_date) : null;
+      if (endDate && endDate < today) tr.classList.add('expired');
+
+      tr.innerHTML =
+        '<td><input type="checkbox" onclick="event.stopPropagation()"/></td>' +
+        '<td><a class="pkg-link">' + (p.name || '') + '</a></td>' +
+        '<td>' + (p.description || '') + '</td>' +
+        '<td>' + (p.start_date || '') + '</td>' +
+        '<td>' + (p.end_date || '') + '</td>' +
+        '<td>' + (p.renewal_date || '') + '</td>' +
+        '<td>' + (p.active ? 'Active' : 'Inactive') + '</td>';
+      tr.addEventListener('click', function(e) {
+        if (e.target.type === 'checkbox') return;
+        window.location.href = 'PackagePlansAdd.html?id=' + p.id;
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('#pkg-tbody input[type="checkbox"]')
+      .forEach(function(c) { c.checked = cb.checked; });
+  }
+
+  function getSelectedIds() {
+    var ids = [];
+    document.querySelectorAll('#pkg-tbody tr').forEach(function(tr) {
+      var cb = tr.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked) ids.push(tr.dataset.pkgId);
+    });
+    return ids;
+  }
+
+  async function deleteSelected() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one package first.'); return; }
+    if (!confirm('Delete ' + ids.length + ' package(s)? This cannot be undone.')) return;
+    await sb.from('package_services').delete().in('package_id', ids);
+    var { error } = await sb.from('Packages').delete().in('id', ids);
+    if (error) { alert('Error deleting: ' + error.message); return; }
+    packages = packages.filter(function(p) { return ids.indexOf(String(p.id)) === -1; });
+    document.getElementById('select-all').checked = false;
+    renderTable();
+  }
+
+  async function setSelectedActive() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one package first.'); return; }
+    if (!confirm('Activate ' + ids.length + ' package(s)?')) return;
+    var { error } = await sb.from('Packages').update({ active: true }).in('id', ids);
+    if (error) { alert('Error updating: ' + error.message); return; }
+    packages.forEach(function(p) { if (ids.indexOf(String(p.id)) !== -1) p.active = true; });
+    document.getElementById('select-all').checked = false;
+    renderTable();
+  }
+
+  async function setSelectedInactive() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one package first.'); return; }
+    if (!confirm('Inactivate ' + ids.length + ' package(s)?')) return;
+    var { error } = await sb.from('Packages').update({ active: false }).in('id', ids);
+    if (error) { alert('Error updating: ' + error.message); return; }
+    packages.forEach(function(p) { if (ids.indexOf(String(p.id)) !== -1) p.active = false; });
+    document.getElementById('select-all').checked = false;
+    renderTable();
+  }
+
+  async function copySelected() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one package first.'); return; }
+    if (!confirm('Copy ' + ids.length + ' package(s)?')) return;
+    for (var i = 0; i < ids.length; i++) {
+      var pkg = packages.find(function(p) { return String(p.id) === ids[i]; });
+      if (!pkg) continue;
+      var { data: inserted } = await sb.from('Packages').insert({
+        name: (pkg.name || '') + ' (Copy)',
+        description: pkg.description || null,
+        active: pkg.active
+      }).select('id').single();
+      if (inserted) {
+        var { data: rows } = await sb.from('package_services').select('*').eq('package_id', pkg.id);
+        if (rows && rows.length) {
+          var newRows = rows.map(function(r) {
+            return { package_id: inserted.id, name: r.name, service_id: r.service_id, service_name: r.service_name,
+              start_date: r.start_date, end_date: r.end_date, min_days: r.min_days,
+              default_hours: r.default_hours, default_rate: r.default_rate };
+          });
+          await sb.from('package_services').insert(newRows);
+        }
+      }
+    }
+    loadPackages();
+  }
+
+  loadPackages();
+</script>
+</body>
+</html>
+

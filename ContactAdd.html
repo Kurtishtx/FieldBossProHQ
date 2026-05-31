@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Add Contact</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif; font-size: 13px;
+      background: #ebebeb; display: flex; justify-content: center;
+      align-items: flex-start; padding: 30px 10px; min-height: 100vh;
+    }
+    .modal {
+      background: #fff; width: 100%; max-width: 520px;
+      border: 1px solid #999; box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px 10px;
+    }
+    .modal-header h2 { font-size: 22px; font-weight: 700; color: #222; }
+    .close-btn {
+      background: none; border: 1px solid #bbb; font-size: 14px;
+      cursor: pointer; color: #555; padding: 2px 8px; border-radius: 2px;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+    .form-body { padding: 10px 18px 18px; }
+    .fr {
+      display: flex; align-items: center; margin-bottom: 8px;
+    }
+    .lbl {
+      width: 130px; min-width: 130px; font-size: 13px; color: #444;
+      padding-right: 10px; text-align: right;
+    }
+    .fr input[type="text"], .fr input[type="tel"], .fr input[type="email"],
+    .fr input[type="date"], .fr select {
+      flex: 1; border: 1px solid #bbb; padding: 5px 8px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
+    }
+    .fr input:focus, .fr select:focus { border-color: #e07820; }
+    .footer {
+      padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+      border-top: 1px solid #eee;
+    }
+    .save-btn {
+      background: #e07820; color: #fff; border: none;
+      padding: 8px 28px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .save-btn:hover { background: #c96a10; }
+    .cancel-lnk { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: none; }
+    .cancel-lnk:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+<div class="modal">
+  <div class="modal-header">
+    <h2 id="form-title">Add Contact</h2>
+    <button class="close-btn" onclick="cancelEdit()">&#10005;</button>
+  </div>
+  <div class="form-body">
+    <div class="fr"><span class="lbl">First Name</span><input type="text" id="first-name"/></div>
+    <div class="fr"><span class="lbl">Last Name</span><input type="text" id="last-name"/></div>
+    <div class="fr"><span class="lbl">Nickname</span><input type="text" id="nickname"/></div>
+    <div class="fr"><span class="lbl">Contact Type</span>
+      <select id="contact-type">
+        <option value="">Select options</option>
+        <option>Spouse</option>
+        <option>Partner</option>
+        <option>Manager</option>
+        <option>Assistant</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="fr"><span class="lbl">Email</span><input type="email" id="email"/></div>
+    <div class="fr"><span class="lbl">Home Phone</span><input type="tel" id="home-phone"/></div>
+    <div class="fr"><span class="lbl">Work Phone</span><input type="tel" id="work-phone"/></div>
+    <div class="fr"><span class="lbl">Cell Phone</span><input type="tel" id="cell-phone"/></div>
+  </div>
+  <div class="footer">
+    <button class="save-btn" onclick="saveContact()">Save</button>
+    <span>or</span>
+    <a class="cancel-lnk" href="#" onclick="cancelEdit(event)">Cancel</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var params     = new URLSearchParams(window.location.search);
+  var editId     = params.get('id');
+  var entityId   = params.get('entityId');
+  var entityType = params.get('entityType'); // 'client' or 'lead'
+
+  if (editId) {
+    document.getElementById('form-title').textContent = 'Edit Contact';
+    (async function() {
+      var { data: c } = await sb.from('Contacts').select('*').eq('id', editId).single();
+      if (!c) return;
+      function set(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; }
+      set('first-name',      c.first_name);
+      set('last-name',       c.last_name);
+      set('nickname',        c.nickname);
+      set('contact-type',    c.contact_type);
+      set('email',           c.email);
+      set('home-phone',      c.home_phone);
+      set('work-phone',      c.work_phone);
+      set('cell-phone',      c.cell_phone);
+    })();
+  }
+
+  async function saveContact() {
+    var firstName = document.getElementById('first-name').value.trim();
+    var lastName  = document.getElementById('last-name').value.trim();
+    if (!firstName && !lastName) {
+      alert('Please enter at least a first or last name.');
+      document.getElementById('first-name').focus();
+      return;
+    }
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var record = {
+      first_name:      firstName,
+      last_name:       lastName,
+      name:            (firstName + ' ' + lastName).trim(),
+      nickname:        document.getElementById('nickname').value.trim(),
+      contact_type:    document.getElementById('contact-type').value,
+      email:           document.getElementById('email').value.trim(),
+      home_phone:      document.getElementById('home-phone').value.trim(),
+      work_phone:      document.getElementById('work-phone').value.trim(),
+      cell_phone:      document.getElementById('cell-phone').value.trim(),
+      entity_type:     entityType || null,
+      entity_id:       entityId   || null,
+      user_id:         uid,
+    };
+
+    var error;
+    if (editId) {
+      var result = await sb.from('Contacts').update(record).eq('id', editId);
+      error = result.error;
+    } else {
+      var result = await sb.from('Contacts').insert(record);
+      error = result.error;
+    }
+
+    if (error) { alert('Error saving contact: ' + error.message); return; }
+
+    if (window.parent !== window) {
+      window.parent.closeContactModal(true);
+    } else {
+      window.history.back();
+    }
+  }
+
+  function cancelEdit(e) {
+    if (e) e.preventDefault();
+    if (window.parent !== window) {
+      window.parent.closeContactModal(false);
+    } else {
+      window.history.back();
+    }
+  }
+</script>
+</body>
+</html>
+

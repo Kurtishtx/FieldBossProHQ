@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+
+    .page-hdr { padding: 20px 24px 14px; border-bottom: 1px solid #eee; }
+    .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
+    .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
+
+    .notice {
+      background: #fff8e1;
+      border-left: 4px solid #f5a623;
+      padding: 12px 20px;
+      margin: 16px 24px;
+      font-size: 12.5px;
+      color: #7a5c00;
+      border-radius: 4px;
+    }
+    .notice code {
+      background: rgba(0,0,0,.07);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .loading { padding: 40px 24px; text-align: center; color: #888; font-size: 14px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0;
+    }
+    thead th {
+      background: #3a3a3a;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 16px;
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:hover { background: #fafafa; }
+    tbody td { padding: 10px 16px; vertical-align: middle; font-size: 13px; }
+
+    .user-email { font-weight: 600; color: #111; word-break: break-all; }
+    .user-sub   { font-size: 11.5px; color: #888; margin-top: 2px; }
+
+    .twilio-input {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      font-family: inherit;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      min-width: 140px;
+    }
+    .twilio-input:focus { border-color: #2272c3; background: #fff; }
+
+    .save-btn {
+      padding: 7px 18px;
+      background: #2272c3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .save-btn:hover { background: #1a5ea0; }
+    .save-btn:disabled { background: #90b8e0; cursor: default; }
+    .save-btn.saved  { background: #28a745; }
+
+    .err-msg { color: #d9534f; font-size: 11.5px; margin-top: 4px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-hdr">
+  <h1>&#128737; Admin Panel</h1>
+  <p>Manage Twilio credentials per customer account.</p>
+</div>
+
+<div id="setup-notice" class="notice" style="display:none">
+  One-time setup: run this SQL in Supabase &rarr; SQL Editor to allow the user list to load:<br/><br/>
+  <code>
+    CREATE OR REPLACE FUNCTION public.get_all_user_emails()<br/>
+    RETURNS TABLE(user_id uuid, email text)<br/>
+    LANGUAGE sql SECURITY DEFINER AS $$<br/>
+    &nbsp;&nbsp;SELECT id, email FROM auth.users ORDER BY created_at;<br/>
+    $$;
+  </code>
+</div>
+
+<div id="loading" class="loading">Loading accounts&hellip;</div>
+
+<table id="accounts-table" style="display:none">
+  <thead>
+    <tr>
+      <th style="width:22%">Account</th>
+      <th style="width:22%">Twilio Account SID</th>
+      <th style="width:22%">Twilio Auth Token</th>
+      <th style="width:18%">Twilio Phone #</th>
+      <th style="width:16%"></th>
+    </tr>
+  </thead>
+  <tbody id="accounts-body"></tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var twilioMap = {};
+
+  async function init() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!sessionData || !sessionData.session || sessionData.session.user.email !== 'hamannlandscape@gmail.com') {
+      document.getElementById('loading').textContent = 'Access denied.';
+      return;
+    }
+
+    var { data: twilioRows } = await sb.from('twilio_settings').select('*');
+    if (twilioRows) {
+      twilioRows.forEach(function(r) { twilioMap[r.user_id] = r; });
+    }
+
+    var { data: users, error } = await sb.rpc('get_all_user_emails');
+    if (error) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('setup-notice').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    var tbody = document.getElementById('accounts-body');
+    tbody.innerHTML = '';
+
+    (users || []).forEach(function(u) {
+      var tw = twilioMap[u.user_id] || {};
+      var tr = document.createElement('tr');
+      tr.setAttribute('data-uid', u.user_id);
+      tr.innerHTML =
+        '<td>' +
+          '<div class="user-email">' + escHtml(u.email) + '</div>' +
+        '</td>' +
+        '<td><input class="twilio-input" data-field="account_sid" placeholder="ACxxxxxxxxxxxxxxx" value="' + escHtml(tw.account_sid || '') + '"/></td>' +
+        '<td><input class="twilio-input" data-field="auth_token" placeholder="Auth Token" value="' + escHtml(tw.auth_token || '') + '"/></td>' +
+        '<td><input class="twilio-input" data-field="phone_number" placeholder="+15551234567" value="' + escHtml(tw.phone_number || '') + '"/></td>' +
+        '<td><button class="save-btn" onclick="saveRow(this, \'' + u.user_id + '\')">Save</button></td>';
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('accounts-table').style.display = 'table';
+  }
+
+  async function saveRow(btn, userId) {
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    var tr = btn.closest('tr');
+    var sid   = tr.querySelector('[data-field="account_sid"]').value.trim();
+    var token = tr.querySelector('[data-field="auth_token"]').value.trim();
+    var phone = tr.querySelector('[data-field="phone_number"]').value.trim();
+
+    var { error } = await sb.from('twilio_settings').upsert(
+      { user_id: userId, account_sid: sid, auth_token: token, phone_number: phone, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+
+    btn.disabled = false;
+    if (error) {
+      btn.textContent = 'Save';
+      var td = btn.closest('td');
+      var msg = td.querySelector('.err-msg');
+      if (!msg) { msg = document.createElement('div'); msg.className = 'err-msg'; td.appendChild(msg); }
+      msg.textContent = error.message;
+    } else {
+      btn.textContent = 'Saved ✓';
+      btn.classList.add('saved');
+      setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
+    }
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  init();
+</script>
+</body>
+</html>
+

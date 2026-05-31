@@ -1,0 +1,1908 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Waiting List</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #ebebeb; }
+
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#fff; border-bottom:1px solid #ddd; }
+    .page-header h1 { font-size:22px; font-weight:700; color:#111; }
+    .page-header-right { display:flex; align-items:center; gap:12px; }
+    .page-clock { font-size:14px; color:#333; font-weight:500; }
+    .avatar { width:34px; height:34px; border-radius:50%; background:#2272c3; color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+
+    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#e4e4e4; border-bottom:1px solid #d0d0d0; flex-wrap:wrap; }
+    .filter-bar strong { font-size:13px; color:#333; }
+    .filter-tab { padding:3px 12px; border:1px solid #bbb; background:#fff; font-size:13px; cursor:pointer; border-radius:2px; color:#333; }
+    .filter-tab:hover { background:#e8e8e8; }
+    .filter-tab.active { background:#3a3a3a; color:#fff; border:2px solid #fff; font-weight:700; }
+
+    .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#f0f0f0; border-bottom:1px solid #ddd; }
+    .subfilter-bar.visible { display:flex; }
+    .sf-x-btn { width:20px; height:20px; border-radius:3px; border:1px solid #aaa; background:#ddd; color:#555; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0; }
+    .sf-x-btn:hover { background:#bbb; }
+    .sf-label { font-size:13px; color:#333; white-space:nowrap; }
+    .ms-wrap { position:relative; display:inline-block; }
+    .ms-btn { height:26px; min-width:200px; border:1px solid #bbb; background:#fff; padding:0 24px 0 8px; font-size:13px; cursor:pointer; text-align:left; color:#333; position:relative; border-radius:2px; }
+    .ms-btn::after { content:'▼'; font-size:9px; position:absolute; right:7px; top:50%; transform:translateY(-50%); color:#777; }
+    .ms-dropdown { display:none; position:absolute; top:calc(100% + 2px); left:0; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.15); z-index:500; min-width:220px; max-height:220px; overflow-y:auto; padding:4px 0; }
+    .ms-dropdown.open { display:block; }
+    .ms-item { display:flex; align-items:center; gap:7px; padding:5px 10px; cursor:pointer; font-size:13px; }
+    .ms-item:hover { background:#f5f5f5; }
+    .ms-item input { cursor:pointer; accent-color:#888888; }
+    .apply-btn { background:none; border:none; padding:0; font-size:13px; cursor:pointer; color:#2272c3; text-decoration:underline; }
+    .apply-btn:hover { color:#1a5ea0; }
+    .apply-btn:disabled { opacity:.6; cursor:default; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .drp-wrap { position:relative; display:inline-block; }
+    .drp-input { border:1px solid #bbb; padding:0 10px; height:28px; font-size:13px; cursor:pointer; background:#fff; min-width:190px; color:#333; border-radius:2px; display:flex; align-items:center; user-select:none; white-space:nowrap; }
+    .drp-input:hover { background:#f5f5f5; }
+    .drp-popup { display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.2); z-index:600; padding:10px 12px 8px; min-width:260px; max-width:98vw; overflow-x:auto; }
+    .drp-popup.open { display:block; }
+    .drp-close-btn { background:#27a567; color:#fff; border:none; padding:4px 16px; cursor:pointer; font-size:12px; font-weight:700; border-radius:2px; }
+    .drp-months { display:flex; gap:12px; width:100%; }
+    .drp-months > div { flex:1; min-width:0; }
+    .drp-cal-hdr { display:flex; align-items:center; justify-content:space-between; background:#222; color:#fff; padding:5px 8px; font-size:13px; font-weight:600; }
+    .drp-nav { background:none; border:none; color:#fff; cursor:pointer; font-size:15px; line-height:1; padding:0 4px; }
+    .drp-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+    .drp-dn { font-size:11px; color:#888; text-align:center; padding:4px 0; }
+    .drp-day { font-size:12px; text-align:center; padding:5px 2px; cursor:pointer; border-radius:50%; }
+    .drp-day:hover:not(.drp-other) { background:#eee; }
+    .drp-today { font-weight:700; }
+    .drp-inrange { background:#c8f0d8; border-radius:0; }
+    .drp-sel { background:#27a567 !important; color:#fff; border-radius:50%; }
+    .drp-other { color:#ccc; pointer-events:none; }
+    .drp-quick-row { margin-top:8px; font-size:12px; color:#555; display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+    .drp-quick-row a { color:#2272c3; cursor:pointer; }
+    .drp-quick-row a:hover { text-decoration:underline; }
+
+    .toolbar { display:flex; align-items:center; gap:8px; padding:6px 10px; background:#fff; border-bottom:1px solid #ddd; }
+    .toolbar label { display:flex; align-items:center; gap:4px; font-size:13px; color:#333; }
+    .toolbar-right { margin-left:auto; display:flex; gap:6px; }
+        .btn-orange-outline {
+      background: #111;
+      border: 3px solid #e07820;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-orange-outline:hover { background: #222; }
+    .btn-print { background:#e07820; color:#fff; border:3px solid #111; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
+    .btn-print:hover { background:#c96a15; border-color:#111; }
+    .btn-map-toggle { background:#111; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
+    .btn-map-toggle:hover { background:#222; }
+    @media print {
+      .filter-bar, .subfilter-bar, .toolbar, .map-section, .bottom-bar, .page-header,
+      .sv-overlay, #sched-modal-overlay { display:none !important; }
+      .table-wrap { overflow:visible !important; }
+      body { background:#fff !important; }
+    }
+
+    .app-dropdown { position:relative; }
+    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid #e07b00; background:#111; padding:3px 10px; font-size:13px; font-weight:600; height:28px; min-width:160px; cursor:pointer; text-align:left; border-radius:3px; color:#fff; }
+    .app-btn:hover { background:#333; border-color:#333; }
+    .app-btn::after { content:'▼'; font-size:9px; color:#ccc; flex-shrink:0; }
+    .saved-filters-panel { display:none; position:absolute; top:100%; left:0; z-index:300; width:280px; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+    .saved-filters-panel.show { display:flex; flex-direction:column; }
+    .sfp-body { overflow-y:auto; max-height:280px; padding:8px 10px; }
+    .sfp-title { font-weight:700; font-size:13px; color:#333; margin-bottom:6px; }
+    .sfp-create { display:block; color:#2272c3; text-decoration:underline; font-size:13px; margin-bottom:8px; }
+    .sfp-create:hover { color:#1a5ea0; }
+    .sfp-group-label { font-weight:700; font-size:12.5px; color:#333; margin:8px 0 4px; text-transform:uppercase; font-size:11px; color:#777; letter-spacing:.4px; }
+    .sfp-item { display:grid; grid-template-columns:40px 1fr 36px 22px; align-items:center; padding:2px 0; font-size:13px; }
+    .sfp-item a { color:#2272c3; text-decoration:underline; cursor:pointer; }
+    .sfp-item a:hover { color:#1a5ea0; }
+    .sfp-save-link { color:#2272c3; text-decoration:underline; font-size:12px; cursor:pointer; white-space:nowrap; }
+    .sfp-del { background:none; border:none; color:#555; font-size:13px; cursor:pointer; padding:0; line-height:1; }
+    .sfp-del:hover { color:#e04040; }
+    .sfp-def-col { display:flex; align-items:center; justify-content:center; }
+    .sfp-def-col input[type="radio"] { width:15px; height:15px; cursor:pointer; accent-color:#888888; }
+    .sfp-views-hdr { display:flex; align-items:center; padding:4px 0 6px; border-bottom:1px solid #eee; margin-bottom:2px; }
+    .sfp-views-hdr-def { width:50px; text-align:center; flex-shrink:0; font-size:11px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:.4px; }
+
+    .sv-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:900; align-items:center; justify-content:center; }
+    .sv-overlay.show { display:flex; }
+    .sv-modal { background:#fff; width:440px; max-width:94vw; padding:30px 30px 24px; position:relative; box-shadow:0 8px 32px rgba(0,0,0,.3); }
+    .sv-modal-close { position:absolute; top:10px; right:12px; background:none; border:1px solid #aaa; width:22px; height:22px; font-size:12px; cursor:pointer; color:#555; display:flex; align-items:center; justify-content:center; }
+    .sv-modal-title { font-size:22px; font-weight:700; color:#111; margin-bottom:20px; }
+    .sv-modal-label { font-size:13px; color:#2272c3; font-style:italic; margin-bottom:7px; }
+    .sv-modal input[type="text"] { width:100%; border:2px solid #111; padding:9px 10px; font-size:14px; outline:none; }
+    .sv-modal-footer { display:flex; align-items:center; gap:12px; margin-top:18px; justify-content:flex-end; }
+    .sv-modal-save { background:#e07820; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; }
+    .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; }
+
+    .jobs-total { padding:5px 10px; font-size:13px; color:#fff; background:#3a3a3a; border-bottom:2px solid #fff; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#f3f3f3; border:1px solid #ddd; border-radius:12px; padding:4px 9px; font-size:12px; color:#222; font-weight:700; }
+    .jt-pill-count { background:#e07820; color:#fff; font-weight:700; border-radius:10px; padding:0 6px; font-size:11px; }
+
+    .map-section { position:relative; width:100%; height:380px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
+    .map-toggle { position:absolute; top:10px; right:10px; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; z-index:10; }
+    .map-toggle button { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; }
+    .map-toggle button.active { background:#f0f0f0; font-weight:700; }
+
+    .stop-panel { display:block; position:absolute; top:10px; left:10px; width:260px; background:#fff; border:1px solid #bbb; box-shadow:0 2px 8px rgba(0,0,0,.25); z-index:20; font-size:12.5px; }
+    .stop-panel-hdr { background:#3a3a3a; color:#fff; padding:6px 10px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+    .stop-panel-hdr button { background:none; border:none; color:#fff; cursor:pointer; font-size:15px; line-height:1; }
+    .stop-body { padding:8px 10px; }
+    .sp-section { font-weight:700; font-size:12px; color:#333; margin:6px 0 3px; }
+    .sp-row { display:flex; justify-content:space-between; font-size:12px; padding:1px 0; }
+    .sp-total-row { display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; margin-top:4px; border-top:1px solid #eee; padding-top:4px; }
+
+    .stop-panel .orange-btn { display:block; width:calc(100% - 16px); margin:4px 8px 8px; padding:7px; background:#e07820; color:#fff; border:none; font-size:13px; font-weight:700; cursor:pointer; border-radius:3px; text-align:center; }
+    .stop-panel .orange-btn:hover { background:#c96a10; }
+    .map-tool-panel { position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:4px; z-index:15; }
+    .map-tool-btn { background:#fff; border:1px solid #bbb; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:3px; box-shadow:0 1px 4px rgba(0,0,0,.25); padding:0; }
+    .map-tool-btn:hover { background:#f0f0f0; }
+    .map-tool-btn.active { background:#e8f0fe; border-color:#4a90d9; }
+
+    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#3a3a3a; border-top:2px solid #fff; border-bottom:1px solid #222; position:relative; }
+    .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px 0 0 3px; }
+    .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); padding:5px 8px; font-size:12px; cursor:pointer; border-radius:0 3px 3px 0; }
+    .day-tabs { display:flex; gap:2px; margin-left:4px; }
+    .day-tab { border:1px solid #bbb; background:#fff; padding:3px 10px; font-size:12px; cursor:pointer; text-align:center; line-height:1.4; border-radius:2px; }
+    .day-tab:hover { background:#f0f0f0; }
+    .day-tab.active { background:#3a3a3a; border:2px solid #fff; font-weight:700; color:#fff; }
+    .day-tab .day-letter { font-weight:700; display:block; }
+    .day-tab .day-num { display:block; }
+    .bar-btn { border:1px solid #bbb; background:#fff; padding:5px 12px; font-size:12.5px; cursor:pointer; border-radius:2px; color:#333; }
+    .bar-btn:hover { background:#e8e8e8; }
+    .columns-btn { margin-left:auto; border:1px solid #bbb; background:#fff; padding:5px 12px; font-size:12.5px; cursor:pointer; border-radius:2px; }
+    .columns-btn:hover { background:#e8e8e8; }
+
+    .col-panel { display:none; position:fixed; right:10px; bottom:52px; background:#fff; border:1px solid #bbb; z-index:1000; width:360px; border-radius:4px; overflow:hidden; box-shadow:0 6px 24px rgba(0,0,0,.3); }
+    .col-panel.show { display:block; }
+    .col-panel-hdr { background:#3a3a3a; color:#fff; padding:12px 14px; font-size:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+    .col-panel-hdr button { background:none; border:none; color:#fff; cursor:pointer; font-size:18px; line-height:1; opacity:.8; }
+    .col-panel-hdr button:hover { opacity:1; }
+    .col-panel-body { max-height:420px; overflow-y:auto; padding-bottom:10px; }
+    .col-section-label { font-size:11px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:.7px; padding:12px 14px 5px; border-top:1px solid #eee; }
+    .col-panel-row { padding:5px 14px; }
+    .col-panel-row label { display:flex; align-items:center; gap:9px; font-size:14px; color:#222; }
+    .col-panel-row label.locked { cursor:default; }
+    .col-panel-row label input[type="checkbox"] { width:17px; height:17px; accent-color:#888888; cursor:pointer; flex-shrink:0; }
+    .col-panel-row label.locked input[type="checkbox"] { cursor:default; accent-color:#888888; opacity:1; }
+    .col-panel-empty { padding:12px 14px; color:#888; font-size:12.5px; font-style:italic; line-height:1.6; }
+
+    .table-wrap { overflow-x:auto; background:#fff; }
+    table.data-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:auto; }
+    .data-table thead th { background:#d6d6d6; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
+    .data-table thead th:hover { background:#c8c8c8; }
+    .data-table thead th .sort-arrow { font-size:10px; margin-left:3px; }
+    .data-table .totals-row td { background:#3a3a3a; color:#fff; padding:5px 8px; font-weight:600; border-right:1px solid #555; }
+    .data-table tbody tr { border-bottom:1px solid #e8e8e8; }
+    .data-table tbody tr:hover { background:#fdfbe8; }
+    .data-table tbody td { padding:5px 8px; border-right:1px solid #eee; white-space:nowrap; }
+    .data-table tbody td a { color:#444; text-decoration:none; }
+    .data-table tbody td a:hover { text-decoration:underline; }
+    .cb-cell { width:30px; text-align:center; }
+    .icon-cell { width:50px; text-align:center; color:#888; }
+    .icon-cell span { cursor:pointer; margin:0 2px; }
+    .empty-row td { color:#999; font-style:italic; padding:14px 10px; text-align:center; }
+
+    .stats-panel { display:none; padding:8px 14px; background:#f9f9f9; border-bottom:1px solid #ddd; font-size:13px; }
+    .stats-panel.visible { display:flex; gap:30px; flex-wrap:wrap; }
+    .stat-item { display:flex; flex-direction:column; }
+    .stat-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.4px; }
+    .stat-value { font-size:16px; font-weight:700; color:#222; }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM"></script>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Page header (hidden when running inside dashboard iframe) -->
+<div class="page-header" id="page-header">
+  <h1>Waiting List</h1>
+  <div class="page-header-right">
+    <span class="page-clock" id="page-clock"></span>
+    <div class="avatar">SBP</div>
+  </div>
+</div>
+<script>if (window !== window.top) document.getElementById('page-header').style.display = 'none';</script>
+
+<!-- Filter tabs -->
+<div class="filter-bar">
+  <strong>Select a Filter:</strong>
+  <button class="filter-tab" id="filter-tab-services" onclick="setFilter(this,'services')">Services</button>
+  <button class="filter-tab" id="filter-tab-tags" onclick="setFilter(this,'tags')">Tags</button>
+  <button class="filter-tab" id="filter-tab-status" onclick="setFilter(this,'status')">Status</button>
+</div>
+
+<!-- Services sub-filter -->
+<div class="subfilter-bar" id="subfilter-bar">
+  <button class="sf-x-btn" onclick="closeSubfilter()">&#10005;</button>
+  <span class="sf-label">Services</span>
+  <div class="ms-wrap" onmouseleave="closeMsDropdown()">
+    <button class="ms-btn" id="ms-btn" onclick="toggleMsDropdown(event)">-- Select --</button>
+    <div class="ms-dropdown" id="ms-dropdown" onclick="event.stopPropagation()"></div>
+  </div>
+</div>
+
+<!-- Tags sub-filter -->
+<div class="subfilter-bar" id="tag-subfilter-bar">
+  <button class="sf-x-btn" onclick="closeTagSubfilter()">&#10005;</button>
+  <span class="sf-label">Tags</span>
+  <div class="ms-wrap">
+    <button class="ms-btn" id="tag-ms-btn" onclick="toggleTagDropdown(event)">-- Select --</button>
+    <div class="ms-dropdown" id="tag-ms-dropdown"></div>
+  </div>
+  <button class="apply-btn" id="tag-apply-btn" onclick="applyTagFilter()">Apply</button>
+</div>
+
+<!-- Status sub-filter -->
+<div class="subfilter-bar" id="status-subfilter-bar">
+  <button class="sf-x-btn" onclick="closeStatusSubfilter()">&#10005;</button>
+  <span class="sf-label">Status</span>
+  <div class="ms-wrap" onmouseleave="closeStatusDropdown()" onclick="event.stopPropagation()">
+    <button class="ms-btn" id="status-ms-btn" onclick="toggleStatusDropdown(event)">-- Select --</button>
+    <div class="ms-dropdown" id="status-ms-dropdown">
+      <div class="ms-item"><input type="checkbox" value="pending" id="st-pending" onchange="applyStatusFilter()"/><label for="st-pending" style="cursor:pointer;margin-left:3px;">Pending</label></div>
+      <div class="ms-item"><input type="checkbox" value="canceled" id="st-canceled" onchange="applyStatusFilter()"/><label for="st-canceled" style="cursor:pointer;margin-left:3px;">Canceled</label></div>
+      <div class="ms-item"><input type="checkbox" value="skipped" id="st-skipped" onchange="applyStatusFilter()"/><label for="st-skipped" style="cursor:pointer;margin-left:3px;">Skipped</label></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="app-dropdown">
+    <button class="app-btn" onclick="toggleSavedFilters(event)">
+      Saved Views<span id="active-filter-label" style="margin-left:6px;color:#aaa;font-weight:400;"></span>
+    </button>
+    <div class="saved-filters-panel" id="saved-filters-panel" onclick="event.stopPropagation()">
+      <div class="sfp-body">
+        <div class="sfp-title">Saved Filters</div>
+        <a class="sfp-create" href="#" onclick="openSaveViewModal(); return false;">Create View</a>
+        <div id="sfp-views-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="drp-wrap" id="drp-wrap">
+    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading…</div>
+    <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
+      <div class="drp-months">
+        <div id="drp-month-left"></div>
+      </div>
+    </div>
+  </div>
+  <label><input type="checkbox" id="use-min-days" checked onchange="renderTable()"/> Use Min Days Since</label>
+  <div class="toolbar-right">
+    <button class="btn-map-toggle" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
+    <button class="btn-print" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<!-- Stats panel -->
+<div class="stats-panel" id="stats-panel"></div>
+
+<!-- Jobs total -->
+<div class="jobs-total" id="jobs-total">0 Services Total</div>
+
+<!-- Map section -->
+<div class="map-section" id="map-section" style="display:none;">
+  <div class="stop-panel" id="stop-panel">
+    <div class="stop-panel-hdr">
+      <span>Selection Summary</span>
+    </div>
+    <div class="stop-body" id="stop-body"></div>
+    <button class="orange-btn" onclick="showRouteOrder()">Show Route Order</button>
+    <button class="orange-btn" onclick="startRouteOrder()">Set Route Order</button>
+    <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
+      <select id="marker-mode" onchange="loadMarkers()" style="width:100%; padding:7px 28px 7px 10px; background:#d6d6d6; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
+        <option value="selected">Show Only Selected</option>
+        <option value="all">Show All Markers</option>
+      </select>
+      <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; font-size:11px;">&#9660;</span>
+    </div>
+  </div>
+
+  <div class="map-tool-panel" id="map-tool-panel" style="left:280px;">
+    <button id="tool-pan" class="map-tool-btn active" title="Pan" onclick="setMapTool('pan')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 11V8a2 2 0 0 0-4 0v5M14 8V6a2 2 0 0 0-4 0v6M10 7V5a2 2 0 0 0-4 0v9l-1-1a2 2 0 0 0-2.7.1L6 21h12l2-7H18"/>
+      </svg>
+    </button>
+    <button id="tool-draw" class="map-tool-btn" title="Draw polygon" onclick="setMapTool('draw')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="1"/>
+        <circle cx="3" cy="3" r="1.5" fill="#333"/>
+        <circle cx="21" cy="3" r="1.5" fill="#333"/>
+        <circle cx="21" cy="21" r="1.5" fill="#333"/>
+        <circle cx="3" cy="21" r="1.5" fill="#333"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="map-toggle">
+    <button class="active" onclick="setMapStyle('satellite')">Satellite</button>
+    <button onclick="setMapStyle('streets')">Map</button>
+  </div>
+
+  <div id="map" style="width:100%;height:100%;"></div>
+  <div id="draw-capture" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:14;"></div>
+</div>
+
+<!-- Routing section -->
+<div id="routing-section" style="display:none; background:#fffde0; border-bottom:2px solid #e0d000; padding:10px 16px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+  <div>
+    <strong style="font-size:14px; color:#333;">Routing</strong>
+    <div style="font-size:12.5px; color:#555; margin-top:2px;">Click pins on the map in the order you want to visit them. Save your changes when finished.</div>
+  </div>
+  <div style="display:flex; gap:8px; flex-shrink:0;">
+    <button onclick="saveRouteOrder()" style="background:#e07820; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Update Today's Route Only</button>
+    <button onclick="cancelRouteOrder()" style="background:#888; color:#fff; border:none; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px;">Cancel</button>
+  </div>
+</div>
+
+<!-- Schedule modal -->
+<div id="sched-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:500; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:4px; padding:32px 36px; min-width:400px; max-width:480px; position:relative; box-shadow:0 8px 40px rgba(0,0,0,.3);">
+    <button onclick="closeSchedModal()" style="position:absolute; top:14px; right:16px; background:none; border:1px solid #aaa; width:26px; height:26px; cursor:pointer; font-size:13px; border-radius:2px; line-height:1;">&#x2715;</button>
+    <h2 style="margin:0 0 28px; font-size:22px; font-weight:700; color:#222;">Schedule Services</h2>
+    <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
+      <label style="width:90px; padding-top:7px; color:#888; font-size:14px; flex-shrink:0;">Date</label>
+      <div style="position:relative;">
+        <div style="display:flex; align-items:center; gap:2px;">
+          <input type="text" id="sched-date-input" placeholder="" readonly
+            style="border:1.5px solid #222; padding:6px 10px; font-size:14px; width:160px; cursor:pointer; font-family:inherit;"
+            onclick="toggleSchedCal()"/>
+          <button onclick="toggleSchedCal()" style="border:1px solid #bbb; background:#f0f0f0; padding:5px 8px; font-size:15px; cursor:pointer; height:33px;">&#x1F4C5;</button>
+        </div>
+        <div id="sched-cal" style="display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.18); z-index:600; padding:12px; min-width:290px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <button onclick="schedCalNav(-1)" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 6px;">&#9664;</button>
+            <span id="sched-cal-title" style="font-size:14px; font-weight:600;"></span>
+            <button onclick="schedCalNav(1)" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 6px;">&#9654;</button>
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+            <thead><tr>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Su</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Mo</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Tu</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">We</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Th</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Fr</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Sa</th>
+            </tr></thead>
+            <tbody id="sched-cal-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+      <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign To</label>
+      <select id="sched-assign" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
+        <option value="">— assign later —</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
+      <button onclick="confirmSchedule()" style="background:#e07820; color:#fff; border:none; padding:9px 26px; font-size:14px; font-weight:700; border-radius:3px; cursor:pointer; font-family:inherit;">Schedule</button>
+      <a href="#" onclick="closeSchedModal(); return false;" style="color:#2272c3; font-size:14px;">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirmation bar -->
+<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#fff3cd;border-bottom:1px solid #f0c040;font-size:13px;position:sticky;top:0;z-index:500;">
+  <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> service(s)? This cannot be undone.</span>
+  <button onclick="confirmDeleteServices()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
+  <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #999;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
+</div>
+
+<!-- Bottom bar -->
+<div class="bottom-bar">
+  <div style="position:relative; display:flex;">
+    <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
+    <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
+    <div id="actions-dd" style="display:none; position:absolute; bottom:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 -4px 12px rgba(0,0,0,.2); min-width:160px; z-index:400; padding:4px 0;">
+      <a href="#" onclick="scheduleSelected(event)" style="display:block; padding:8px 14px; color:#444; text-decoration:none; font-size:13px;">Schedule Service</a>
+      <a href="#" onclick="event.stopPropagation();cancelSelected(event)" style="display:block; padding:8px 14px; color:#444; text-decoration:none; font-size:13px;">Cancel Service</a>
+      <a href="#" onclick="event.stopPropagation();skipSelected(event)" style="display:block; padding:8px 14px; color:#444; text-decoration:none; font-size:13px;">Skip Service</a>
+      <a href="#" onclick="event.stopPropagation();deleteSelectedServices(event)" style="display:block; padding:8px 14px; color:#444; text-decoration:none; font-size:13px;">Delete Service</a>
+    </div>
+  </div>
+  <div class="day-tabs" id="day-tabs"></div>
+  <button class="columns-btn" onclick="toggleColPanel(event)">Columns &#9660;</button>
+
+  <!-- Column picker panel -->
+  <div class="col-panel" id="col-panel" onclick="event.stopPropagation()" onmouseleave="document.getElementById('col-panel').classList.remove('show')">
+    <div class="col-panel-hdr">
+      <span>Manage Columns</span>
+      <button onclick="toggleColPanel(event)">&#10005;</button>
+    </div>
+    <div class="col-panel-body">
+      <div class="col-section-label" style="border-top:none;">Core Columns</div>
+      <div class="col-panel-row"><label><input type="checkbox" id="core-cb-order"   checked onchange="toggleCoreCol('order',this.checked)"/>   Order</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="core-cb-client"  checked onchange="toggleCoreCol('client',this.checked)"/>  Client</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="core-cb-service" checked onchange="toggleCoreCol('service',this.checked)"/> Service</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"     checked onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   checked onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   checked onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
+      <div class="col-section-label">Custom Field Columns</div>
+      <div id="custom-col-options"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Data table -->
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr id="thead-row">
+        <th class="cb-cell"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th onclick="sortBy('order')">Order <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortBy('client')">Client <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortBy('due')">Due Date <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
+        <th id="th-arealawn"     style="display:none;">Lawn Sq Ft</th>
+        <th id="th-areainsect"   style="display:none;">Lawn Insect Sq Ft</th>
+        <th id="th-areaflower"   style="display:none;">Flower Bed(s) Sq Ft</th>
+        <th id="th-areamosquito" style="display:none;">Mosquito Sq Ft</th>
+        <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <tr class="totals-row" id="totals-row">
+        <td colspan="6" style="text-align:right; padding-right:12px;">Totals</td>
+        <td id="total-arealawn"     style="text-align:right;display:none;"></td>
+        <td id="total-areainsect"   style="text-align:right;display:none;"></td>
+        <td id="total-areaflower"   style="text-align:right;display:none;"></td>
+        <td id="total-areamosquito" style="text-align:right;display:none;"></td>
+        <td id="total-amt">$0.00</td>
+      </tr>
+      <tr class="empty-row" id="empty-row">
+        <td colspan="7">No waiting services found.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div style="height:28px; background:#3a3a3a;"></div>
+
+<!-- Save View Modal -->
+<div class="sv-overlay" id="sv-overlay" onclick="closeSaveViewModal()">
+  <div class="sv-modal" onclick="event.stopPropagation()">
+    <button class="sv-modal-close" onclick="closeSaveViewModal()">&#10005;</button>
+    <div class="sv-modal-title">Screen View</div>
+    <div class="sv-modal-label">Enter View name.</div>
+    <input type="text" id="sv-name-input" placeholder="View name…" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
+    <div class="sv-modal-footer">
+      <button class="sv-modal-save" onclick="confirmSaveView()">Save</button>
+      <button class="sv-modal-cancel" onclick="closeSaveViewModal()">or Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  /* ── Supabase ── */
+  const sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g'
+  );
+
+  /* ── Clock ── */
+  function updateClock() {
+    var now = new Date();
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12; if (!h) h = 12;
+    var time = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' ' + ampm;
+    document.getElementById('page-clock').textContent = time + ' • ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ── Data ── */
+  var services = [];
+  var customFieldDefs = [];
+  var cfValuesByProperty = {};
+  var areaTreatedByProperty = {};
+  var serviceCatalog = [];
+  var selectedServices = [];
+  var sortCol = 'order', sortDir = 1;
+  var activeServiceFilter = [], activeTagFilter = [], activeStatusFilter = [];
+  var mapMarkers = [];
+  var routeOrderMode = false, routeCounter = 0, routeOrderMap = {};
+
+  /* ── Custom fields ── */
+  async function loadCustomFields() {
+    var { data, error } = await sb.from('custom_fields').select('id, key, name, display_order').eq('active', true).order('display_order', { ascending: true });
+    if (error) { console.error(error); return; }
+    customFieldDefs = (data || []).map(function(f) { return { id: f.id, key: f.key, label: f.name }; });
+  }
+
+  async function loadServiceCatalog() {
+    var { data } = await sb.from('Services').select('name, associated_areas').is('property_id', null);
+    serviceCatalog = data || [];
+  }
+
+  async function loadCfValues(propertyIds) {
+    cfValuesByProperty = {}; areaTreatedByProperty = {};
+    if (!propertyIds.length) return;
+    var { data } = await sb.from('Properties').select('id, custom_fields, area_treated').in('id', propertyIds);
+    (data || []).forEach(function(p) {
+      cfValuesByProperty[p.id] = p.custom_fields || {};
+      areaTreatedByProperty[p.id] = p.area_treated || {};
+    });
+  }
+
+  function getCfValue(propertyId, def) {
+    if (!propertyId || !def) return '';
+    var m = cfValuesByProperty[propertyId];
+    return m && m[def.key] !== undefined ? String(m[def.key]) : '';
+  }
+
+  /* ── Column management ── */
+  var CORE_COLS = ['order','client','service','lastsvc','amount'];
+  var activeCoreColumns = CORE_COLS.slice();
+  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
+  var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito' };
+  var activeAreaCols = AREA_COL_KEYS.slice();
+  var activeCustomCols = [];
+
+  async function loadColPrefs() {
+    var { data } = await sb.from('app_preferences').select('pref_value').eq('pref_key', 'waiting_custom_cols').single();
+    if (data && data.pref_value) {
+      try { var cols = JSON.parse(data.pref_value); if (Array.isArray(cols)) activeCustomCols = cols; } catch(e) {}
+    }
+  }
+
+  async function saveColPrefs() {
+    await sb.from('app_preferences').upsert({ pref_key: 'waiting_custom_cols', pref_value: JSON.stringify(activeCustomCols) }, { onConflict: 'pref_key' });
+  }
+
+  function toggleCoreCol(col, on) {
+    if (on) { if (activeCoreColumns.indexOf(col) < 0) activeCoreColumns.push(col); }
+    else { activeCoreColumns = activeCoreColumns.filter(function(c) { return c !== col; }); }
+    buildTableHeader(); renderTable();
+  }
+
+  function toggleAreaCol(col, on) {
+    if (on) { if (activeAreaCols.indexOf(col) < 0) activeAreaCols.push(col); }
+    else { activeAreaCols = activeAreaCols.filter(function(c) { return c !== col; }); }
+    buildTableHeader(); renderTable();
+  }
+
+  function toggleColPanel(e) {
+    if (e) e.stopPropagation();
+    var panel = document.getElementById('col-panel');
+    panel.classList.toggle('show');
+    if (panel.classList.contains('show')) buildColPanel();
+  }
+
+  function buildColPanel() {
+    var container = document.getElementById('custom-col-options');
+    container.innerHTML = '';
+    if (customFieldDefs.length === 0) {
+      container.innerHTML = '<div class="col-panel-empty">No custom fields defined.</div>';
+      return;
+    }
+    customFieldDefs.forEach(function(def) {
+      var isActive = activeCustomCols.indexOf(def.key) >= 0;
+      var row = document.createElement('div');
+      row.className = 'col-panel-row';
+      row.innerHTML = '<label><input type="checkbox" ' + (isActive ? 'checked' : '') + ' data-key="' + def.key + '"/> ' + def.label + '</label>';
+      row.querySelector('input').addEventListener('change', function() {
+        var key = this.dataset.key;
+        if (this.checked) { if (activeCustomCols.indexOf(key) < 0) activeCustomCols.push(key); }
+        else { activeCustomCols = activeCustomCols.filter(function(k) { return k !== key; }); }
+        saveColPrefs(); buildTableHeader(); renderTable();
+      });
+      container.appendChild(row);
+    });
+  }
+
+  function buildTableHeader() {
+    var tr = document.getElementById('thead-row');
+    tr.querySelectorAll('.custom-col-th').forEach(function(th) { th.remove(); });
+    var amtTh = document.getElementById('amt-th');
+    activeCustomCols.forEach(function(key) {
+      var def = customFieldDefs.find(function(d) { return d.key === key; });
+      if (!def) return;
+      var th = document.createElement('th');
+      th.className = 'custom-col-th';
+      th.textContent = def.label;
+      tr.insertBefore(th, amtTh);
+    });
+    AREA_COL_KEYS.forEach(function(k) {
+      var th = document.getElementById('th-' + k);
+      var td = document.getElementById('total-' + k);
+      var show = activeAreaCols.indexOf(k) >= 0;
+      if (th) th.style.display = show ? '' : 'none';
+      if (td) td.style.display = show ? '' : 'none';
+    });
+    var totalsRow = document.getElementById('totals-row');
+    totalsRow.querySelectorAll('.custom-total-td').forEach(function(td) { td.remove(); });
+    var totalAmtTd = document.getElementById('total-amt');
+    activeCustomCols.forEach(function() {
+      var td = document.createElement('td');
+      td.className = 'custom-total-td';
+      totalsRow.insertBefore(td, totalAmtTd);
+    });
+  }
+
+  function goToProperty(id) {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('propprofile?id=' + id);
+    } else {
+      window.location.href = 'propertiesprofile.html?id=' + id;
+    }
+  }
+
+  /* ── Load services ── */
+  async function loadServices() {
+    document.getElementById('jobs-total').textContent = 'Loading…';
+    var { data, error } = await sb.from('Services')
+      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, Properties(lat, lng)')
+      .not('property_id', 'is', null)
+      .eq('dispatched', false);
+    if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
+    services = data || [];
+    var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
+    await loadCfValues(propIds);
+    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services)]);
+    renderTable();
+  }
+
+  var propertyData = {};
+  var clientNameMap = {};
+  async function loadPropertyData(ids) {
+    if (!ids.length) return;
+    var { data, error: propErr } = await sb.from('Properties').select('*').in('id', ids);
+    if (propErr) console.error('Properties query error:', propErr.message);
+    propertyData = {};
+    (data || []).forEach(function(p) { propertyData[p.id] = p; });
+    var customerIds = [...new Set((data || []).map(function(p) { return p.customer_id; }).filter(Boolean))];
+    clientNameMap = {};
+    if (customerIds.length) {
+      var { data: clients } = await sb.from('Clients').select('id, name, first_name, last_name').in('id', customerIds);
+      (clients || []).forEach(function(c) {
+        clientNameMap[c.id] = c.name || ((c.first_name || '') + ' ' + (c.last_name || '')).trim();
+      });
+    }
+  }
+
+  var lastDispatchMap = {};
+  async function loadLastDispatches(svcs) {
+    lastDispatchMap = {};
+    if (!svcs.length) return;
+    var propIds = [...new Set(svcs.map(function(s) { return s.property_id; }).filter(Boolean))];
+    if (!propIds.length) return;
+    var { data } = await sb.from('Services')
+      .select('property_id, service, scheduled_date')
+      .eq('dispatched', true)
+      .in('property_id', propIds)
+      .not('scheduled_date', 'is', null)
+      .order('scheduled_date', { ascending: false });
+    (data || []).forEach(function(d) {
+      if (!d.service || !d.scheduled_date) return;
+      var key = String(d.property_id) + '_' + d.service;
+      if (!lastDispatchMap[key]) lastDispatchMap[key] = d.scheduled_date;
+    });
+  }
+
+  /* Returns the ISO date string (YYYY-MM-DD) when a service is next due */
+  function computeDueDateStr(svc) {
+    var key = svc.property_id + '_' + svc.service;
+    var lastDate = lastDispatchMap[key];
+    if (lastDate && svc.min_days > 0) {
+      var d = new Date(lastDate + 'T00:00:00');
+      d.setDate(d.getDate() + parseInt(svc.min_days));
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+    return svc.start_date || '';
+  }
+
+  /* ── Render table ── */
+  function renderTable() {
+    var filtered = services.slice();
+
+    /* service filter */
+    if (activeServiceFilter.length) {
+      filtered = filtered.filter(function(s) { return activeServiceFilter.indexOf(s.service) >= 0; });
+    }
+
+    /* tag filter */
+    if (activeTagFilter.length) {
+      filtered = filtered.filter(function(s) {
+        var tags = s.tags || [];
+        return activeTagFilter.some(function(t) { return tags.indexOf(t) >= 0; });
+      });
+    }
+
+    /* status filter */
+    if (activeStatusFilter.length) {
+      filtered = filtered.filter(function(s) {
+        var st = s.status || 'pending';
+        return activeStatusFilter.indexOf(st) >= 0;
+      });
+    }
+
+    /* start_date filter — hide services not yet started as of the selected date */
+    var refDate = drpStart ? new Date(drpStart) : new Date();
+    refDate.setHours(0,0,0,0);
+    var pad = function(n) { return String(n).padStart(2,'0'); };
+    var refDateStr = refDate.getFullYear() + '-' + pad(refDate.getMonth()+1) + '-' + pad(refDate.getDate());
+    filtered = filtered.filter(function(s) {
+      if (s.start_date && s.start_date > refDateStr) return false;
+      return true;
+    });
+
+    /* min days filter — hide services dispatched less than min_days ago (uses selected date as reference) */
+    if (document.getElementById('use-min-days').checked) {
+      filtered = filtered.filter(function(s) {
+        var minDays = parseInt(s.min_days) || 0;
+        if (minDays <= 0) return true;
+        var key = String(s.property_id) + '_' + s.service;
+        var lastDate = lastDispatchMap[key];
+        if (!lastDate) return true;
+        var daysSince = (refDate - new Date(lastDate + 'T00:00:00')) / (1000 * 60 * 60 * 24);
+        return daysSince >= minDays;
+      });
+    }
+
+    /* sort */
+    filtered.sort(function(a, b) {
+      var pa = propertyData[a.property_id] || {};
+      var pb = propertyData[b.property_id] || {};
+      var av, bv;
+      if (sortCol === 'order') { av = a.route_order ? parseInt(a.route_order) : 9999; bv = b.route_order ? parseInt(b.route_order) : 9999; }
+      else if (sortCol === 'client') { av = a.client_name || ''; bv = b.client_name || ''; }
+      else if (sortCol === 'service') { av = a.service || ''; bv = b.service || ''; }
+      else if (sortCol === 'amount') { av = parseFloat(a.amount) || 0; bv = parseFloat(b.amount) || 0; }
+      else if (sortCol === 'due') { av = a.end_date || ''; bv = b.end_date || ''; }
+      else if (sortCol === 'status') { av = 0; bv = 0; }
+      else if (sortCol === 'lastsvc') { av = lastDispatchMap[a.property_id + '_' + a.service] || ''; bv = lastDispatchMap[b.property_id + '_' + b.service] || ''; }
+      else { av = 0; bv = 0; }
+      if (av < bv) return -sortDir;
+      if (av > bv) return sortDir;
+      return 0;
+    });
+
+    var svcCounts = {}, svcSqFt = {}, seenPropForSvc = {};
+    filtered.forEach(function(s) {
+      var name = s.service || 'Unknown';
+      svcCounts[name] = (svcCounts[name] || 0) + 1;
+      var ce = serviceCatalog.find(function(c) { return c.name === s.service; });
+      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      if (aa && s.property_id) {
+        var key = s.property_id + '_' + name;
+        if (!seenPropForSvc[key]) {
+          seenPropForSvc[key] = true;
+          var areaMap = areaTreatedByProperty[s.property_id] || {};
+          Object.keys(aa).forEach(function(k) {
+            if (aa[k] && areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+          });
+        }
+      }
+    });
+    var pills = Object.keys(svcCounts).map(function(n) {
+      var sqft = svcSqFt[n] ? '<span style="font-size:11px;font-weight:700;color:#444;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
+      var bottom = '<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + sqft + '</span>';
+      return '<span class="jt-pill">' + n + bottom + '</span>';
+    }).join('');
+    var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
+    var totalPill = '<span class="jt-pill">Services Total<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:11px;font-weight:700;color:#444;">$' + preTotal.toFixed(2) + '</span></span></span>';
+    document.getElementById('jobs-total').innerHTML = totalPill + pills;
+
+    var tbody = document.getElementById('table-body');
+    var totalsRow = document.getElementById('totals-row');
+    var emptyRow = document.getElementById('empty-row');
+    tbody.querySelectorAll('tr:not(#totals-row):not(#empty-row)').forEach(function(r) { r.remove(); });
+
+    var totalAmt = 0;
+    var areaTotals = {};
+    var seenPropForArea = {};
+    filtered.forEach(function(svc) {
+      var prop = propertyData[svc.property_id] || {};
+      var clientName = svc.client_name || clientNameMap[prop.customer_id] || prop.client_name || ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim() || prop.company_name || 'Unknown';
+      var addr = svc.address || prop.address || '';
+      var amt = parseFloat(svc.amount) || 0;
+      totalAmt += amt;
+      var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
+      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      AREA_COL_KEYS.forEach(function(k) {
+        var areaDataKey = AREA_DATA_KEYS[k];
+        if (aa && !aa[areaDataKey]) return;
+        var propAreaKey = svc.property_id + '_' + k;
+        if (seenPropForArea[propAreaKey]) return;
+        seenPropForArea[propAreaKey] = true;
+        var areaMap = areaTreatedByProperty[svc.property_id] || {};
+        areaTotals[k] = (areaTotals[k] || 0) + (parseFloat(areaMap[areaDataKey]) || 0);
+      });
+      var lastSvcRaw = lastDispatchMap[svc.property_id + '_' + svc.service] || '';
+      var lastSvc = lastSvcRaw ? new Date(lastSvcRaw + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+
+      var todayMidnight = new Date(); todayMidnight.setHours(0,0,0,0);
+      var isPastDue = !!(svc.end_date && todayMidnight > new Date(svc.end_date + 'T00:00:00'));
+      var dueDateDisplay = svc.end_date ? new Date(svc.end_date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+
+      var orderCell = activeCoreColumns.indexOf('order') >= 0 ? '<td style="text-align:center;font-weight:700;color:#e07820;">' + (svc.route_order || '') + '</td>' : '';
+      var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span></td>' : '';
+      var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + (svc.service || '') + '</td>' : '';
+      var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ⚠' : '') + '</td>';
+      var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';
+      var amtCell = activeCoreColumns.indexOf('amount') >= 0 ? '<td>$' + amt.toFixed(2) + '</td>' : '';
+
+      var customCells = activeCustomCols.map(function(key) {
+        var def = customFieldDefs.find(function(d) { return d.key === key; });
+        return '<td>' + (def ? getCfValue(svc.property_id, def) : '') + '</td>';
+      }).join('');
+
+      var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });
+      var assocAreas = (catalogEntry && catalogEntry.associated_areas) ? catalogEntry.associated_areas : null;
+      var areaCells = AREA_COL_KEYS.map(function(k) {
+        if (activeAreaCols.indexOf(k) < 0) return '';
+        var areaDataKey = AREA_DATA_KEYS[k];
+        var areaMap = areaTreatedByProperty[svc.property_id] || {};
+        var val = areaMap[areaDataKey];
+        var relevant = !assocAreas || !!assocAreas[areaDataKey];
+        return '<td style="text-align:right;">' + (relevant && val ? Number(val).toLocaleString() : '') + '</td>';
+      }).join('');
+
+      var tr = document.createElement('tr');
+      tr.dataset.id = svc.id;
+      if (isPastDue) tr.style.background = '#ffe8e8';
+      tr.style.cursor = 'pointer';
+      tr.innerHTML =
+        '<td class="cb-cell"><input type="checkbox" class="row-cb" data-id="' + svc.id + '" data-prop-id="' + svc.property_id + '" onchange="loadMarkers()"/></td>' +
+        orderCell + clientCell + serviceCell + dueCell + lastSvcCell +
+        areaCells + customCells + amtCell;
+      tr.addEventListener('click', function(ev) {
+        if (ev.target.type === 'checkbox') return;
+        var cb = tr.querySelector('.row-cb');
+        cb.checked = !cb.checked;
+        tr.style.background = cb.checked ? '#fdfbe8' : (isPastDue ? '#ffe8e8' : '');
+        loadMarkers();
+      });
+      tbody.insertBefore(tr, emptyRow);
+    });
+
+    AREA_COL_KEYS.forEach(function(k) {
+      var td = document.getElementById('total-' + k);
+      if (td) td.textContent = areaTotals[k] ? Number(areaTotals[k]).toLocaleString() : '';
+    });
+    document.getElementById('total-amt').textContent = '$' + totalAmt.toFixed(2);
+    emptyRow.style.display = filtered.length ? 'none' : '';
+
+    updateStatsPanel(filtered, totalAmt);
+  }
+
+  function updateStatsPanel(filtered, totalAmt) {
+    var panel = document.getElementById('stats-panel');
+    panel.innerHTML =
+      '<div class="stat-item"><span class="stat-label">Total Services</span><span class="stat-value">' + filtered.length + '</span></div>' +
+      '<div class="stat-item"><span class="stat-label">Total Revenue</span><span class="stat-value">$' + totalAmt.toFixed(2) + '</span></div>';
+  }
+
+  function sortBy(col) {
+    if (sortCol === col) sortDir = -sortDir;
+    else { sortCol = col; sortDir = 1; }
+    renderTable();
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = cb.checked; });
+    loadMarkers();
+  }
+
+  /* ── Filter logic ── */
+  function setFilter(btn, type) {
+    if (btn.classList.contains('active')) {
+      btn.classList.remove('active');
+      if (type === 'services') closeSubfilter();
+      else if (type === 'tags') closeTagSubfilter();
+      else if (type === 'status') closeStatusSubfilter();
+      return;
+    }
+    document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.subfilter-bar').forEach(function(b) { b.classList.remove('visible'); });
+    if (type === 'services') {
+      document.getElementById('subfilter-bar').classList.add('visible');
+      loadServiceDropdown();
+    } else if (type === 'tags') {
+      document.getElementById('tag-subfilter-bar').classList.add('visible');
+      loadTagsDropdown();
+    } else if (type === 'status') {
+      document.getElementById('status-subfilter-bar').classList.add('visible');
+    }
+  }
+
+  function closeSubfilter() {
+    document.getElementById('subfilter-bar').classList.remove('visible');
+    document.getElementById('filter-tab-services').classList.remove('active');
+    activeServiceFilter = [];
+    renderTable();
+  }
+  function closeTagSubfilter() {
+    document.getElementById('tag-subfilter-bar').classList.remove('visible');
+    document.getElementById('filter-tab-tags').classList.remove('active');
+    activeTagFilter = [];
+    renderTable();
+  }
+  function closeStatusSubfilter() {
+    document.getElementById('status-subfilter-bar').classList.remove('visible');
+    document.getElementById('filter-tab-status').classList.remove('active');
+    activeStatusFilter = [];
+    renderTable();
+  }
+
+  function toggleMsDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('ms-dropdown').classList.toggle('open');
+  }
+  function closeMsDropdown() {
+    var dd = document.getElementById('ms-dropdown');
+    if (dd.classList.contains('open')) { applyServiceFilter(); }
+  }
+  function toggleTagDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('tag-ms-dropdown').classList.toggle('open');
+  }
+  function toggleStatusDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('status-ms-dropdown').classList.toggle('open');
+  }
+
+  function loadServiceDropdown() {
+    var dd = document.getElementById('ms-dropdown');
+    var names = [...new Set(services.map(function(s) { return s.service; }).filter(Boolean))].sort();
+    dd.innerHTML = names.map(function(n) {
+      return '<div class="ms-item"><input type="checkbox" value="' + n + '" id="sf-' + n.replace(/\s/g,'_') + '"/><label for="sf-' + n.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + n + '</label></div>';
+    }).join('');
+  }
+
+  async function loadTagsDropdown() {
+    var dd = document.getElementById('tag-ms-dropdown');
+    var { data } = await sb.from('tags').select('name').eq('active', true).order('name', { ascending: true });
+    dd.innerHTML = (data || []).map(function(t) {
+      return '<div class="ms-item"><input type="checkbox" value="' + t.name + '" id="tag-' + t.name.replace(/\s/g,'_') + '"/><label for="tag-' + t.name.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + t.name + '</label></div>';
+    }).join('');
+  }
+
+  function applyServiceFilter() {
+    activeServiceFilter = [];
+    document.querySelectorAll('#ms-dropdown input:checked').forEach(function(cb) { activeServiceFilter.push(cb.value); });
+    document.getElementById('ms-btn').textContent = activeServiceFilter.length ? activeServiceFilter.length + ' selected' : '-- Select --';
+    document.getElementById('ms-dropdown').classList.remove('open');
+    renderTable();
+  }
+  function applyTagFilter() {
+    activeTagFilter = [];
+    document.querySelectorAll('#tag-ms-dropdown input:checked').forEach(function(cb) { activeTagFilter.push(cb.value); });
+    document.getElementById('tag-ms-btn').textContent = activeTagFilter.length ? activeTagFilter.length + ' selected' : '-- Select --';
+    document.getElementById('tag-ms-dropdown').classList.remove('open');
+    renderTable();
+  }
+  function applyStatusFilter() {
+    activeStatusFilter = [];
+    document.querySelectorAll('#status-ms-dropdown input:checked').forEach(function(cb) { activeStatusFilter.push(cb.value); });
+    var label = activeStatusFilter.length ? activeStatusFilter.length + ' selected' : '-- Select --';
+    document.getElementById('status-ms-btn').textContent = label;
+    renderTable();
+  }
+  function closeStatusDropdown() {
+    document.getElementById('status-ms-dropdown').classList.remove('open');
+  }
+
+  /* ── Stats toggle ── */
+  var statsVisible = false;
+  function toggleStats() {
+    statsVisible = !statsVisible;
+    document.getElementById('stats-panel').classList.toggle('visible', statsVisible);
+    document.getElementById('stats-btn').textContent = statsVisible ? 'Hide Stats' : 'Show Stats';
+  }
+
+  /* ── Map toggle ── */
+  var mapVisible = false;
+  function toggleMap() {
+    mapVisible = !mapVisible;
+    document.getElementById('map-section').style.display = mapVisible ? '' : 'none';
+    document.getElementById('toggle-map-btn').textContent = mapVisible ? 'Hide Map' : 'Show Map';
+    if (mapVisible && map) google.maps.event.trigger(map, 'resize');
+  }
+
+  /* ── Date range picker ── */
+  var drpStart, drpEnd, drpLY, drpLM, drpRY, drpRM;
+  var drpSelecting = false;
+
+  function initDRP() {
+    var t = new Date(); t.setHours(0,0,0,0);
+    drpStart = new Date(t); drpEnd = new Date(t);
+    drpLY = t.getFullYear(); drpLM = t.getMonth();
+    var nx = new Date(t.getFullYear(), t.getMonth() + 1, 1);
+    drpRY = nx.getFullYear(); drpRM = nx.getMonth();
+    drpRender(); drpUpdateInput();
+  }
+
+  function drpUpdateInput() {
+    var el = document.getElementById('drp-input');
+    if (!drpStart) { el.textContent = 'All Dates'; return; }
+    var opts = { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' };
+    var s = drpStart.toLocaleDateString('en-US', opts);
+    el.textContent = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
+      ? s + ' – ' + drpEnd.toLocaleDateString('en-US', opts) : s;
+  }
+
+  function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
+  function closeDRP() { document.getElementById('drp-popup').classList.remove('open'); renderTable(); }
+
+  function drpRender() {
+    document.getElementById('drp-month-left').innerHTML = drpBuildMonth(drpLY, drpLM, 'L');
+  }
+
+  function drpBuildMonth(y, m, side) {
+    var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var today = new Date(); today.setHours(0,0,0,0);
+    var first = new Date(y, m, 1), last = new Date(y, m+1, 0);
+    var html = '<div class="drp-cal-hdr">';
+    html += '<button class="drp-nav" onclick="drpNav(\'' + side + '\',-1)">&#9664;</button>';
+    html += '<span>' + MN[m] + ' ' + y + '</span>';
+    html += '<button class="drp-nav" onclick="drpNav(\'' + side + '\',1)">&#9654;</button>';
+    html += '</div><div class="drp-cal-grid">';
+    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(function(d) { html += '<div class="drp-dn">' + d + '</div>'; });
+    for (var i = 0; i < first.getDay(); i++) html += '<div class="drp-day drp-other"></div>';
+    for (var d = 1; d <= last.getDate(); d++) {
+      var dt = new Date(y, m, d);
+      var cls = 'drp-day';
+      if (dt.toDateString() === today.toDateString()) cls += ' drp-today';
+      if (drpStart && dt.toDateString() === drpStart.toDateString()) cls += ' drp-sel';
+      var ds = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      html += '<div class="' + cls + '" onclick="drpClick(\'' + ds + '\')">' + d + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function drpNav(side, dir) {
+    if (side === 'L') { drpLM += dir; if (drpLM > 11) { drpLM=0; drpLY++; } if (drpLM < 0) { drpLM=11; drpLY--; } }
+    else { drpRM += dir; if (drpRM > 11) { drpRM=0; drpRY++; } if (drpRM < 0) { drpRM=11; drpRY--; } }
+    drpRender();
+  }
+
+  function drpClick(ds) {
+    var dt = new Date(ds + 'T00:00:00');
+    drpStart = dt; drpEnd = dt;
+    drpRender(); drpUpdateInput(); closeDRP();
+  }
+
+  function drpQuick(pastDays, futureDays) {
+    var t = new Date(); t.setHours(0,0,0,0);
+    drpStart = new Date(t); drpEnd = new Date(t);
+    drpStart.setDate(drpStart.getDate() - pastDays);
+    drpEnd.setDate(drpEnd.getDate() + futureDays);
+    drpRender(); drpUpdateInput();
+  }
+  function drpThisWeek() {
+    var t = new Date(); t.setHours(0,0,0,0);
+    drpStart = new Date(t); drpStart.setDate(t.getDate() - t.getDay());
+    drpEnd = new Date(drpStart); drpEnd.setDate(drpStart.getDate() + 6);
+    drpRender(); drpUpdateInput();
+  }
+  function drpNextWeek() {
+    var t = new Date(); t.setHours(0,0,0,0);
+    drpStart = new Date(t); drpStart.setDate(t.getDate() - t.getDay() + 7);
+    drpEnd = new Date(drpStart); drpEnd.setDate(drpStart.getDate() + 6);
+    drpRender(); drpUpdateInput();
+  }
+
+  /* ── Day tabs ── */
+  var dayLetters = ['S','M','T','W','T','F','S'];
+  function buildDayTabs() {
+    var tabs = document.getElementById('day-tabs');
+    tabs.innerHTML = '';
+    var today = new Date(); today.setHours(0,0,0,0);
+    var sunday = new Date(today); sunday.setDate(today.getDate() - today.getDay());
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(sunday); d.setDate(sunday.getDate() + i);
+      var btn = document.createElement('button');
+      btn.className = 'day-tab' + (d.toDateString() === today.toDateString() ? ' active' : '');
+      btn.innerHTML = '<span class="day-letter">' + dayLetters[i] + '</span><span class="day-num">' + d.getDate() + '</span>';
+      btn.addEventListener('click', (function(date, el) {
+        return function() {
+          document.querySelectorAll('.day-tab').forEach(function(b) { b.classList.remove('active'); });
+          el.classList.add('active');
+          drpStart = new Date(date); drpEnd = new Date(date);
+          drpLY = date.getFullYear(); drpLM = date.getMonth();
+          var nx = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+          drpRY = nx.getFullYear(); drpRM = nx.getMonth();
+          drpUpdateInput();
+          renderTable();
+        };
+      })(d, btn));
+      tabs.appendChild(btn);
+    }
+  }
+
+  /* ── Google Maps ── */
+  var map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 32.725, lng: -97.033 },
+    zoom: 9,
+    mapTypeId: 'satellite',
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: true,
+    clickableIcons: false
+  });
+
+  var mapTool = 'pan', polyVerts = [], vertexMarkers = [], firstVertexMarker = null, drawingMarkers = [];
+  var selPolygon = null, selDrawingLine = null, selPreviewLine = null;
+
+  /* Minimal OverlayView — only used to get MapCanvasProjection for lat/lng conversions */
+  var projOverlay = new google.maps.OverlayView();
+  projOverlay.onAdd = function() {};
+  projOverlay.draw  = function() {};
+
+  function initDrawing() {
+    selPolygon    = new google.maps.Polygon({ paths:[], strokeColor:'#000000', strokeWeight:4, fillColor:'#555555', fillOpacity:0.45, map:map });
+    selDrawingLine= new google.maps.Polyline({ path:[], strokeColor:'#000000', strokeWeight:4, map:map });
+    selPreviewLine= new google.maps.Polyline({ path:[], strokeColor:'#000000', strokeWeight:3, strokeOpacity:0, icons:[{ icon:{ path:'M 0,-1 0,1', strokeOpacity:1, scale:4 }, offset:'0', repeat:'18px' }], map:map });
+    projOverlay.setMap(map);
+
+    var cap = document.getElementById('draw-capture');
+    cap.addEventListener('click',     function(e) { handleDrawClick(e); });
+    cap.addEventListener('mousemove', function(e) { handleDrawMousemove(e); });
+  }
+  google.maps.event.addListenerOnce(map, 'idle', initDrawing);
+
+  /* Convert a DOM mouse event to a Point in the map container coordinate space */
+  function eventToMapPt(e) {
+    var r = document.getElementById('map').getBoundingClientRect();
+    return new google.maps.Point(e.clientX - r.left, e.clientY - r.top);
+  }
+
+  /* Real screen-pixel distance between two LatLng points */
+  function screenPixelDist(latLng1, latLng2) {
+    var proj = projOverlay.getProjection();
+    if (!proj) return 9999;
+    var p1 = proj.fromLatLngToContainerPixel(latLng1);
+    var p2 = proj.fromLatLngToContainerPixel(latLng2);
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+  }
+
+  function handleDrawClick(e) {
+    var proj = projOverlay.getProjection();
+    if (!proj) return;
+    var clickLatLng = proj.fromContainerPixelToLatLng(eventToMapPt(e));
+    var clickPt = [clickLatLng.lng(), clickLatLng.lat()];
+    if (polyVerts.length >= 3) {
+      var d = screenPixelDist(new google.maps.LatLng(polyVerts[0][1], polyVerts[0][0]), clickLatLng);
+      if (d < 20) { closePolygon(); return; }
+    }
+    polyVerts.push(clickPt);
+    if (selDrawingLine) selDrawingLine.setPath(polyVerts.map(function(v) { return { lat:v[1], lng:v[0] }; }));
+    if (selPreviewLine) selPreviewLine.setPath([]);
+    if (polyVerts.length > 1) {
+      var dMarker = new google.maps.Marker({
+        position:{ lat:clickPt[1], lng:clickPt[0] }, map:map, clickable:false, zIndex:100,
+        icon:{ path:google.maps.SymbolPath.CIRCLE, scale:7, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 }
+      });
+      drawingMarkers.push(dMarker);
+    }
+    updateFirstVertexMarker();
+  }
+
+  function handleDrawMousemove(e) {
+    if (!polyVerts.length) return;
+    var proj = projOverlay.getProjection();
+    if (!proj) return;
+    var movLatLng = proj.fromContainerPixelToLatLng(eventToMapPt(e));
+    var preview = polyVerts.concat([[movLatLng.lng(), movLatLng.lat()]]);
+    if (selPreviewLine) selPreviewLine.setPath(preview.map(function(v) { return { lat:v[1], lng:v[0] }; }));
+    var near = polyVerts.length >= 3 && screenPixelDist(new google.maps.LatLng(polyVerts[0][1], polyVerts[0][0]), movLatLng) < 20;
+    if (firstVertexMarker) firstVertexMarker.setIcon({ path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:near?'#000':'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 });
+  }
+
+  function setMapStyle(style) {
+    document.querySelectorAll('.map-toggle button').forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+    map.setMapTypeId(style === 'satellite' ? 'satellite' : 'roadmap');
+  }
+
+  function setMapTool(tool) {
+    mapTool = tool;
+    document.getElementById('tool-pan').classList.toggle('active', tool === 'pan');
+    document.getElementById('tool-draw').classList.toggle('active', tool === 'draw');
+    var cap = document.getElementById('draw-capture');
+    if (tool === 'draw') {
+      map.setOptions({ draggable:false, draggableCursor:'crosshair' });
+      cap.style.display = '';
+      cap.style.cursor  = 'crosshair';
+      resetDraw();
+    } else {
+      map.setOptions({ draggable:true, draggableCursor:'' });
+      cap.style.display = 'none';
+    }
+  }
+
+  function updateFirstVertexMarker() {
+    if (firstVertexMarker) { firstVertexMarker.setMap(null); firstVertexMarker = null; }
+    if (!polyVerts.length) return;
+    firstVertexMarker = new google.maps.Marker({
+      position:{ lat:polyVerts[0][1], lng:polyVerts[0][0] }, map:map, zIndex:200, cursor:'pointer',
+      icon:{ path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 }
+    });
+    google.maps.event.addListener(firstVertexMarker, 'click', function() { if (polyVerts.length >= 3) closePolygon(); });
+  }
+
+  function closePolygon() {
+    mapTool = 'pan';
+    document.getElementById('tool-pan').classList.add('active');
+    document.getElementById('tool-draw').classList.remove('active');
+    map.setOptions({ draggable:true, draggableCursor:'' });
+    document.getElementById('draw-capture').style.display = 'none';
+    if (firstVertexMarker) { firstVertexMarker.setMap(null); firstVertexMarker = null; }
+    clearDrawingMarkers();
+    if (selDrawingLine) selDrawingLine.setPath([]);
+    if (selPreviewLine) selPreviewLine.setPath([]);
+    updateFinalPolygon();
+    addVertexMarkers();
+    checkBoxesInPolygon();
+  }
+
+  function addVertexMarkers() {
+    clearVertexMarkers();
+    polyVerts.forEach(function(coord, i) {
+      var marker = new google.maps.Marker({
+        position:{ lat:coord[1], lng:coord[0] }, map:map, draggable:true, zIndex:150,
+        icon:{ path:google.maps.SymbolPath.CIRCLE, scale:6, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:2 }
+      });
+      (function(idx, m) {
+        google.maps.event.addListener(m, 'drag', function() {
+          var pos = m.getPosition();
+          polyVerts[idx] = [pos.lng(), pos.lat()];
+          updateFinalPolygon();
+          checkBoxesInPolygon();
+        });
+      })(i, marker);
+      vertexMarkers.push(marker);
+    });
+  }
+
+  function resetDraw() {
+    polyVerts = [];
+    if (firstVertexMarker) { firstVertexMarker.setMap(null); firstVertexMarker = null; }
+    clearVertexMarkers();
+    clearDrawingMarkers();
+    if (selPolygon) selPolygon.setPaths([]);
+    if (selDrawingLine) selDrawingLine.setPath([]);
+    if (selPreviewLine) selPreviewLine.setPath([]);
+  }
+
+  function clearVertexMarkers() { vertexMarkers.forEach(function(m) { m.setMap(null); }); vertexMarkers = []; }
+  function clearDrawingMarkers() { drawingMarkers.forEach(function(m) { m.setMap(null); }); drawingMarkers = []; }
+
+  function updateFinalPolygon() {
+    if (polyVerts.length < 3) return;
+    var coords = polyVerts.concat([polyVerts[0]]);
+    if (selPolygon) selPolygon.setPaths([coords.map(function(v) { return { lat:v[1], lng:v[0] }; })]);
+  }
+
+  function checkBoxesInPolygon() {
+    if (polyVerts.length < 3) return;
+    var insideSet = {};
+    services.forEach(function(svc) {
+      var lat = svc.Properties && svc.Properties.lat;
+      var lng = svc.Properties && svc.Properties.lng;
+      if (!lat || !lng) return;
+      if (pointInPolygon([lng, lat], polyVerts)) insideSet[String(svc.id)] = true;
+    });
+    document.querySelectorAll('.row-cb').forEach(function(cb) {
+      cb.checked = !!insideSet[cb.getAttribute('data-id')];
+    });
+    loadMarkers();
+    var checkedIds = new Set();
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { checkedIds.add(String(cb.getAttribute('data-id'))); });
+    var inside = services.filter(function(s) { return checkedIds.has(String(s.id)); });
+    if (inside.length) showStopPanel(inside);
+  }
+
+  function fmtK(n) {
+    var k = n / 1000;
+    return (k === Math.floor(k) ? Math.floor(k) : parseFloat(k.toFixed(2))) + 'k';
+  }
+
+  function pointInPolygon(pt, polygon) {
+    var x = pt[0], y = pt[1], inside = false;
+    for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      var xi = polygon[i][0], yi = polygon[i][1], xj = polygon[j][0], yj = polygon[j][1];
+      var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  function showStopPanel(selected) {
+    var panel = document.getElementById('stop-panel');
+    var body = document.getElementById('stop-body');
+    panel.style.display = '';
+    document.getElementById('map-tool-panel').style.left = '280px';
+    document.getElementById('marker-mode-wrap').style.display = 'block';
+
+    var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
+    var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
+
+    /* area treated totals — only count area types associated with each service */
+    var areaTotals = {};
+    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft' };
+    var seenPropForArea = {};
+    selected.forEach(function(svc) {
+      var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
+      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var areaMap = areaTreatedByProperty[svc.property_id] || {};
+      Object.keys(areaLabels).forEach(function(k) {
+        if (aa && !aa[k]) return;
+        var propAreaKey = svc.property_id + '_' + k;
+        if (seenPropForArea[propAreaKey]) return;
+        seenPropForArea[propAreaKey] = true;
+        if (areaMap[k]) areaTotals[k] = (areaTotals[k] || 0) + (parseFloat(areaMap[k]) || 0);
+      });
+    });
+
+    /* service name counts */
+    var svcCounts = {};
+    selected.forEach(function(x) { svcCounts[x.service] = (svcCounts[x.service] || 0) + 1; });
+
+    var html = '<div class="sp-row" style="margin-bottom:6px;"><span><strong>Total Revenue</strong></span><span><strong>$' + totalRev.toFixed(2) + '</strong></span></div>';
+
+    /* area rows */
+    Object.keys(areaTotals).forEach(function(k) {
+      if (areaLabels[k]) html += '<div class="sp-row"><span>' + areaLabels[k] + '</span><span>' + Number(areaTotals[k]).toLocaleString() + '</span></div>';
+    });
+
+    if (Object.keys(areaTotals).length) html += '<div style="margin:4px 0;border-top:1px solid #eee;"></div>';
+
+    /* service rows */
+    Object.keys(svcCounts).forEach(function(n) {
+      html += '<div class="sp-row"><span>' + n + '</span><span>' + svcCounts[n] + '</span></div>';
+    });
+
+    html += '<div class="sp-total-row"><span>SERVICES SELECTED</span><span>' + selected.length + '</span></div>';
+    html += '<div class="sp-total-row"><span>TOTAL STOPS</span><span>' + stops + '</span></div>';
+
+    body.innerHTML = html;
+  }
+
+  function closeStopPanel() {
+    document.getElementById('stop-panel').style.display = 'none';
+    document.getElementById('marker-mode-wrap').style.display = 'none';
+    document.getElementById('map-tool-panel').style.left = '10px';
+    resetDraw();
+    resetDraw();
+  }
+
+  function createRoutePinSVG(num) {
+    return '<svg viewBox="0 0 32 42" width="32" height="42" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#e07820" stroke="#ffffff" stroke-width="2"/>' +
+      '<text x="16" y="14" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Arial,sans-serif">' + num + '</text>' +
+      '</svg>';
+  }
+
+  function loadMarkers() {
+    mapMarkers.forEach(function(m) { m.setMap(null); });
+    mapMarkers = [];
+    var seen = {};
+    var modeEl = document.getElementById('marker-mode');
+    var mode = modeEl ? modeEl.value : 'selected';
+    var propIds = [];
+    if (mode === 'all') {
+      services.forEach(function(s) { if (s.property_id && !seen[s.property_id]) { seen[s.property_id] = true; propIds.push(String(s.property_id)); } });
+      seen = {};
+    } else {
+      document.querySelectorAll('.row-cb:checked').forEach(function(cb) { propIds.push(cb.getAttribute('data-prop-id')); });
+    }
+    propIds.forEach(function(propId) {
+      if (!propId || seen[propId]) return;
+      seen[propId] = true;
+      var svc = services.find(function(s) { return String(s.property_id) === propId; });
+      if (!svc || !svc.Properties || !svc.Properties.lat || !svc.Properties.lng) return;
+      var pos = { lat: svc.Properties.lat, lng: svc.Properties.lng };
+      var marker;
+      if (routeOrderMode) {
+        marker = new google.maps.Marker({
+          position: pos, map: map,
+          icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(routeOrderMap[propId] || '')),
+            scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+        });
+        (function(pid, m) {
+          google.maps.event.addListener(m, 'click', function() {
+            if (routeOrderMap[pid]) return;
+            routeCounter++;
+            routeOrderMap[pid] = routeCounter;
+            m.setIcon({ url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(routeCounter)),
+              scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) });
+          });
+        })(propId, marker);
+      } else {
+        var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#e07820" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+        marker = new google.maps.Marker({
+          position: pos, map: map,
+          icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
+            scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+        });
+        var relatedSvcs = services.filter(function(s) { return String(s.property_id) === propId; });
+        (function(svcs, m) {
+          google.maps.event.addListener(m, 'click', function() { showStopPanel(svcs); });
+        })(relatedSvcs, marker);
+      }
+      mapMarkers.push(marker);
+    });
+  }
+
+  function showRouteOrder() {
+    document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = true; });
+    mapMarkers.forEach(function(m) { m.setMap(null); });
+    mapMarkers = [];
+    var seen = {};
+    /* Build a set of service IDs that are visible in the table right now */
+    var visibleIds = new Set();
+    document.querySelectorAll('.row-cb').forEach(function(cb) { visibleIds.add(cb.getAttribute('data-id')); });
+
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) {
+      var propId = cb.getAttribute('data-prop-id');
+      if (!propId || seen[propId]) return;
+      seen[propId] = true;
+      /* Only look at services that are currently visible in the table for this property */
+      var visibleSvcs = services.filter(function(s) {
+        return String(s.property_id) === propId && visibleIds.has(String(s.id));
+      });
+      var svc = visibleSvcs[0];
+      if (!svc || !svc.Properties || !svc.Properties.lat || !svc.Properties.lng) return;
+      var savedOrder = visibleSvcs.reduce(function(found, s) { return found || s.route_order || null; }, null);
+      var pinSvg = savedOrder
+        ? createRoutePinSVG(savedOrder)
+        : '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#e07820" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+      var marker = new google.maps.Marker({
+        position: { lat: svc.Properties.lat, lng: svc.Properties.lng }, map: map,
+        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+      mapMarkers.push(marker);
+    });
+  }
+
+  function startRouteOrder() {
+    routeOrderMode = true;
+    routeCounter = 0;
+    routeOrderMap = {};
+    loadMarkers();
+    document.getElementById('routing-section').style.display = 'flex';
+  }
+
+  function cancelRouteOrder() {
+    routeOrderMode = false;
+    routeCounter = 0;
+    routeOrderMap = {};
+    loadMarkers();
+    document.getElementById('routing-section').style.display = 'none';
+  }
+
+  async function saveRouteOrder() {
+    var updates = [];
+    var seen = {};
+    services.forEach(function(s) {
+      if (seen[s.id]) return;
+      seen[s.id] = true;
+      var order = routeOrderMap[String(s.property_id)];
+      if (order) updates.push(sb.from('Services').update({ route_order: order }).eq('id', s.id));
+    });
+    await Promise.all(updates);
+    cancelRouteOrder();
+    loadServices();
+  }
+
+  function flyToProperty(propertyId) {
+    var prop = propertyData[propertyId];
+    if (prop && prop.lat && prop.lng) { map.panTo({ lat: prop.lat, lng: prop.lng }); map.setZoom(14); }
+  }
+
+  /* ── Schedule modal ── */
+  var schedCalYear, schedCalMonth, schedSelDate;
+  function scheduleSelected(e) {
+    if (e) e.preventDefault();
+    document.getElementById('actions-dd').style.display = 'none';
+    var checked = document.querySelectorAll('.row-cb:checked');
+    if (!checked.length) { alert('Select at least one service.'); return; }
+    var now = new Date();
+    schedCalYear = now.getFullYear(); schedCalMonth = now.getMonth(); schedSelDate = null;
+    document.getElementById('sched-date-input').value = '';
+    loadSchedAssign();
+    buildSchedCal();
+    document.getElementById('sched-modal-overlay').style.display = 'flex';
+  }
+
+  function openSchedModalFor(id) {
+    var cb = document.querySelector('.row-cb[data-id="' + id + '"]');
+    if (cb) { document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = false; }); cb.checked = true; }
+    scheduleSelected(null);
+  }
+
+  function closeSchedModal() { document.getElementById('sched-modal-overlay').style.display = 'none'; }
+
+  async function loadSchedAssign() {
+    var sel = document.getElementById('sched-assign');
+    sel.innerHTML = '<option value="">— assign later —</option>';
+    var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
+    (data || []).forEach(function(e) {
+      var opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.last_name + ', ' + e.first_name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function buildSchedCal() {
+    var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('sched-cal-title').textContent = MN[schedCalMonth] + ' ' + schedCalYear;
+    var first = new Date(schedCalYear, schedCalMonth, 1);
+    var last = new Date(schedCalYear, schedCalMonth + 1, 0);
+    var html = '';
+    for (var i = 0; i < first.getDay(); i++) html += '<td></td>';
+    var count = first.getDay();
+    for (var d = 1; d <= last.getDate(); d++) {
+      if (count % 7 === 0) html += '<tr>';
+      var ds = schedCalYear + '-' + String(schedCalMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      var sel = schedSelDate === ds ? 'background:#e07820;color:#fff;border-radius:50%;' : '';
+      html += '<td onclick="schedPickDate(\'' + ds + '\')" style="padding:5px 3px;cursor:pointer;text-align:center;' + sel + '">' + d + '</td>';
+      count++;
+      if (count % 7 === 0) html += '</tr>';
+    }
+    document.getElementById('sched-cal-body').innerHTML = html;
+  }
+
+  function schedCalNav(dir) { schedCalMonth += dir; if (schedCalMonth > 11) { schedCalMonth=0; schedCalYear++; } if (schedCalMonth < 0) { schedCalMonth=11; schedCalYear--; } buildSchedCal(); }
+
+  function toggleSchedCal() {
+    var cal = document.getElementById('sched-cal');
+    cal.style.display = cal.style.display === 'none' ? '' : 'none';
+  }
+
+  function schedPickDate(ds) {
+    schedSelDate = ds;
+    var dt = new Date(ds + 'T00:00:00');
+    document.getElementById('sched-date-input').value = dt.toLocaleDateString('en-US', { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' });
+    buildSchedCal();
+    document.getElementById('sched-cal').style.display = 'none';
+  }
+
+  async function confirmSchedule() {
+    if (!schedSelDate) { alert('Please pick a date.'); return; }
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (!ids.length) { closeSchedModal(); return; }
+    var assignTo = document.getElementById('sched-assign').value || null;
+    var updates = ids.map(function(id) {
+      return sb.from('Services').update({ scheduled_date: schedSelDate, dispatched: true, status: 'scheduled', assigned_to: assignTo }).eq('id', id);
+    });
+    await Promise.all(updates);
+    sendAlert('scheduled', ids);
+    closeSchedModal();
+    loadServices();
+  }
+
+  /* ── Cancel / Skip ── */
+  async function cancelSelected(e) {
+    if (e) e.preventDefault();
+    document.getElementById('actions-dd').style.display = 'none';
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (!ids.length) { alert('Select at least one service.'); return; }
+    if (!confirm('Cancel ' + ids.length + ' service(s)?')) return;
+    await Promise.all(ids.map(function(id) { return sb.from('Services').update({ status:'canceled' }).eq('id', id); }));
+    sendAlert('canceled', ids);
+    loadServices();
+  }
+
+  async function skipSelected(e) {
+    if (e) e.preventDefault();
+    document.getElementById('actions-dd').style.display = 'none';
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (!ids.length) { alert('Select at least one service.'); return; }
+    if (!confirm('Skip ' + ids.length + ' service(s)?')) return;
+    await Promise.all(ids.map(function(id) { return sb.from('Services').update({ status:'skipped' }).eq('id', id); }));
+    loadServices();
+  }
+
+  async function sendAlert(alertType, serviceIds) {
+    if (!serviceIds || !serviceIds.length) return;
+    try {
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      if (!uid) return;
+      fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g'
+        },
+        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid })
+      }).catch(function(e) { console.error('SMS alert error:', e); });
+    } catch(e) { console.error('SMS alert error:', e); }
+  }
+
+  /* ── Delete services ── */
+  function deleteSelectedServices(e) {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('actions-dd').style.display = 'none';
+    var ids = Array.from(document.querySelectorAll('.row-cb:checked')).map(function(cb) { return cb.getAttribute('data-id'); });
+    if (!ids.length) { alert('Check the box next to each service you want to delete first.'); return; }
+    document.getElementById('delete-confirm-count').textContent = ids.length;
+    var bar = document.getElementById('delete-confirm-bar');
+    bar.dataset.ids = JSON.stringify(ids);
+    bar.style.display = 'flex';
+  }
+
+  async function confirmDeleteServices() {
+    var bar = document.getElementById('delete-confirm-bar');
+    var ids = JSON.parse(bar.dataset.ids || '[]');
+    bar.style.display = 'none';
+    var CHUNK = 50;
+    for (var i = 0; i < ids.length; i += CHUNK) {
+      await sb.from('Services').delete().in('id', ids.slice(i, i + CHUNK));
+    }
+    await loadServices();
+  }
+
+  /* ── Actions dropdown ── */
+  function toggleActionsDD(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('actions-dd');
+    dd.style.display = dd.style.display === 'none' ? '' : 'none';
+  }
+
+  /* ── Saved Views ── */
+  var savedViews = [];
+  var activeViewId = null;
+
+  function toggleSavedFilters(e) {
+    if (e) e.stopPropagation();
+    var panel = document.getElementById('saved-filters-panel');
+    panel.classList.toggle('show');
+    if (panel.classList.contains('show')) renderSavedFilters();
+  }
+
+  async function loadSavedViews() {
+    var { data } = await sb.from('saved_views').select('*').eq('page', 'waiting').order('id', { ascending: true });
+    savedViews = data || [];
+    renderSavedFilters();
+  }
+
+  async function loadDefaultView() {
+    var { data } = await sb.from('app_preferences').select('pref_value').eq('pref_key', 'waiting_default_view').single();
+    var defaultId = (data && data.pref_value && data.pref_value !== 'none') ? data.pref_value : 'pending';
+    activeViewId = defaultId;
+    if (typeof defaultId === 'string' && defaultId.startsWith('v_')) {
+      applyViewSettings(parseInt(defaultId.replace('v_', '')));
+    } else {
+      applyDefaultViewSettings(defaultId);
+    }
+    renderSavedFilters();
+  }
+
+  function renderSavedFilters() {
+    var list = document.getElementById('sfp-views-list');
+    if (!list) return;
+    var defaults = [
+      { id:'none', label:'None' },
+      { id:'pending', label:'Pending' },
+      { id:'canceled', label:'Canceled' },
+      { id:'skipped', label:'Skipped' }
+    ];
+    var html = '<div class="sfp-group-label">DEFAULT</div>';
+    defaults.forEach(function(d) {
+      html += '<div class="sfp-item">';
+      html += '<div class="sfp-def-col"><input type="radio" name="sfp-default" value="' + d.id + '" ' + (activeViewId === d.id ? 'checked' : '') + ' onchange="applyDefaultView(\'' + d.id + '\')"/></div>';
+      html += '<a onclick="applyDefaultViewSettings(\'' + d.id + '\')">' + d.label + '</a>';
+      html += d.id !== 'none' ? '<a class="sfp-save-link" onclick="saveDefaultView(\'' + d.id + '\')">Save</a>' : '<span></span>';
+      html += '<span></span>';
+      html += '</div>';
+    });
+    if (savedViews.length) {
+      html += '<div class="sfp-group-label">MY VIEWS</div>';
+      savedViews.forEach(function(v) {
+        html += '<div class="sfp-item">';
+        html += '<div class="sfp-def-col"><input type="radio" name="sfp-default" value="v_' + v.id + '" ' + (activeViewId === 'v_' + v.id ? 'checked' : '') + ' onchange="applyView(\'' + v.id + '\')"/></div>';
+        html += '<a onclick="applyViewSettings(\'' + v.id + '\')">' + v.name + '</a>';
+        html += '<a class="sfp-save-link" onclick="saveView(\'' + v.id + '\')">Save</a>';
+        html += '<button class="sfp-del" onclick="deleteView(\'' + v.id + '\')">&#10005;</button>';
+        html += '</div>';
+      });
+    }
+    list.innerHTML = html;
+  }
+
+  function applyDefaultViewSettings(id) {
+    activeServiceFilter = []; activeTagFilter = []; activeStatusFilter = [];
+    document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.subfilter-bar').forEach(function(b) { b.classList.remove('visible'); });
+    document.querySelectorAll('#status-ms-dropdown input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+    document.getElementById('status-ms-btn').textContent = '-- Select --';
+    if (id === 'pending' || id === 'canceled' || id === 'skipped') {
+      activeStatusFilter = [id];
+      document.getElementById('filter-tab-status').classList.add('active');
+      document.getElementById('status-subfilter-bar').classList.add('visible');
+      var cb = document.getElementById('st-' + id);
+      if (cb) cb.checked = true;
+      document.getElementById('status-ms-btn').textContent = '1 selected';
+    }
+    document.getElementById('active-filter-label').textContent = id !== 'none' ? '• ' + id : '';
+    document.getElementById('saved-filters-panel').classList.remove('show');
+    renderTable();
+  }
+
+  function showToast(msg, type) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:28px;right:24px;z-index:9999;padding:10px 18px;border-radius:4px;font-size:13px;font-weight:600;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3);transition:opacity .4s;';
+    t.style.background = type === 'error' ? '#d93025' : '#27a567';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 400); }, 2600);
+  }
+
+  async function saveDefaultPreference(viewId) {
+    var { error } = await sb.from('app_preferences').upsert({ pref_key: 'waiting_default_view', pref_value: viewId }, { onConflict: 'pref_key' });
+    if (!error) showToast('Default view saved', 'success');
+    else showToast('Failed to save default', 'error');
+  }
+
+  async function applyDefaultView(id) {
+    activeViewId = id;
+    applyDefaultViewSettings(id);
+    saveDefaultPreference(id);
+  }
+
+  function applyViewSettings(id) {
+    var v = savedViews.find(function(x) { return String(x.id) === String(id); });
+    if (!v) return;
+    activeServiceFilter = v.service_filter || [];
+    activeTagFilter = v.tag_filter || [];
+    activeStatusFilter = v.status_filter || [];
+    if (v.settings) {
+      var s = v.settings;
+      if (s.core_cols) {
+        activeCoreColumns = s.core_cols;
+        ['order','client','service','lastsvc','amount'].forEach(function(col) {
+          var cb = document.getElementById('core-cb-' + col);
+          if (cb) cb.checked = activeCoreColumns.indexOf(col) >= 0;
+        });
+      }
+      if (s.area_cols) {
+        activeAreaCols = s.area_cols;
+        ['arealawn','areainsect','areaflower'].forEach(function(k) {
+          var cb = document.getElementById('area-cb-' + k);
+          if (cb) cb.checked = activeAreaCols.indexOf(k) >= 0;
+        });
+      }
+      if (s.custom_cols) { activeCustomCols = s.custom_cols; saveColPrefs(); }
+      if (s.use_min_days !== undefined) document.getElementById('use-min-days').checked = s.use_min_days;
+    }
+    document.getElementById('active-filter-label').textContent = '• ' + v.name;
+    document.getElementById('saved-filters-panel').classList.remove('show');
+    buildTableHeader();
+    renderTable();
+  }
+
+  async function applyView(id) {
+    activeViewId = 'v_' + id;
+    await saveDefaultPreference('v_' + id);
+    applyViewSettings(id);
+  }
+
+  function openSaveViewModal() {
+    document.getElementById('saved-filters-panel').classList.remove('show');
+    document.getElementById('sv-name-input').value = '';
+    document.getElementById('sv-overlay').classList.add('show');
+    setTimeout(function() { document.getElementById('sv-name-input').focus(); }, 50);
+  }
+  function closeSaveViewModal() { document.getElementById('sv-overlay').classList.remove('show'); }
+
+  function captureViewSettings() {
+    return {
+      core_cols: activeCoreColumns.slice(),
+      area_cols: activeAreaCols.slice(),
+      custom_cols: activeCustomCols.slice(),
+      use_min_days: document.getElementById('use-min-days').checked
+    };
+  }
+
+  async function confirmSaveView() {
+    var name = document.getElementById('sv-name-input').value.trim();
+    if (!name) return;
+    var { data, error } = await sb.from('saved_views').insert({
+      page: 'waiting',
+      name: name,
+      service_filter: activeServiceFilter,
+      tag_filter: activeTagFilter,
+      status_filter: activeStatusFilter,
+      settings: captureViewSettings()
+    }).select().single();
+    if (error || !data) { showToast('Save failed: ' + (error ? error.message : 'no data'), 'error'); return; }
+    savedViews.push(data);
+    closeSaveViewModal();
+    renderSavedFilters();
+    showToast('View saved', 'success');
+  }
+
+  async function saveView(id) {
+    var idx = savedViews.findIndex(function(v) { return String(v.id) === String(id); });
+    if (idx < 0) return;
+    var { error } = await sb.from('saved_views').update({
+      service_filter: activeServiceFilter,
+      tag_filter: activeTagFilter,
+      status_filter: activeStatusFilter,
+      settings: captureViewSettings()
+    }).eq('id', id);
+    if (!error) {
+      savedViews[idx].service_filter = activeServiceFilter.slice();
+      savedViews[idx].tag_filter = activeTagFilter.slice();
+      savedViews[idx].status_filter = activeStatusFilter.slice();
+      savedViews[idx].settings = captureViewSettings();
+      showToast('View updated', 'success');
+    } else {
+      showToast('Failed to update view', 'error');
+    }
+    renderSavedFilters();
+  }
+  function saveDefaultView(id) { /* default views are static */ }
+
+  async function deleteView(id) {
+    if (!confirm('Delete this view?')) return;
+    var { error } = await sb.from('saved_views').delete().eq('id', id);
+    if (!error) {
+      savedViews = savedViews.filter(function(v) { return String(v.id) !== String(id); });
+      renderSavedFilters();
+    } else {
+      showToast('Failed to delete view', 'error');
+    }
+  }
+
+  /* ── Close dropdowns on outside click ── */
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dd').style.display = 'none';
+    document.getElementById('ms-dropdown').classList.remove('open');
+    document.getElementById('tag-ms-dropdown').classList.remove('open');
+    document.getElementById('status-ms-dropdown').classList.remove('open');
+    document.getElementById('saved-filters-panel').classList.remove('show');
+    document.getElementById('drp-popup').classList.remove('open');
+    document.getElementById('col-panel').classList.remove('show');
+  });
+
+  /* ── Init ── */
+  initDRP();
+  buildDayTabs();
+
+
+  (async function() {
+    await loadSavedViews();
+    await Promise.all([loadCustomFields(), loadServiceCatalog(), loadColPrefs()]);
+    buildTableHeader();
+    await loadDefaultView();
+    activeStatusFilter = ['pending'];
+    document.getElementById('filter-tab-status').classList.add('active');
+    document.getElementById('status-subfilter-bar').classList.add('visible');
+    var pendingCb = document.getElementById('st-pending');
+    if (pendingCb) pendingCb.checked = true;
+    document.getElementById('status-ms-btn').textContent = '1 selected';
+    document.getElementById('active-filter-label').textContent = '• pending';
+    await loadServices();
+  })();
+</script>
+</body>
+</html>
+

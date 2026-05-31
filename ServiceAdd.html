@@ -1,0 +1,553 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New One Time Service</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #333; outline: 4px solid #e07820; outline-offset: -4px; }
+
+    .page-header { padding: 16px 20px 8px; }
+    .page-header h1 { font-size: 22px; font-weight: 800; color: #111; }
+
+    /* Tabs */
+    .tabs { display: flex; padding: 0 20px; border-bottom: 1px solid #ddd; }
+    .tab-btn {
+      background: none; border: none; padding: 7px 14px; font-size: 13px;
+      font-family: inherit; cursor: pointer; color: #2272c3; font-weight: 500;
+      border-bottom: 3px solid transparent; margin-bottom: -1px;
+    }
+    .tab-btn.active { color: #fff; background: #555; border-radius: 4px 4px 0 0; border-bottom: 3px solid #555; font-weight: 600; }
+    .tab-btn:hover:not(.active) { text-decoration: underline; }
+
+    /* Tab panels */
+    .tab-panel { display: none; padding-bottom: 80px; }
+    .tab-panel.active { display: block; }
+
+    /* ── JOB TAB LAYOUT ── */
+    .job-top {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 14px 20px 10px;
+    }
+    .job-top-left { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .job-top-right { display: flex; flex-direction: column; gap: 6px; min-width: 300px; }
+
+    .field-row { display: flex; align-items: center; gap: 10px; }
+    .field-row .lbl { width: 90px; min-width: 90px; color: #555; font-size: 13px; font-weight: 600; }
+    .field-row select, .field-row input[type="text"] {
+      flex: 1; border: 1px solid #bbb; border-radius: 3px;
+      padding: 5px 8px; font-size: 13px; font-family: inherit; outline: none;
+    }
+    .field-row select:focus, .field-row input:focus { border-color: #e07820; }
+
+    .hist-btn {
+      padding: 8px 0; border: 1px solid #b0c8e0; background: #dce9f5;
+      font-size: 13px; font-weight: 600; color: #2a4a6a; cursor: pointer;
+      border-radius: 3px; width: 100%; text-align: center;
+    }
+    .hist-btn.upcoming { background: #e8e4d8; border-color: #c8b88a; color: #5a4a20; }
+    .hist-btn:hover { filter: brightness(.95); }
+
+    /* Service table */
+    .svc-table-wrap { padding: 0 20px; }
+    .svc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .svc-table thead tr { background: #555; color: #fff; }
+    .svc-table thead th {
+      padding: 7px 6px; font-weight: 600; text-align: left; white-space: nowrap;
+      border-right: 1px solid #666;
+    }
+    .svc-table thead th:last-child { border-right: none; }
+    .svc-table tbody tr { border-bottom: 1px solid #eee; }
+    .svc-table tbody td { padding: 5px 4px; vertical-align: middle; }
+    .svc-table input[type="text"],
+    .svc-table input[type="date"],
+    .svc-table input[type="number"],
+    .svc-table input[type="time"],
+    .svc-table select {
+      border: 1px solid #bbb; border-radius: 2px; padding: 4px 5px;
+      font-size: 12px; font-family: inherit; outline: none; width: 100%;
+    }
+    .svc-table input:focus, .svc-table select:focus { border-color: #e07820; }
+    .svc-table .num-cell { width: 58px; }
+    .svc-table .num-cell input { text-align: right; }
+    .svc-table .del-btn {
+      background: none; border: none; color: #cc2222; font-size: 16px;
+      cursor: pointer; padding: 0 4px; line-height: 1;
+    }
+    .svc-table .icon-btn {
+      background: none; border: none; font-size: 14px; cursor: pointer;
+      color: #666; padding: 0 2px;
+    }
+
+    /* Bottom row: Add Service + Totals */
+    .job-bottom {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 8px 20px 0;
+    }
+    .add-svc-btn {
+      border: 1px solid #bbb; background: #f5f5f5; padding: 5px 14px;
+      font-size: 12.5px; cursor: pointer; border-radius: 3px; color: #333;
+    }
+    .add-svc-btn:hover { background: #e8e8e8; }
+
+    .totals-box { min-width: 260px; border: 1px solid #ddd; font-size: 13px; }
+    .totals-row {
+      display: flex; justify-content: space-between;
+      padding: 5px 12px; border-bottom: 1px solid #eee;
+    }
+    .totals-row:last-child { border-bottom: none; font-weight: 700; }
+    .totals-row .t-lbl { color: #444; }
+    .totals-row .t-val { color: #111; min-width: 50px; text-align: right; }
+
+    /* Section bars (Details / Notes) */
+    .sec-bar {
+      background: #555; color: #fff; padding: 7px 16px;
+      font-size: 13px; font-weight: 600; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+
+    /* Details tab form */
+    .fr { display: flex; align-items: center; padding: 9px 20px; border-bottom: 1px solid #f0f0f0; gap: 16px; }
+    .fr .lbl2 { width: 200px; min-width: 200px; color: #555; font-size: 13px; }
+    .fr .ctrl { flex: 1; }
+    .fr input[type="text"], .fr input[type="number"], .fr input[type="date"],
+    .fr select, .fr textarea {
+      max-width: 480px; width: 100%; border: 1px solid #bbb; border-radius: 3px;
+      padding: 6px 9px; font-size: 13px; font-family: inherit; outline: none;
+    }
+    .fr input:focus, .fr select:focus, .fr textarea:focus { border-color: #e07820; }
+    .fr input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2272c3; cursor: pointer; }
+    .fr .inline { display: flex; align-items: center; gap: 8px; }
+    .fr .note { color: #666; font-style: italic; font-size: 12.5px; }
+    .fr input[type="number"].narrow { max-width: 100px; text-align: right; }
+
+    /* Notes */
+    .notes-actions { padding: 10px 20px; display: flex; gap: 8px; }
+    .notes-btn { border: 1px solid #bbb; background: #f5f5f5; padding: 5px 14px; font-size: 12.5px; cursor: pointer; border-radius: 3px; }
+    .notes-btn:hover { background: #e8e8e8; }
+    .sched-notes-wrap { padding: 8px 20px 16px; }
+    .sched-notes-row { display: flex; align-items: center; gap: 8px; }
+    .sched-notes-row input[type="text"] { flex: 1; border: 1px solid #bbb; padding: 6px 9px; font-size: 13px; font-family: inherit; outline: none; }
+    .sched-notes-row input[type="checkbox"] { width: 16px; height: 16px; }
+
+    /* Footer */
+    .footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #eee;
+      padding: 12px 20px; display: flex; align-items: center; gap: 12px; z-index: 100;
+    }
+    .save-btn { background: #e07820; color: #fff; border: none; padding: 10px 36px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .save-btn:hover { background: #c96a10; }
+    .cancel-lnk { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: none; }
+    .cancel-lnk:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-header" style="display:flex; align-items:center; justify-content:space-between;">
+  <h1 id="page-title">New One Time Service</h1>
+  <button id="delete-btn" onclick="deleteJob()" style="display:none; background:#cc2222; color:#fff; border:none; padding:8px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer;">&#10005; Delete Service</button>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('job', this)">Job</button>
+  <button class="tab-btn" onclick="switchTab('details', this)">Details</button>
+  <button class="tab-btn" onclick="switchTab('notes', this)">Notes</button>
+  <button class="tab-btn" onclick="switchTab('assets', this)">Assets</button>
+</div>
+
+<!-- ═══ JOB TAB ═══ -->
+<div class="tab-panel active" id="tab-job">
+
+  <div class="job-top">
+    <div class="job-top-left">
+      <div class="field-row">
+        <span class="lbl">Client</span>
+        <select id="client-select" style="flex:1; max-width:380px; border:2px solid #e07820; border-radius:3px; color:#000; font-weight:600;"><option>Loading...</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service line table -->
+  <div class="svc-table-wrap">
+    <table class="svc-table">
+      <thead>
+        <tr>
+          <th style="width:22px;"></th>
+          <th style="min-width:200px;">Service</th>
+          <th style="width:140px;">Start Date</th>
+          <th style="min-width:180px;">Assigned To</th>
+          <th style="width:70px;">Qty</th>
+          <th style="width:100px;">Rate</th>
+          <th style="width:150px;">Discount</th>
+          <th style="width:90px;">Total</th>
+        </tr>
+      </thead>
+      <tbody id="svc-rows">
+        <!-- rows injected by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="job-bottom">
+    <button class="add-svc-btn" onclick="addServiceRow()">Add Service</button>
+    <div class="totals-box">
+      <div class="totals-row"><span class="t-lbl">Service Total</span><span class="t-val" id="total-svc">0.00</span></div>
+      <div class="totals-row"><span class="t-lbl">Product Total</span><span class="t-val">0.00</span></div>
+      <div class="totals-row"><span class="t-lbl">Subtotal</span><span class="t-val" id="total-sub">0.00</span></div>
+      <div class="totals-row"><span class="t-lbl">Tax</span><span class="t-val">0.00</span></div>
+      <div class="totals-row"><span class="t-lbl">Total</span><span class="t-val" id="total-grand">0.00</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DETAILS TAB ═══ -->
+<div class="tab-panel" id="tab-details">
+  <div class="sec-bar">Job</div>
+  <div class="fr">
+    <span class="lbl2">Work Order #</span>
+    <div class="ctrl"><input type="text" id="work-order" placeholder="Enter value or system will generate on save"/></div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">Call Ahead</span>
+    <div class="ctrl"><input type="checkbox" id="call-ahead"/></div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">Arrival Window</span>
+    <div class="ctrl">
+      <div class="inline">
+        <input type="number" id="arrival-window" value="0.00" step="0.25" min="0" class="narrow"/>
+        <span style="color:#555;">(Hours)</span>
+      </div>
+    </div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">Chemical Areas Treated</span>
+    <div class="ctrl">
+      <select id="areas-treated">
+        <option value="">Select Areas Treated</option>
+        <option>Front Yard</option><option>Back Yard</option>
+        <option>Full Property</option><option>Perimeter</option><option>Flower Beds</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">Product Mix</span>
+    <div class="ctrl">
+      <select id="product-mix" style="max-width:340px;">
+        <option value="">-- No Mix Selected --</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sec-bar" style="margin-top:10px;">Accounting</div>
+  <div class="fr">
+    <span class="lbl2">Payment Type</span>
+    <div class="ctrl">
+      <select id="payment-type" style="max-width:260px;">
+        <option>Credit Card</option><option>Check</option><option>Cash</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">PO Number</span>
+    <div class="ctrl"><input type="text" id="po-number" style="max-width:260px;"/></div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">Date Sold</span>
+    <div class="ctrl"><input type="date" id="date-sold" style="max-width:180px;"/></div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">When to Invoice</span>
+    <div class="ctrl">
+      <select id="when-invoice" style="max-width:300px;">
+        <option>Not Set</option><option selected>Daily</option><option>Weekly</option>
+        <option>Monthly</option><option>Print in Advance</option>
+        <option>Invoice on the 20th (custom)</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr">
+    <span class="lbl2">Invoice Separately</span>
+    <div class="ctrl">
+      <div class="inline">
+        <input type="checkbox" id="invoice-sep"/>
+        <span class="note">(Prevents other jobs from being invoiced with this job)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NOTES TAB ═══ -->
+<div class="tab-panel" id="tab-notes">
+  <div class="sec-bar"><span>Notes</span><span style="font-weight:400;font-size:12.5px;">Service</span></div>
+  <div class="notes-actions">
+    <button class="notes-btn">Add Note</button>
+    <button class="notes-btn">Import Notes</button>
+  </div>
+  <div style="padding:0 20px 10px; color:#aaa; font-style:italic; font-size:12.5px;">No notes yet.</div>
+  <div class="sec-bar" style="margin-top:10px;"><span>Internal Scheduling Notes</span><span style="font-weight:400;font-size:12.5px;cursor:pointer;">Show &#9432;</span></div>
+  <div class="sched-notes-wrap">
+    <div class="sched-notes-row">
+      <input type="text" id="sched-notes"/>
+      <input type="checkbox" id="sched-notes-show"/>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ASSETS TAB ═══ -->
+<div class="tab-panel" id="tab-assets">
+  <div class="sec-bar">Assets</div>
+  <div style="padding:20px; color:#aaa; font-style:italic;">No assets attached.</div>
+</div>
+
+<div class="footer">
+  <button class="save-btn" onclick="saveService()">Save</button>
+  <span style="color:#666;">or</span>
+  <a class="cancel-lnk" href="#" onclick="cancelService(event)">Cancel</a>
+  <button onclick="closeForm()" style="margin-left:auto; background:#555; color:#fff; border:none; padding:10px 28px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer;">Close</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var params     = new URLSearchParams(window.location.search);
+  var propertyId = params.get('propertyId');
+  var editId     = params.get('id');
+
+  if (editId) {
+    document.getElementById('page-title').textContent = 'Edit One Time Service';
+    document.getElementById('delete-btn').style.display = 'inline-block';
+  }
+
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('date-sold').value = today;
+
+  var serviceRows = [];
+  var serviceOptions  = '<option value=""></option>';
+  var discountOptions = '<option value="" data-pct="0">No Discount</option>';
+  var propAddress    = '';
+  var propClientId   = '';
+  var propClientName = '';
+
+  /* ── Load client/property for dropdown ── */
+  (async function init() {
+    var { data: svcList } = await sb.from('Services').select('id, name').is('property_id', null).eq('active', true).order('name');
+    if (svcList && svcList.length) {
+      serviceOptions = '<option value=""></option>' +
+        svcList.map(function(s) {
+          return '<option value="' + s.id + '">' + (s.name || '') + '</option>';
+        }).join('');
+    }
+
+    var { data: mixList } = await sb.from('Product Mixes').select('id, name').order('name');
+    var mixSel = document.getElementById('product-mix');
+    mixSel.innerHTML = '<option value="">-- No Mix Selected --</option>';
+    (mixList || []).forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.name;
+      mixSel.appendChild(opt);
+    });
+
+    var { data: discList } = await sb.from('discounts').select('id, name, value, type').order('name');
+    if (discList && discList.length) {
+      discountOptions = '<option value="" data-pct="0">No Discount</option>' +
+        discList.filter(function(d){ return d.type === 'Percent'; }).map(function(d) {
+          return '<option value="' + d.id + '" data-pct="' + (d.value || 0) + '">' +
+            (d.name || '') + ' (' + d.value + '%)' + '</option>';
+        }).join('');
+    }
+    var clientSel = document.getElementById('client-select');
+    clientSel.innerHTML = '';
+
+    if (propertyId) {
+      var { data: prop } = await sb.from('Properties').select('*, Clients(name)').eq('id', propertyId).single();
+      if (prop) {
+        propAddress    = prop.address || '';
+        propClientId   = prop.customer_id || '';
+        propClientName = prop.Clients ? prop.Clients.name : '';
+        var label = propClientName + ' : ' + propAddress;
+        var opt = document.createElement('option');
+        opt.value = propClientId;
+        opt.textContent = label;
+        clientSel.appendChild(opt);
+      }
+    } else {
+      var { data: clients } = await sb.from('Clients').select('id, name').order('name');
+      (clients || []).forEach(function(c) {
+        var opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        clientSel.appendChild(opt);
+      });
+    }
+
+    addServiceRow();
+  })();
+
+  /* ── Tab switching ── */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  /* ── Service rows ── */
+  function addServiceRow() {
+    var tbody = document.getElementById('svc-rows');
+    var idx = serviceRows.length;
+    serviceRows.push({});
+    var tr = document.createElement('tr');
+    tr.id = 'svc-row-' + idx;
+    tr.innerHTML =
+      '<td><button class="del-btn" onclick="removeRow(' + idx + ')">&#10005;</button></td>' +
+      '<td><select class="svc-sel" onchange="calcTotals()" style="width:100%;">' + serviceOptions + '</select></td>' +
+      '<td><input type="date" value="' + today + '" style="width:100%;"/></td>' +
+      '<td><select style="width:100%;"><option value="">Select Resource(s)</option></select></td>' +
+      '<td><input type="number" class="qty-inp" value="1" step="1" min="0" oninput="calcTotals(this)" style="width:100%; text-align:right;"/></td>' +
+      '<td><input type="text" class="rate-inp" value="0.00" oninput="calcTotals(this)" style="width:100%; text-align:right;"/></td>' +
+      '<td><select class="disc-sel" onchange="calcTotals(this)" style="width:100%;">' + discountOptions + '</select></td>' +
+      '<td class="row-total" style="text-align:right; font-weight:600; padding-right:6px;">0.00</td>';
+    tbody.appendChild(tr);
+  }
+
+  function removeRow(idx) {
+    var row = document.getElementById('svc-row-' + idx);
+    if (row) row.remove();
+    calcTotals();
+  }
+
+  function calcTotals() {
+    var grandTotal = 0;
+    document.querySelectorAll('#svc-rows tr').forEach(function(tr) {
+      var qty    = parseFloat(tr.querySelector('.qty-inp')  ? tr.querySelector('.qty-inp').value  : 0) || 0;
+      var rate   = parseFloat(tr.querySelector('.rate-inp') ? tr.querySelector('.rate-inp').value : 0) || 0;
+      var discSel = tr.querySelector('.disc-sel');
+      var pct    = discSel ? (parseFloat(discSel.options[discSel.selectedIndex].dataset.pct) || 0) : 0;
+      var lineTotal = qty * rate * (1 - pct / 100);
+      var rowTotalEl = tr.querySelector('.row-total');
+      if (rowTotalEl) rowTotalEl.textContent = lineTotal.toFixed(2);
+      grandTotal += lineTotal;
+    });
+    var fmt = grandTotal.toFixed(2);
+    document.getElementById('total-svc').textContent   = fmt;
+    document.getElementById('total-sub').textContent   = fmt;
+    document.getElementById('total-grand').textContent = fmt;
+  }
+
+  /* ── Save ── */
+  async function saveService() {
+    var clientId = document.getElementById('client-select').value;
+
+    // Collect service lines and calculate total
+    var rows = [];
+    var totalAmount = 0;
+    var firstSvcName = '';
+    var firstStartDate = '';
+    var firstAssigned = '';
+    document.querySelectorAll('#svc-rows tr').forEach(function(tr, i) {
+      var svcSel  = tr.querySelector('.svc-sel');
+      var dateInp = tr.querySelector('input[type="date"]');
+      var resSel  = tr.querySelectorAll('select')[1];
+      var qtyInp  = tr.querySelector('.qty-inp');
+      var rateInp = tr.querySelector('.rate-inp');
+      var discSel = tr.querySelector('.disc-sel');
+      var qty     = parseFloat(qtyInp  ? qtyInp.value  : 0) || 0;
+      var rate    = parseFloat(rateInp ? rateInp.value : 0) || 0;
+      var pct     = discSel ? (parseFloat(discSel.options[discSel.selectedIndex].dataset.pct) || 0) : 0;
+      var lineTotal = qty * rate * (1 - pct / 100);
+      totalAmount += lineTotal;
+      var svcName = svcSel ? svcSel.options[svcSel.selectedIndex].textContent : '';
+      if (i === 0) { firstSvcName = svcName; firstStartDate = dateInp ? dateInp.value : ''; firstAssigned = resSel ? resSel.value : ''; }
+      rows.push({ service_name: svcName, service_id: svcSel ? svcSel.value : '', start_date: dateInp ? dateInp.value : '', assigned_to: resSel ? resSel.value : '', qty: qty, rate: rate, discount_pct: pct, total: lineTotal });
+    });
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session && sessionData.session.user ? sessionData.session.user.id : null;
+    var clientName = propClientId ? propClientName : (document.getElementById('client-select').options[document.getElementById('client-select').selectedIndex] || {}).textContent || '';
+
+    var record = {
+      user_id:        uid,
+      customer_id:    clientId || null,
+      client_name:    clientName,
+      property_id:    propertyId || null,
+      address:        propAddress,
+      job_type:       'one_time',
+      service:        firstSvcName,
+      scheduled_date: firstStartDate || null,
+      assigned_to:    firstAssigned,
+      amount:         totalAmount,
+      dispatched:     false,
+      status:         'pending',
+      service_lines:  rows,
+      work_order:     document.getElementById('work-order').value.trim(),
+      call_ahead:     document.getElementById('call-ahead').checked,
+      arrival_window: parseFloat(document.getElementById('arrival-window').value) || 0,
+      areas_treated:  document.getElementById('areas-treated').value,
+      mix_id:         document.getElementById('product-mix').value || null,
+      payment_type:   document.getElementById('payment-type').value,
+      po_number:      document.getElementById('po-number').value.trim(),
+      date_sold:      document.getElementById('date-sold').value || null,
+      when_invoice:   document.getElementById('when-invoice').value,
+      invoice_sep:    document.getElementById('invoice-sep').checked,
+      sched_notes:    document.getElementById('sched-notes').value.trim(),
+    };
+
+    var error;
+    if (editId) {
+      var res = await sb.from('Services').update(record).eq('id', editId);
+      error = res.error;
+    } else {
+      var res = await sb.from('Services').insert(record);
+      error = res.error;
+    }
+
+    if (error) { alert('Error saving: ' + error.message); return; }
+
+    if (window.parent !== window) {
+      window.parent.closeServiceModal(true);
+    } else {
+      window.history.back();
+    }
+  }
+
+  function cancelService(e) {
+    if (e) e.preventDefault();
+    if (window.parent !== window) {
+      window.parent.closeServiceModal(false);
+    } else {
+      window.history.back();
+    }
+  }
+
+  function closeForm() {
+    if (window.parent !== window) {
+      window.parent.closeServiceModal(false);
+    } else {
+      window.history.back();
+    }
+  }
+
+  async function deleteJob() {
+    if (!editId) return;
+    if (!confirm('Delete this service? It will be removed from the schedule.')) return;
+    var { error } = await sb.from('Services').delete().eq('id', editId);
+    if (error) { alert('Error: ' + error.message); return; }
+    if (window.parent !== window) {
+      window.parent.closeServiceModal(true);
+    } else {
+      window.history.back();
+    }
+  }
+</script>
+</body>
+</html>
+

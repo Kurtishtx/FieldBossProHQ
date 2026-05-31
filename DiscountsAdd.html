@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Discount</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .dialog {
+      max-width: 560px; margin: 40px auto;
+      border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff;
+    }
+    .dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px; border-bottom: 1px solid #eee;
+    }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn {
+      background: none; border: 1px solid #bbb; padding: 2px 8px;
+      font-size: 13px; cursor: pointer; color: #555; border-radius: 2px;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    .dialog-body { padding: 20px 24px 4px; }
+
+    .field-row {
+      display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px;
+    }
+    .field-row label {
+      width: 140px; color: #666; font-size: 13px; flex-shrink: 0;
+      padding-top: 8px;
+    }
+    .field-row label.bold { font-weight: 700; color: #333; }
+
+    .field-row input[type="text"],
+    .field-row select {
+      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
+      background: #fff;
+    }
+    .field-row input[type="text"]:focus,
+    .field-row select:focus { border-color: #e07820; }
+
+    .field-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .field-note { font-size: 11.5px; color: #888; font-style: italic; }
+
+    .dialog-footer {
+      padding: 4px 24px 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .btn-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 30px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .btn-cancel { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; margin-left: 4px; }
+    .btn-cancel:hover { color: #1a5ea0; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add Discount</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
+  <div class="dialog-body">
+
+    <div class="field-row">
+      <label class="bold">Name</label>
+      <input type="text" id="disc-name" autocomplete="off" placeholder=""/>
+    </div>
+
+    <div class="field-row">
+      <label>Parent Discount</label>
+      <select id="disc-parent">
+        <option value="">Search Parent...</option>
+      </select>
+    </div>
+
+    <div class="field-row">
+      <label class="bold">Tax Code</label>
+      <select id="disc-taxcode">
+        <option value="tax">Tax</option>
+        <option value="non-taxable">Non-Taxable</option>
+        <option value="exempt">Exempt</option>
+      </select>
+    </div>
+
+    <div class="field-row">
+      <label>Discount Description</label>
+      <input type="text" id="disc-description" autocomplete="off" placeholder=""/>
+    </div>
+
+    <div class="field-row">
+      <label class="bold">Amount or Percent</label>
+      <input type="text" id="disc-amount" autocomplete="off" placeholder="e.g. 10 or 10%"/>
+    </div>
+
+    <div class="field-row">
+      <label class="bold">Account</label>
+      <div class="field-col">
+        <select id="disc-account">
+          <option value="">Search Account...</option>
+        </select>
+        <span class="field-note">(cannot modify once synced with QuickBooks)</span>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Class</label>
+      <select id="disc-class">
+        <option value="">Search Class...</option>
+      </select>
+    </div>
+
+  </div>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveDiscount()">Save</button>
+    <span style="color:#888;">or</span>
+    <span class="btn-cancel" onclick="cancel()">Cancel</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var discountId = new URLSearchParams(window.location.search).get('id');
+  var existing   = null;
+  var allDiscounts = [];
+
+  async function init() {
+    var { data } = await sb.from('discounts').select('*').order('name');
+    allDiscounts = data || [];
+    loadParentDropdown();
+
+    if (discountId) {
+      existing = allDiscounts.find(function(d){ return d.id === discountId; });
+      if (existing) {
+        document.getElementById('page-title').textContent = 'Edit Discount';
+        document.getElementById('disc-name').value        = existing.name || '';
+        document.getElementById('disc-taxcode').value     = existing.type || 'tax';
+        document.getElementById('disc-description').value = existing.description || '';
+        document.getElementById('disc-amount').value      = existing.value || '';
+        loadParentDropdown(existing.parent_id);
+      }
+    }
+    document.getElementById('disc-name').focus();
+  }
+
+  function loadParentDropdown(selected) {
+    var sel = document.getElementById('disc-parent');
+    sel.innerHTML = '<option value="">Search Parent...</option>';
+    allDiscounts.forEach(function(d){
+      if (discountId && d.id === discountId) return;
+      var opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name;
+      if (selected && d.id === selected) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function saveDiscount() {
+    var name = document.getElementById('disc-name').value.trim();
+    if (!name) { alert('Please enter a name.'); document.getElementById('disc-name').focus(); return; }
+
+    var amountRaw = document.getElementById('disc-amount').value.trim();
+    var isPercent = amountRaw.indexOf('%') !== -1;
+    var amountNum = parseFloat(amountRaw.replace('%','').trim()) || 0;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    var record = {
+      name:        name,
+      type:        isPercent ? 'Percent' : 'Fixed',
+      value:       amountNum,
+      description: document.getElementById('disc-description').value.trim(),
+      account:     document.getElementById('disc-account').value,
+      parent_id:   document.getElementById('disc-parent').value || null,
+      user_id:     uid
+    };
+
+    if (existing) {
+      var { error } = await sb.from('discounts').update(record).eq('id', existing.id);
+      if (error) { alert('Error: ' + error.message); return; }
+    } else {
+      record.active = true;
+      var { error } = await sb.from('discounts').insert(record);
+      if (error) { alert('Error: ' + error.message); return; }
+    }
+
+    window.location.href = 'Discounts.html';
+  }
+
+  function cancel() {
+    window.location.href = 'Discounts.html';
+  }
+
+  init();
+</script>
+</body>
+</html>
+

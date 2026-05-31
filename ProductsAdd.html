@@ -1,0 +1,810 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Product</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      padding: 24px 28px 40px;
+      overflow-y: auto;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* ── Title ── */
+    .title-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .title-row h1 { font-size: 26px; font-weight: 800; color: #111; }
+    .close-btn {
+      background: none; border: 1px solid #bbb; border-radius: 3px;
+      width: 28px; height: 28px; font-size: 16px;
+      cursor: pointer; color: #555;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .close-btn:hover { background: #f0f0f0; }
+
+    /* ── Form card ── */
+    .form-card { border: 1px solid #ccc; border-radius: 4px; margin-bottom: 20px; }
+    .section-header {
+      background: #3a3a3a; color: #fff; padding: 10px 16px;
+      font-size: 14px; font-weight: 600; border-radius: 4px 4px 0 0;
+    }
+
+    /* ── Field rows ── */
+    .pm-body { padding: 0 16px; }
+    .pm-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .pm-row:last-child { border-bottom: none; }
+    .pm-label {
+      width: 180px; min-width: 180px; font-size: 13.5px; color: #555;
+    }
+    .pm-label.bold { font-weight: 700; color: #222; }
+
+    /* ── Inputs ── */
+    input[type="text"], input[type="number"] {
+      border: 1px solid #ccc; border-radius: 3px; padding: 6px 9px;
+      font-size: 13.5px; font-family: inherit; color: #333;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none; border-color: #f5c800;
+      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    }
+    input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #888888; }
+    input[type="radio"]    { width: 16px; height: 16px; cursor: pointer; accent-color: #888888; }
+
+    select {
+      border: 1px solid #ccc; border-radius: 3px;
+      padding: 6px 28px 6px 9px;
+      font-size: 13.5px; font-family: inherit; color: #333;
+      appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 9px center;
+      cursor: pointer;
+    }
+    select:focus { outline: none; border-color: #f5c800; }
+    .select-full { width: 100%; }
+    .input-full  { width: 100%; }
+
+    .note-italic { font-size: 12px; color: #666; font-style: italic; margin-top: 4px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
+    .tab-active {
+      background: #3a3a3a; color: #fff; border: none; border-radius: 4px;
+      padding: 6px 16px; font-size: 13.5px; font-family: inherit;
+      font-weight: 600; cursor: pointer;
+    }
+    .tab-link {
+      background: none; border: none; color: #444;
+      font-size: 13.5px; font-family: inherit; cursor: pointer; padding: 0;
+    }
+    .tab-link:hover { text-decoration: underline; }
+
+    /* ── Tab panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Product Mix inner sections ── */
+    .pm-inner-body { padding: 16px; }
+    .pm-inner-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .pm-inner-row:last-child { border-bottom: none; }
+    .pm-inner-label { width: 170px; min-width: 170px; font-size: 13px; color: #666; }
+
+    .link-icon { color: #5a9e6f; font-size: 17px; cursor: pointer; margin-left: 6px; }
+    .plus-btn {
+      background: none; border: none; color: #27a567;
+      font-size: 22px; font-weight: 700; cursor: pointer; line-height: 1; padding: 0 2px;
+    }
+
+    /* ── Application Rate(s) ── */
+    .app-rate-body { padding: 16px; }
+    .app-method-row {
+      display: flex; align-items: flex-end; gap: 24px; margin-bottom: 20px;
+    }
+    .app-method-col { display: flex; flex-direction: column; gap: 6px; }
+    .col-label    { font-size: 13px; font-weight: 700; color: #222; }
+    .col-label-sm { font-size: 12.5px; color: #444; }
+    .per-text { font-weight: 700; font-size: 14px; color: #333; align-self: flex-end; margin-bottom: 6px; }
+
+    /* ── Custom filter dropdown ── */
+    .csd-wrap { position: relative; display: inline-block; }
+    .csd-btn {
+      border: 1px solid #ccc; border-radius: 3px;
+      padding: 6px 28px 6px 9px;
+      font-size: 13.5px; font-family: inherit; color: #333;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 9px center;
+      cursor: pointer; text-align: left;
+    }
+    .csd-dropdown {
+      display: none; position: absolute; top: calc(100% + 2px); left: 0;
+      background: #fff; border: 1px solid #ccc; border-radius: 3px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15); z-index: 100; min-width: 200px;
+    }
+    .csd-dropdown.open { display: block; }
+    .csd-filter-bar {
+      background: #555; padding: 6px 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .csd-filter-label { color: #ddd; font-size: 12px; white-space: nowrap; }
+    .csd-filter-input {
+      flex: 1; border: 1px solid #888; border-radius: 2px;
+      padding: 3px 6px; font-size: 12.5px; font-family: inherit; background: #fff;
+    }
+    .csd-clear { background: none; border: none; color: #ddd; cursor: pointer; font-size: 14px; padding: 0 2px; }
+    .csd-options { max-height: 200px; overflow-y: auto; }
+    .csd-option {
+      padding: 7px 10px; font-size: 13.5px; cursor: pointer; color: #333;
+    }
+    .csd-option:hover { background: #f0f0f0; }
+    .csd-option.selected { background: #fdfbe8; color: #111; font-weight: 600; }
+    .csd-scroll-btn {
+      text-align: center; padding: 3px; background: #f5f5f5;
+      border-top: 1px solid #eee; font-size: 11px; color: #888;
+    }
+
+    /* ── Mix type sections ── */
+    .mix-section { margin-bottom: 14px; }
+    .mix-radio-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .mix-radio-label { font-size: 15px; font-weight: 700; color: #222; }
+    .mix-content { padding-left: 28px; }
+    .mix-col-header { font-size: 12.5px; color: #555; }
+    .mix-input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    .solution-label { font-size: 13px; font-weight: 700; color: #333; min-width: 60px; }
+    .gallons-label  { font-size: 14px; font-weight: 700; color: #333; }
+
+    .products-mix-headers {
+      display: grid;
+      grid-template-columns: 160px 90px 140px 30px 90px 80px 30px;
+      gap: 8px; align-items: center; margin-bottom: 4px;
+    }
+    .products-mix-row {
+      display: grid;
+      grid-template-columns: 160px 90px 140px 30px 90px 80px 30px;
+      gap: 8px; align-items: center; margin-bottom: 6px;
+    }
+    .add-another {
+      color: #444; font-size: 13px; cursor: pointer;
+      text-decoration: underline; margin-top: 4px; display: inline-block;
+    }
+    .del-row-btn { background: none; border: none; cursor: pointer; color: #c0392b; font-size: 18px; }
+    .num-sm { width: 80px; }
+    .num-md { width: 110px; }
+
+    .trash-row { display: flex; justify-content: flex-end; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; }
+    .trash-btn { background: none; border: none; cursor: pointer; color: #c0392b; font-size: 22px; }
+
+    /* ── Notes tab ── */
+    .notes-body { padding: 16px; }
+    .notes-body textarea {
+      width: 100%; min-height: 200px;
+      border: 1px solid #ccc; border-radius: 3px;
+      padding: 10px; font-size: 14px; font-family: inherit;
+      resize: vertical; color: #333;
+    }
+    .notes-body textarea:focus { outline: none; border-color: #f5c800; }
+
+    /* ── Footer ── */
+    .form-footer {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; padding: 12px 0 8px;
+    }
+    .btn-save, .btn-save-new {
+      background: #e07820; color: #fff; border: none; border-radius: 4px;
+      padding: 10px 30px; font-size: 15px; font-family: inherit; font-weight: 700; cursor: pointer;
+    }
+    .btn-save:hover, .btn-save-new:hover { background: #c96a15; }
+    .footer-or { font-size: 14px; color: #555; }
+    .btn-cancel {
+      background: none; border: none; color: #444;
+      font-size: 14px; font-family: inherit; cursor: pointer; text-decoration: underline;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Title -->
+<div class="title-row">
+  <h1>Add Product</h1>
+  <button class="close-btn" onclick="history.back()">&#10005;</button>
+</div>
+
+<!-- ══════════ PRODUCT DETAILS (always visible) ══════════ -->
+<div class="form-card">
+  <div class="section-header">Product Details</div>
+  <div class="pm-body">
+
+    <div class="pm-row">
+      <div class="pm-label bold">Name</div>
+      <div style="flex:1;"><input type="text" id="prod-name" class="input-full"/></div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Parent Product</div>
+      <div style="flex:1;">
+        <select class="select-full">
+          <option value="">Search Products...</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label bold">Tax Code</div>
+      <div style="flex:1;">
+        <select class="select-full">
+          <option value="">Select...</option>
+          <option>Tax</option>
+          <option>No Tax</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label bold">Invoice Description</div>
+      <div style="flex:1;"><input type="text" id="prod-description" class="input-full"/></div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Part Number</div>
+      <div style="flex:1;"><input type="text" id="prod-part-num" class="input-full"/></div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Default Rate</div>
+      <input type="number" id="prod-price" class="num-md" placeholder="0.00" step="0.01" min="0"/>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Default B. Cost</div>
+      <input type="number" class="num-md" placeholder="0.00" step="0.01" min="0"/>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Default B. Hrs</div>
+      <input type="number" class="num-md" placeholder="0.00" step="0.01" min="0"/>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Track Chemicals</div>
+      <input type="checkbox"/>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label bold">Income Account</div>
+      <div style="flex:1;">
+        <select class="select-full">
+          <option value="">Select Income Account</option>
+          <option>Bushes / Shrubs</option>
+          <option>Lawn Care</option>
+          <option>Tree Service</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label bold">COGS Account</div>
+      <div style="flex:1;">
+        <select class="select-full">
+          <option value="">Select COGS Account</option>
+          <option>Materials</option>
+          <option>Labor</option>
+          <option>Subcontractors</option>
+        </select>
+        <div class="note-italic">*This is the default account for products when creating expenses.</div>
+      </div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Class</div>
+      <div style="flex:1;">
+        <select class="select-full">
+          <option value="">Not Specified</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pm-row">
+      <div class="pm-label">Active</div>
+      <input type="checkbox" checked/>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ TABS ══════════ -->
+<div class="tabs">
+  <button class="tab-active" id="tab-btn-productmix" onclick="switchTab('productmix')">Product Mix</button>
+  <button class="tab-link"   id="tab-btn-notes"      onclick="switchTab('notes')">Notes</button>
+</div>
+
+<!-- ══════════ PRODUCT MIX TAB ══════════ -->
+<div id="panel-productmix" class="tab-panel active">
+
+  <!-- Product Fields -->
+  <div class="form-card">
+    <div class="section-header">Product Fields</div>
+    <div class="pm-inner-body">
+
+      <div class="pm-inner-row">
+        <div class="pm-inner-label">Scientific Name</div>
+        <div style="flex:1"><input type="text" style="width:100%;"/></div>
+      </div>
+
+      <div class="pm-inner-row">
+        <div class="pm-inner-label">EPA Registration #</div>
+        <div style="flex:1; display:flex; align-items:center; gap:8px;">
+          <input type="text" id="prod-epa" style="flex:1;"/>
+          <span class="link-icon" title="Link">&#128279;</span>
+        </div>
+      </div>
+
+      <div class="pm-inner-row">
+        <div class="pm-inner-label">Targets</div>
+        <div style="flex:1; display:flex; align-items:center; gap:8px;">
+          <select style="flex:1;">
+            <option value=""></option>
+            <option>Fungus Control</option>
+            <option>Grub Control</option>
+            <option>Insect Control</option>
+            <option>Weed Control</option>
+          </select>
+          <button class="plus-btn">&#43;</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Application Rate(s) -->
+  <div class="form-card">
+    <div class="section-header">Application Rate(s)</div>
+    <div class="app-rate-body" id="app-rates-container">
+
+      <div class="app-rate-block">
+
+        <!-- Method / Cost / Default -->
+        <div class="app-method-row">
+          <div class="app-method-col">
+            <div class="col-label">Application Method</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="csd-wrap">
+                <button class="csd-btn" style="width:230px;" onclick="toggleCSD(event,'am1')">
+                  <span id="csd-val-am1">Select Method...</span>
+                </button>
+                <div class="csd-dropdown" id="csd-am1">
+                  <div class="csd-filter-bar">
+                    <span class="csd-filter-label">Filter:</span>
+                    <input class="csd-filter-input" placeholder="Enter keywords" oninput="filterCSD('am1',this.value)"/>
+                    <button class="csd-clear" onclick="clearCSD('am1')">&#10005;</button>
+                  </div>
+                  <div class="csd-options" id="opts-am1">
+                    <div class="csd-option" onclick="pickCSD('am1','Create New',this)">Create New</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Blower Sprayer',this)">Blower Sprayer</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Cup',this)">Cup</div>
+                    <div class="csd-option" onclick="pickCSD('am1','DBH',this)">DBH</div>
+                    <div class="csd-option" onclick="pickCSD('am1','FlowZone - Backpack',this)">FlowZone - Backpack</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Scoop',this)">Scoop</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Spray - Hand sprayer',this)">Spray - Hand sprayer</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Spray - Truck',this)">Spray - Truck</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Spreader - Broadcast',this)">Spreader - Broadcast</div>
+                    <div class="csd-option" onclick="pickCSD('am1','Spreader - Hand',this)">Spreader - Hand</div>
+                  </div>
+                  <div class="csd-scroll-btn">&#9660;</div>
+                </div>
+              </div>
+              <button class="plus-btn">&#43;</button>
+            </div>
+          </div>
+
+          <div class="app-method-col">
+            <div class="col-label">Product Cost</div>
+            <input type="number" placeholder="0.00" step="0.01" min="0" class="num-md"/>
+          </div>
+
+          <div class="app-method-col">
+            <div class="col-label">Make Default</div>
+            <input type="checkbox" style="margin-top:8px;"/>
+          </div>
+        </div>
+
+        <!-- Application Rate -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:14px; font-weight:700; color:#222; margin-bottom:10px;">Application Rate</div>
+          <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+
+            <div class="app-method-col">
+              <div class="col-label-sm">Applied</div>
+              <input type="number" placeholder="0" class="num-sm"/>
+            </div>
+
+            <div class="app-method-col">
+              <div class="col-label-sm">Units of Measure</div>
+              <div class="csd-wrap">
+                <button class="csd-btn" style="width:150px;" onclick="toggleCSD(event,'uom1')">
+                  <span id="csd-val-uom1">Select...</span>
+                </button>
+                <div class="csd-dropdown" id="csd-uom1">
+                  <div class="csd-filter-bar">
+                    <span class="csd-filter-label">Filter:</span>
+                    <input class="csd-filter-input" placeholder="Enter keywords" oninput="filterCSD('uom1',this.value)"/>
+                    <button class="csd-clear" onclick="clearCSD('uom1')">&#10005;</button>
+                  </div>
+                  <div class="csd-options" id="opts-uom1">
+                    <div class="csd-option" onclick="pickCSD('uom1','Create New',this)">Create New</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Cups',this)">Cups</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Gallons',this)">Gallons</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Grams',this)">Grams</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Kilograms',this)">Kilograms</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Liters',this)">Liters</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Milliliters',this)">Milliliters</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Ounces - Liquid',this)">Ounces - Liquid</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Ounces - Weight',this)">Ounces - Weight</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Pints',this)">Pints</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Pounds',this)">Pounds</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Quarts',this)">Quarts</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Tablespoon',this)">Tablespoon</div>
+                    <div class="csd-option" onclick="pickCSD('uom1','Teaspoon(s)',this)">Teaspoon(s)</div>
+                  </div>
+                  <div class="csd-scroll-btn">&#9660;</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="per-text">per</div>
+
+            <div class="app-method-col">
+              <div class="col-label-sm">Total</div>
+              <input type="number" placeholder="0" class="num-md"/>
+            </div>
+
+            <div class="app-method-col">
+              <div class="col-label-sm">Area</div>
+              <div class="csd-wrap">
+                <button class="csd-btn" style="width:130px;" onclick="toggleCSD(event,'area1')">
+                  <span id="csd-val-area1">Select...</span>
+                </button>
+                <div class="csd-dropdown" id="csd-area1">
+                  <div class="csd-filter-bar">
+                    <span class="csd-filter-label">Filter:</span>
+                    <input class="csd-filter-input" placeholder="Enter keywords" oninput="filterCSD('area1',this.value)"/>
+                    <button class="csd-clear" onclick="clearCSD('area1')">&#10005;</button>
+                  </div>
+                  <div class="csd-options" id="opts-area1">
+                    <div class="csd-option" onclick="pickCSD('area1','Create New',this)">Create New</div>
+                    <div class="csd-option" onclick="pickCSD('area1','Gallons',this)">Gallons</div>
+                    <div class="csd-option" onclick="pickCSD('area1','Linear Feet',this)">Linear Feet</div>
+                    <div class="csd-option" onclick="pickCSD('area1','sq feet',this)">sq feet</div>
+                  </div>
+                  <div class="csd-scroll-btn">&#9660;</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="app-method-col">
+              <div class="col-label-sm">Custom Field</div>
+              <select style="width:140px;">
+                <option value=""></option>
+                <option>5 LAWN SQ FT</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Mixed with Water -->
+        <div class="mix-section">
+          <div class="mix-radio-row">
+            <input type="radio" name="mix-type-1" id="mw1" checked/>
+            <label for="mw1" class="mix-radio-label">Mixed with Water</label>
+          </div>
+          <div class="mix-content">
+            <div style="display:flex; gap:16px; margin-bottom:4px;">
+              <span style="width:100px;" class="mix-col-header">Chemical</span>
+              <span style="width:160px;" class="mix-col-header">Units of Measure</span>
+              <span style="width:30px;"></span>
+              <span class="mix-col-header">Water</span>
+            </div>
+            <div class="mix-input-row">
+              <span class="solution-label">Solution</span>
+              <input type="number" placeholder="0" step="0.01" class="num-sm"/>
+              <select style="width:160px;">
+                <option value="">Select...</option>
+                <option>Ounces - Liquid</option>
+                <option>Ounces - Weight</option>
+                <option>Milliliters</option>
+                <option>Liters</option>
+                <option>Cups</option>
+                <option>Tablespoon</option>
+                <option>Teaspoon(s)</option>
+              </select>
+              <span class="per-text">per</span>
+              <input type="number" placeholder="0" class="num-sm"/>
+              <span class="gallons-label">Gallons</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mixed with Products -->
+        <div class="mix-section">
+          <div class="mix-radio-row">
+            <input type="radio" name="mix-type-1" id="mp1"/>
+            <label for="mp1" class="mix-radio-label">Mixed with Products</label>
+          </div>
+          <div class="mix-content">
+            <div class="products-mix-headers">
+              <span class="mix-col-header">Product</span>
+              <span class="mix-col-header">Amount</span>
+              <span class="mix-col-header">Units of Measure</span>
+              <span></span>
+              <span class="mix-col-header">Total</span>
+              <span class="mix-col-header">Units of Measure</span>
+              <span></span>
+            </div>
+            <div id="mix-products-rows-1">
+              <div class="products-mix-row">
+                <select style="width:100%;font-size:12.5px;"><option value="">Search Products...</option></select>
+                <input type="number" placeholder="0" class="num-sm"/>
+                <select style="width:100%;font-size:12.5px;">
+                  <option value="">Select UoM</option>
+                  <option>Gallons</option>
+                  <option>Liters</option>
+                  <option>Ounces - Liquid</option>
+                </select>
+                <span class="per-text" style="font-size:13px;">per</span>
+                <input type="number" placeholder="0" class="num-sm"/>
+                <span class="gallons-label" style="font-size:13px;">Gallons</span>
+                <button class="del-row-btn" onclick="this.closest('.products-mix-row').remove()">&#10005;</button>
+              </div>
+            </div>
+            <a class="add-another" onclick="addMixRow(1)">Add Another</a>
+          </div>
+        </div>
+
+        <!-- Not Mixed -->
+        <div class="mix-section">
+          <div class="mix-radio-row">
+            <input type="radio" name="mix-type-1" id="mn1"/>
+            <label for="mn1" class="mix-radio-label">Not Mixed</label>
+          </div>
+        </div>
+
+        <div class="trash-row">
+          <button class="trash-btn" title="Delete this rate" onclick="this.closest('.app-rate-block').remove()">&#128465;</button>
+        </div>
+      </div>
+
+    </div>
+    <div style="padding:0 16px 16px;">
+      <button onclick="addAppRate()" style="background:none;border:none;color:#444;font-size:13.5px;cursor:pointer;text-decoration:underline;font-family:inherit;">
+        + Add Application Rate
+      </button>
+    </div>
+  </div>
+
+</div><!-- /panel-productmix -->
+
+<!-- ══════════ NOTES TAB ══════════ -->
+<div id="panel-notes" class="tab-panel">
+  <div class="form-card">
+    <div class="section-header">Notes</div>
+    <div class="notes-body">
+      <textarea placeholder="Enter notes here..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="form-footer">
+  <button class="btn-save" onclick="saveProduct()">Save</button>
+  <button class="btn-save-new" onclick="saveProduct(true)">Save &amp; New</button>
+  <span class="footer-or">or</span>
+  <button class="btn-cancel" onclick="history.back()">Cancel</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var productId = new URLSearchParams(window.location.search).get('id');
+  var existing = null;
+
+  async function initEdit() {
+    if (!productId) return;
+    var { data } = await sb.from('Products').select('*').eq('id', productId).single();
+    if (data) {
+      existing = data;
+      document.getElementById('prod-name').value        = data.name || '';
+      document.getElementById('prod-description').value = data.description || '';
+      document.getElementById('prod-part-num').value    = data.part_number || '';
+      document.getElementById('prod-price').value       = data.price || '';
+      document.getElementById('prod-epa').value         = data.epa_reg || '';
+    }
+  }
+  initEdit();
+
+  async function saveProduct(andNew) {
+    var name = document.getElementById('prod-name').value.trim();
+    if (!name) { alert('Please enter a product name.'); document.getElementById('prod-name').focus(); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var record = {
+      name:        name,
+      description: document.getElementById('prod-description').value.trim(),
+      part_number: document.getElementById('prod-part-num').value.trim(),
+      price:       parseFloat(document.getElementById('prod-price').value) || 0,
+      epa_reg:     document.getElementById('prod-epa').value.trim(),
+      active:      true,
+      user_id:     uid
+    };
+    if (existing) {
+      var { error } = await sb.from('Products').update(record).eq('id', existing.id);
+    } else {
+      var { error } = await sb.from('Products').insert(record);
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+    if (andNew) {
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-description').value = '';
+      document.getElementById('prod-part-num').value = '';
+      document.getElementById('prod-price').value = '';
+      existing = null;
+      productId = null;
+      document.getElementById('prod-name').focus();
+    } else {
+      history.back();
+    }
+  }
+
+  /* ── Tab switching ── */
+  function switchTab(key) {
+    ['productmix','notes'].forEach(function(k) {
+      document.getElementById('panel-' + k).classList.toggle('active', k === key);
+      var btn = document.getElementById('tab-btn-' + k);
+      btn.className = (k === key) ? 'tab-active' : 'tab-link';
+    });
+  }
+
+  /* ── Custom filter dropdowns ── */
+  document.addEventListener('click', function(e) {
+    document.querySelectorAll('.csd-dropdown.open').forEach(function(d) {
+      if (!d.parentElement.contains(e.target)) d.classList.remove('open');
+    });
+  });
+
+  function toggleCSD(e, id) {
+    e.stopPropagation();
+    var dd = document.getElementById('csd-' + id);
+    var wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.csd-dropdown.open').forEach(function(d) { d.classList.remove('open'); });
+    if (!wasOpen) dd.classList.add('open');
+  }
+
+  function pickCSD(id, val, el) {
+    document.getElementById('csd-val-' + id).textContent = val;
+    document.querySelectorAll('#opts-' + id + ' .csd-option').forEach(function(o) { o.classList.remove('selected'); });
+    el.classList.add('selected');
+    document.getElementById('csd-' + id).classList.remove('open');
+    var fi = document.querySelector('#csd-' + id + ' .csd-filter-input');
+    fi.value = ''; filterCSD(id, '');
+  }
+
+  function filterCSD(id, kw) {
+    kw = kw.toLowerCase();
+    document.querySelectorAll('#opts-' + id + ' .csd-option').forEach(function(o) {
+      o.style.display = o.textContent.toLowerCase().includes(kw) ? '' : 'none';
+    });
+  }
+
+  function clearCSD(id) {
+    document.querySelector('#csd-' + id + ' .csd-filter-input').value = '';
+    filterCSD(id, '');
+  }
+
+  /* ── Add mix product row ── */
+  var rateCount = 1;
+
+  function addMixRow(blockNum) {
+    var c = document.getElementById('mix-products-rows-' + blockNum);
+    if (!c) return;
+    var row = document.createElement('div');
+    row.className = 'products-mix-row';
+    row.innerHTML =
+      '<select style="width:100%;font-size:12.5px;"><option value="">Search Products...</option></select>' +
+      '<input type="number" placeholder="0" class="num-sm"/>' +
+      '<select style="width:100%;font-size:12.5px;"><option value="">Select UoM</option><option>Gallons</option><option>Liters</option><option>Ounces - Liquid</option></select>' +
+      '<span class="per-text" style="font-size:13px;">per</span>' +
+      '<input type="number" placeholder="0" class="num-sm"/>' +
+      '<span class="gallons-label" style="font-size:13px;">Gallons</span>' +
+      '<button class="del-row-btn" onclick="this.closest(\'.products-mix-row\').remove()">&#10005;</button>';
+    c.appendChild(row);
+  }
+
+  /* ── Add Application Rate block ── */
+  function addAppRate() {
+    rateCount++;
+    var n = rateCount;
+    var container = document.getElementById('app-rates-container');
+    var block = document.createElement('div');
+    block.className = 'app-rate-block';
+    block.style.borderTop = '2px solid #eee';
+    block.style.paddingTop = '16px';
+    block.style.marginTop = '16px';
+    block.innerHTML =
+      '<div class="app-method-row">' +
+        '<div class="app-method-col">' +
+          '<div class="col-label">Application Method</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<div class="csd-wrap">' +
+              '<button class="csd-btn" style="width:230px;" onclick="toggleCSD(event,\'am' + n + '\')"><span id="csd-val-am' + n + '">Select Method...</span></button>' +
+              '<div class="csd-dropdown" id="csd-am' + n + '">' +
+                '<div class="csd-filter-bar"><span class="csd-filter-label">Filter:</span><input class="csd-filter-input" placeholder="Enter keywords" oninput="filterCSD(\'am' + n + '\',this.value)"/><button class="csd-clear" onclick="clearCSD(\'am' + n + '\')">&#10005;</button></div>' +
+                '<div class="csd-options" id="opts-am' + n + '">' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Create New\',this)">Create New</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Blower Sprayer\',this)">Blower Sprayer</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Cup\',this)">Cup</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'DBH\',this)">DBH</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'FlowZone - Backpack\',this)">FlowZone - Backpack</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Scoop\',this)">Scoop</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Spray - Hand sprayer\',this)">Spray - Hand sprayer</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Spray - Truck\',this)">Spray - Truck</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Spreader - Broadcast\',this)">Spreader - Broadcast</div>' +
+                  '<div class="csd-option" onclick="pickCSD(\'am' + n + '\',\'Spreader - Hand\',this)">Spreader - Hand</div>' +
+                '</div><div class="csd-scroll-btn">&#9660;</div>' +
+              '</div>' +
+            '</div>' +
+            '<button class="plus-btn">&#43;</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="app-method-col"><div class="col-label">Product Cost</div><input type="number" placeholder="0.00" step="0.01" min="0" class="num-md"/></div>' +
+        '<div class="app-method-col"><div class="col-label">Make Default</div><input type="checkbox" style="margin-top:8px;"/></div>' +
+      '</div>' +
+      '<div style="margin-bottom:16px;">' +
+        '<div style="font-size:14px;font-weight:700;color:#222;margin-bottom:10px;">Application Rate</div>' +
+        '<div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">' +
+          '<div class="app-method-col"><div class="col-label-sm">Applied</div><input type="number" placeholder="0" class="num-sm"/></div>' +
+          '<div class="app-method-col"><div class="col-label-sm">Units of Measure</div>' +
+            '<div class="csd-wrap"><button class="csd-btn" style="width:150px;" onclick="toggleCSD(event,\'uom' + n + '\')"><span id="csd-val-uom' + n + '">Select...</span></button>' +
+            '<div class="csd-dropdown" id="csd-uom' + n + '"><div class="csd-filter-bar"><span class="csd-filter-label">Filter:</span><input class="csd-filter-input" placeholder="Enter keywords" oninput="filterCSD(\'uom' + n + '\',this.value)"/><button class="csd-clear" onclick="clearCSD(\'uom' + n + '\')">&#10005;</button></div>' +
+            '<div class="csd-options" id="opts-uom' + n + '"><div class="csd-option" onclick="pickCSD(\'uom' + n + '\',\'Create New\',this)">Create New</div><div class="csd-option" onclick="pickCSD(\'uom' + n + '\',\'Cups\',this)">Cups</div><div class="csd-option" onclick="pickCSD(\'uom' + n + '\',\'Gallons\',this)">Gallons</div><div class="csd-option" onclick="pickCSD(\'uom' + n + '\',\'Ounces - Liquid\',this)">Ounces - Liquid</div><div class="csd-option" onclick="pickCSD(\'uom' + n + '\',\'Pounds\',this)">Pounds</div></div>' +
+            '<div class="csd-scroll-btn">&#9660;</div></div></div>' +
+          '</div>' +
+          '<div class="per-text">per</div>' +
+          '<div class="app-method-col"><div class="col-label-sm">Total</div><input type="number" placeholder="0" class="num-md"/></div>' +
+          '<div class="app-method-col"><div class="col-label-sm">Area</div>' +
+            '<div class="csd-wrap"><button class="csd-btn" style="width:130px;" onclick="toggleCSD(event,\'area' + n + '\')"><span id="csd-val-area' + n + '">Select...</span></button>' +
+            '<div class="csd-dropdown" id="csd-area' + n + '"><div class="csd-filter-bar"><span class="csd-filter-label">Filter:</span><input class="csd-filter-input" placeholder="Enter keywords" oninput="filterCSD(\'area' + n + '\',this.value)"/><button class="csd-clear" onclick="clearCSD(\'area' + n + '\')">&#10005;</button></div>' +
+            '<div class="csd-options" id="opts-area' + n + '"><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'Create New\',this)">Create New</div><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'Gallons\',this)">Gallons</div><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'Linear Feet\',this)">Linear Feet</div><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'sq feet\',this)">sq feet</div></div>' +
+            '<div class="csd-scroll-btn">&#9660;</div></div></div>' +
+          '</div>' +
+          '<div class="app-method-col"><div class="col-label-sm">Custom Field</div><select style="width:140px;"><option value=""></option><option>5 LAWN SQ FT</option></select></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mix-section"><div class="mix-radio-row"><input type="radio" name="mix-type-' + n + '" id="mw' + n + '" checked/><label for="mw' + n + '" class="mix-radio-label">Mixed with Water</label></div>' +
+        '<div class="mix-content"><div class="mix-input-row"><span class="solution-label">Solution</span><input type="number" placeholder="0" step="0.01" class="num-sm"/><select style="width:160px;"><option value="">Select...</option><option>Ounces - Liquid</option><option>Milliliters</option><option>Cups</option></select><span class="per-text">per</span><input type="number" placeholder="0" class="num-sm"/><span class="gallons-label">Gallons</span></div></div>' +
+      '</div>' +
+      '<div class="mix-section"><div class="mix-radio-row"><input type="radio" name="mix-type-' + n + '" id="mp' + n + '"/><label for="mp' + n + '" class="mix-radio-label">Mixed with Products</label></div>' +
+        '<div class="mix-content"><div id="mix-products-rows-' + n + '"><div class="products-mix-row"><select style="width:100%;font-size:12.5px;"><option value="">Search Products...</option></select><input type="number" placeholder="0" class="num-sm"/><select style="width:100%;font-size:12.5px;"><option value="">Select UoM</option><option>Gallons</option></select><span class="per-text" style="font-size:13px;">per</span><input type="number" placeholder="0" class="num-sm"/><span class="gallons-label" style="font-size:13px;">Gallons</span><button class="del-row-btn" onclick="this.closest(\'.products-mix-row\').remove()">&#10005;</button></div></div>' +
+        '<a class="add-another" onclick="addMixRow(' + n + ')">Add Another</a></div>' +
+      '</div>' +
+      '<div class="mix-section"><div class="mix-radio-row"><input type="radio" name="mix-type-' + n + '" id="mn' + n + '"/><label for="mn' + n + '" class="mix-radio-label">Not Mixed</label></div></div>' +
+      '<div class="trash-row"><button class="trash-btn" onclick="this.closest(\'.app-rate-block\').remove()">&#128465;</button></div>';
+    container.appendChild(block);
+  }
+</script>
+</body>
+</html>
+

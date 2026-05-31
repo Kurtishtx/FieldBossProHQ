@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tags</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .page-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 10px;
+    }
+    .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .btn-add {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 20px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer; white-space: nowrap;
+    }
+    .btn-add:hover { background: #c96a10; }
+
+    .toolbar {
+      background: #3a3a3a; display: flex; align-items: center;
+      padding: 7px 14px; gap: 6px; flex-wrap: wrap;
+    }
+    .dropdown { position: relative; display: inline-flex; }
+    .btn-group { display: flex; }
+    .btn-actions { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none;
+      padding: 5px 14px; font-size: 13px; font-weight: 700;
+      cursor: pointer; border-radius: 3px 0 0 3px;
+    }
+    .btn-actions:hover { background: #d4ae00; }
+    .btn-actions-caret {
+      background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15);
+      padding: 5px 8px; font-size: 12px; cursor: pointer; border-radius: 0 3px 3px 0;
+    }
+    .btn-actions-caret:hover { background: #d4ae00; }
+    .dd-menu {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
+      background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      min-width: 180px; padding: 4px 0;
+    }
+    .dd-menu.show { display: block; }
+    .dd-menu a {
+      display: block; padding: 8px 14px; color: #444;
+      text-decoration: none; font-size: 13px; cursor: pointer;
+    }
+    .dd-menu a:hover { background: #f5f5f5; }
+
+    .toolbar-tabs { display: flex; gap: 0; }
+    .tab-btn {
+      padding: 5px 14px; border: none; cursor: pointer;
+      font-size: 12.5px; font-weight: 600; font-family: inherit;
+      background: #555; color: #bbb;
+    }
+    .tab-btn:first-child { border-radius: 3px 0 0 3px; }
+    .tab-btn:last-child  { border-radius: 0 3px 3px 0; }
+    .tab-btn.active { background: #fff; color: #222; }
+    .tab-btn:hover:not(.active) { background: #666; }
+
+    .view-tabs { display: flex; gap: 0; margin-left: 8px; }
+    .view-tab {
+      padding: 5px 14px; border: 1px solid #666; cursor: pointer;
+      font-size: 12.5px; font-weight: 600; font-family: inherit;
+      background: #555; color: #bbb; border-radius: 3px; margin-left: 3px;
+    }
+    .view-tab.active { background: #fff; color: #222; border-color: #fff; }
+    .view-tab:hover:not(.active) { background: #666; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 14px; text-align: left; font-size: 12.5px;
+      font-weight: 600; color: #555; border-bottom: 1px solid #ddd;
+    }
+    thead th:first-child { width: 40px; text-align: center; }
+    thead th.col-auto { width: 130px; text-align: center; }
+    thead th.col-mod  { width: 120px; }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
+    tbody tr:hover { background: #f9f9f9; }
+    tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+    tbody td.col-auto { text-align: center; }
+    .tag-link { color: #2272c3; text-decoration: none; font-size: 13px; }
+    .tag-link:hover { text-decoration: underline; }
+    .check-green { color: #27a567; font-size: 15px; font-weight: 700; }
+
+    .empty-msg { padding: 32px; text-align: center; color: #888; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-topbar">
+  <h1>Tags <span class="showing-count" id="results-count"></span></h1>
+  <button class="btn-add" id="add-btn" onclick="clickAdd()">Add Tag</button>
+</div>
+
+<div class="toolbar">
+  <div class="dropdown">
+    <div class="btn-group">
+      <button class="btn-actions">Actions</button>
+      <button class="btn-actions-caret" onclick="toggleDD(event)">&#9660;</button>
+    </div>
+    <div class="dd-menu" id="actions-dd">
+      <a onclick="setActiveSelected(true)">Activate Selected</a>
+      <a onclick="setActiveSelected(false)">Deactivate Selected</a>
+      <a onclick="deleteSelected()">Delete Selected</a>
+    </div>
+  </div>
+  <div class="toolbar-tabs">
+    <button class="tab-btn active" onclick="setFilter('active',this)">Active</button>
+    <button class="tab-btn" onclick="setFilter('inactive',this)">Inactive</button>
+    <button class="tab-btn" onclick="setFilter('all',this)">All</button>
+  </div>
+  <div class="view-tabs">
+    <button class="view-tab active" onclick="setView('tags',this)">Tag</button>
+    <button class="view-tab" onclick="setView('categories',this)">Tag Category</button>
+  </div>
+</div>
+
+<!-- Tags table -->
+<div id="tags-view">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
+        <th>Tag</th>
+        <th>Category</th>
+        <th class="col-auto">Automation Tag</th>
+        <th class="col-mod">Modified</th>
+      </tr>
+    </thead>
+    <tbody id="tags-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="tags-empty" style="display:none;">No tags found. Click "Add Tag" to create one.</div>
+</div>
+<div style="height:28px;background:#3a3a3a;"></div>
+
+<!-- Tag Categories table -->
+<div id="cats-view" style="display:none">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="chk-all-cat" onchange="toggleAllCats(this.checked)"/></th>
+        <th>Category Name</th>
+        <th class="col-mod">Modified</th>
+      </tr>
+    </thead>
+    <tbody id="cats-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="cats-empty" style="display:none;">No tag categories found. Click "Add Tag Category" to create one.</div>
+</div>
+<div style="height:28px;background:#3a3a3a;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var tags  = [];
+  var cats  = [];
+  var filter = 'active';
+  var view   = 'tags';
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function toggleDD(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dd').classList.toggle('show');
+  }
+  document.addEventListener('click', function(){ document.getElementById('actions-dd').classList.remove('show'); });
+
+  function setFilter(f, btn) {
+    filter = f;
+    document.querySelectorAll('.toolbar-tabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderAll();
+  }
+
+  function setView(v, btn) {
+    view = v;
+    document.querySelectorAll('.view-tab').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tags-view').style.display = v === 'tags' ? '' : 'none';
+    document.getElementById('cats-view').style.display  = v === 'categories' ? '' : 'none';
+    document.getElementById('add-btn').textContent = v === 'tags' ? 'Add Tag' : 'Add Tag Category';
+  }
+
+  async function clickAdd() {
+    if (view === 'tags') {
+      window.location.href = 'TagsAdd.html';
+    } else {
+      var name = prompt('Tag Category Name:');
+      if (!name || !name.trim()) return;
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      var { error } = await sb.from('tag_categories').insert({ name: name.trim(), active: true, user_id: uid });
+      if (error) { alert('Error: ' + error.message); return; }
+      await loadCategories();
+    }
+  }
+
+  function toggleAll(checked) {
+    document.querySelectorAll('#tags-tbody input[type="checkbox"]').forEach(function(cb){ cb.checked = checked; });
+  }
+  function toggleAllCats(checked) {
+    document.querySelectorAll('#cats-tbody input[type="checkbox"]').forEach(function(cb){ cb.checked = checked; });
+  }
+
+  function getSelected(tbodyId) {
+    var ids = [];
+    document.querySelectorAll('#' + tbodyId + ' input[type="checkbox"]:checked').forEach(function(cb){ ids.push(cb.dataset.id); });
+    return ids;
+  }
+
+  async function deleteSelected() {
+    if (view === 'tags') {
+      var ids = getSelected('tags-tbody');
+      if (!ids.length) return;
+      if (!confirm('Delete ' + ids.length + ' tag(s)?')) return;
+      var { error } = await sb.from('tags').delete().in('id', ids);
+      if (error) { alert('Error: ' + error.message); return; }
+      tags = tags.filter(function(t){ return !ids.includes(t.id); });
+    } else {
+      var ids = getSelected('cats-tbody');
+      if (!ids.length) return;
+      if (!confirm('Delete ' + ids.length + ' category(s)?')) return;
+      var { error } = await sb.from('tag_categories').delete().in('id', ids);
+      if (error) { alert('Error: ' + error.message); return; }
+      await loadCategories();
+    }
+    if (view === 'tags') renderAll();
+  }
+
+  async function setActiveSelected(active) {
+    if (view === 'tags') {
+      var ids = getSelected('tags-tbody');
+      if (!ids.length) return;
+      var { error } = await sb.from('tags').update({ active: active }).in('id', ids);
+      if (error) { alert('Error: ' + error.message); return; }
+      tags.forEach(function(t){ if (ids.includes(t.id)) t.active = active; });
+    } else {
+      var ids = getSelected('cats-tbody');
+      if (!ids.length) return;
+      var { error } = await sb.from('tag_categories').update({ active: active }).in('id', ids);
+      if (error) { alert('Error: ' + error.message); return; }
+      await loadCategories();
+    }
+    if (view === 'tags') renderAll();
+  }
+
+  function renderTags() {
+    var tbody = document.getElementById('tags-tbody');
+    var empty = document.getElementById('tags-empty');
+    var filtered = tags.filter(function(t){
+      if (filter === 'active')   return t.active !== false;
+      if (filter === 'inactive') return t.active === false;
+      return true;
+    });
+    tbody.innerHTML = '';
+    if (!filtered.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    filtered.forEach(function(t) {
+      var tr = document.createElement('tr');
+      var modified = t.created_at ? new Date(t.created_at).toLocaleDateString() : '';
+      tr.innerHTML =
+        '<td><input type="checkbox" data-id="' + t.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td><span class="tag-link">' + esc(t.name) + '</span></td>' +
+        '<td>' + esc(t.color || '') + '</td>' +
+        '<td class="col-auto"></td>' +
+        '<td>' + modified + '</td>';
+      tr.addEventListener('click', function(e){
+        if (e.target.type === 'checkbox') return;
+        window.location.href = 'TagsAdd.html?id=' + t.id;
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderCats() {
+    var tbody = document.getElementById('cats-tbody');
+    var empty = document.getElementById('cats-empty');
+    var filtered = cats.filter(function(c){
+      if (filter === 'active')   return c.active !== false;
+      if (filter === 'inactive') return c.active === false;
+      return true;
+    });
+    tbody.innerHTML = '';
+    if (!filtered.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    filtered.forEach(function(c) {
+      var tr = document.createElement('tr');
+      var modified = c.created_at ? new Date(c.created_at).toLocaleDateString() : '';
+      tr.innerHTML =
+        '<td><input type="checkbox" data-id="' + c.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td><span class="tag-link">' + esc(c.name) + '</span></td>' +
+        '<td>' + modified + '</td>';
+      tr.addEventListener('click', async function(e){
+        if (e.target.type === 'checkbox') return;
+        var newName = prompt('Edit category name:', c.name);
+        if (!newName || !newName.trim()) return;
+        var { error } = await sb.from('tag_categories').update({ name: newName.trim() }).eq('id', c.id);
+        if (error) { alert('Error: ' + error.message); return; }
+        await loadCategories();
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderAll() { renderTags(); renderCats(); }
+
+  async function loadTags() {
+    var { data, error } = await sb.from('tags').select('*').order('name', { ascending: true });
+    if (error) { console.error(error); return; }
+    tags = data || [];
+    renderTags();
+  }
+
+  async function loadCategories() {
+    var { data, error } = await sb.from('tag_categories').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    cats = data || [];
+    renderCats();
+  }
+
+  loadTags();
+  loadCategories();
+</script>
+</body>
+</html>
+

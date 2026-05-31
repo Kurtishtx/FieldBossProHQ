@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fff;
+      font-size: 13px;
+      color: #222;
+    }
+
+    /* ── Page header ── */
+    .page-hdr {
+      padding: 20px 24px 14px;
+    }
+    .page-hdr h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #111;
+    }
+
+    /* ── Search bar ── */
+    .search-wrap {
+      padding: 0 24px 18px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 7px 14px;
+      gap: 8px;
+      max-width: 100%;
+    }
+    .search-box .search-icon { color: #888; font-size: 14px; }
+    .search-box input {
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      color: #333;
+      flex: 1;
+      background: transparent;
+    }
+    .search-box input::placeholder { color: #aaa; }
+
+    /* ── Section group ── */
+    .settings-group { margin-bottom: 0; }
+
+    .group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #3a3a3a;
+      color: #fff;
+      padding: 9px 24px;
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .group-header .caret { font-size: 11px; transition: transform .2s; }
+    .group-header.collapsed .caret { transform: rotate(-90deg); }
+
+    .group-body { display: block; }
+    .group-body.collapsed { display: none; }
+
+    /* ── Setting item ── */
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 13px 24px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .setting-item:hover { background: #fafafa; }
+
+    .setting-icon {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      background: #e8e8e8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #444;
+    }
+
+    .setting-text .setting-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 2px;
+    }
+    .setting-text .setting-desc {
+      font-size: 12.5px;
+      color: #666;
+      line-height: 1.4;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-hdr">
+  <h1>Settings</h1>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="search-input" placeholder="Search..." oninput="filterSettings()"/>
+  </div>
+</div>
+
+<!-- ── Dashboard ── -->
+<div class="settings-group" id="group-dashboard">
+  <div class="group-header" onclick="toggleGroup('dashboard')">
+    <span>Dashboard</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-dashboard">
+
+    <div class="setting-item" onclick="navigate('dashboardcustomize')" data-name="dashboard customize home screen welcome banner stats quick access">
+      <div class="setting-icon">&#127968;</div>
+      <div class="setting-text">
+        <div class="setting-name">Dashboard - Customize</div>
+        <div class="setting-desc">Customize your dashboard home screen including banner, stat cards, and quick access shortcuts.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Company ── -->
+<div class="settings-group" id="group-company">
+  <div class="group-header" onclick="toggleGroup('company')">
+    <span>Company</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-company">
+
+    <div class="setting-item" onclick="navigate('companyinfo')" data-name="company info company information">
+      <div class="setting-icon">&#127970;</div>
+      <div class="setting-text">
+        <div class="setting-name">Company Info</div>
+        <div class="setting-desc">Update the company name, address, phone, and billing information.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('userroles')" data-name="user roles rights permissions">
+      <div class="setting-icon">&#128100;</div>
+      <div class="setting-text">
+        <div class="setting-name">User Roles &amp; Rights</div>
+        <div class="setting-desc">Define what sections of the application your users can access by defining a role.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── CRM ── -->
+<div class="settings-group" id="group-crm">
+  <div class="group-header" onclick="toggleGroup('crm')">
+    <span>CRM</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-crm">
+
+    <div class="setting-item" onclick="navigate('cancelreasons')" data-name="cancellation reasons cancel">
+      <div class="setting-icon">&#10060;</div>
+      <div class="setting-text">
+        <div class="setting-name">Cancellation Reasons</div>
+        <div class="setting-desc">Add new cancellation reasons used when cancelling a client or job.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('chemicalemails')" data-name="chemical instruction emails email notifications">
+      <div class="setting-icon">&#9749;</div>
+      <div class="setting-text">
+        <div class="setting-name">Chemical Instruction Emails</div>
+        <div class="setting-desc">Set up automated chemical instruction emails sent to clients after a service.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('discounts')" data-name="discounts discount pricing">
+      <div class="setting-icon">&#127991;</div>
+      <div class="setting-text">
+        <div class="setting-name">Discounts</div>
+        <div class="setting-desc">Create and manage discount codes and pricing rules for clients and jobs.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('tags')" data-name="tags tag labels">
+      <div class="setting-icon">&#127991;</div>
+      <div class="setting-text">
+        <div class="setting-name">Tags</div>
+        <div class="setting-desc">Create and manage tags to organize clients, properties, and leads.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Emails ── -->
+<div class="settings-group" id="group-emails">
+  <div class="group-header" onclick="toggleGroup('emails')">
+    <span>Emails</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-emails">
+
+    <div class="setting-item" onclick="navigate('invoiceemailsetup')" data-name="invoice email setup template">
+      <div class="setting-icon">&#9993;</div>
+      <div class="setting-text">
+        <div class="setting-name">Invoice Email Setup</div>
+        <div class="setting-desc">Configure invoice email templates and custom email content sent to clients.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Financial ── -->
+<div class="settings-group" id="group-financial">
+  <div class="group-header" onclick="toggleGroup('financial')">
+    <span>Financial</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-financial">
+
+    <div class="setting-item" onclick="navigate('salestaxlist')" data-name="sales tax taxes tax rate billing">
+      <div class="setting-icon">&#128176;</div>
+      <div class="setting-text">
+        <div class="setting-name">Sales Tax</div>
+        <div class="setting-desc">Create and manage sales tax rates applied to client accounts and invoices.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="settings-group" id="group-system">
+  <div class="group-header" onclick="toggleGroup('system')">
+    <span>System</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-system">
+
+    <div class="setting-item" onclick="navigate('customfields')" data-name="custom fields">
+      <div class="setting-icon">&#128203;</div>
+      <div class="setting-text">
+        <div class="setting-name">Custom Fields</div>
+        <div class="setting-desc">Add and manage custom fields for Customers, Properties, Leads, Jobs, and Invoices.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('importlist')" data-name="import data clients properties leads">
+      <div class="setting-icon">&#128228;</div>
+      <div class="setting-text">
+        <div class="setting-name">Import</div>
+        <div class="setting-desc">Import clients, properties, and leads from external sources or spreadsheets.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function navigate(page) {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage(page);
+    }
+  }
+
+  function toggleGroup(id) {
+    var hdr  = document.querySelector('#group-' + id + ' .group-header');
+    var body = document.getElementById('body-' + id);
+    hdr.classList.toggle('collapsed');
+    body.classList.toggle('collapsed');
+  }
+
+  function filterSettings() {
+    var q = document.getElementById('search-input').value.toLowerCase().trim();
+    document.querySelectorAll('.setting-item').forEach(function(item) {
+      var name = item.dataset.name || item.querySelector('.setting-name').textContent.toLowerCase();
+      var desc = item.querySelector('.setting-desc').textContent.toLowerCase();
+      item.style.display = (!q || name.includes(q) || desc.includes(q)) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Property</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      background: #ebebeb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 10px;
+      min-height: 100vh;
+    }
+
+    /* ── Modal shell ── */
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 1100px;
+      border: 1px solid #999;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    }
+
+    /* ── Header ── */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 8px;
+    }
+    .modal-header h2 { font-size: 20px; font-weight: 700; color: #222; }
+    .close-btn {
+      background: none; border: none; font-size: 18px;
+      cursor: pointer; color: #555; line-height: 1; padding: 2px 6px;
+    }
+    .close-btn:hover { color: #000; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; border-bottom: 1px solid #ccc;
+      padding: 0 10px; gap: 2px;
+    }
+    .tab {
+      padding: 7px 14px; border: none; background: none;
+      cursor: pointer; font-size: 13px; color: #444;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .tab:hover { color: #111; }
+    .tab.active {
+      background: #3a3a3a; color: #fff;
+      border-radius: 3px 3px 0 0; border-bottom: 2px solid #3a3a3a;
+    }
+
+    /* ── Tab content ── */
+    .tab-content { padding: 0 0 6px; }
+    .tab-content.hidden { display: none; }
+    .placeholder { padding: 20px; color: #777; }
+
+    /* ── Custom fields ── */
+    .cf-row {
+      display: flex; align-items: center;
+      border-bottom: 1px solid #eee; padding: 0;
+    }
+    .cf-row:last-child { border-bottom: none; }
+    .cf-label {
+      width: 240px; min-width: 240px; padding: 10px 16px;
+      font-size: 13px; color: #555; border-right: 1px solid #eee;
+    }
+    .cf-input {
+      flex: 1; border: 1px solid #333; outline: none; padding: 8px 14px;
+      font-size: 13px; font-family: inherit; color: #222; background: #fff; margin: 6px 10px;
+    }
+    .cf-input:focus { border-color: #e07820; }
+    .cf-empty { padding: 20px 16px; color: #aaa; font-style: italic; font-size: 13px; }
+
+    /* ── Section header ── */
+    .sec-header {
+      background: #3a3a3a; color: #fff;
+      font-size: 13px; font-weight: 600; padding: 5px 10px;
+    }
+
+    /* ── Name row ── */
+    .section-wrap { margin-bottom: 0; }
+    .name-table {
+      width: 100%; border-collapse: collapse;
+      padding: 6px 8px; display: block;
+    }
+    .name-table tr { display: flex; gap: 4px; padding: 6px 8px; }
+    .name-table td { flex: 1; display: flex; }
+    .name-table input {
+      width: 100%; padding: 4px 6px;
+      border: 1px solid #bbb; font-size: 13px; height: 28px;
+    }
+    .name-table input[readonly] { background: #f5f5f5; }
+
+    /* ── 3-column table ── */
+    .cols-table {
+      width: 100%; border-collapse: collapse; border-top: 1px solid #ddd;
+    }
+    .col-td { vertical-align: top; border-right: 1px solid #ddd; }
+    .col-td:last-child { border-right: none; }
+
+    /* ── Field rows ── */
+    .sec-body { padding: 6px 8px; }
+    .fr { display: flex; align-items: center; margin-bottom: 4px; gap: 4px; }
+    .lbl {
+      width: 90px; min-width: 90px; color: #444;
+      font-size: 12.5px; text-align: right; padding-right: 6px;
+    }
+    .lbl.bold { font-weight: 700; }
+    .lbl-select { width: 46px; min-width: 46px; }
+
+    .fr input[type="text"],
+    .fr input[type="email"] {
+      flex: 1; padding: 3px 6px; border: 1px solid #bbb;
+      font-size: 13px; height: 26px; min-width: 0;
+    }
+    .input-sm { max-width: 80px; flex: 0 0 80px !important; }
+
+    /* ── Selects ── */
+    .sel-wrap { flex: 1; min-width: 0; }
+    .sel-wrap select {
+      width: 100%; height: 26px; padding: 0 4px;
+      border: 1px solid #bbb; font-size: 13px; background: #fff;
+    }
+    .sel-sm { max-width: 80px; flex: 0 0 80px !important; }
+    .sel-master { max-width: 420px; }
+
+    /* ── Master Client ── */
+    .helper-text {
+      margin-top: 4px; padding-left: 104px;
+      color: #555; font-style: italic; font-size: 12.5px;
+    }
+
+    /* ── Footer ── */
+    .modal-footer {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-top: 1px solid #ddd;
+    }
+    .btn-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 8px 28px; font-size: 14px; font-weight: 600;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .or-text { color: #555; font-size: 13px; }
+    .btn-cancel { color: #444; text-decoration: none; font-size: 13px; cursor: pointer; }
+    .btn-cancel:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="modal">
+
+  <div class="modal-header">
+    <h2>Add Property &ndash; <span id="prop-title">New Property</span></h2>
+    <button class="close-btn" onclick="closeModal()">&#10005;</button>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="info">Property Information</button>
+    <button class="tab" data-tab="details">Details</button>
+    <button class="tab" data-tab="notes">Office Notes</button>
+    <button class="tab" data-tab="custom">Custom Fields</button>
+    <button class="tab" data-tab="area">Area Treated</button>
+  </nav>
+
+  <!-- Property Information tab -->
+  <div class="tab-content" id="tab-info">
+
+    <!-- Property Name -->
+    <div class="section-wrap">
+      <div class="sec-header">Property Name</div>
+      <table class="name-table">
+        <tr>
+          <td><input type="text" id="prop-name" placeholder="Client Name" readonly style="background:#f5f5f5; color:#555;"/></td>
+          <td><input type="text" id="prop-name2" placeholder="Property Name"/></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Service Address -->
+    <div class="section-wrap">
+      <div class="sec-header">Service Address</div>
+      <div class="sec-body">
+        <div class="fr"><span class="lbl bold">Address</span><input type="text" id="svc-addr1"/></div>
+        <div class="fr"><span class="lbl bold">Postal Code</span><input type="text" id="svc-zip"/></div>
+        <div class="fr"><span class="lbl bold">City</span><input type="text" id="svc-city"/></div>
+        <div class="fr"><span class="lbl bold">State</span>
+          <div class="sel-wrap sel-sm"><select id="svc-state">
+            <option value="">--</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+            <option>CA</option><option>CO</option><option>CT</option><option>FL</option><option>GA</option>
+            <option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+            <option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option>
+            <option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option>
+            <option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option>
+            <option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+            <option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option>
+            <option>TN</option><option selected>TX</option><option>UT</option><option>VT</option><option>VA</option>
+            <option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Client -->
+    <div class="section-wrap">
+      <div class="sec-header">Master Client</div>
+      <div class="sec-body">
+        <div class="fr">
+          <span class="lbl lbl-select">Select</span>
+          <div class="sel-wrap sel-master">
+            <select id="master-client"><option value="">-- Select a Client --</option></select>
+          </div>
+        </div>
+        <p class="helper-text"><em>Select the client who owns or manages this property.</em></p>
+      </div>
+    </div>
+
+    <!-- Billing -->
+    <div class="section-wrap">
+      <div class="sec-header">Billing</div>
+      <div class="sec-body">
+        <div class="fr">
+          <span class="lbl lbl-select">Sales Tax</span>
+          <div class="sel-wrap sel-master">
+            <select id="prop-sales-tax"><option value="">-- No Tax --</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-info -->
+
+  <div class="tab-content hidden" id="tab-details"><p class="placeholder">Details tab content goes here.</p></div>
+
+  <div class="tab-content hidden" id="tab-notes">
+    <div style="padding:20px">
+      <label style="font-size:13px;font-weight:700;color:#333;display:block;margin-bottom:8px">Office Notes</label>
+      <textarea id="office-notes" rows="8" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:10px;font-size:13.5px;font-family:inherit;color:#222;resize:vertical;" placeholder="Internal notes about this property..."></textarea>
+    </div>
+  </div>
+
+  <div class="tab-content hidden" id="tab-custom">
+    <div style="background:#4a4a4a;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;">Custom Fields</div>
+    <div id="cf-fields-list" style="padding:0;">
+      <div style="padding:20px;color:#aaa;font-style:italic;">Loading custom fields...</div>
+    </div>
+  </div>
+
+  <div class="tab-content hidden" id="tab-area">
+    <div style="background:#4a4a4a;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;">Area Treated</div>
+    <div class="cf-row">
+      <div class="cf-label">Lawn Sq Ft</div>
+      <input class="cf-input" type="text" id="area-lawn-care" placeholder=""/>
+    </div>
+    <div class="cf-row">
+      <div class="cf-label">Lawn Insect Sq Ft</div>
+      <input class="cf-input" type="text" id="area-lawn-insect" placeholder=""/>
+    </div>
+    <div class="cf-row">
+      <div class="cf-label">Flower Bed(s) Sq Ft</div>
+      <input class="cf-input" type="text" id="area-flower-beds" placeholder=""/>
+    </div>
+    <div class="cf-row">
+      <div class="cf-label">Mosquito Control Sq Ft</div>
+      <input class="cf-input" type="text" id="area-mosquito" placeholder=""/>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-save" onclick="saveProperty()">Save</button>
+    <span class="or-text">or</span>
+    <a href="#" class="btn-cancel" onclick="cancelEdit(event)">Cancel</a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var params   = new URLSearchParams(window.location.search);
+  var editId   = params.get('id');
+  var presetClientId = params.get('clientId');
+
+  /* ── Tab switching ── */
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.add('hidden'); });
+      tab.classList.add('active');
+      var target = document.getElementById('tab-' + tab.dataset.tab);
+      if (target) target.classList.remove('hidden');
+      if (tab.dataset.tab === 'custom' && !cfLoaded) loadCustomFields();
+    });
+  });
+
+/* ── Load Sales Tax dropdown ── */
+  async function loadSalesTaxOptions(selectedId) {
+    var sel = document.getElementById('prop-sales-tax');
+    var { data } = await sb.from('sales_taxes').select('id, name, tax_rate').eq('active', true).order('name');
+    sel.innerHTML = '<option value="">-- No Tax --</option>';
+    (data || []).forEach(function(t) {
+      var opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name + ' (' + (parseFloat(t.tax_rate) * 100).toFixed(2) + '%)';
+      sel.appendChild(opt);
+    });
+    if (selectedId) sel.value = selectedId;
+  }
+
+/* ── Load Client dropdown ── */
+  async function loadClientOptions(selectedId) {
+    var sel = document.getElementById('master-client');
+    var { data } = await sb.from('Clients').select('id,name').order('name');
+    sel.innerHTML = '<option value="">-- Select a Client --</option>';
+    (data || []).forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name || c.id;
+      if (selectedId && c.id === selectedId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    fillClientName();
+    sel.addEventListener('change', fillClientName);
+  }
+
+  function fillClientName() {
+    var sel = document.getElementById('master-client');
+    var nameBox = document.getElementById('prop-name');
+    var chosen = sel.options[sel.selectedIndex];
+    nameBox.value = (chosen && chosen.value) ? chosen.textContent : '';
+  }
+
+  /* ── Init: load existing property OR preset client ── */
+  (async function init() {
+    if (editId) {
+      document.querySelector('.modal-header h2').innerHTML =
+        'Edit Property &ndash; <span id="prop-title">Loading...</span>';
+      var { data: p, error } = await sb.from('Properties').select('*').eq('id', editId).single();
+      if (error || !p) { alert('Could not load property: ' + (error ? error.message : 'not found')); return; }
+
+      function set(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; }
+
+      set('prop-name',     p.name);
+      set('prop-name2',    p.name2);
+      set('svc-addr1',     p.address);
+      set('svc-zip',       p.zip);
+      set('svc-city',      p.city);
+      set('svc-state',     p.state);
+      set('office-notes',  p.notes);
+      document.getElementById('prop-title').textContent = p.name || p.address || 'Property';
+
+      var at = p.area_treated || {};
+      set('area-lawn-care',   at.lawn_care);
+      set('area-lawn-insect', at.lawn_insect);
+      set('area-flower-beds', at.flower_beds);
+      set('area-mosquito',    at.mosquito);
+
+      await loadClientOptions(p.customer_id);
+      await loadSalesTaxOptions(p.sales_tax_id || null);
+    } else {
+      await loadClientOptions(presetClientId || null);
+      await loadSalesTaxOptions(null);
+      if (presetClientId) {
+        var { data: cl } = await sb.from('Clients').select('first_name, last_name, addr1, city, state, zip').eq('id', presetClientId).single();
+        if (cl) {
+          function setIfEmpty(id, val) { var el = document.getElementById(id); if (el && !el.value && val) el.value = val; }
+          setIfEmpty('svc-addr1', cl.addr1);
+          setIfEmpty('svc-zip',   cl.zip);
+          setIfEmpty('svc-city',  cl.city);
+          setIfEmpty('svc-state', cl.state);
+        }
+      }
+    }
+  })();
+
+  /* ── Custom Fields ── */
+  var cfLoaded = false;
+  var cfDefs   = [];
+  var cfValues = {};
+
+  async function loadCustomFields() {
+    cfLoaded = true;
+    var { data: fields } = await sb.from('custom_fields')
+      .select('*').eq('active', true).order('display_order');
+    cfDefs = fields || [];
+
+    if (editId) {
+      var { data: p } = await sb.from('Properties').select('custom_fields').eq('id', editId).single();
+      cfValues = (p && p.custom_fields) ? p.custom_fields : {};
+    }
+    renderCfFields();
+  }
+
+  function renderCfFields() {
+    var container = document.getElementById('cf-fields-list');
+    if (!cfDefs.length) {
+      container.innerHTML = '<div class="cf-empty">No custom fields yet. Create them in Settings → Custom Fields.</div>';
+      return;
+    }
+    container.innerHTML = '';
+    cfDefs.forEach(function(f) {
+      var row = document.createElement('div');
+      row.className = 'cf-row';
+      var val = cfValues[f.key] || '';
+      if (f.field_type === 'Checkbox') {
+        row.innerHTML =
+          '<div class="cf-label">' + f.name + '</div>' +
+          '<div style="padding:10px 14px;"><input type="checkbox" data-cf-key="' + f.key + '" ' + (val ? 'checked' : '') + ' style="width:16px;height:16px;accent-color:#e07820;"/></div>';
+      } else {
+        row.innerHTML =
+          '<div class="cf-label">' + f.name + '</div>' +
+          '<input class="cf-input" type="text" data-cf-key="' + f.key + '" value="' + String(val).replace(/"/g,'&quot;') + '" placeholder=""/>';
+      }
+      container.appendChild(row);
+    });
+  }
+
+  function buildCfValues() {
+    var values = {};
+    document.querySelectorAll('[data-cf-key]').forEach(function(el) {
+      values[el.dataset.cfKey] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return values;
+  }
+
+  /* ── Save ── */
+  function saveProperty() {
+    var addr1 = document.getElementById('svc-addr1').value.trim();
+    var city  = document.getElementById('svc-city').value.trim();
+    var state = document.getElementById('svc-state').value;
+    var zip   = document.getElementById('svc-zip').value.trim();
+    var name  = document.getElementById('prop-name').value.trim();
+
+    if (!addr1 && !name) {
+      alert('Please enter a property name or address.');
+      document.getElementById('prop-name').focus();
+      return;
+    }
+
+    var record = {
+      name:         name,
+      name2:        document.getElementById('prop-name2').value.trim(),
+      address:      addr1,
+      city:         city,
+      state:        state,
+      zip:          zip,
+      notes:        document.getElementById('office-notes').value.trim(),
+      customer_id:  document.getElementById('master-client').value || null,
+      sales_tax_id: document.getElementById('prop-sales-tax').value || null,
+    };
+
+    if (cfLoaded) record.custom_fields = buildCfValues();
+
+    record.area_treated = {
+      lawn_care:   document.getElementById('area-lawn-care').value.trim(),
+      lawn_insect: document.getElementById('area-lawn-insect').value.trim(),
+      flower_beds: document.getElementById('area-flower-beds').value.trim(),
+      mosquito:    document.getElementById('area-mosquito').value.trim()
+    };
+
+    var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
+    var fullAddress = [addr1, city, state, zip].filter(Boolean).join(', ');
+
+    if (fullAddress) {
+      fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' +
+        encodeURIComponent(fullAddress) +
+        '.json?access_token=' + MAPBOX_TOKEN + '&country=us&limit=1')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.features && data.features.length) {
+            record.lng = data.features[0].center[0];
+            record.lat = data.features[0].center[1];
+          }
+          persistProperty(record);
+        })
+        .catch(function() { persistProperty(record); });
+    } else {
+      persistProperty(record);
+    }
+  }
+
+  async function persistProperty(record) {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    record.user_id = uid;
+
+    var error, savedId;
+    if (editId) {
+      var result = await sb.from('Properties').update(record).eq('id', editId);
+      error = result.error;
+    } else {
+      var result = await sb.from('Properties').insert(record).select('id').single();
+      error = result.error;
+      if (result.data) savedId = result.data.id;
+    }
+
+    if (error) { alert('Error saving property: ' + error.message); return; }
+
+    if (!editId && savedId) {
+      if (window.parent && window.parent.loadPage) {
+        window.parent.loadPage('propprofile?id=' + savedId);
+      } else {
+        window.location.href = 'propertiesprofile.html?id=' + savedId;
+      }
+    } else if (window.parent !== window) {
+      window.parent.closePropertyModal(true);
+    } else {
+      window.history.back();
+    }
+  }
+
+  function cancelEdit(e) {
+    if (e) e.preventDefault();
+    if (window.parent !== window) {
+      window.parent.closePropertyModal(false);
+    } else {
+      if (confirm('Discard changes?')) window.history.back();
+    }
+  }
+
+  function closeModal() {
+    if (window.parent !== window) {
+      window.parent.closePropertyModal(false);
+    } else {
+      if (confirm('Close without saving?')) window.history.back();
+    }
+  }
+</script>
+</body>
+</html>
+

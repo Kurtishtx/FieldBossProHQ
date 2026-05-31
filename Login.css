@@ -1,0 +1,82 @@
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Page background */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #ebebeb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Login box */
+.login-container {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.18);
+  width: 320px;
+  overflow: hidden;
+}
+
+/* Header */
+.login-container h1 {
+  background: #1a2b3c;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  padding: 18px 0 16px;
+  letter-spacing: 1px;
+}
+
+/* Fields wrapper */
+.login-fields {
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Inputs */
+.login-container input {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 9px 11px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #333;
+}
+
+.login-container input:focus {
+  outline: none;
+  border-color: #f5c800;
+  box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+}
+
+/* Button */
+.login-container button {
+  width: 100%;
+  background: #e07820;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.login-container button:hover {
+  background: #c96a15;
+}

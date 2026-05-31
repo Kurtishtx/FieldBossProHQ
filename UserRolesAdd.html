@@ -1,0 +1,780 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Role</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .sticky-header {
+      position: sticky; top: 0; z-index: 100; background: #fff;
+      border-bottom: 1px solid #ddd; padding: 16px 24px 0;
+    }
+    .sticky-header h1 { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 14px; }
+    .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .field-row label { width: 90px; color: #444; }
+    .field-row input[type="text"] {
+      border: 1px solid #ccc; padding: 5px 8px; font-size: 13px;
+      font-family: inherit; width: 300px; outline: none;
+    }
+    .field-row input[type="text"]:focus { border-color: #e07820; }
+    .select-all-row { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #666; margin-bottom: 10px; }
+
+    .tab-bar { display: flex; border-bottom: 2px solid #ccc; gap: 0; margin: 0 -24px; padding: 0 24px; }
+    .tab-btn {
+      padding: 8px 22px; border: none; background: none; cursor: pointer;
+      font-size: 13px; font-weight: 600; font-family: inherit; color: #888;
+      border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;
+    }
+    .tab-btn.active { color: #111; border-bottom-color: #111; }
+    .tab-btn:hover:not(.active) { color: #444; }
+
+    .tab-panel { display: none; padding: 16px 24px; flex-wrap: wrap; gap: 20px 14px; align-items: flex-start; }
+    .tab-panel.active { display: flex; }
+
+    .perm-group { flex: 0 0 calc(20% - 12px); min-width: 170px; }
+    .perm-group-hdr {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-weight: 700; font-size: 13px; color: #e07820;
+      border-bottom: 1px solid #bbb; padding-bottom: 6px; margin-bottom: 6px;
+    }
+    .perm-group-hdr input[type="checkbox"] { margin-top: 2px; cursor: pointer; accent-color: #e07820; }
+    .perm-group-hdr span { cursor: pointer; }
+
+    .perm-item { display: flex; align-items: flex-start; gap: 5px; padding: 2px 0; }
+    .perm-item input[type="checkbox"] { margin-top: 2px; cursor: pointer; accent-color: #e07820; flex-shrink: 0; }
+    .perm-item label { cursor: pointer; font-size: 12.5px; color: #333; line-height: 1.4; }
+
+    .perm-label-only { padding: 2px 0; font-size: 12.5px; color: #333; line-height: 1.6; }
+
+    .radio-group { padding-left: 14px; }
+    .radio-item { display: flex; align-items: center; gap: 5px; padding: 1px 0; }
+    .radio-item input[type="radio"] { cursor: pointer; accent-color: #e07820; }
+    .radio-item label { cursor: pointer; font-size: 12px; color: #888; }
+
+    .footer {
+      padding: 16px 24px; border-top: 1px solid #eee;
+      display: flex; align-items: center; gap: 12px; justify-content: center;
+      margin-top: 8px;
+    }
+    .btn-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 10px 36px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .btn-cancel { color: #e07820; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-cancel:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="sticky-header">
+  <h1 id="page-title">Add Role</h1>
+  <div class="field-row">
+    <label for="role-name">Name</label>
+    <input type="text" id="role-name"/>
+  </div>
+  <div class="field-row">
+    <label for="role-desc">Description</label>
+    <input type="text" id="role-desc"/>
+  </div>
+  <div class="select-all-row">
+    <input type="checkbox" id="select-all-tab" onchange="selectAllCurrentTab(this.checked)"/>
+    <label for="select-all-tab">Select all items on current tab</label>
+  </div>
+  <div class="tab-bar" id="tab-bar"></div>
+</div>
+
+<div id="tab-panels"></div>
+
+<div class="footer">
+  <button class="btn-save" onclick="saveRole()">Save</button>
+  <span style="color:#888;">or</span>
+  <a class="btn-cancel" onclick="cancel()">Cancel</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+/* ── Permissions data ── */
+var TABS = [
+  { name: 'Home', groups: [
+    { key: 'settings_access', label: 'Settings Access', items: [
+      {k:'acct_settings',         l:'Account Settings'},
+      {k:'company_settings',      l:'Company Settings'},
+      {k:'crm_settings',          l:'CRM Settings'},
+      {k:'scheduling_settings',   l:'Scheduling Settings'},
+      {k:'accounting_settings',   l:'Accounting Settings'}
+    ]},
+    { key: 'report_access', label: 'Report Access', items: [
+      {k:'sa_dashboard', l:'SA Dashboard', children:[
+        {k:'company_reports',     l:'Company Reports'},
+        {k:'crm_reports_rpt',     l:'CRM Reports'},
+        {k:'scheduling_reports',  l:'Scheduling Reports'},
+        {k:'accounting_reports',  l:'Accounting Reports'},
+        {k:'sales_mgr_reports',   l:'Sales Manager Reports'},
+        {k:'sales_rep_reports',   l:'Sales Rep Reports'}
+      ]},
+      {k:'view_report_center', l:'View Report Center'}
+    ]},
+    { key: 'other_access', label: 'Other Access', items: [
+      {k:'allow_roles',           l:'Allow Roles Access'},
+      {k:'websites',              l:'Websites'},
+      {k:'export_lists',          l:'Export Lists'},
+      {k:'delete_export',         l:'Delete Export'},
+      {k:'qb_resync',             l:'QuickBooks Resync'},
+      {k:'delete_webpages',       l:'Delete Webpages'},
+      {k:'bulk_edit_products',    l:'Bulk Edit Products'},
+      {k:'estimate_accepted',     l:'Estimate Accepted Alert'},
+      {k:'imports',               l:'Imports'},
+      {k:'delete_wiki',           l:'Delete Wiki Pages'},
+      {k:'restore_wiki',          l:'Restore Deleted Wiki Pages'}
+    ]}
+  ]},
+
+  { name: 'CRM', groups: [
+    { key: 'client_access', label: 'Client Access', items: [
+      {k:'client_list',           l:'Client List'},
+      {k:'activate_deactivate',   l:'Activate/Deactivate'},
+      {k:'add_client',            l:'Add Client'},
+      {k:'allow_edit_client',     l:'Allow Edit'},
+      {k:'allow_delete_client',   l:'Allow Delete'},
+      {k:'bulk_edit_client',      l:'Bulk Edit'},
+      {k:'bulk_schedule',         l:'Bulk Schedule'},
+      {k:'bulk_create_client',    l:'Bulk Create'},
+      {k:'marketing',             l:'Marketing'},
+      {k:'add_contract',          l:'Add Contract'},
+      {k:'payment_alerts',        l:'Payment Alerts'}
+    ]},
+    { key: 'client_access2', label: 'Client Access (cont.)', items: [
+      {k:'portal_ticket_alerts',  l:'Client Portal Ticket Alerts'},
+      {k:'view_balance',          l:'View Balance'},
+      {k:'view_history',          l:'View History'},
+      {k:'view_notes',            l:'View Notes'},
+      {k:'view_contacts',         l:'View Contacts'},
+      {k:'view_billing',          l:'View Billing'},
+      {k:'view_cc_nums',          l:"View Credit Card #'s"},
+      {k:'copy_master_cc',        l:'Copy Master Property Credit Card'},
+      {k:'reset_portal_pwd',      l:'Reset Client Portal Password'}
+    ]},
+    { key: 'lead_access', label: 'Lead Access', items: [
+      {k:'lead_list',             l:'Lead List'},
+      {k:'allow_edit_lead',       l:'Allow Edit'},
+      {k:'allow_delete_lead',     l:'Allow Delete'},
+      {k:'bulk_edit_lead',        l:'Bulk Edit'},
+      {k:'bulk_create_lead',      l:'Bulk Create'},
+      {k:'estimates_lead',        l:'Estimates'},
+      {k:'add_lead',              l:'Add Lead'},
+      {k:'convert_close',         l:'Convert/Close'}
+    ]},
+    { key: 'crm_reports', label: 'CRM Reports', items: [
+      {k:'client_balance_rpt',    l:'Client Balance'},
+      {k:'client_contracts_rpt',  l:'Client Contracts'},
+      {k:'client_referral_rpt',   l:'Client Referral'},
+      {k:'new_clients_rpt',       l:'New Clients Report'},
+      {k:'new_client_count_rpt',  l:'New Client Count Report'},
+      {k:'cancellation_count',    l:'Cancellation Count Report'},
+      {k:'clients_completed_rpt', l:'Clients Report by Completed Jobs'},
+      {k:'client_payment_meth',   l:'Client Method of Payment'},
+      {k:'terminations_rpt',      l:'Terminations Report'},
+      {k:'client_contact_list',   l:'Client Contact List'},
+      {k:'client_phone_list',     l:'Client Phone List'},
+      {k:'client_timeline',       l:'Client Timeline Report'},
+      {k:'client_source',         l:'Client Source Campaigns'},
+      {k:'lead_timeline',         l:'Lead Timeline Report'}
+    ]},
+    { key: 'crm_reports2', label: 'CRM Reports (cont.)', items: [
+      {k:'qb_comparison',         l:'QuickBooks Comparison'},
+      {k:'sales_summary_source',  l:'Sales Summary by Source'},
+      {k:'closed_leads_summary',  l:'Closed Leads Summary'},
+      {k:'lead_aging_summary',    l:'Lead Aging Summary'},
+      {k:'new_leads_rpt',         l:'New Leads Report'},
+      {k:'estimates_by_stage',    l:'Estimates by Stage'},
+      {k:'won_est_svc',           l:'Won Estimates by Service'},
+      {k:'won_est_products',      l:'Won Estimates Service Products'},
+      {k:'won_est_value',         l:'Won Estimates Service Value'},
+      {k:'bounced_emails',        l:'Bounced Emails'},
+      {k:'spam_emails',           l:'Spam Emails'},
+      {k:'forms_summary',         l:'Forms Summary'},
+      {k:'company_scorecard',     l:'Company Scorecard'}
+    ]},
+    { key: 'tickets_access', label: 'Tickets Access', items: [
+      {k:'view_modify_tickets',   l:'View/Modify Tickets'},
+      {k:'add_notes_tickets',     l:'Add Notes'},
+      {k:'add_calls',             l:'Add Calls'}
+    ]},
+    { key: 'tags', label: 'Tags', items: [
+      {k:'create_tag',            l:'Create Tag'},
+      {k:'create_tag_category',   l:'Create Tag Category'}
+    ]},
+    { key: 'automation_access', label: 'Automation Access', items: [
+      {k:'create_modify_auto',    l:'Create/Modify Automation'},
+      {k:'view_automation',       l:'View Automation'},
+      {k:'stop_automation',       l:'Stop Automation'},
+      {k:'view_auto_tags',        l:'View Automation Tags'},
+      {k:'add_auto_tags',         l:'Add Automation Tags'}
+    ]},
+    { key: 'auto_assist', label: 'Auto Assist Access', items: [
+      {k:'create_assist_cats',    l:'Create/Modify Assist Categories'},
+      {k:'create_assists',        l:'Create/Modify Assists'},
+      {k:'view_assists',          l:'View Assists'}
+    ]},
+    { key: 'forms', label: 'Forms', items: [
+      {k:'view_submit_forms',     l:'View/Submit Forms'},
+      {k:'edit_forms',            l:'Edit Forms'},
+      {k:'view_office_fields',    l:'View Office-Only Fields'},
+      {k:'delete_responses',      l:'Delete Responses'},
+      {k:'get_form_alerts',       l:'Get Form Alerts'}
+    ]},
+    { key: 'email_activity', label: 'Email Activity', items: [
+      {k:'view_email_activity',   l:'View Email Activity'},
+      {k:'remove_from_spam',      l:'Can Remove Email from Spam List'},
+      {k:'remove_from_bounce',    l:'Can Remove Email from Bounce List'}
+    ]},
+    { key: 'text_messages', label: 'Text Messages', items: [
+      {k:'view_msg_center',       l:'View Message Center'},
+      {k:'remove_text_feed',      l:'Remove Text Message Feed'}
+    ]}
+  ]},
+
+  { name: 'Scheduling', groups: [
+    { key: 'scheduling_access', label: 'Scheduling Access', items: [
+      {k:'calendar',              l:'Calendar'},
+      {k:'dispatch_board',        l:'Dispatch Board'},
+      {k:'waiting_list',          l:'Waiting List'},
+      {k:'teams',                 l:'Teams'},
+      {k:'add_modify_projects',   l:'Add/Modify Projects'},
+      {k:'dispatch_calendar',     l:'Dispatch Calendar'},
+      {k:'asset_tracking',        l:'Asset Tracking'},
+      {k:'view_asset_purchase',   l:'View/Edit Asset Purchase Info'},
+      {k:'view_asset_forms',      l:'View/Edit Asset Forms'},
+      {k:'get_schedule_alerts',   l:'Get Schedule Alerts'}
+    ]},
+    { key: 'sched_reports', label: 'Scheduling Reports', items: [
+      {k:'job_cost_summary',      l:'Job Cost Summary'},
+      {k:'pkg_summary_rpt',       l:'Package Summary Report'},
+      {k:'pkg_sqft_round',        l:'Package Sq Ft by Round'},
+      {k:'client_count_svc',      l:'Client Count by Service'},
+      {k:'chem_tracking_rpt',     l:'Chemical Tracking'},
+      {k:'over_under_rpt',        l:'Over / Under Report'},
+      {k:'backlog_services',      l:'Backlog Services'},
+      {k:'scheduled_todos',       l:'Scheduled To Dos'},
+      {k:'damage_rpt',            l:'Damage Report'},
+      {k:'sales_count_rep',       l:'Sales Count by Sales Rep'},
+      {k:'client_services_rpt',   l:'Client Services Report'},
+      {k:'paused_services_rpt',   l:'Paused Services Report'},
+      {k:'cogs_rpt',              l:'Cost of Goods Sold Report'},
+      {k:'job_costing',           l:'Job Costing'},
+      {k:'sales_by_date',         l:'Sales by Date Sold'},
+      {k:'sales_by_date_detail',  l:'Sales by Date Sold Detail'}
+    ]},
+    { key: 'sched_reports2', label: 'Scheduling Reports (cont.)', items: [
+      {k:'contractor_phone_list', l:'Contractor Phone List'},
+      {k:'vendor_contact_list',   l:'Vendor Contact List'},
+      {k:'non_inv_product_list',  l:'Non-Inventory Product List'},
+      {k:'inv_product_list',      l:'Inventory Product List'},
+      {k:'export_qds',            l:'Export for Quality Driven Software'},
+      {k:'job_hours_summary',     l:'Job Hours Summary'},
+      {k:'resource_time_util',    l:'Resource Time Utilization'},
+      {k:'product_svc_usage',     l:'Product and Service Usage'},
+      {k:'visits_rpt',            l:'Visits Report'},
+      {k:'employee_directory',    l:'Employee Directory'},
+      {k:'revenue_budgeted',      l:'Revenue and Budgeted Hours Projection'}
+    ]},
+    { key: 'job_access', label: 'Job Access', items: [
+      {k:'view_jobs',             l:'View Jobs'},
+      {k:'add_job',               l:'Add Job'},
+      {k:'cancel_job',            l:'Cancel Job'},
+      {k:'pause_restart_job',     l:'Pause/Restart Job'},
+      {k:'delete_job_comments',   l:'Delete Job Comments'},
+      {k:'edit_all_job_comments', l:'Edit All Job Comments'}
+    ]},
+    { key: 'company_dir', label: 'Company Directory', items: [
+      {k:'view_company_dir',      l:'View Company Directory'},
+      {k:'view_upcoming_sched',   l:'View Upcoming Schedule'}
+    ]},
+    { key: 'employee_access', label: 'Employee Access', items: [
+      {k:'manage_employees',      l:'Manage Employees'},
+      {k:'view_emp_info',         l:'View Employee Information'},
+      {k:'view_i9_emp',           l:'View I-9 Information'},
+      {k:'view_attach_emp',       l:'View Attachments'},
+      {k:'view_rating_emp',       l:'View Rating'},
+      {k:'view_time_off_emp',     l:'View Time Off'},
+      {k:'view_resource_emp',     l:'View Resource Notes'},
+      {k:'view_customer_emp',     l:'View Customer'},
+      {k:'view_cf_emp',           l:'View Custom Fields'},
+      {k:'view_user_settings_emp',l:'View User Settings'},
+      {k:'view_license_emp',      l:'View License Info'},
+      {k:'view_alerts_emp',       l:'View Alerts'},
+      {k:'resolve_time_off',      l:'Resolve Time Off Request'},
+      {k:'log_others_time_off',   l:'Can Log Others Time Off'},
+      {k:'approve_own_time_off',  l:'Can Approve Own Time Off Request'},
+      {k:'add_edit_applicants',   l:'Add / Edit Applicants'},
+      {k:'view_applicants',       l:'View Applicants'}
+    ]},
+    { key: 'employee_access2', label: 'Employee Access (cont.)', items: [
+      {k:'add_employee',          l:'Add Employee'},
+      {k:'edit_employee',         l:'Edit Employee'},
+      {k:'edit_photo_emp',        l:'Edit Photo'},
+      {k:'add_remove_tag_emp',    l:'Add/Remove Tag'},
+      {k:'add_time_off_emp',      l:'Add Time Off'},
+      {k:'edit_time_off_emp',     l:'Edit Time Off'},
+      {k:'add_complaint_emp',     l:'Add/Edit Complaint'},
+      {k:'add_compliment_emp',    l:'Add/Edit Compliment'},
+      {k:'del_complaint_emp',     l:'Delete Complaint'},
+      {k:'del_compliment_emp',    l:'Delete Compliment'},
+      {k:'modify_note_exp_emp',   l:'Modify Note Expiration'},
+      {k:'view_def_sched_emp',    l:'View Default Schedule'},
+      {k:'edit_def_sched_emp',    l:'Edit Default Schedule'},
+      {k:'view_upcoming_emp',     l:'View Upcoming Schedule'},
+      {k:'override_sched_emp',    l:'Override Scheduled Days'},
+      {k:'view_sched_work_emp',   l:'View Scheduled Work'},
+      {k:'reset_emp_pwd',         l:'Reset Employee Password'}
+    ]},
+    { key: 'vendor_access', label: 'Vendor Access', items: [
+      {k:'manage_vendors',        l:'Manage Vendors'},
+      {k:'view_vendor_info',      l:'View Vendor Information'},
+      {k:'view_i9_vendor',        l:'View I-9 Information'},
+      {k:'view_attach_vendor',    l:'View Attachments'},
+      {k:'view_rating_vendor',    l:'View Rating'},
+      {k:'view_time_off_vendor',  l:'View Time Off'},
+      {k:'view_resource_vendor',  l:'View Resource Notes'},
+      {k:'view_customer_vendor',  l:'View Customer'},
+      {k:'view_license_vendor',   l:'View License Info'},
+      {k:'view_cf_vendor',        l:'View Custom Fields'},
+      {k:'view_settings_vendor',  l:'View User Settings'},
+      {k:'view_alerts_vendor',    l:'View Alerts'}
+    ]},
+    { key: 'vendor_access2', label: 'Vendor Access (cont.)', items: [
+      {k:'add_vendor',            l:'Add Vendor'},
+      {k:'edit_vendor',           l:'Edit Vendor'},
+      {k:'edit_photo_vendor',     l:'Edit Photo'},
+      {k:'add_remove_tag_vendor', l:'Add/Remove Tag'},
+      {k:'add_time_off_vendor',   l:'Add Time Off'},
+      {k:'edit_time_off_vendor',  l:'Edit Time Off'},
+      {k:'add_complaint_vendor',  l:'Add/Edit Complaint'},
+      {k:'add_compliment_vendor', l:'Add/Edit Compliment'},
+      {k:'del_complaint_vendor',  l:'Delete Complaint'},
+      {k:'del_compliment_vendor', l:'Delete Compliment'},
+      {k:'modify_note_exp_vendor',l:'Modify Note Expiration'},
+      {k:'view_def_sched_vendor', l:'View Default Schedule'},
+      {k:'edit_def_sched_vendor', l:'Edit Default Schedule'},
+      {k:'view_upcoming_vendor',  l:'View Upcoming Schedule'},
+      {k:'override_sched_vendor', l:'Override Scheduled Days'},
+      {k:'view_sched_work_vendor',l:'View Scheduled Work'},
+      {k:'edit_vendor_pwd',       l:'Edit Vendor Password'}
+    ]},
+    { key: 'chem_tracking', label: 'Chemical Tracking', items: [
+      {k:'add_edit_usage',        l:'Add | Edit Usage'},
+      {k:'create_uom',            l:'Create UoM'},
+      {k:'create_mix',            l:'Create Mix'},
+      {k:'create_app_method',     l:'Create Application Method'},
+      {k:'create_target',         l:'Create Target'},
+      {k:'create_cf_chem',        l:'Create Custom Field'}
+    ]}
+  ]},
+
+  { name: 'Accounting', groups: [
+    { key: 'acct_access', label: 'Accounting Access', items: [
+      {k:'view_client_invoices',  l:'View Client Invoices'},
+      {k:'view_invoice_list',     l:'View Invoice List'},
+      {k:'add_modify_invoices',   l:'Add/Modify Invoices'},
+      {k:'view_client_payments',  l:'View Client Payments'},
+      {k:'view_payment_list',     l:'View Payment List'},
+      {k:'add_modify_payments',   l:'Add/Modify Payments'},
+      {k:'delete_card_payments',  l:'Delete Card Payments'},
+      {k:'view_expenses',         l:'View Expenses'},
+      {k:'add_modify_expenses',   l:'Add/Modify Expenses'},
+      {k:'process_cc_refunds',    l:'Process CC Payment Refunds/Voids'},
+      {k:'view_credits',          l:'View Credits'},
+      {k:'add_modify_credits',    l:'Add/Modify Credits'},
+      {k:'view_adjust_balances',  l:'View Adjust Balances'},
+      {k:'add_modify_adjust_bal', l:'Add/Modify Adjust Balances'},
+      {k:'view_timesheets',       l:'View Timesheets'},
+      {k:'create_invoices_acct',  l:'Create Invoices'},
+      {k:'view_usps_jobs',        l:'View USPS Jobs'},
+      {k:'qb_reconciliation',     l:'QB Reconciliation'},
+      {k:'add_modify_po',         l:'Add/Modify Purchase Orders'},
+      {k:'view_bulk_price',       l:'View Bulk Price Update'}
+    ]},
+    { key: 'acct_reports', label: 'Accounting Reports', items: [
+      {k:'invoiced_income_client',l:'Invoiced Income by Client'},
+      {k:'invoiced_products',     l:'Invoiced Products'},
+      {k:'invoices_balances',     l:'Invoices with Balances'},
+      {k:'pre_payments',          l:'Pre-Payments'},
+      {k:'credit_memo',           l:'Credit Memo'},
+      {k:'sales_tax_rpt',         l:'Sales Tax Report'},
+      {k:'ar_aging_rpt',          l:'A/R Aging Report'},
+      {k:'ar_aging_snapshot',     l:'A/R Aging Snapshot'},
+      {k:'profit_loss_cash',      l:'Profit / Loss - Cash Basis'},
+      {k:'profit_loss_accrual',   l:'Profit / Loss - Accrual Basis'},
+      {k:'revenue_svc_summary',   l:'Revenue by Service Summary'},
+      {k:'revenue_per_svc',       l:'Revenue per Service'}
+    ]},
+    { key: 'acct_reports2', label: 'Accounting Reports (cont.)', items: [
+      {k:'daily_production',      l:'Daily Production'},
+      {k:'payment_audit_summary', l:'Payment Audit Summary'},
+      {k:'invoice_audit_summary', l:'Invoice Audit Summary'},
+      {k:'sales_activity_summary',l:'Sales Activity Summary'},
+      {k:'sales_activity_detail', l:'Sales Activity Detail'},
+      {k:'revenue_postal_code',   l:'Revenue by Postal Code'},
+      {k:'booked_rev_sales_rep',  l:'Booked Revenue by Sales Rep'},
+      {k:'income_not_invoiced',   l:'Income not Invoiced'},
+      {k:'unapplied_payments',    l:'Unapplied Payments'},
+      {k:'sales_commission',      l:'Sales Commission Export'}
+    ]},
+    { key: 'statistic_access', label: 'Statistic Access', items: [
+      {k:'add_edit_stat_type',    l:'Add/Edit Statistic Type'},
+      {k:'add_edit_statistic',    l:'Add/Edit Statistic'},
+      {k:'remove_stat_type',      l:'Remove Statistic Type'},
+      {k:'remove_statistic',      l:'Remove Statistic'}
+    ]},
+    { key: 'payroll_access', label: 'Payroll Access', items: [
+      {k:'show_pay_rate',         l:'Show Pay Rate'},
+      {k:'show_wage_burden',      l:'Show Wage Burden'},
+      {k:'can_approve_ts',        l:'Can Approve Timesheets'},
+      {k:'can_unapprove_ts',      l:'Can Unapprove Timesheets'},
+      {k:'view_payroll_rpt',      l:'View Payroll Report'},
+      {k:'view_wall_clock',       l:'View Wall Clock'},
+      {k:'emp_view_payroll',      l:'Employee - View Payroll'},
+      {k:'vendor_view_payroll',   l:'Vendor - View Payroll'}
+    ]}
+  ]},
+
+  { name: 'Mobile', groups: [
+    { key: 'mobile_app', label: 'Mobile App', items: [
+      {k:'view_edit_client_mob',  l:'View/Edit Client', children:[
+        {k:'mob_client_always',   l:'Always'},
+        {k:'mob_client_assigned', l:'When Assigned Job'}
+      ]},
+      {k:'auto_dl_clients',       l:'Auto-Download Clients'},
+      {k:'view_acct_balance_mob', l:'View Account Balance'},
+      {k:'contact_client_mob',    l:'Contact Client'},
+      {k:'send_emails_from_mob',  l:'Send Emails From', radioOnly:true, children:[
+        {k:'send_email_company',  l:'Company'},
+        {k:'send_email_employee', l:'Employee'}
+      ]},
+      {k:'view_leads_mob',        l:'View Leads'},
+      {k:'view_vendors_mob',      l:'View Vendors'},
+      {k:'make_work_assignments', l:'Make Work Assignments'},
+      {k:'edit_client_notes_mob', l:'Edit Client Notes'},
+      {k:'view_work_order',       l:'View Work Order'}
+    ]},
+    { key: 'mobile_app2', label: 'Mobile App (cont.)', items: [
+      {k:'wipe_devices',          l:'Can Wipe Devices Remotely'},
+      {k:'enable_push_notif',     l:'Enable Push Notifications'},
+      {k:'enable_drive_time_leg', l:'Enable Drive Time (Legacy App)'},
+      {k:'enable_drive_time_team',l:'Enable Manual Drive Time (Team App)'},
+      {k:'show_everyones_work',   l:"Show Everyone's Work"},
+      {k:'edit_gps_settings',     l:'Edit GPS Settings'},
+      {k:'access_app_settings',   l:'Access App Settings'},
+      {k:'edit_job_quantity',     l:'Edit Job Quantity'},
+      {k:'edit_product_quantity', l:'Edit Product Quantity'},
+      {k:'view_product_cost',     l:'View Product Cost'},
+      {k:'edit_product_cost',     l:'Edit Product Cost'},
+      {k:'edit_schedule_date',    l:'Edit Schedule Date'}
+    ]},
+    { key: 'mobile_app3', label: 'Mobile App (cont.)', items: [
+      {k:'add_service_mob',       l:'Add Service'},
+      {k:'view_rate_mob',         l:'View Rate'},
+      {k:'edit_rate_mob',         l:'Edit Rate'},
+      {k:'add_waiting_list_svc',  l:'Add Waiting List Service'},
+      {k:'add_product_mob',       l:'Add Product'},
+      {k:'view_invoices_mob',     l:'View Invoices'},
+      {k:'create_invoices_mob',   l:'Create Invoices'},
+      {k:'confirm_products',      l:'Confirm Products'},
+      {k:'edit_invoice_desc',     l:'Edit Invoice Description'},
+      {k:'view_payments_mob',     l:'View Payments'},
+      {k:'collect_payment',       l:'Collect Payment'},
+      {k:'require_chem_logging',  l:'Require Chemical Logging'}
+    ]},
+    { key: 'mobile_app4', label: 'Mobile App (cont.)', items: [
+      {k:'edit_timesheets_mob',   l:'Edit Timesheets'},
+      {k:'dispatch_from_mob',     l:'Dispatch from Mobile'},
+      {k:'hide_printed_notes',    l:'Hide Printed Job Notes'},
+      {k:'monitor_geofences',     l:'Monitor Geofences'},
+      {k:'enable_estimates_mob',  l:'Enable Estimates'},
+      {k:'enable_expenses_mob',   l:'Enable Expenses'},
+      {k:'enable_bulk_clock_in',  l:'Enable Bulk Clock In'},
+      {k:'require_view_job_notes',l:'Require View Job Notes'},
+      {k:'require_before_pics',   l:'Require "Before" Pictures'},
+      {k:'require_after_pics',    l:'Require "After" Pictures'},
+      {k:'edit_team',             l:'Edit Team'},
+      {k:'allow_copy_route',      l:'Allow Copy Route'}
+    ]},
+    { key: 'mobile_assets', label: 'Mobile App Assets', items: [
+      {k:'view_assets',           l:'View Assets'},
+      {k:'edit_assets',           l:'Edit Assets'},
+      {k:'view_asset_purchase_mob',l:'View/Edit Asset Purchase Info'},
+      {k:'view_submit_forms_mob', l:'View/Submit Forms'},
+      {k:'view_submit_asset_forms',l:'View/Submit Asset Forms'}
+    ]}
+  ]}
+];
+
+/* ── State ── */
+var roleId = new URLSearchParams(window.location.search).get('id');
+var existingRole = null;
+var currentTabIdx = 0;
+
+/* ── Build UI ── */
+function buildUI() {
+  var tabBar = document.getElementById('tab-bar');
+  var panels = document.getElementById('tab-panels');
+
+  TABS.forEach(function(tab, idx) {
+    /* tab button */
+    var btn = document.createElement('button');
+    btn.className = 'tab-btn' + (idx === 0 ? ' active' : '');
+    btn.textContent = tab.name;
+    btn.addEventListener('click', function() { switchTab(idx); });
+    tabBar.appendChild(btn);
+
+    /* tab panel */
+    var panel = document.createElement('div');
+    panel.className = 'tab-panel' + (idx === 0 ? ' active' : '');
+    panel.id = 'panel-' + idx;
+
+    tab.groups.forEach(function(group) {
+      var grpDiv = document.createElement('div');
+      grpDiv.className = 'perm-group';
+
+      /* group header */
+      var hdr = document.createElement('div');
+      hdr.className = 'perm-group-hdr';
+      var grpCb = document.createElement('input');
+      grpCb.type = 'checkbox';
+      grpCb.id = 'grp_' + group.key;
+      grpCb.addEventListener('change', function() { toggleGroup(group, this.checked); });
+      var grpLbl = document.createElement('span');
+      grpLbl.textContent = group.label;
+      grpLbl.style.cursor = 'pointer';
+      grpLbl.addEventListener('click', function() { grpCb.click(); });
+      hdr.appendChild(grpCb);
+      hdr.appendChild(grpLbl);
+      grpDiv.appendChild(hdr);
+
+      /* items */
+      group.items.forEach(function(item) {
+        renderItem(grpDiv, item, group.key);
+      });
+
+      panel.appendChild(grpDiv);
+    });
+
+    panels.appendChild(panel);
+  });
+}
+
+function renderItem(container, item, groupKey) {
+  if (item.radioOnly) {
+    /* label-only row + radio group (e.g. Send Emails From) */
+    var lblDiv = document.createElement('div');
+    lblDiv.className = 'perm-label-only';
+    lblDiv.textContent = item.l;
+    container.appendChild(lblDiv);
+    var rg = document.createElement('div');
+    rg.className = 'radio-group';
+    (item.children || []).forEach(function(opt) {
+      var ri = document.createElement('div');
+      ri.className = 'radio-item';
+      var rb = document.createElement('input');
+      rb.type = 'radio';
+      rb.name = 'radio_' + item.k;
+      rb.id = 'perm_' + opt.k;
+      rb.value = opt.k;
+      var rl = document.createElement('label');
+      rl.htmlFor = 'perm_' + opt.k;
+      rl.textContent = opt.l;
+      ri.appendChild(rb);
+      ri.appendChild(rl);
+      rg.appendChild(ri);
+    });
+    container.appendChild(rg);
+    return;
+  }
+
+  var row = document.createElement('div');
+  row.className = 'perm-item';
+  var cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.id = 'perm_' + item.k;
+  cb.dataset.group = groupKey;
+  cb.addEventListener('change', function() { updateGroupHeader(groupKey); });
+  var lbl = document.createElement('label');
+  lbl.htmlFor = 'perm_' + item.k;
+  lbl.textContent = item.l;
+  row.appendChild(cb);
+  row.appendChild(lbl);
+  container.appendChild(row);
+
+  if (item.children) {
+    var rg = document.createElement('div');
+    rg.className = 'radio-group';
+    item.children.forEach(function(opt) {
+      var ri = document.createElement('div');
+      ri.className = 'radio-item';
+      var rb = document.createElement('input');
+      rb.type = 'radio';
+      rb.name = 'radio_' + item.k;
+      rb.id = 'perm_' + opt.k;
+      rb.value = opt.k;
+      var rl = document.createElement('label');
+      rl.htmlFor = 'perm_' + opt.k;
+      rl.textContent = opt.l;
+      ri.appendChild(rb);
+      ri.appendChild(rl);
+      rg.appendChild(ri);
+    });
+    container.appendChild(rg);
+  }
+}
+
+/* ── Tab switching ── */
+function switchTab(idx) {
+  currentTabIdx = idx;
+  document.querySelectorAll('.tab-btn').forEach(function(b, i){ b.classList.toggle('active', i === idx); });
+  document.querySelectorAll('.tab-panel').forEach(function(p, i){ p.classList.toggle('active', i === idx); });
+  updateSelectAllState();
+}
+
+/* ── Group checkbox helpers ── */
+function toggleGroup(group, checked) {
+  getAllGroupItems(group).forEach(function(cb){ cb.checked = checked; });
+}
+
+function getAllGroupItems(group) {
+  var items = [];
+  group.items.forEach(function(item) {
+    if (!item.radioOnly) {
+      var el = document.getElementById('perm_' + item.k);
+      if (el) items.push(el);
+    }
+  });
+  return items;
+}
+
+function updateGroupHeader(groupKey) {
+  var allCbs = document.querySelectorAll('[data-group="' + groupKey + '"]');
+  var grpCb = document.getElementById('grp_' + groupKey);
+  if (!grpCb || !allCbs.length) return;
+  var checkedCount = 0;
+  allCbs.forEach(function(cb){ if (cb.checked) checkedCount++; });
+  grpCb.checked = checkedCount === allCbs.length;
+  grpCb.indeterminate = checkedCount > 0 && checkedCount < allCbs.length;
+}
+
+/* ── Select all on current tab ── */
+function selectAllCurrentTab(checked) {
+  var panel = document.getElementById('panel-' + currentTabIdx);
+  if (!panel) return;
+  panel.querySelectorAll('input[type="checkbox"]').forEach(function(cb){
+    if (cb.id.startsWith('perm_')) cb.checked = checked;
+  });
+  panel.querySelectorAll('input[type="checkbox"][id^="grp_"]').forEach(function(cb){
+    cb.checked = checked;
+    cb.indeterminate = false;
+  });
+}
+
+function updateSelectAllState() {
+  var panel = document.getElementById('panel-' + currentTabIdx);
+  var selectAllCb = document.getElementById('select-all-tab');
+  if (!panel || !selectAllCb) return;
+  var all = panel.querySelectorAll('input[type="checkbox"][id^="perm_"]');
+  var checked = 0;
+  all.forEach(function(cb){ if (cb.checked) checked++; });
+  selectAllCb.checked = all.length > 0 && checked === all.length;
+  selectAllCb.indeterminate = checked > 0 && checked < all.length;
+}
+
+/* ── Save ── */
+async function saveRole() {
+  var name = document.getElementById('role-name').value.trim();
+  if (!name) { alert('Please enter a role name.'); document.getElementById('role-name').focus(); return; }
+
+  var permissions = {};
+  document.querySelectorAll('input[type="checkbox"][id^="perm_"]').forEach(function(cb){
+    permissions[cb.id.replace('perm_', '')] = cb.checked;
+  });
+
+  var radioValues = {};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(function(rb){
+    radioValues[rb.name.replace('radio_', '')] = rb.value;
+  });
+
+  var payload = {
+    name:         name,
+    description:  document.getElementById('role-desc').value.trim(),
+    permissions:  permissions,
+    radio_values: radioValues
+  };
+
+  var error;
+  if (existingRole) {
+    ({ error } = await sb.from('roles').update(payload).eq('id', existingRole.id));
+  } else {
+    payload.active = true;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    payload.user_id = uid;
+    ({ error } = await sb.from('roles').insert(payload));
+  }
+  if (error) { alert('Error: ' + error.message); return; }
+  window.location.href = 'UserRoles.html';
+}
+
+/* ── Cancel ── */
+function cancel() {
+  window.location.href = 'UserRoles.html';
+}
+
+/* ── Populate existing role ── */
+function populateRole(role) {
+  document.getElementById('page-title').textContent = 'Edit Role';
+  document.getElementById('role-name').value = role.name || '';
+  document.getElementById('role-desc').value = role.description || '';
+
+  var perms = role.permissions || {};
+  Object.keys(perms).forEach(function(k) {
+    var el = document.getElementById('perm_' + k);
+    if (el && el.type === 'checkbox') el.checked = !!perms[k];
+  });
+
+  var radios = role.radioValues || {};
+  Object.keys(radios).forEach(function(k) {
+    var rb = document.querySelector('input[type="radio"][name="radio_' + k + '"][value="' + radios[k] + '"]');
+    if (rb) rb.checked = true;
+  });
+
+  /* update all group headers */
+  TABS.forEach(function(tab) {
+    tab.groups.forEach(function(group) {
+      updateGroupHeader(group.key);
+    });
+  });
+}
+
+/* ── Init ── */
+buildUI();
+
+(async function initRole() {
+  if (!roleId) return;
+  var { data } = await sb.from('roles').select('*').eq('id', roleId).single();
+  if (!data) return;
+  existingRole = data;
+  if (data.radio_values) data.radioValues = data.radio_values;
+  populateRole(data);
+})();
+</script>
+</body>
+</html>
+

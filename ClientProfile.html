@@ -1,0 +1,1216 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Profile</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ebebeb; }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; background: #fff; border-bottom: 1px solid #ccc;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
+    .topbar-left h1 { font-size: 18px; font-weight: 700; color: #111; }
+    .topbar-left a { color: #444; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .topbar-left a:hover { text-decoration: underline; }
+    .gear-btn {
+      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
+      padding: 2px 7px; cursor: pointer; font-size: 14px; color: #555;
+    }
+    .gear-btn:hover { background: #ddd; }
+
+    /* ── Split buttons ── */
+    .btn-group { display: flex; }
+    .btn-main-outline {
+      background: #fff; color: #e07820; border: 1px solid #e07820;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border-radius: 4px 0 0 4px; border-right: none;
+    }
+    .btn-main-outline:hover { background: #fff5ec; }
+    .btn-caret-outline {
+      background: #fff; color: #e07820; border: 1px solid #e07820;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 4px 4px 0;
+    }
+    .btn-caret-outline:hover { background: #fff5ec; }
+    .btn-main {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      border-right: 1px solid rgba(255,255,255,.35);
+      cursor: pointer; border-radius: 4px 0 0 4px;
+    }
+    .btn-main:hover { background: #c96a10; }
+    .btn-caret {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 4px 4px 0;
+    }
+    .btn-caret:hover { background: #c96a10; }
+
+    /* ── Dropdown ── */
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown + .dropdown { margin-left: 6px; }
+    .dropdown-menu {
+      display: none; position: absolute; top: 100%; right: 0; z-index: 200;
+      background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2); min-width: 200px; padding: 4px 0;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-menu .dd-title {
+      padding: 6px 14px 4px; font-weight: 700; font-size: 12.5px;
+      color: #333; border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a {
+      display: block; padding: 7px 14px; color: #444;
+      text-decoration: none; font-size: 13px; cursor: pointer;
+    }
+    .dropdown-menu a:hover { background: #f5f5f5; }
+
+    /* ── Page layout ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 12px; }
+
+    /* ── Client info card ── */
+    .client-card {
+      background: #f5f5f5; border: 1px solid #ccc; padding: 12px 16px;
+      display: flex; gap: 30px; margin-bottom: 10px; font-size: 13px;
+    }
+    .client-card-col { flex: 1; line-height: 1.8; font-size: 13px; }
+    .client-card-col a { color: #444; text-decoration: none; }
+    .client-card-col a:hover { text-decoration: underline; }
+    .revenue-col { display: flex; flex-direction: column; min-width: 160px; }
+    .revenue-box {
+      background: #3a3a3a; color: #fff; text-align: center;
+      padding: 18px 20px 10px; font-size: 26px; font-weight: 700; flex: 1;
+    }
+    .revenue-box .rev-label { font-size: 13px; font-weight: 400; margin-top: 4px; }
+
+    /* ── Tags ── */
+    .tags-row {
+      background: #fff; border: 1px solid #ccc; padding: 7px 10px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin-bottom: 10px;
+    }
+    .tag-select-row { display: flex; align-items: center; gap: 6px; }
+    .tag-select-box {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid #bbb; padding: 4px 10px; font-size: 13px; cursor: pointer;
+      min-width: 220px; background: #fff; border-radius: 2px; user-select: none;
+    }
+    .tag-select-box:hover { border-color: #999; }
+    .tag-apply-btn {
+      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+    }
+    .tag-apply-btn:hover { background: #ddd; }
+    .tag-create-btn {
+      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+    }
+    .tag-create-btn:hover { background: #ddd; }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #e07820; color: #fff; border-radius: 3px;
+      padding: 2px 8px; font-size: 12px; font-weight: 600;
+    }
+    .tag-chip-remove {
+      background: none; border: none; color: rgba(255,255,255,.8);
+      cursor: pointer; font-size: 13px; padding: 0; line-height: 1;
+    }
+    .tag-chip-remove:hover { color: #fff; }
+    .tag-dropdown {
+      display: none; position: absolute; top: calc(100% + 2px); left: 0;
+      z-index: 300; background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18); min-width: 280px; max-height: 280px;
+      overflow-y: auto;
+    }
+    .tag-dropdown.show { display: block; }
+    .tag-filter-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-bottom: 1px solid #eee; background: #3a3a3a;
+      position: sticky; top: 0;
+    }
+    .tag-filter-row label { color: #ccc; font-size: 12.5px; white-space: nowrap; }
+    .tag-filter-row input {
+      flex: 1; border: 1px solid #666; padding: 3px 7px; font-size: 12.5px;
+      background: #fff; outline: none; border-radius: 2px;
+    }
+    .tag-filter-clear { color: #ccc; cursor: pointer; font-size: 15px; }
+    .tag-dd-item {
+      padding: 8px 12px; font-size: 13px; cursor: pointer; color: #333;
+    }
+    .tag-dd-item:hover, .tag-dd-item.selected { background: #f0f0f0; }
+    .tag-dd-item.selected { font-weight: 600; color: #e07820; }
+    .tag-dd-empty { padding: 10px 12px; color: #aaa; font-size: 12.5px; font-style: italic; }
+
+    /* Create Tag modal */
+    .create-tag-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 1100; align-items: center; justify-content: center;
+    }
+    .create-tag-overlay.show { display: flex; }
+    .create-tag-box {
+      background: #fff; padding: 24px 28px; min-width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25); border-radius: 2px;
+    }
+    .create-tag-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .create-tag-box input {
+      width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; margin-bottom: 14px;
+    }
+    .create-tag-box input:focus { border-color: #e07820; }
+    .create-tag-actions { display: flex; align-items: center; gap: 10px; }
+    .create-tag-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 8px 24px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .create-tag-save:hover { background: #c96a10; }
+    .create-tag-cancel { color: #555; font-size: 13px; cursor: pointer; }
+    .create-tag-cancel:hover { text-decoration: underline; }
+
+    /* ── Sections ── */
+    .sec { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .sec-hdr {
+      background: #3a3a3a; color: #fff; padding: 6px 10px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sec-hdr .hdr-links a {
+      color: #9dd4ff; text-decoration: none; font-size: 12px; font-weight: 400; margin-left: 6px;
+    }
+    .sec-hdr .hdr-links a:hover { text-decoration: underline; }
+    .sec-hdr .tab-links { display: flex; align-items: center; }
+    .sec-hdr .tab-links a {
+      color: #e07820; font-size: 12.5px; font-weight: 600;
+      padding: 0 6px; border-left: 1px solid #777; text-decoration: none;
+    }
+    .sec-hdr .tab-links a:first-child { border-left: none; }
+    .sec-hdr .tab-links a.active { color: #fff; }
+    .sec-hdr .tab-links a:hover { text-decoration: underline; }
+
+    .add-btn-wrap { position: relative; margin: 8px; }
+    .add-btn {
+      display: block; width: 100%;
+      padding: 7px; background: #3a3a3a; border: none;
+      color: #fff; font-size: 13px; cursor: pointer; text-align: center; border-radius: 2px;
+    }
+    .add-btn:hover { background: #222; }
+    .svc-popup {
+      display: none; position: absolute; top: calc(100% + 2px); left: 0;
+      z-index: 300; background: #fff; border: 1px solid #ccc;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18); min-width: 340px;
+    }
+    .svc-popup.show { display: block; }
+    .svc-popup-title {
+      padding: 8px 14px 6px; font-size: 13.5px; font-weight: 700; color: #222;
+      border-bottom: 1px solid #eee;
+    }
+    .svc-popup-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: 4px 0;
+    }
+    .svc-popup-item {
+      padding: 9px 14px; font-size: 13px; color: #555;
+      cursor: pointer; text-decoration: none;
+    }
+    .svc-popup-item:hover { color: #e07820; }
+
+    /* ── Property rows ── */
+    .prop-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: background .1s;
+    }
+    .prop-row:last-child { border-bottom: none; }
+    .prop-row:hover { background: #fdfbe8; }
+    .prop-icon {
+      width: 36px; height: 36px; min-width: 36px;
+      background: #f0f0f0; border: 1px solid #ddd;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; color: #555;
+    }
+    .prop-info { flex: 1; min-width: 0; }
+    .prop-name { font-weight: 700; color: #222; font-size: 13px; }
+    .prop-addr { color: #666; font-size: 12.5px; margin-top: 2px; }
+    .prop-badge {
+      display: inline-block; background: #e6f4ea; color: #2e7d32;
+      border-radius: 3px; padding: 2px 8px; font-size: 11.5px; font-weight: 600;
+    }
+    .prop-chevron { color: #bbb; font-size: 20px; font-weight: 300; line-height: 1; }
+    .props-empty {
+      padding: 24px 14px; color: #aaa; font-size: 13px; text-align: center; font-style: italic;
+    }
+    .panels-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .panel { flex: 1; background: #fff; border: 1px solid #ccc; }
+    .panel-header {
+      background: #3a3a3a; color: #fff; padding: 5px 10px;
+      font-size: 13px; font-weight: 600; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .panel-header a { color: #9dd4ff; text-decoration: none; font-size: 12.5px; }
+    .panel-header a:hover { text-decoration: underline; }
+    .panel-body { padding: 8px 10px; min-height: 60px; }
+
+    /* ── 3-column row ── */
+    .main-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+    .col-jobs { flex: 1; min-width: 0; }
+    .col-accounting { flex: 1; min-width: 0; }
+    .col-right { flex: 0 0 200px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Activity ── */
+    .activity-filter {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px; flex-wrap: wrap;
+    }
+    .activity-filter .filter-count { color: #444; font-size: 12.5px; cursor: pointer; }
+    .activity-filter .refresh-btn {
+      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
+      width: 26px; height: 26px; cursor: pointer; font-size: 14px; color: #555;
+    }
+    .activity-filter input[type="text"] {
+      border: 1px solid #bbb; padding: 4px 8px; font-size: 12.5px; height: 28px; min-width: 240px;
+    }
+    .sort-area { margin-left: auto; text-align: right; font-size: 12.5px; }
+    .sort-area strong { cursor: pointer; color: #333; }
+    .sort-area .updated { font-size: 11.5px; color: #888; display: block; }
+    .note-box {
+      margin: 8px 10px; border: 1px solid #e8d9b5; background: #fffdf0;
+      padding: 10px 12px; color: #aaa; font-style: italic; font-size: 13px; border-radius: 2px;
+    }
+    .no-records { padding: 8px 10px; color: #555; font-size: 13px; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 0 10px; }
+    .show-more-btn {
+      display: block; width: 100%; padding: 8px; background: #e0e0e0;
+      border: none; cursor: pointer; font-size: 13px; text-align: center;
+    }
+    .show-more-btn:hover { background: #d0d0d0; }
+
+    /* ── Details / Custom Fields ── */
+    .details-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 10px; background: #3a3a3a; color: #fff; font-weight: 600;
+    }
+    .details-body { display: none; border-top: 1px solid #e0e0e0; }
+    .details-body.open { display: block; }
+    .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px 0 8px; }
+    .details-cell { display: flex; align-items: baseline; gap: 10px; padding: 7px 16px; border-bottom: 1px solid #f3f3f3; }
+    .details-cell .dl { color: #888; font-size: 12.5px; white-space: nowrap; flex-shrink: 0; }
+    .details-cell .dv-text {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; font-weight: 600; color: #111;
+      font-family: inherit; width: 100%; min-width: 0;
+      border-bottom: 1px solid transparent;
+    }
+    .details-cell .dv-text:focus { border-bottom-color: #f5c800; }
+    .details-cell .dv-check { width: 15px; height: 15px; accent-color: #888888; cursor: pointer; }
+    .details-empty { padding: 14px 16px; color: #aaa; font-size: 13px; font-style: italic; }
+
+    /* ── Attachments ── */
+    .attach-outer { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .attach-tabs { display: flex; border-bottom: 1px solid #ccc; }
+    .attach-tab {
+      padding: 6px 14px; border-right: 1px solid #ccc;
+      background: #e8e8e8; font-size: 12.5px; cursor: pointer; color: #333;
+    }
+    .attach-tab.active { background: #fff; font-weight: 600; }
+    .attach-tab:hover { background: #f5f5f5; }
+    .attach-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; font-size: 12.5px; border-bottom: 1px solid #eee;
+    }
+    .upload-btn {
+      margin: 8px 10px; padding: 4px 14px; border: 1px solid #bbb;
+      background: #f5f5f5; font-size: 12.5px; cursor: pointer; border-radius: 3px;
+    }
+    .upload-btn:hover { background: #e8e8e8; }
+    .pg-btns { display: flex; gap: 2px; align-items: center; }
+    .pg-btn {
+      padding: 2px 7px; border: 1px solid #bbb; background: #f0f0f0;
+      cursor: pointer; font-size: 12px; border-radius: 2px;
+    }
+    .pg-btn.active { background: #f5c800; color: #111; }
+
+    /* ── Card modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .card-modal-box {
+      background: #fff; width: 660px; max-width: 96vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,.28);
+    }
+    .card-modal-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px;
+    }
+    .card-modal-hdr h2 { font-size: 22px; font-weight: 800; color: #111; }
+    .card-modal-close {
+      background: none; border: 1px solid #bbb; padding: 3px 9px;
+      font-size: 14px; cursor: pointer; color: #555; border-radius: 2px;
+    }
+    .card-modal-close:hover { background: #f0f0f0; }
+    .card-section-hdr {
+      background: #4a4a4a; color: #fff; padding: 8px 22px;
+      font-size: 13.5px; font-weight: 600;
+    }
+    .card-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: 18px 22px 10px; gap: 0;
+    }
+    .card-grid-left { border-right: 1px solid #eee; padding-right: 28px; display: flex; flex-direction: column; gap: 8px; }
+    .card-grid-right { padding-left: 28px; display: flex; flex-direction: column; gap: 8px; }
+    .use-billing-link {
+      color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; margin-bottom: 2px;
+    }
+    .use-billing-link:hover { color: #1a5ea0; }
+    .card-info-lbl { color: #888; font-size: 12.5px; }
+    .card-info-val { color: #222; font-size: 13px; font-weight: 600; }
+    .card-info-row { font-size: 13px; line-height: 1.7; }
+    .card-form-field { display: flex; flex-direction: column; gap: 3px; }
+    .card-form-field label { font-size: 12.5px; color: #666; }
+    .card-form-field input {
+      border: 1px solid #ccc; padding: 6px 10px; font-size: 13px;
+      font-family: inherit; outline: none; border-radius: 2px;
+    }
+    .card-form-field input:focus { border-color: #e07820; }
+    .stripe-input-box {
+      border: 1px solid #ccc; padding: 9px 10px; border-radius: 2px; background: #fff;
+    }
+    .card-action-btn {
+      border: 1px solid #bbb; background: #f5f5f5; padding: 6px 14px;
+      font-size: 12.5px; cursor: pointer; border-radius: 3px; color: #333;
+      font-family: inherit;
+    }
+    .card-action-btn:hover { background: #e0e0e0; }
+    .card-modal-footer {
+      padding: 8px 24px 22px; display: flex; align-items: center; gap: 10px;
+    }
+    .card-save-btn {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 32px; font-size: 14px; font-weight: 700;
+      border-radius: 4px; cursor: pointer;
+    }
+    .card-save-btn:hover { background: #c96a10; }
+    .card-cancel-link { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; }
+    .card-cancel-link:hover { color: #1a5ea0; }
+    #card-error { color: #c0392b; font-size: 12px; min-height: 18px; padding: 0 24px 4px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Contact modal overlay -->
+<div id="contact-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1001; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:560px; height:auto; max-height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="contact-modal-iframe" src="" style="width:100%; height:680px; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Property modal overlay -->
+<div id="prop-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:1120px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="prop-modal-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1 id="client-title">Client Profile</h1>
+    <span>&#8211;</span>
+    <a href="#" onclick="editClient(event)">Edit</a>
+  </div>
+  <div style="display:flex; gap:6px; align-items:center;">
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main-outline">Send</button>
+        <button class="btn-caret-outline" onclick="toggleDropdown('send-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="send-menu">
+        <a href="#">Text</a>
+        <a href="#">Email</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main">More</button>
+        <button class="btn-caret" onclick="toggleDropdown('more-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="more-menu">
+        <div class="dd-title">More Options</div>
+        <a href="#" onclick="addProperty(event)">Add Property</a>
+        <a href="#">Account Statement</a>
+        <a href="#">Customer Balance Report</a>
+        <a href="#">Customer History Report</a>
+        <a href="#">View Audit Trail</a>
+        <a href="#">Client Portal Invite</a>
+        <a href="#">Cancel Client</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Client info card -->
+  <div class="client-card">
+    <div class="client-card-col">
+      <div id="display-name" style="font-weight:600;"></div>
+      <div id="display-address"></div>
+      <div id="display-city"></div>
+    </div>
+    <div class="client-card-col">
+      <div><span style="color:#888;font-size:12px;">Cell: </span><span id="display-cell"></span></div>
+      <div><span style="color:#888;font-size:12px;">Home: </span><span id="display-home"></span></div>
+      <div><span style="color:#888;font-size:12px;">Email: </span><a href="#" id="display-email"></a></div>
+    </div>
+    <div class="client-card-col">
+      <div>Client Since: <span id="display-since"></span></div>
+      <div id="display-card">No Card On File (<a href="#">Add</a>)</div>
+    </div>
+    <div class="revenue-col">
+      <div class="revenue-box">
+        $0.00
+        <div class="rev-label">Balance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="tags-row" id="tags-row">
+    <div class="tag-select-row">
+      <div style="position:relative;">
+        <div class="tag-select-box" onclick="toggleTagDropdown(event)">
+          <span id="tag-select-label">Select Tag</span>
+          <span>&#9660;</span>
+        </div>
+        <div class="tag-dropdown" id="tag-dropdown">
+          <div class="tag-filter-row">
+            <label>Filter:</label>
+            <input type="text" id="tag-filter" placeholder="Enter keywords" oninput="filterTagList()"/>
+            <span class="tag-filter-clear" onclick="clearTagFilter()">&#10005;</span>
+          </div>
+          <div id="tag-dd-list"><div class="tag-dd-empty">Loading...</div></div>
+        </div>
+      </div>
+      <button class="tag-apply-btn" onclick="applySelectedTag()">Apply</button>
+      <button class="tag-create-btn" onclick="showCreateTagModal()">Create Tag</button>
+    </div>
+    <div id="tag-chips-row" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;"></div>
+  </div>
+
+  <!-- Create Tag modal -->
+  <div class="create-tag-overlay" id="create-tag-overlay" onclick="if(event.target===this)hideCreateTagModal()">
+    <div class="create-tag-box">
+      <h3>Create Tag</h3>
+      <input type="text" id="new-tag-name" placeholder="Tag name" autocomplete="off"/>
+      <div class="create-tag-actions">
+        <button class="create-tag-save" onclick="saveNewTag()">Save</button>
+        <span class="create-tag-cancel" onclick="hideCreateTagModal()">Cancel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties + Contacts panels -->
+  <div class="panels-row">
+    <div class="panel">
+      <div class="panel-header">
+        <span>Related Properties &ndash; <a href="#" onclick="addProperty(event)">(Add Property)</a></span>
+        <a href="#">All</a>
+      </div>
+      <div class="panel-body" id="props-list">
+        <div id="props-empty" class="props-empty">No properties found for this client.</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <span>Contacts &ndash; <a href="#" onclick="openContactModal(event)">(Add Contact)</a></span>
+        <a href="#">All</a>
+      </div>
+      <div class="panel-body" id="contacts-list">
+        <div id="contacts-empty" class="props-empty">No contacts added yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="sec-hdr">
+      <span>Activity</span>
+      <div class="tab-links">
+        <a href="#" class="active">All History</a>
+        <a href="#">Past Visits</a>
+        <a href="#">Future Visits</a>
+        <a href="#">Transactions</a>
+        <a href="#">Estimates</a>
+      </div>
+    </div>
+    <div class="activity-filter">
+      <span class="filter-count">Filter by: (0/17) items</span>
+      <button class="refresh-btn">&#8635;</button>
+      <input type="text" placeholder="Date range..."/>
+      <div class="sort-area">
+        sorted: <strong>Newest to Oldest &#9660;</strong>
+        <span class="updated">Updated: (now)</span>
+      </div>
+    </div>
+    <div class="note-box">Add a Note...</div>
+    <hr class="divider"/>
+    <div class="no-records">No records found</div>
+    <button class="show-more-btn">Show More</button>
+  </div>
+
+
+<!-- Attachments -->
+  <div class="attach-outer">
+    <div class="attach-tabs">
+      <div class="attach-tab active">Attachments</div>
+      <div class="attach-tab">Mobile Attachments</div>
+      <div class="attach-tab">All</div>
+    </div>
+    <div class="attach-meta">
+      <span>Total: &nbsp;0</span>
+      <span style="display:flex;align-items:center;gap:6px;">
+        Page Size:
+        <input type="text" value="10" style="width:36px;border:1px solid #bbb;padding:2px 4px;font-size:12px;"/>
+        <div class="pg-btns">
+          <button class="pg-btn">&#9664;&#9664;</button>
+          <button class="pg-btn">&#9664;</button>
+          <button class="pg-btn active">1</button>
+          <button class="pg-btn">&#9654;</button>
+          <button class="pg-btn">&#9654;&#9654;</button>
+        </div>
+      </span>
+    </div>
+    <div class="no-records">No records to display.</div>
+    <button class="upload-btn">Upload</button>
+  </div>
+
+</div>
+
+<!-- ── Credit Card Modal ── -->
+<div class="modal-overlay" id="card-modal" style="display:none" onclick="if(event.target===this)closeCardModal()">
+  <div class="card-modal-box">
+    <div class="card-modal-hdr">
+      <h2>Edit Credit Card</h2>
+      <button class="card-modal-close" onclick="closeCardModal()">&#10005;</button>
+    </div>
+    <div class="card-section-hdr">Credit Card Information</div>
+
+    <!-- VIEW: existing card on file -->
+    <div id="card-view" style="display:none">
+      <div class="card-grid">
+        <div class="card-grid-left">
+          <a class="use-billing-link" onclick="return false;">Use Billing Information</a>
+          <div class="card-info-row"><span class="card-info-lbl">First and Last Name &nbsp;</span><span class="card-info-val" id="cv-name"></span></div>
+          <div class="card-info-row"><span class="card-info-lbl">Card Billing Zip &nbsp;</span><span class="card-info-val" id="cv-zip"></span></div>
+        </div>
+        <div class="card-grid-right">
+          <div class="card-info-row"><span class="card-info-lbl">Credit Card # &nbsp;</span><span class="card-info-val" id="cv-number"></span></div>
+          <div class="card-info-row"><span class="card-info-lbl">Expiration &nbsp;</span><span class="card-info-val" id="cv-expiry"></span></div>
+          <div class="card-info-row"><span class="card-info-lbl">Card Type On File &nbsp;</span><span class="card-info-val" id="cv-brand"></span></div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="card-action-btn" onclick="showCardForm()">Edit Credit Card</button>
+            <button class="card-action-btn" onclick="removeCard()">Remove Credit Card</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM: add / replace card -->
+    <div id="card-form" style="display:none">
+      <div class="card-grid">
+        <div class="card-grid-left">
+          <a href="#" class="use-billing-link" onclick="useBillingInfo(event)">Use Billing Information</a>
+          <div class="card-form-field">
+            <label>First and Last Name</label>
+            <input type="text" id="cf-name" autocomplete="cc-name" placeholder=""/>
+          </div>
+          <div class="card-form-field">
+            <label>Card Billing Zip</label>
+            <input type="text" id="cf-zip" autocomplete="postal-code" placeholder=""/>
+          </div>
+        </div>
+        <div class="card-grid-right">
+          <div class="card-form-field">
+            <label>Credit Card #</label>
+            <div id="stripe-number" class="stripe-input-box"></div>
+          </div>
+          <div class="card-form-field">
+            <label>Expiration</label>
+            <div id="stripe-expiry" class="stripe-input-box"></div>
+          </div>
+          <div class="card-form-field">
+            <label>CVV / CVC</label>
+            <div id="stripe-cvc" class="stripe-input-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="card-error"></div>
+    <div class="card-modal-footer">
+      <button class="card-save-btn" id="card-modal-save" onclick="saveCard()">Save</button>
+      <span style="color:#888;">or</span>
+      <span class="card-cancel-link" onclick="closeCardModal()">Cancel</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var clientId = new URLSearchParams(window.location.search).get('id');
+  var client   = null;
+
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ── Load client record from Supabase ── */
+  async function initClient() {
+    if (!clientId) return;
+    var { data } = await sb.from('Clients').select('*').eq('id', clientId).single();
+    client = data;
+    if (!client) return;
+
+    document.getElementById('client-title').textContent    = client.name || 'Client Profile';
+    document.getElementById('display-name').textContent    = client.name || '';
+    document.getElementById('display-address').textContent = client.address || '';
+    var cityLine = [client.city, client.state, client.zip].filter(Boolean).join(', ');
+    document.getElementById('display-city').textContent    = cityLine;
+    var mapcodeEl = document.getElementById('display-mapcode');
+    if (mapcodeEl) mapcodeEl.textContent = client.map_code || '';
+    document.getElementById('display-cell').textContent = client.cell || client.phone || '';
+    document.getElementById('display-home').textContent = client.home_phone || '';
+    var emailEl = document.getElementById('display-email');
+    if (client.email) { emailEl.textContent = client.email; emailEl.href = 'mailto:' + client.email; }
+    if (client.created_at) {
+      document.getElementById('display-since').textContent = new Date(client.created_at).toLocaleDateString();
+    }
+    updateCardDisplay();
+    loadProperties();
+    loadContacts();
+    loadTags();
+    loadDetailsGrid();
+  }
+  initClient();
+
+  /* ── Load & render properties from Supabase ── */
+  async function loadProperties() {
+    var { data: props } = await sb.from('Properties').select('*').eq('customer_id', clientId);
+    props = props || [];
+
+    var list  = document.getElementById('props-list');
+    var empty = document.getElementById('props-empty');
+
+    if (!props.length) {
+      empty.style.display = '';
+      var existing = list.querySelectorAll('.prop-row');
+      existing.forEach(function(r){ r.remove(); });
+      return;
+    }
+    empty.style.display = 'none';
+    var existing = list.querySelectorAll('.prop-row');
+    existing.forEach(function(r){ r.remove(); });
+
+    props.forEach(function(p) {
+      var addrLine = p.address || '';
+      var cityLine = [p.city, p.state, p.zip].filter(Boolean).join(', ');
+      var label    = p.name || addrLine || 'Property';
+
+      var row = document.createElement('div');
+      row.className = 'prop-row';
+      row.innerHTML =
+        '<div class="prop-icon">&#127968;</div>' +
+        '<div class="prop-info">' +
+          '<div class="prop-name"><span style="color:#2272c3;font-weight:600;">' + escHtml(label) + '</span></div>' +
+          '<div class="prop-addr">' +
+            (addrLine && label !== addrLine ? escHtml(addrLine) + (cityLine ? ' &mdash; ' + escHtml(cityLine) : '') : escHtml(cityLine)) +
+          '</div>' +
+        '</div>' +
+        '<span class="prop-badge">' + (p.active !== false ? 'Active' : 'Inactive') + '</span>' +
+        '<div class="prop-chevron">&#8250;</div>';
+
+      row.addEventListener('click', function() {
+        if (window.parent && window.parent.loadPage) {
+          window.parent.loadPage('propprofile?id=' + p.id);
+        } else {
+          window.location.href = 'propertiesprofile.html?id=' + p.id;
+        }
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function addProperty(e) {
+    if (e) e.preventDefault();
+    openPropertyModal();
+  }
+
+  function openPropertyModal(id) {
+    var overlay = document.getElementById('prop-modal-overlay');
+    var iframe  = document.getElementById('prop-modal-iframe');
+    var src = 'PropertiesAdd.html?clientId=' + clientId;
+    if (id) src = 'PropertiesAdd.html?id=' + id + '&clientId=' + clientId;
+    iframe.src = src;
+    overlay.style.display = 'flex';
+  }
+
+  function closePropertyModal(saved) {
+    var overlay = document.getElementById('prop-modal-overlay');
+    var iframe  = document.getElementById('prop-modal-iframe');
+    overlay.style.display = 'none';
+    iframe.src = '';
+    if (saved) loadProperties();
+  }
+
+  document.getElementById('prop-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePropertyModal(false);
+  });
+
+  /* ── Contacts ── */
+  function openContactModal(e, id) {
+    if (e) e.preventDefault();
+    var overlay = document.getElementById('contact-modal-overlay');
+    var iframe  = document.getElementById('contact-modal-iframe');
+    var src = 'ContactAdd.html?entityType=client&entityId=' + clientId;
+    if (id) src = 'ContactAdd.html?id=' + id + '&entityType=client&entityId=' + clientId;
+    iframe.src = src;
+    overlay.style.display = 'flex';
+  }
+
+  function closeContactModal(saved) {
+    var overlay = document.getElementById('contact-modal-overlay');
+    var iframe  = document.getElementById('contact-modal-iframe');
+    overlay.style.display = 'none';
+    iframe.src = '';
+    if (saved) loadContacts();
+  }
+
+  document.getElementById('contact-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeContactModal(false);
+  });
+
+  async function loadContacts() {
+    var list  = document.getElementById('contacts-list');
+    var empty = document.getElementById('contacts-empty');
+    var { data: contacts } = await sb.from('Contacts').select('*')
+      .eq('entity_type', 'client').eq('entity_id', clientId).order('first_name');
+    contacts = contacts || [];
+    var existing = list.querySelectorAll('.contact-row');
+    existing.forEach(function(r) { r.remove(); });
+    if (!contacts.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    contacts.forEach(function(c) {
+      var row = document.createElement('div');
+      row.className = 'contact-row';
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0f0f0;cursor:pointer;';
+      row.innerHTML =
+        '<div style="width:34px;height:34px;min-width:34px;background:#e8f0fe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;">&#128100;</div>' +
+        '<div style="flex:1;">' +
+          '<div style="font-weight:600;color:#2272c3;">' + escHtml(c.name || (c.first_name + ' ' + c.last_name).trim()) + '</div>' +
+          '<div style="font-size:12px;color:#666;">' + escHtml(c.contact_type || '') + (c.cell_phone ? ' &mdash; ' + escHtml(c.cell_phone) : '') + '</div>' +
+        '</div>' +
+        '<span style="color:#bbb;font-size:18px;">&#8250;</span>';
+      row.addEventListener('click', function() { openContactModal(null, c.id); });
+      list.insertBefore(row, empty);
+    });
+  }
+
+  function editClient(e) {
+    if (e) e.preventDefault();
+    window.location.href = 'ClientAdd.html?id=' + clientId;
+  }
+
+  /* ── Tags ── */
+  var allTags = [];
+  var clientTagNames = [];
+  var selectedTagName = null;
+
+  async function loadTags() {
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    if (client && client.client_tags) {
+      clientTagNames = Array.isArray(client.client_tags) ? client.client_tags : [];
+    }
+    renderTagChips();
+  }
+
+  function renderTagChips() {
+    var chipsRow = document.getElementById('tag-chips-row');
+    chipsRow.innerHTML = '';
+    clientTagNames.forEach(function(name) {
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.innerHTML = escHtml(name) + '<button class="tag-chip-remove" onclick="removeTag(\'' + name.replace(/'/g,"\\'") + '\')">&#10005;</button>';
+      chipsRow.appendChild(chip);
+    });
+    chipsRow.style.display = clientTagNames.length ? 'flex' : 'none';
+  }
+
+  function toggleTagDropdown(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('tag-dropdown');
+    var showing = dd.classList.toggle('show');
+    if (showing) { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+  }
+
+  function buildTagList(filter) {
+    var list = document.getElementById('tag-dd-list');
+    var filtered = allTags.filter(function(t) {
+      return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
+    });
+    if (!filtered.length) {
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      return;
+    }
+    list.innerHTML = '';
+    filtered.forEach(function(t) {
+      var item = document.createElement('div');
+      item.className = 'tag-dd-item' + (selectedTagName === t.name ? ' selected' : '');
+      item.textContent = t.name;
+      item.onclick = function(e) {
+        e.stopPropagation();
+        selectedTagName = t.name;
+        document.getElementById('tag-select-label').textContent = t.name;
+        document.getElementById('tag-dropdown').classList.remove('show');
+      };
+      list.appendChild(item);
+    });
+  }
+
+  function filterTagList() {
+    buildTagList(document.getElementById('tag-filter').value);
+  }
+
+  function clearTagFilter() {
+    document.getElementById('tag-filter').value = '';
+    buildTagList('');
+  }
+
+  async function applySelectedTag() {
+    if (!selectedTagName) { alert('Please select a tag first.'); return; }
+    if (clientTagNames.indexOf(selectedTagName) !== -1) return;
+    clientTagNames.push(selectedTagName);
+    renderTagChips();
+    var { error } = await sb.from('Clients').update({ client_tags: clientTagNames }).eq('id', clientId);
+    if (error) { alert('Tag save failed: ' + error.message); return; }
+    selectedTagName = null;
+    document.getElementById('tag-select-label').textContent = 'Select Tag';
+  }
+
+  async function removeTag(name) {
+    clientTagNames = clientTagNames.filter(function(n){ return n !== name; });
+    renderTagChips();
+    var { error } = await sb.from('Clients').update({ client_tags: clientTagNames }).eq('id', clientId);
+    if (error) alert('Tag save failed: ' + error.message);
+  }
+
+  function showCreateTagModal() {
+    document.getElementById('tag-dropdown').classList.remove('show');
+    document.getElementById('new-tag-name').value = '';
+    document.getElementById('create-tag-overlay').classList.add('show');
+    setTimeout(function(){ document.getElementById('new-tag-name').focus(); }, 50);
+  }
+
+  function hideCreateTagModal() {
+    document.getElementById('create-tag-overlay').classList.remove('show');
+  }
+
+  async function saveNewTag() {
+    var name = document.getElementById('new-tag-name').value.trim();
+    if (!name) { document.getElementById('new-tag-name').focus(); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('tags').insert({ name: name, active: true, user_id: uid });
+    if (error) { alert('Error: ' + error.message); return; }
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    hideCreateTagModal();
+  }
+
+  document.getElementById('new-tag-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') saveNewTag();
+    if (e.key === 'Escape') hideCreateTagModal();
+  });
+
+  /* ── Service popup ── */
+  function toggleSvcPopup(e) {
+    e.stopPropagation();
+    document.getElementById('svc-popup').classList.toggle('show');
+  }
+
+  function addJob(type) {
+    document.getElementById('svc-popup').classList.remove('show');
+    // Job forms not yet built — placeholder
+    alert('Add ' + type + ' job — coming soon.');
+  }
+
+  /* ── Dropdowns ── */
+  function toggleDropdown(id) {
+    var menu = document.getElementById(id);
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+      if (m.id !== id) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.classList.remove('show'); });
+    }
+    if (!e.target.closest('.tag-select-row')) {
+      document.getElementById('tag-dropdown').classList.remove('show');
+    }
+    if (!e.target.closest('.add-btn-wrap')) {
+      document.getElementById('svc-popup').classList.remove('show');
+    }
+  });
+
+  /* ── Activity tabs ── */
+  document.querySelectorAll('.tab-links a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.tab-links a').forEach(function(l) { l.classList.remove('active'); });
+      link.classList.add('active');
+    });
+  });
+
+  /* ── Attachment tabs ── */
+  document.querySelectorAll('.attach-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.attach-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+
+  /* ── Card display ── */
+  function updateCardDisplay() {
+    var el = document.getElementById('display-card');
+    if (client && client.stripeCardLast4) {
+      el.innerHTML =
+        '<span class="col-label">Card Ending In </span>' +
+        client.stripeCardLast4 + ' &ndash; ' + client.stripeCardExpiry +
+        ' (<a href="#" onclick="openCardModal();return false;" style="color:#2272c3;">Edit</a>)';
+    } else {
+      el.innerHTML =
+        '<span class="col-label">Card on File: </span>' +
+        'None &mdash; <a href="#" onclick="openCardModal();return false;" style="color:#2272c3;">Add Card</a>';
+    }
+  }
+  updateCardDisplay();
+
+  /* ── Details / Custom Fields (Customer type) ── */
+  var customFieldDefs = [];
+  var customFieldValues = {};
+
+  function toggleDetails() {
+    var body = document.getElementById('details-body');
+    var lbl  = document.getElementById('details-toggle-lbl');
+    var open = body.classList.toggle('open');
+    lbl.textContent = open ? 'Hide Details' : 'Show Details';
+    if (open) loadDetailsGrid();
+  }
+
+  async function loadDetailsGrid() {
+    var { data: fields } = await sb.from('custom_fields')
+      .select('*').eq('active', true).order('display_order');
+    customFieldDefs = fields || [];
+
+    var { data: vals } = await sb.from('custom_fields_values')
+      .select('*').eq('property_id', clientId);
+    customFieldValues = {};
+    (vals || []).forEach(function(v) { customFieldValues[v.field_id] = v.value; });
+
+    renderDetailsGrid();
+  }
+
+  function renderDetailsGrid() {
+    var grid  = document.getElementById('details-grid');
+    var empty = document.getElementById('details-empty');
+    grid.innerHTML = '';
+
+    if (!customFieldDefs.length) {
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    customFieldDefs.forEach(function(f) {
+      var val = customFieldValues[f.id] || '';
+      var cell = document.createElement('div');
+      cell.className = 'details-cell';
+      var inputHtml;
+      if (f.field_type === 'Checkbox') {
+        inputHtml = '<input type="checkbox" class="dv-check" ' + (val ? 'checked' : '') +
+          ' onchange="saveCfValue(\'' + f.id + '\', this.checked ? \'1\' : \'\')"/>';
+      } else {
+        inputHtml = '<input type="text" class="dv-text" value="' + String(val).replace(/"/g,'&quot;') + '"' +
+          ' onblur="saveCfValue(\'' + f.id + '\', this.value)"/>';
+      }
+      cell.innerHTML = '<span class="dl">' + escHtml(f.name) + '</span>' + inputHtml;
+      grid.appendChild(cell);
+    });
+  }
+
+  async function saveCfValue(fieldId, value) {
+    var { error } = await sb.from('custom_fields_values').upsert(
+      { property_id: clientId, field_id: fieldId, value: String(value) },
+      { onConflict: 'property_id,field_id' }
+    );
+    if (error) console.error('CF save error:', error.message);
+    else customFieldValues[fieldId] = value;
+  }
+
+  /* ── Stripe + card modal ── */
+  var STRIPE_KEY   = 'pk_live_51T0nM2QnKYEOoI1iDgLsivEeeJK85WKLqRZwF6lZNCZX2amaiIAz794Bmw2f6Gj9p4zBsus6Cl669y0QC7BsJcLO00VNhUlBL1';
+  var SUPA_URL     = 'https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/add-card';
+  var SUPA_ANON    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+
+  var stripe         = Stripe(STRIPE_KEY);
+  var stripeElements = stripe.elements();
+  var cardNumber     = null;
+  var cardExpiry     = null;
+  var cardCvc        = null;
+
+  function openCardModal() {
+    document.getElementById('card-modal').style.display = 'flex';
+    document.getElementById('card-error').textContent = '';
+    if (client && client.stripeCardLast4) {
+      showCardViewPanel();
+    } else {
+      showCardForm();
+    }
+  }
+
+  function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+    destroyStripeElements();
+  }
+
+  function destroyStripeElements() {
+    if (cardNumber) { cardNumber.destroy(); cardNumber = null; }
+    if (cardExpiry) { cardExpiry.destroy(); cardExpiry = null; }
+    if (cardCvc)    { cardCvc.destroy();    cardCvc    = null; }
+  }
+
+  function showCardViewPanel() {
+    document.getElementById('card-view').style.display = '';
+    document.getElementById('card-form').style.display = 'none';
+    document.getElementById('card-modal-save').style.display = 'none';
+    document.getElementById('cv-name').textContent   = client.stripeCardName || '';
+    document.getElementById('cv-zip').textContent    = client.stripeCardZip  || '';
+    document.getElementById('cv-number').textContent = '************' + client.stripeCardLast4;
+    document.getElementById('cv-expiry').textContent = client.stripeCardExpiry || '';
+    document.getElementById('cv-brand').textContent  = client.stripeCardBrand  || '';
+  }
+
+  function showCardForm() {
+    document.getElementById('card-view').style.display = 'none';
+    document.getElementById('card-form').style.display = '';
+    document.getElementById('card-modal-save').style.display = '';
+    document.getElementById('cf-name').value = (client && client.stripeCardName) || (client && client.name) || '';
+    document.getElementById('cf-zip').value  = (client && client.stripeCardZip)  || (client && client.zip)  || '';
+    document.getElementById('card-error').textContent = '';
+    destroyStripeElements();
+    var style = { base: { fontSize: '13px', fontFamily: "'Segoe UI', Arial, sans-serif", color: '#222', '::placeholder': { color: '#aaa' } } };
+    cardNumber = stripeElements.create('cardNumber', { style: style });
+    cardExpiry = stripeElements.create('cardExpiry', { style: style });
+    cardCvc    = stripeElements.create('cardCvc',    { style: style });
+    cardNumber.mount('#stripe-number');
+    cardExpiry.mount('#stripe-expiry');
+    cardCvc.mount('#stripe-cvc');
+  }
+
+  function useBillingInfo(e) {
+    if (e) e.preventDefault();
+    document.getElementById('cf-name').value = (client && client.name) || '';
+    document.getElementById('cf-zip').value  = (client && client.zip)  || '';
+  }
+
+  async function saveCard() {
+    var name  = document.getElementById('cf-name').value.trim();
+    var zip   = document.getElementById('cf-zip').value.trim();
+    var errEl = document.getElementById('card-error');
+    if (!name) { errEl.textContent = 'Please enter the cardholder name.'; return; }
+    errEl.textContent = 'Saving card...';
+
+    var result = await stripe.createPaymentMethod({
+      type: 'card', card: cardNumber,
+      billing_details: { name: name, address: { postal_code: zip } }
+    });
+    if (result.error) { errEl.textContent = result.error.message; return; }
+
+    try {
+      var resp = await fetch(SUPA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPA_ANON },
+        body: JSON.stringify({
+          clientId:         clientId,
+          paymentMethodId:  result.paymentMethod.id,
+          stripeCustomerId: (client && client.stripeCustomerId) || null,
+          name: name, zip: zip
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok) { errEl.textContent = data.error || 'Failed to save card.'; return; }
+
+      var cardUpdates = {
+        stripe_customer_id: data.stripeCustomerId,
+        stripe_card_last4:  data.last4,
+        stripe_card_expiry: (String(data.expMonth).padStart(2,'0')) + '/' + data.expYear,
+        stripe_card_brand:  data.brand,
+        stripe_card_name:   name,
+        stripe_card_zip:    zip
+      };
+      await sb.from('Clients').update(cardUpdates).eq('id', clientId);
+      Object.assign(client, {
+        stripeCustomerId: data.stripeCustomerId,
+        stripeCardLast4:  data.last4,
+        stripeCardExpiry: cardUpdates.stripe_card_expiry,
+        stripeCardBrand:  data.brand,
+        stripeCardName:   name,
+        stripeCardZip:    zip
+      });
+      updateCardDisplay();
+      closeCardModal();
+    } catch(ex) {
+      errEl.textContent = 'Network error — please try again.';
+    }
+  }
+
+  async function removeCard() {
+    if (!confirm('Remove this credit card on file?')) return;
+    var errEl = document.getElementById('card-error');
+    try {
+      await fetch(SUPA_URL, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPA_ANON },
+        body: JSON.stringify({ stripeCustomerId: client.stripeCustomerId, clientId: clientId })
+      });
+    } catch(ex) { /* best-effort */ }
+    await sb.from('Clients').update({
+      stripe_customer_id: null, stripe_card_last4: null,
+      stripe_card_expiry: null, stripe_card_brand: null,
+      stripe_card_name: null, stripe_card_zip: null
+    }).eq('id', clientId);
+    ['stripeCustomerId','stripeCardLast4','stripeCardExpiry','stripeCardBrand','stripeCardName','stripeCardZip']
+      .forEach(function(k) { delete client[k]; });
+    updateCardDisplay();
+    closeCardModal();
+  }
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,1051 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+  <title>SprayBossPro Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ══════════════════════════════
+       SIDEBAR
+    ══════════════════════════════ */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: linear-gradient(180deg, #1a2b3c 0%, #162436 100%);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: 3px 0 12px rgba(0,0,0,.3);
+      flex-shrink: 0;
+    }
+
+
+    .sidebar-brand {
+      padding: 22px 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .sidebar-brand .brand-icon {
+      font-size: 26px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .sidebar-brand h2 {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      line-height: 1.2;
+    }
+    .sidebar-brand span {
+      color: #5bbfff;
+      font-size: 11px;
+      font-weight: 400;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .nav-section {
+      padding: 5px 10px 2px;
+    }
+    .nav-label {
+      color: #aaa;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 5px 8px 3px;
+      user-select: none;
+    }
+    .nav-label .chevron { display: none; }
+    .nav-items { display: block; }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s, color .15s;
+      margin-bottom: 2px;
+    }
+    .nav-btn .icon {
+      font-size: 15px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+    }
+    .nav-btn.active {
+      background: #2a6cb5;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .sidebar-spacer { flex: 1; }
+
+    .sidebar-footer {
+      padding: 10px;
+      border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      background: rgba(220,50,50,.15);
+      border: 1px solid rgba(220,50,50,.25);
+      border-radius: 6px;
+      color: #ff7b7b;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .logout-btn:hover { background: rgba(220,50,50,.3); }
+
+    /* ══════════════════════════════
+       MAIN AREA
+    ══════════════════════════════ */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e0e3e8;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    .global-search-wrap {
+      flex: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .global-search-input {
+      width: 100%;
+      padding: 9px 16px 9px 40px;
+      border: 2px solid #e07820;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #222;
+      background: #fff;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      box-shadow: 0 1px 4px rgba(224,120,32,.15);
+    }
+    .global-search-input:focus { border-color: #c96a15; box-shadow: 0 0 0 3px rgba(224,120,32,.2); }
+    .global-search-input::placeholder { color: #444; }
+    .global-search-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      color: #e07820; font-size: 15px; pointer-events: none;
+    }
+    .global-search-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      z-index: 1000;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .global-search-dropdown.open { display: block; }
+    .search-group-label {
+      font-size: 10px; font-weight: 700; color: #aaa;
+      text-transform: uppercase; letter-spacing: .6px;
+      padding: 8px 14px 4px;
+    }
+    .search-result-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; cursor: pointer;
+      font-size: 13px; color: #222;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background .1s;
+    }
+    .search-result-item:hover { background: #fff5ee; }
+    .search-result-item .sri-icon { font-size: 16px; flex-shrink: 0; }
+    .search-result-item .sri-main { font-weight: 600; }
+    .search-result-item .sri-sub { font-size: 11.5px; color: #888; margin-top: 1px; }
+    .search-no-results { padding: 16px 14px; font-size: 13px; color: #999; text-align: center; }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a2b3c;
+      letter-spacing: .2px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .topbar-date {
+      color: #000;
+      font-size: 14.5px;
+      font-weight: 700;
+    }
+    .user-badge {
+      background: #2a6cb5;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+    }
+
+    /* ══════════════════════════════
+       WELCOME SCREEN
+    ══════════════════════════════ */
+    .welcome-banner {
+      background: linear-gradient(135deg, #1a2b3c 0%, #2a6cb5 100%);
+      border-radius: 12px;
+      padding: 36px 40px;
+      color: #fff;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .welcome-banner h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .welcome-banner p {
+      font-size: 14.5px;
+      color: rgba(255,255,255,.8);
+      max-width: 480px;
+      line-height: 1.5;
+    }
+    .welcome-logo {
+      font-size: 64px;
+      opacity: .25;
+    }
+
+    /* ── Stat cards ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      border-left: 4px solid #2a6cb5;
+    }
+    .stat-card.green  { border-color: #27a567; }
+    .stat-card.orange { border-color: #e07820; }
+    .stat-card.purple { border-color: #7c4dbd; }
+    .stat-card.teal   { border-color: #17a2b8; }
+    .stat-card.red    { border-color: #dc3545; }
+    .stat-card.pink   { border-color: #e83e8c; }
+    .stat-card.indigo { border-color: #6610f2; }
+    .stat-card .stat-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 8px;
+    }
+    .stat-card .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a2b3c;
+      line-height: 1;
+    }
+    .stat-card .stat-sub {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    /* ── Quick actions ── */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a2b3c;
+      margin-bottom: 14px;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .quick-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .quick-card:hover {
+      border-color: #2a6cb5;
+      box-shadow: 0 3px 10px rgba(42,108,181,.15);
+    }
+    .quick-card .qicon { font-size: 28px; margin-bottom: 8px; }
+    .quick-card .qname {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a2b3c;
+    }
+
+    /* placeholder tab pages */
+    .page-placeholder {
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      color: #555;
+      font-size: 15px;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     SIDEBAR
+════════════════════════════════ -->
+<div class="sidebar">
+
+  <div class="sidebar-brand">
+    <span class="brand-icon">&#127807;</span>
+    <h2>SprayBossPro</h2>
+    <span>Field Management</span>
+  </div>
+
+  <div class="nav-section">
+    <button class="nav-btn" onclick="goHome()">
+      <span class="icon">&#127968;</span> Dashboard
+    </button>
+  </div>
+  <div id="sidebar-quick-access"></div>
+
+  <div class="nav-section">
+    <div class="nav-label">Schedule <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="waitinglist" onclick="loadPage('waitinglist', this)">
+        <span class="icon">&#9201;</span> Waiting
+      </button>
+      <button class="nav-btn" data-page="dispatched" onclick="loadPage('dispatched', this)">
+        <span class="icon">&#128665;</span> Scheduled
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Clients <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="customers" onclick="loadPage('customers', this)">
+        <span class="icon">&#128101;</span> Clients
+      </button>
+      <button class="nav-btn" data-page="properties" onclick="loadPage('properties', this)">
+        <span class="icon">&#127968;</span> Properties
+      </button>
+      <button class="nav-btn" data-page="leads" onclick="loadPage('leads', this)">
+        <span class="icon">&#127919;</span> Leads
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Service <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="services" onclick="loadPage('services', this)">
+        <span class="icon">&#128203;</span> Services
+      </button>
+      <button class="nav-btn" data-page="packageplans" onclick="loadPage('packageplans', this)">
+        <span class="icon">&#128230;</span> Package Plans
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Chemical <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="products" onclick="loadPage('products', this)">
+        <span class="icon">&#129514;</span> Products
+      </button>
+      <button class="nav-btn" data-page="productmixes" onclick="loadPage('productmixes', this)">
+        <span class="icon">&#9878;</span> Product Mixes
+      </button>
+      <button class="nav-btn" data-page="chemtracking" onclick="loadPage('chemtracking', this)">
+        <span class="icon">&#9879;</span> Chemical Tracking
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Billing <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="invoices" onclick="loadPage('invoices', this)">
+        <span class="icon">&#128196;</span> Invoices
+      </button>
+      <button class="nav-btn" data-page="payments" onclick="loadPage('payments', this)">
+        <span class="icon">&#128178;</span> Payments
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Messaging <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="alerts" onclick="loadPage('alerts', this)">
+        <span class="icon">&#128276;</span> Alerts
+      </button>
+      <button class="nav-btn" data-page="texts" onclick="loadPage('texts', this)">
+        <span class="icon">&#128172;</span> Texts
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Reports <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="reportslist" onclick="loadPage('reportslist', this)">
+        <span class="icon">&#128202;</span> All Reports
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">System <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="settings" onclick="loadPage('settings', this)">
+        <span class="icon">&#9881;</span> Settings
+      </button>
+    </div>
+  </div>
+
+  <div class="sidebar-spacer"></div>
+
+  <button class="nav-btn" id="admin-nav-btn" data-page="admin" onclick="loadPage('admin', this)" style="display:none;margin:16px 10px 8px;">&#128737; Admin</button>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <span>&#128682;</span> Log Out
+    </button>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════
+     MAIN
+════════════════════════════════ -->
+<div class="main">
+
+  <div class="topbar">
+    <h1 id="page-title">Dashboard</h1>
+    <div class="global-search-wrap">
+      <span class="global-search-icon">&#128269;</span>
+      <input type="text" class="global-search-input" id="global-search" placeholder="Search by name, address, phone, email..." autocomplete="off" oninput="globalSearchInput()" onfocus="globalSearchInput()" />
+      <div class="global-search-dropdown" id="global-search-dd"></div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbar-date"></span>
+      <div class="user-badge">SBP</div>
+    </div>
+  </div>
+
+  <!-- Welcome / home screen -->
+  <div class="content-area" id="home-screen">
+    <div class="welcome-banner" id="welcome-banner">
+      <div>
+        <h2 id="welcome-title">Welcome to SprayBossPro</h2>
+        <p id="welcome-subtitle">Manage your customers, services, dispatching, and products all in one place. Select a section from the sidebar to get started.</p>
+      </div>
+      <div class="welcome-logo">&#127807;</div>
+    </div>
+    <div id="qa-section">
+    <div class="section-title">Quick Access</div>
+    <div class="quick-grid" id="quick-grid">
+      <div class="quick-card" id="qa-card-customers" onclick="loadPage('customers')">
+        <div class="qicon">&#128101;</div><div class="qname">Clients</div>
+      </div>
+      <div class="quick-card" id="qa-card-properties" onclick="loadPage('properties')" style="display:none">
+        <div class="qicon">&#127968;</div><div class="qname">Properties</div>
+      </div>
+      <div class="quick-card" id="qa-card-leads" onclick="loadPage('leads')">
+        <div class="qicon">&#127919;</div><div class="qname">Leads</div>
+      </div>
+      <div class="quick-card" id="qa-card-waitinglist" onclick="loadPage('waitinglist')">
+        <div class="qicon">&#9201;</div><div class="qname">Waiting List</div>
+      </div>
+      <div class="quick-card" id="qa-card-dispatched" onclick="loadPage('dispatched')">
+        <div class="qicon">&#128665;</div><div class="qname">Scheduled</div>
+      </div>
+      <div class="quick-card" id="qa-card-services" onclick="loadPage('services')" style="display:none">
+        <div class="qicon">&#128203;</div><div class="qname">Services</div>
+      </div>
+      <div class="quick-card" id="qa-card-packageplans" onclick="loadPage('packageplans')" style="display:none">
+        <div class="qicon">&#128230;</div><div class="qname">Package Plans</div>
+      </div>
+      <div class="quick-card" id="qa-card-products" onclick="loadPage('products')" style="display:none">
+        <div class="qicon">&#129514;</div><div class="qname">Products</div>
+      </div>
+      <div class="quick-card" id="qa-card-productmixes" onclick="loadPage('productmixes')" style="display:none">
+        <div class="qicon">&#9878;</div><div class="qname">Product Mixes</div>
+      </div>
+      <div class="quick-card" id="qa-card-invoices" onclick="loadPage('invoices')" style="display:none">
+        <div class="qicon">&#128196;</div><div class="qname">Invoices</div>
+      </div>
+      <div class="quick-card" id="qa-card-payments" onclick="loadPage('payments')" style="display:none">
+        <div class="qicon">&#128178;</div><div class="qname">Payments</div>
+      </div>
+      <div class="quick-card" id="qa-card-alerts" onclick="loadPage('alerts')" style="display:none">
+        <div class="qicon">&#128276;</div><div class="qname">Alerts</div>
+      </div>
+      <div class="quick-card" id="qa-card-texts" onclick="loadPage('texts')" style="display:none">
+        <div class="qicon">&#128172;</div><div class="qname">Texts</div>
+      </div>
+      <div class="quick-card" id="qa-card-chemtracking" onclick="loadPage('chemtracking')" style="display:none">
+        <div class="qicon">&#9879;</div><div class="qname">Chemical Tracking</div>
+      </div>
+    </div>
+    </div><!-- /qa-section -->
+    <div class="section-title" style="margin-top:28px">Overview</div>
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card" id="stat-card-customers" style="display:none">
+        <div class="stat-label">Total Customers</div>
+        <div class="stat-value" id="stat-customers">—</div>
+        <div class="stat-sub">Active accounts</div>
+      </div>
+      <div class="stat-card green" id="stat-card-properties" style="display:none">
+        <div class="stat-label">Total Properties</div>
+        <div class="stat-value" id="stat-properties">—</div>
+        <div class="stat-sub">All properties</div>
+      </div>
+      <div class="stat-card teal" id="stat-card-leads" style="display:none">
+        <div class="stat-label">Total Leads</div>
+        <div class="stat-value" id="stat-leads">—</div>
+        <div class="stat-sub">Open leads</div>
+      </div>
+      <div class="stat-card purple" id="stat-card-owed" style="display:none">
+        <div class="stat-label">Total Owed</div>
+        <div class="stat-value" id="stat-owed">—</div>
+        <div class="stat-sub">Outstanding balance</div>
+      </div>
+      <div class="stat-card orange" id="stat-card-revenue-today" style="display:none">
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-value" id="stat-revenue-today">—</div>
+        <div class="stat-sub">Collected today</div>
+      </div>
+      <div class="stat-card green" id="stat-card-revenue-week" style="display:none">
+        <div class="stat-label">Weekly Revenue</div>
+        <div class="stat-value" id="stat-revenue-week">—</div>
+        <div class="stat-sub">Last 7 days</div>
+      </div>
+      <div class="stat-card indigo" id="stat-card-revenue-month" style="display:none">
+        <div class="stat-label">Monthly Revenue</div>
+        <div class="stat-value" id="stat-revenue-month">—</div>
+        <div class="stat-sub">This month</div>
+      </div>
+      <div class="stat-card teal" id="stat-card-revenue-year" style="display:none">
+        <div class="stat-label">Annual Revenue</div>
+        <div class="stat-value" id="stat-revenue-year">—</div>
+        <div class="stat-sub">This year</div>
+      </div>
+      <div class="stat-card red" id="stat-card-services-week" style="display:none">
+        <div class="stat-label">Services This Week</div>
+        <div class="stat-value" id="stat-services-week">—</div>
+        <div class="stat-sub">Scheduled this week</div>
+      </div>
+      <div class="stat-card pink" id="stat-card-services-month" style="display:none">
+        <div class="stat-label">Services This Month</div>
+        <div class="stat-value" id="stat-services-month">—</div>
+        <div class="stat-sub">Scheduled this month</div>
+      </div>
+      <div class="stat-card orange" id="stat-card-services-year" style="display:none">
+        <div class="stat-label">Services This Year</div>
+        <div class="stat-value" id="stat-services-year">—</div>
+        <div class="stat-sub">Scheduled this year</div>
+      </div>
+      <div class="stat-card green" id="stat-card-props-serviced-week" style="display:none">
+        <div class="stat-label">Props Serviced (Week)</div>
+        <div class="stat-value" id="stat-props-serviced-week">—</div>
+        <div class="stat-sub">Last 7 days</div>
+      </div>
+      <div class="stat-card indigo" id="stat-card-props-serviced-month" style="display:none">
+        <div class="stat-label">Props Serviced (Month)</div>
+        <div class="stat-value" id="stat-props-serviced-month">—</div>
+        <div class="stat-sub">This month</div>
+      </div>
+      <div class="stat-card purple" id="stat-card-props-serviced-year" style="display:none">
+        <div class="stat-label">Props Serviced (Year)</div>
+        <div class="stat-value" id="stat-props-serviced-year">—</div>
+        <div class="stat-sub">This year</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- iframe — loads each HTML page when a nav button is clicked -->
+  <iframe id="page-frame" src="about:blank"
+    style="display:none; flex:1; width:100%; border:none; height:100%;">
+  </iframe>
+
+</div><!-- /main -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  // ── Date + Time in topbar ──
+  var tzMap = {
+    '(UTC-05:00) Eastern Time (US & Canada)':  'America/New_York',
+    '(UTC-06:00) Central Time (US & Canada)':  'America/Chicago',
+    '(UTC-07:00) Mountain Time (US & Canada)': 'America/Denver',
+    '(UTC-08:00) Pacific Time (US & Canada)':  'America/Los_Angeles',
+    '(UTC-09:00) Alaska':                      'America/Anchorage',
+    '(UTC-10:00) Hawaii':                      'America/Honolulu',
+  };
+  var clockTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  function updateClock() {
+    var d = new Date();
+    var datePart = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone: clockTz });
+    var timePart = d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', hour12: true, timeZone: clockTz });
+    document.getElementById('topbar-date').textContent = timePart + '  •  ' + datePart;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  var sbMain = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  (async function loadStats() {
+    var { data: authData } = await sbMain.auth.getUser();
+    if (!authData || !authData.user) return;
+    var uid = authData.user.id;
+
+    var now        = new Date();
+    var todayStr   = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    var weekStr    = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6).toISOString();
+    var monthStr   = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    var yearStr    = new Date(now.getFullYear(), 0, 1).toISOString();
+    var todayDate  = todayStr.split('T')[0];
+    var weekDate   = weekStr.split('T')[0];
+    var monthDate  = monthStr.split('T')[0];
+    var yearDate   = yearStr.split('T')[0];
+
+    function fmt(n) { return '$' + (n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function sum(rows, col) { return (rows||[]).reduce(function(s,r){ return s + (parseFloat(r[col])||0); }, 0); }
+
+    var { count: c } = await sbMain.from('Clients').select('*', { count: 'exact', head: true }).eq('user_id', uid);
+    if (c !== null) document.getElementById('stat-customers').textContent = c;
+
+    var { count: p } = await sbMain.from('Properties').select('*', { count: 'exact', head: true }).eq('user_id', uid);
+    if (p !== null) document.getElementById('stat-properties').textContent = p;
+
+    var { count: l } = await sbMain.from('Leads').select('*', { count: 'exact', head: true }).eq('user_id', uid);
+    if (l !== null) document.getElementById('stat-leads').textContent = l;
+
+    var { data: payToday } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', todayStr);
+    if (payToday) document.getElementById('stat-revenue-today').textContent = fmt(sum(payToday,'inv_total'));
+
+    var { data: payWeek } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', weekStr);
+    if (payWeek) document.getElementById('stat-revenue-week').textContent = fmt(sum(payWeek,'inv_total'));
+
+    var { data: payMonth } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', monthStr);
+    if (payMonth) document.getElementById('stat-revenue-month').textContent = fmt(sum(payMonth,'inv_total'));
+
+    var { data: payYear } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', yearStr);
+    if (payYear) document.getElementById('stat-revenue-year').textContent = fmt(sum(payYear,'inv_total'));
+
+    var { data: owedData } = await sbMain.from('Invoices').select('inv_bal').eq('user_id', uid).neq('status_text', 'Paid');
+    if (owedData) document.getElementById('stat-owed').textContent = fmt(sum(owedData,'inv_bal'));
+
+    var { count: swk } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', weekDate);
+    if (swk !== null) document.getElementById('stat-services-week').textContent = swk;
+
+    var { count: smo } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', monthDate);
+    if (smo !== null) document.getElementById('stat-services-month').textContent = smo;
+
+    var { count: syr } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', yearDate);
+    if (syr !== null) document.getElementById('stat-services-year').textContent = syr;
+
+    var { data: pswk } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', weekDate);
+    if (pswk) document.getElementById('stat-props-serviced-week').textContent = new Set(pswk.map(function(r){return r.property_id;})).size;
+
+    var { data: psmo } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', monthDate);
+    if (psmo) document.getElementById('stat-props-serviced-month').textContent = new Set(psmo.map(function(r){return r.property_id;})).size;
+
+    var { data: psyr } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', yearDate);
+    if (psyr) document.getElementById('stat-props-serviced-year').textContent = new Set(psyr.map(function(r){return r.property_id;})).size;
+
+  })();
+
+  (async function loadTimezone() {
+    var { data: authData } = await sbMain.auth.getUser();
+    if (!authData || !authData.user) return;
+    if (authData.user.email === 'hamannlandscape@gmail.com') {
+      var adminBtn = document.getElementById('admin-nav-btn');
+      if (adminBtn) adminBtn.style.display = 'flex';
+    }
+    var { data } = await sbMain.from('company_info').select('phys_timezone').eq('user_id', authData.user.id).single();
+    if (data && data.phys_timezone && tzMap[data.phys_timezone]) {
+      clockTz = tzMap[data.phys_timezone];
+      updateClock();
+    }
+  })();
+
+  window.loadDashboardSettings = async function loadDashboardSettings() {
+    var { data: authData } = await sbMain.auth.getUser();
+    if (!authData || !authData.user) return;
+    var { data } = await sbMain.from('dashboard_settings').select('*').eq('user_id', authData.user.id).single();
+
+    var allStats = ['customers','properties','leads','revenue-today','revenue-week','revenue-month','revenue-year','owed','services-week','services-month','services-year','props-serviced-week','props-serviced-month','props-serviced-year'];
+    var allQA = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking'];
+
+    // Always load sidebar quick access regardless of dashboard_settings
+    var { data: sqaPref } = await sbMain.from('user_preferences').select('pref_value').eq('user_id', authData.user.id).eq('pref_key', 'sidebar_qa').single();
+    var sqaEnabled = false, sqa = [];
+    if (sqaPref && sqaPref.pref_value) {
+      try { var sqaData = JSON.parse(sqaPref.pref_value); sqaEnabled = sqaData.enabled === true; sqa = sqaData.items || []; } catch(e) {}
+    }
+    var sqaContainer = document.getElementById('sidebar-quick-access');
+    var SQA_META = {
+      customers:    { icon: '&#128101;', label: 'Clients' },
+      properties:   { icon: '&#127968;', label: 'Properties' },
+      leads:        { icon: '&#127919;', label: 'Leads' },
+      waitinglist:  { icon: '&#9201;',   label: 'Waiting List' },
+      dispatched:   { icon: '&#128665;', label: 'Scheduled' },
+      services:     { icon: '&#128203;', label: 'Services' },
+      packageplans: { icon: '&#128230;', label: 'Package Plans' },
+      products:     { icon: '&#129514;', label: 'Products' },
+      productmixes: { icon: '&#9878;',   label: 'Product Mixes' },
+      invoices:     { icon: '&#128196;', label: 'Invoices' },
+      payments:     { icon: '&#128178;', label: 'Payments' },
+      alerts:       { icon: '&#128276;', label: 'Alerts' },
+      texts:        { icon: '&#128172;', label: 'Texts' },
+      chemtracking: { icon: '&#9879;',   label: 'Chemical Tracking' },
+    };
+    if (sqaContainer) {
+      sqaContainer.innerHTML = '';
+      if (sqaEnabled && sqa.length > 0) {
+        var sqaSection = document.createElement('div');
+        sqaSection.className = 'nav-section';
+        var sqaLbl = document.createElement('div');
+        sqaLbl.className = 'nav-label';
+        sqaLbl.textContent = 'Quick Access';
+        sqaSection.appendChild(sqaLbl);
+        var sqaItems = document.createElement('div');
+        sqaItems.className = 'nav-items';
+        sqa.forEach(function(k) {
+          var meta = SQA_META[k];
+          if (!meta) return;
+          var btn = document.createElement('button');
+          btn.className = 'nav-btn';
+          btn.setAttribute('data-page', k);
+          btn.innerHTML = '<span class="icon">' + meta.icon + '</span> ' + meta.label;
+          btn.onclick = function() { loadPage(k, btn); };
+          sqaItems.appendChild(btn);
+        });
+        sqaSection.appendChild(sqaItems);
+        sqaContainer.appendChild(sqaSection);
+      }
+    }
+
+    if (!data) {
+      allStats.forEach(function(k) {
+        var el = document.getElementById('stat-card-' + k); if (el) el.style.display = '';
+      });
+      var defaultQA = ['customers','properties','waitinglist','dispatched'];
+      allQA.forEach(function(k) {
+        var el = document.getElementById('qa-card-' + k);
+        if (el) el.style.display = defaultQA.includes(k) ? '' : 'none';
+      });
+      return;
+    }
+
+    if (data.welcome_title)    document.getElementById('welcome-title').textContent    = data.welcome_title;
+    if (data.welcome_subtitle) document.getElementById('welcome-subtitle').textContent = data.welcome_subtitle;
+    if (data.show_banner === false) document.getElementById('welcome-banner').style.display = 'none';
+
+    allStats.forEach(function(k) {
+      var col = 'show_stat_' + k.replace(/-/g,'_');
+      var el = document.getElementById('stat-card-' + k);
+      if (el) el.style.display = (data[col] !== false) ? '' : 'none';
+    });
+
+    var qaSection = document.getElementById('qa-section');
+    if (qaSection) qaSection.style.display = (data.show_quick_access === false) ? 'none' : '';
+
+    var qa = data.quick_access;
+    if (qa && Array.isArray(qa)) {
+      allQA.forEach(function(k) {
+        var el = document.getElementById('qa-card-' + k);
+        if (el) el.style.display = qa.includes(k) ? '' : 'none';
+      });
+    }
+
+  }
+  window.loadDashboardSettings();
+
+  // ── Map page keys to HTML files ──
+  var pageFiles = {
+    customers:      'ClientList.html',
+    clientprofile:  'ClientProfile.html',
+    leadsprofile:   'leadsprofile.html',
+    propprofile:    'propertiesprofile.html',
+    leads:          'leadslist.html',
+    properties:     'propertieslist.html',
+    services:     'services.html',
+    waitinglist:  'waitinglist.html',
+    dispatched:   'ScheduledList.html',
+    products:     'ProductsList.html',
+    productmixes: 'ProductMixesList.html',
+    invoices:     'Invoices.html',
+    payments:     'Payments.html',
+    packageplans: 'PackagePlans.html',
+    chemreport:   'ChemicalReport.html',
+    chemtracking: 'ChemicalReport.html',
+    settings:     'settings.html',
+    customfields: 'CustomFieldsList.html',
+    companyinfo:  'CompanyInfo.html',
+    userroles:      'UserRoles.html',
+    cancelreasons:  'CancellationReasons.html',
+    documents:          'Documents.html',
+    documentsadd:       'DocumentsAdd.html',
+    documentsettings:   'DocumentSettings.html',
+    invoiceemailsetup:  'InvoiceEmailSetup.html',
+    invoiceemailinfo:   'InvoiceEmailInfo.html',
+    tags:           'Tags.html',
+    chemicalemails: 'ChemicalEmails.html',
+    discounts:      'Discounts.html',
+    salestaxlist:     'SalesTaxList.html',
+    salestaxadd:      'SalesTaxAdd.html',
+    reportslist:      'ReportsList.html',
+    salestaxreport:   'SalesTaxReport.html',
+    importlist:       'ImportList.html',
+    sapimport:        'SAPImport.html',
+    admin:            'Admin.html',
+    alerts:           'Alerts.html',
+    scheduledalert:   'ScheduledAlert.html',
+    reschedulealert:  'RescheduleAlert.html',
+    canceledalert:    'CanceledAlert.html',
+    completedalert:   'CompletedAlert.html',
+    texts:            'Texts.html',
+    dashboardcustomize: 'DashboardCustomize.html',
+  };
+
+  var pageTitles = {
+    customers:      'Clients',
+    clientprofile:  'Clients',
+    leadsprofile:   'Leads',
+    propprofile:    'Properties',
+    leads:          'Leads',
+    properties:     'Properties',
+    services:     'Services',
+    waitinglist:  'Waiting List',
+    dispatched:   'Scheduled List',
+    products:     'Products',
+    productmixes: 'Product Mixes',
+    invoices:     'Invoices',
+    payments:     'Payments',
+    packageplans: 'Package Plans',
+    settings:     'Settings',
+    customfields: 'Custom Fields',
+    companyinfo:  'Company Information',
+    userroles:      'User Roles & Rights',
+    cancelreasons:  'Cancellation Reasons',
+    documents:          'Documents',
+    documentsadd:       'Invoice Email Template',
+    documentsettings:   'Document Settings',
+    invoiceemailsetup:  'Invoice Email Setup',
+    invoiceemailinfo:   'Invoice Email Info',
+    tags:           'Tags',
+    chemicalemails: 'Chemical Instruction Emails',
+    discounts:      'Discounts',
+    salestaxlist:     'Sales Tax',
+    salestaxadd:      'Sales Tax',
+    reportslist:      'Reports',
+    salestaxreport:   'Sales Tax Report',
+    importlist:       'Import',
+    sapimport:        'Import from SAP',
+    admin:            'Admin Panel',
+    alerts:           'Alerts',
+    scheduledalert:   'Scheduled Alert',
+    reschedulealert:  'Reschedule Alert',
+    canceledalert:    'Canceled Alert',
+    completedalert:   'Completed Alert',
+    texts:            'Messages',
+    chemtracking:     'Chemical Tracking',
+    dashboardcustomize: 'Dashboard Customize',
+  };
+
+  // ── Global Search ──
+  var _searchTimer = null;
+  function globalSearchInput() {
+    clearTimeout(_searchTimer);
+    var q = document.getElementById('global-search').value.trim();
+    if (q.length < 2) { closeSearchDD(); return; }
+    _searchTimer = setTimeout(function() { runGlobalSearch(q); }, 300);
+  }
+  function closeSearchDD() {
+    document.getElementById('global-search-dd').classList.remove('open');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.global-search-wrap')) closeSearchDD();
+  });
+  async function runGlobalSearch(q) {
+    var dd = document.getElementById('global-search-dd');
+    dd.innerHTML = '<div class="search-no-results">Searching…</div>';
+    dd.classList.add('open');
+    var like = '%' + q + '%';
+    var [cRes, pRes, lRes] = await Promise.all([
+      sbMain.from('Clients').select('id,name,email,phone,cell,address').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',cell.ilike.' + like + ',address.ilike.' + like).limit(5),
+      sbMain.from('Properties').select('id,name,address,city').or('name.ilike.' + like + ',address.ilike.' + like + ',city.ilike.' + like).limit(5),
+      sbMain.from('Leads').select('id,name,email,phone,address').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',address.ilike.' + like).limit(5)
+    ]);
+    var clients = cRes.data || [], props = pRes.data || [], leads = lRes.data || [];
+    if (!clients.length && !props.length && !leads.length) {
+      dd.innerHTML = '<div class="search-no-results">No results for "' + q + '"</div>'; return;
+    }
+    var html = '';
+    if (clients.length) {
+      html += '<div class="search-group-label">&#128101; Clients</div>';
+      clients.forEach(function(c) {
+        html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'"><div><div class="sri-main">' + (c.name||'') + '</div><div class="sri-sub">' + (c.email||c.phone||c.cell||c.address||'') + '</div></div></div>';
+      });
+    }
+    if (props.length) {
+      html += '<div class="search-group-label">&#127968; Properties</div>';
+      props.forEach(function(p) {
+        html += '<div class="search-result-item" onclick="loadPage(\'propprofile?id=' + p.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'"><div><div class="sri-main">' + (p.name||p.address||'') + '</div><div class="sri-sub">' + [p.address,p.city].filter(Boolean).join(', ') + '</div></div></div>';
+      });
+    }
+    if (leads.length) {
+      html += '<div class="search-group-label">&#127919; Leads</div>';
+      leads.forEach(function(l) {
+        html += '<div class="search-result-item" onclick="loadPage(\'leadsprofile?id=' + l.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'"><div><div class="sri-main">' + (l.name||'') + '</div><div class="sri-sub">' + (l.email||l.phone||l.address||'') + '</div></div></div>';
+      });
+    }
+    dd.innerHTML = html;
+  }
+
+  function loadPage(page) {
+    var frame     = document.getElementById('page-frame');
+    var homeScreen = document.getElementById('home-screen');
+    var qIdx    = page.indexOf('?');
+    var pageKey = qIdx >= 0 ? page.substring(0, qIdx) : page;
+    var queryStr = qIdx >= 0 ? page.substring(qIdx) : '';
+    var file      = pageFiles[pageKey];
+
+    // Update topbar title
+    document.getElementById('page-title').textContent = pageTitles[pageKey] || pageKey;
+
+    // Update active nav button
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    var match = document.querySelector('.nav-btn[data-page="' + pageKey + '"]');
+    if (match) match.classList.add('active');
+
+    if (file) {
+      // Document editor opens as a full page (not in iframe)
+      if (pageKey === 'documentsadd') {
+        window.location.href = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
+        return;
+      }
+      // Hide home screen, show iframe and load the file
+      homeScreen.style.display = 'none';
+      frame.style.display = 'flex';
+      frame.src = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
+      // Fix 100vh inside iframe — inject CSS so right content scrolls correctly
+      frame.onload = function() {
+        try {
+          var doc = frame.contentDocument || frame.contentWindow.document;
+          var s = doc.createElement('style');
+          s.textContent =
+            'html, body { height: auto !important; min-height: 0 !important; overflow-y: auto !important; overflow-x: hidden !important; }' +
+            '.table-container, .content-wrap, .content-area, .scroll-area { flex: 0 0 auto !important; height: auto !important; overflow-y: visible !important; min-height: 0 !important; }';
+          doc.head.appendChild(s);
+        } catch(e) {}
+      };
+    } else {
+      // No file yet — go back to home screen
+      frame.style.display = 'none';
+      frame.src = 'about:blank';
+      homeScreen.style.display = '';
+    }
+  }
+
+  // Home / Dashboard button resets to welcome screen
+
+  function goHome() {
+    var frame = document.getElementById('page-frame');
+    var homeScreen = document.getElementById('home-screen');
+    frame.style.display = 'none';
+    frame.src = 'about:blank';
+    homeScreen.style.display = '';
+    document.getElementById('page-title').textContent = 'Dashboard';
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    loadDashboardSettings();
+  }
+
+  function logout() {
+    if (confirm('Are you sure you want to log out?')) {
+      window.location.href = 'index.html';
+    }
+  }
+</script>
+</body>
+</html>
+

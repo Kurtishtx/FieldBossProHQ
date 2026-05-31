@@ -1,0 +1,460 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Services</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Page header ── */
+    .page-header { padding: 10px 20px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111;
+    }
+    .showing-count { font-size: 14px; font-weight: 400; color: #555; margin-left: 6px; }
+        .btn-orange-filled {
+      background: #e07820;
+      border: 3px solid #111;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
+
+    .results-count {
+      font-size: 13.5px;
+      color: #444;
+      padding: 2px 20px 10px;
+      flex-shrink: 0;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #3a3a3a;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 0; position: relative; }
+    .actions-split { display: flex; align-items: stretch; position: relative; }
+
+    .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
+    .btn-green-main:hover { background: #d4ae00; }
+    .btn-green-caret { background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15); border-radius: 0 3px 3px 0; padding: 5px 8px; font-size: 12px; cursor: pointer; }
+    .btn-green-caret:hover { background: #d4ae00; }
+
+    /* Actions dropdown */
+    .actions-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      z-index: 200;
+      min-width: 180px;
+      padding: 4px 0;
+    }
+    .actions-dropdown.open { display: block; }
+    .dropdown-header {
+      font-size: 13px;
+      font-weight: 700;
+      color: #222;
+      padding: 7px 16px 5px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 3px;
+    }
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+      cursor: pointer;
+    }
+    .dropdown-item:hover { background: #f5f5f5; }
+
+    /* Pagination */
+    .pagination-area {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: #ccc;
+    }
+    .pagination-area input {
+      width: 46px;
+      padding: 3px 6px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 3px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+    }
+    .pg-btn {
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.7);
+      border: none;
+      padding: 4px 7px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .pg-btn:hover { background: rgba(255,255,255,.2); }
+    .pg-current {
+      background: #f5c800;
+      color: #111;
+      border: none;
+      padding: 4px 9px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      background: #3a3a3a;
+      padding: 0 14px 0;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+      border-top: 1px solid #2a2a2a;
+    }
+    .tab-btn {
+      background: #bbb;
+      color: #111;
+      border: none;
+      border-radius: 4px 4px 0 0;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: #fff;
+      color: #111;
+      font-weight: 700;
+    }
+    .tab-btn:hover:not(.active) { background: #aaa; color: #111; }
+
+    /* ── Table ── */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead th {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      white-space: nowrap;
+    }
+    thead th:first-child { width: 36px; text-align: center; }
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:hover { background: #fdfbe8; }
+    tbody td { padding: 9px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+
+    .service-link {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .service-link:hover { text-decoration: underline; color: #111; }
+
+    .code-link {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .code-link:hover { text-decoration: underline; color: #111; }
+
+    .empty-msg {
+      text-align: center;
+      color: #aaa;
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Page header -->
+<div class="page-header">
+  <h1>Services <span class="showing-count" id="results-count"></span></h1>
+  <button class="btn-orange-filled" onclick="window.location.href='servicescreate.html'">Add Service</button>
+</div>
+
+
+<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#3a3a3a;color:#fff;font-size:13px;">
+  <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> service(s)? This cannot be undone.</span>
+  <button onclick="confirmDelete()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
+  <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #aaa;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="actions-split">
+    <button class="btn-green-main">Actions</button>
+    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
+
+    <!-- Actions dropdown -->
+    <div class="actions-dropdown" id="actions-dropdown">
+      <div class="dropdown-header">Actions</div>
+      <button class="dropdown-item" onclick="window.location.href='servicescreate.html'">Add Service</button>
+      <button class="dropdown-item" onclick="makeServicesActive(true)">Make Active</button>
+      <button class="dropdown-item" onclick="makeServicesActive(false)">Make Inactive</button>
+      <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
+      <button class="dropdown-item" onclick="exportServices()">Export</button>
+      <button class="dropdown-item" onclick="copySelected()">Copy</button>
+    </div>
+  </div>
+
+  </div>
+
+<!-- Tabs -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="setTab(this, 'active')">Active</button>
+  <button class="tab-btn" onclick="setTab(this, 'inactive')">Inactive</button>
+  <button class="tab-btn" onclick="setTab(this, 'all')">All</button>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th>Service Type</th>
+        <th>Code</th>
+        <th>Svc Mode</th>
+        <th>Default Rate</th>
+        <th>Class</th>
+        <th>Modified</th>
+        <th>Active</th>
+      </tr>
+    </thead>
+    <tbody id="service-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg">No services found.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  /* ── Dropdown ── */
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+  });
+
+  /* ── Tabs ── */
+  var currentTab = 'active';
+  function setTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentTab = tab;
+    renderTable();
+  }
+
+  /* ── Table ── */
+  var services = [];
+
+  async function loadServices() {
+    var { data, error } = await sb.from('Services').select('*').is('property_id', null).order('name', { ascending: true });
+    if (error) { console.error(error); return; }
+    services = data || [];
+    renderTable();
+  }
+
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) loadServices();
+  });
+
+  function renderTable() {
+    var tbody = document.getElementById('service-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+
+    var filtered = services.filter(function(s) {
+      if (currentTab === 'active')   return s.active;
+      if (currentTab === 'inactive') return !s.active;
+      return true;
+    });
+
+    document.getElementById('results-count').textContent =
+      filtered.length + ' / ' + services.length + ' services';
+
+    if (filtered.length === 0) {
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    filtered.forEach(function(s) {
+      var tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" data-id="' + s.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td><a class="service-link">' + (s.name || '') + '</a></td>' +
+        '<td><a class="code-link">' + (s.code || '') + '</a></td>' +
+        '<td>' + (s.svc_mode || '') + '</td>' +
+        '<td>' + (s.default_rate !== undefined && s.default_rate !== null ? parseFloat(s.default_rate).toFixed(2) : '') + '</td>' +
+        '<td>' + (s.cls || '') + '</td>' +
+        '<td>' + (s.created_at ? new Date(s.created_at).toLocaleDateString() : '') + '</td>' +
+        '<td>' + (s.active ? 'Active' : 'Inactive') + '</td>';
+      tr.addEventListener('click', function(e) {
+        if (e.target.type === 'checkbox') return;
+        window.location.href = 'servicescreate.html?id=' + s.id;
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('#service-tbody input[type="checkbox"]')
+      .forEach(function(c) { c.checked = cb.checked; });
+  }
+
+  function getSelectedIds() {
+    return Array.from(document.querySelectorAll('.row-cb:checked')).map(function(cb) { return cb.getAttribute('data-id'); });
+  }
+
+  function deleteSelected() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Check the box next to each service you want to delete first.'); return; }
+    document.getElementById('delete-confirm-count').textContent = ids.length;
+    var bar = document.getElementById('delete-confirm-bar');
+    bar.dataset.ids = JSON.stringify(ids);
+    bar.style.display = 'flex';
+  }
+
+  async function confirmDelete() {
+    var bar = document.getElementById('delete-confirm-bar');
+    var ids = JSON.parse(bar.dataset.ids || '[]');
+    bar.style.display = 'none';
+    var CHUNK = 50;
+    for (var i = 0; i < ids.length; i += CHUNK) {
+      var { error } = await sb.from('Services').delete().in('id', ids.slice(i, i + CHUNK));
+      if (error) { alert('Error deleting: ' + error.message); return; }
+    }
+    loadServices();
+  }
+
+  async function makeServicesActive(active) {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Check the box next to each service you want to update first.'); return; }
+    var CHUNK = 50;
+    for (var i = 0; i < ids.length; i += CHUNK) {
+      var { error } = await sb.from('Services').update({ active: active }).in('id', ids.slice(i, i + CHUNK));
+      if (error) { alert('Update failed: ' + error.message); return; }
+    }
+    loadServices();
+  }
+
+  function exportServices() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var rows = [['Name','Code','Svc Mode','Default Rate','Class','Active']];
+    services.forEach(function(s) {
+      rows.push([s.name||'', s.code||'', s.svc_mode||'',
+        s.default_rate != null ? parseFloat(s.default_rate).toFixed(2) : '',
+        s.cls||'', s.active ? 'Active' : 'Inactive']);
+    });
+    downloadCSV(rows, 'services.csv');
+  }
+
+  async function copySelected() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Check the box next to each service you want to copy first.'); return; }
+    var toCopy = services.filter(function(s) { return ids.indexOf(String(s.id)) !== -1; });
+    var inserts = toCopy.map(function(s) {
+      var copy = Object.assign({}, s);
+      delete copy.id;
+      delete copy.created_at;
+      copy.name = (copy.name || '') + ' (Copy)';
+      return copy;
+    });
+    var CHUNK = 50;
+    for (var i = 0; i < inserts.length; i += CHUNK) {
+      var { error } = await sb.from('Services').insert(inserts.slice(i, i + CHUNK));
+      if (error) { alert('Copy failed: ' + error.message); return; }
+    }
+    loadServices();
+  }
+
+  function downloadCSV(rows, filename) {
+    var csv = rows.map(function(r) {
+      return r.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = filename;
+    a.click();
+  }
+
+  loadServices();
+</script>
+</body>
+</html>
+

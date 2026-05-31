@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sales Tax Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ebebeb; color: #333; }
+
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:#fff; border-bottom:1px solid #ddd; }
+    .page-header h1 { font-size:22px; font-weight:800; color:#111; }
+    .btn-print { background:#e07820; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; display:none; }
+    .btn-print:hover { background:#c96a15; }
+
+    .date-range-section { background:#fff; border-bottom:1px solid #ddd; padding:18px 20px 14px; }
+    .date-range-title { font-size:11px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px; }
+    .date-range-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .date-box { display:flex; flex-direction:column; gap:4px; }
+    .date-box label { font-size:11px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:.4px; }
+    .date-box input[type="date"] { border:1.5px solid #ccc; border-radius:5px; padding:8px 12px; font-size:14px; font-family:inherit; background:#fff; cursor:pointer; min-width:160px; }
+    .date-box input[type="date"]:focus { outline:none; border-color:#e07820; box-shadow:0 0 0 2px rgba(224,120,32,.12); }
+    .date-arrow { font-size:20px; color:#bbb; margin-top:18px; }
+    .preset-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+    .preset-label { font-size:11px; color:#999; font-weight:600; margin-right:2px; }
+    .btn-preset { background:#f2f5fa; color:#e07820; border:1px solid #f0d8bc; padding:5px 13px; font-size:12px; font-weight:600; border-radius:20px; cursor:pointer; transition:background .15s; }
+    .btn-preset:hover { background:#fdf0e2; }
+    .btn-preset.active { background:#e07820; color:#fff; border-color:#e07820; }
+    .generate-row { display:flex; align-items:center; margin-top:14px; border-top:1px solid #f0f0f0; padding-top:14px; }
+    .btn-generate { background:#e07820; color:#fff; border:none; padding:9px 30px; font-size:14px; font-weight:700; border-radius:5px; cursor:pointer; margin-left:auto; }
+    .btn-generate:hover { background:#c96a15; }
+
+    .summary-bar { display:flex; gap:16px; padding:14px 20px; background:#fff; border-bottom:1px solid #eee; flex-wrap:wrap; }
+    .summary-card { background:#fff8f2; border:1px solid #f0d8bc; border-radius:6px; padding:10px 20px; min-width:160px; }
+    .summary-card .sc-label { font-size:11.5px; color:#888; text-transform:uppercase; letter-spacing:.4px; }
+    .summary-card .sc-val { font-size:22px; font-weight:800; color:#e07820; margin-top:3px; }
+    .summary-card.green { background:#f2fff6; border-color:#b8e8c8; }
+    .summary-card.green .sc-val { color:#1a7a3c; }
+    .summary-card.blue { background:#f0f6ff; border-color:#d0e4f8; }
+    .summary-card.blue .sc-val { color:#1a5ea0; }
+
+    .table-wrap { padding:16px 20px; }
+    table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
+    thead tr { background:#3a3a3a; color:#fff; }
+    thead th { padding:9px 10px; text-align:left; font-weight:600; font-size:12.5px; white-space:nowrap; border-right:1px solid #555; }
+    thead th:last-child { border-right:none; }
+    thead th.num { text-align:right; }
+    tbody tr { border-bottom:1px solid #eee; }
+    tbody tr:hover { background:#fff8f2; }
+    tbody td { padding:8px 10px; vertical-align:top; }
+    tbody td.num { text-align:right; font-family:monospace; }
+    tbody td.zero { color:#ccc; }
+
+    .empty-msg { text-align:center; padding:40px; color:#aaa; font-style:italic; }
+
+    tfoot tr { background:#f5f5f5; font-weight:700; border-top:2px solid #ddd; }
+    tfoot td { padding:9px 10px; }
+    tfoot td.num { text-align:right; font-family:monospace; font-weight:700; }
+
+    @media print {
+      .date-range-section, .btn-print { display:none !important; }
+      body { background:#fff; }
+      @page { margin:12mm 10mm; size:letter; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>&#128202; Sales Tax Report</h1>
+  <button class="btn-print" id="btn-print" onclick="window.print()">&#128438; Print Report</button>
+</div>
+
+<div class="date-range-section">
+  <div class="date-range-title">Select Report Period</div>
+  <div class="date-range-row">
+    <div class="date-box">
+      <label>From</label>
+      <input type="date" id="filter-from"/>
+    </div>
+    <div class="date-arrow">&#8594;</div>
+    <div class="date-box">
+      <label>To</label>
+      <input type="date" id="filter-to"/>
+    </div>
+  </div>
+  <div class="preset-row">
+    <span class="preset-label">Quick:</span>
+    <button class="btn-preset active" id="preset-thismonth" onclick="setPreset('thismonth', this)">This Month</button>
+    <button class="btn-preset" id="preset-lastmonth" onclick="setPreset('lastmonth', this)">Last Month</button>
+    <button class="btn-preset" id="preset-last30"    onclick="setPreset('last30', this)">Last 30 Days</button>
+    <button class="btn-preset" id="preset-thisyear"  onclick="setPreset('thisyear', this)">This Year</button>
+  </div>
+  <div class="generate-row">
+    <button class="btn-generate" id="btn-generate" onclick="loadReport()">&#128202;&nbsp; Generate Report</button>
+  </div>
+</div>
+
+<div class="summary-bar" id="summary-bar" style="display:none;">
+  <div class="summary-card">
+    <div class="sc-label">Total Sales</div>
+    <div class="sc-val" id="sum-total-sales">$0.00</div>
+  </div>
+  <div class="summary-card green">
+    <div class="sc-label">Taxable Sales</div>
+    <div class="sc-val" id="sum-taxable">$0.00</div>
+  </div>
+  <div class="summary-card blue">
+    <div class="sc-label">Non-Taxable Sales</div>
+    <div class="sc-val" id="sum-nontaxable">$0.00</div>
+  </div>
+  <div class="summary-card" style="background:#f5f0ff;border-color:#d8c8f0;">
+    <div class="sc-label">Sales Tax Collected</div>
+    <div class="sc-val" style="color:#6b2fb3;" id="sum-tax-collected">$0.00</div>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table id="report-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Invoice #</th>
+        <th>Client</th>
+        <th>Address</th>
+        <th class="num">Taxable Sales</th>
+        <th class="num">Non-Taxable</th>
+        <th class="num">Tax Rate</th>
+        <th class="num">Tax Collected</th>
+        <th class="num">Invoice Total</th>
+      </tr>
+    </thead>
+    <tbody id="report-body">
+      <tr><td colspan="9" class="empty-msg">Select a date range above and click Generate Report.</td></tr>
+    </tbody>
+    <tfoot id="report-foot" style="display:none;">
+      <tr>
+        <td colspan="4"><strong>Totals</strong></td>
+        <td class="num" id="foot-taxable"></td>
+        <td class="num" id="foot-nontaxable"></td>
+        <td></td>
+        <td class="num" id="foot-tax"></td>
+        <td class="num" id="foot-total"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  function fmt(n) { return '$' + (n || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  function setPreset(preset, btn) {
+    document.querySelectorAll('.btn-preset').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    var today = new Date();
+    var from, to;
+    if (preset === 'thismonth') {
+      from = new Date(today.getFullYear(), today.getMonth(), 1);
+      to   = today;
+    } else if (preset === 'lastmonth') {
+      from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      to   = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (preset === 'last30') {
+      from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29);
+      to   = today;
+    } else if (preset === 'thisyear') {
+      from = new Date(today.getFullYear(), 0, 1);
+      to   = today;
+    }
+    document.getElementById('filter-from').value = from.toISOString().split('T')[0];
+    document.getElementById('filter-to').value   = to.toISOString().split('T')[0];
+  }
+
+  (function init() {
+    setPreset('thismonth', document.getElementById('preset-thismonth'));
+    document.getElementById('filter-from').addEventListener('change', function() {
+      document.querySelectorAll('.btn-preset').forEach(function(b) { b.classList.remove('active'); });
+    });
+    document.getElementById('filter-to').addEventListener('change', function() {
+      document.querySelectorAll('.btn-preset').forEach(function(b) { b.classList.remove('active'); });
+    });
+  })();
+
+  async function loadReport() {
+    var from = document.getElementById('filter-from').value;
+    var to   = document.getElementById('filter-to').value;
+    if (!from || !to) { alert('Please select a date range.'); return; }
+
+    var btn = document.getElementById('btn-generate');
+    btn.textContent = 'Loading…';
+    btn.disabled = true;
+
+    var { data, error } = await sb.from('Invoices')
+      .select('id, inv_num, date, client_name, address, service_lines, inv_total')
+      .gte('date', from)
+      .lte('date', to)
+      .neq('deleted', true)
+      .order('date', { ascending: true });
+
+    btn.innerHTML = '&#128202;&nbsp; Generate Report';
+    btn.disabled = false;
+
+    if (error) { alert('Error loading report: ' + error.message); return; }
+
+    renderReport(data || []);
+  }
+
+  function renderReport(invoices) {
+    var tbody = document.getElementById('report-body');
+    var tfoot = document.getElementById('report-foot');
+    tbody.innerHTML = '';
+
+    if (!invoices.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No invoices found for this date range.</td></tr>';
+      document.getElementById('summary-bar').style.display = 'none';
+      document.getElementById('btn-print').style.display = 'none';
+      tfoot.style.display = 'none';
+      return;
+    }
+
+    var grandTaxable = 0, grandNontaxable = 0, grandTax = 0, grandTotal = 0;
+
+    invoices.forEach(function(inv) {
+      var lines = inv.service_lines || [];
+      var taxable = 0, nontaxable = 0, taxCollected = 0;
+      var taxRates = {};
+
+      lines.forEach(function(l) {
+        var amt     = parseFloat(l.amount) || (parseFloat(l.rate || 0) * parseFloat(l.qty || 1));
+        var taxRate = parseFloat(l.tax_rate) || 0;
+        if (taxRate > 0) {
+          taxable    += amt;
+          taxCollected += amt * taxRate / 100;
+          taxRates[taxRate] = true;
+        } else {
+          nontaxable += amt;
+        }
+      });
+
+      var invTotal = taxable + nontaxable + taxCollected;
+      grandTaxable    += taxable;
+      grandNontaxable += nontaxable;
+      grandTax        += taxCollected;
+      grandTotal      += invTotal;
+
+      var rateStr = Object.keys(taxRates).length
+        ? Object.keys(taxRates).map(function(r) { return parseFloat(r).toFixed(2) + '%'; }).join(', ')
+        : '—';
+
+      var dateStr = inv.date ? new Date(inv.date + 'T12:00:00').toLocaleDateString() : '—';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + dateStr + '</td>' +
+        '<td>#' + (inv.inv_num || '—') + '</td>' +
+        '<td>' + (inv.client_name || '—') + '</td>' +
+        '<td style="font-size:12px;color:#666;">' + (inv.address || '—') + '</td>' +
+        '<td class="num' + (taxable === 0 ? ' zero' : '') + '">' + fmt(taxable) + '</td>' +
+        '<td class="num' + (nontaxable === 0 ? ' zero' : '') + '">' + fmt(nontaxable) + '</td>' +
+        '<td class="num">' + rateStr + '</td>' +
+        '<td class="num' + (taxCollected === 0 ? ' zero' : '') + '">' + fmt(taxCollected) + '</td>' +
+        '<td class="num"><strong>' + fmt(invTotal) + '</strong></td>';
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('foot-taxable').textContent    = fmt(grandTaxable);
+    document.getElementById('foot-nontaxable').textContent = fmt(grandNontaxable);
+    document.getElementById('foot-tax').textContent        = fmt(grandTax);
+    document.getElementById('foot-total').textContent      = fmt(grandTotal);
+    tfoot.style.display = '';
+
+    document.getElementById('sum-total-sales').textContent    = fmt(grandTaxable + grandNontaxable);
+    document.getElementById('sum-taxable').textContent        = fmt(grandTaxable);
+    document.getElementById('sum-nontaxable').textContent     = fmt(grandNontaxable);
+    document.getElementById('sum-tax-collected').textContent  = fmt(grandTax);
+    document.getElementById('summary-bar').style.display = 'flex';
+    document.getElementById('btn-print').style.display = '';
+  }
+</script>
+</body>
+</html>
+

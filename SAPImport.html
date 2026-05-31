@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Import from SAP</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f4f4f4; color: #222; }
+    .hero { background: linear-gradient(135deg, #1a2f4e 0%, #2272c3 100%); padding: 28px 28px 24px; color: #fff; }
+    .hero h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .hero p { font-size: 14px; opacity: .85; max-width: 560px; line-height: 1.5; }
+    .tabs { display: flex; background: #f4f4f4; border-bottom: 3px solid #ddd; overflow-x: auto; }
+    .tab-btn { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: #666; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -3px; font-family: inherit; border-right: 1px solid #ddd; }
+    .tab-btn.active { background: #fff; color: #2272c3; border-bottom-color: #2272c3; }
+    .tab-btn.done-tab { color: #1a7a3c; }
+    .tab-content { display: none; padding: 24px 28px; }
+    .tab-content.active { display: block; }
+    .import-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; padding: 24px; max-width: 820px; }
+    .import-card h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .import-card .desc { font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+    .upload-zone { border: 2px dashed #c0d4f0; border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; background: #f8fbff; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: #2272c3; background: #eef4ff; }
+    .upload-zone.uploaded { border-color: #1a7a3c; background: #f0fff4; }
+    .upload-zone .uz-icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-zone .uz-label { font-size: 14px; font-weight: 600; color: #2272c3; }
+    .upload-zone .uz-sub { font-size: 12px; color: #999; margin-top: 4px; }
+    .preview-section { margin-top: 20px; }
+    .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .preview-header h3 { font-size: 14px; font-weight: 700; }
+    .preview-stat { font-size: 13px; color: #555; }
+    .preview-stat strong { color: #2272c3; }
+    .preview-table-wrap { overflow-x: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .preview-table th { background: #3a3a3a; color: #fff; padding: 7px 10px; text-align: left; white-space: nowrap; }
+    .preview-table td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+    .preview-table tr:last-child td { border-bottom: none; }
+    .preview-table tr:nth-child(even) { background: #f9f9f9; }
+    .import-actions { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+    .btn-import { background: #e07820; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; }
+    .btn-import:hover { background: #c96a15; }
+    .btn-import:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-reset { background: none; border: 1px solid #ccc; color: #666; padding: 9px 18px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .progress-bar-wrap { background: #eee; border-radius: 10px; height: 10px; margin: 10px 0; }
+    .progress-bar { background: #e07820; height: 10px; border-radius: 10px; width: 0; transition: width .3s; }
+    .progress-msg { font-size: 12.5px; color: #555; }
+    .results-box { background: #f0fff4; border: 1px solid #b2dfdb; border-radius: 6px; padding: 16px 20px; margin-top: 16px; }
+    .results-box.has-errors { background: #fff8f0; border-color: #f0c8a0; }
+    .results-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .results-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 8px; }
+    .results-stat { font-size: 13px; }
+    .results-stat .n { font-size: 20px; font-weight: 800; color: #1a7a3c; }
+    .results-stat.err .n { color: #c0392b; }
+    .error-list { font-size: 12px; color: #c0392b; max-height: 120px; overflow-y: auto; margin-top: 6px; }
+    .coming-soon-card { background: #fff; border-radius: 8px; border: 1px dashed #ccc; padding: 32px; text-align: center; max-width: 600px; }
+    .coming-soon-card .cs-icon { font-size: 36px; margin-bottom: 10px; }
+    .coming-soon-card h2 { font-size: 16px; font-weight: 700; color: #555; margin-bottom: 6px; }
+    .coming-soon-card p { font-size: 13px; color: #999; line-height: 1.5; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="hero">
+  <h1>&#128228; Switching from Service AutoPilot?</h1>
+  <p>Import your clients, services, products, and waiting list in order.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-btn-clients" onclick="switchTab('clients',this)">&#128101; Clients &amp; Properties</button>
+  <button class="tab-btn" id="tab-btn-services" onclick="switchTab('services',this)">&#128203; Services</button>
+  <button class="tab-btn" id="tab-btn-products" onclick="switchTab('products',this)">&#129514; Products</button>
+  <button class="tab-btn" id="tab-btn-schedule" onclick="switchTab('schedule',this)">&#9201; Waiting List</button>
+</div>
+
+<!-- CLIENTS TAB -->
+<div class="tab-content active" id="tab-clients">
+  <div class="import-card">
+    <h2>&#128101; Import Clients</h2>
+    <div class="desc">Upload your SAP clients CSV. Each row creates one Client.</div>
+    <div class="upload-zone" id="cli-upload-zone"
+         onclick="document.getElementById('cli-file-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleCliDrop(event)">
+      <div class="uz-icon">&#128196;</div>
+      <div class="uz-label">Click to upload or drag &amp; drop your SAP clients CSV</div>
+      <div class="uz-sub">Accepts .csv or .xlsx exported from Service AutoPilot</div>
+    </div>
+    <input type="file" id="cli-file-input" accept=".csv,.CSV,.xls,.xlsx" style="display:none" onchange="handleCliFile(this.files[0])"/>
+    <div class="preview-section" id="cli-preview-section" style="display:none">
+      <div class="preview-header">
+        <h3>Preview — first 5 rows</h3>
+        <div class="preview-stat">Found <strong id="cli-total-count">0</strong> clients ready to import</div>
+      </div>
+      <div class="preview-table-wrap">
+        <table class="preview-table">
+          <thead><tr><th>#</th><th>First</th><th>Last</th><th>Email</th><th>Phone</th><th>Address</th><th>City</th><th>State</th><th>Zip</th></tr></thead>
+          <tbody id="cli-preview-body"></tbody>
+        </table>
+      </div>
+      <div class="import-actions">
+        <button class="btn-import" id="cli-btn-import" onclick="runCliImport()">&#128228; Import All Clients</button>
+        <button class="btn-reset" onclick="resetCliImport()">&#10005; Clear</button>
+        <span class="progress-msg" id="cli-progress-msg"></span>
+      </div>
+      <div class="progress-bar-wrap" id="cli-progress-wrap" style="display:none"><div class="progress-bar" id="cli-progress-bar"></div></div>
+      <div id="cli-results-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES TAB -->
+<div class="tab-content" id="tab-services">
+  <div class="import-card">
+    <h2>&#128203; Import Services</h2>
+    <div class="desc">Upload your SAP services CSV. Each row creates a service type in SprayBossPro.</div>
+    <div class="upload-zone" id="svc-upload-zone"
+         onclick="document.getElementById('svc-file-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleSvcDrop(event)">
+      <div class="uz-icon">&#128196;</div>
+      <div class="uz-label">Click to upload or drag &amp; drop your SAP services CSV</div>
+      <div class="uz-sub">Accepts .csv or .xlsx exported from Service AutoPilot</div>
+    </div>
+    <input type="file" id="svc-file-input" accept=".csv,.CSV,.xls,.xlsx" style="display:none" onchange="handleSvcFile(this.files[0])"/>
+    <div class="preview-section" id="svc-preview-section" style="display:none">
+      <div class="preview-header">
+        <h3>Preview — first 5 rows</h3>
+        <div class="preview-stat">Found <strong id="svc-total-count">0</strong> services ready to import</div>
+      </div>
+      <div class="preview-table-wrap">
+        <table class="preview-table">
+          <thead><tr><th>#</th><th>Service Name</th><th>Default Rate</th><th>Active</th></tr></thead>
+          <tbody id="svc-preview-body"></tbody>
+        </table>
+      </div>
+      <div class="import-actions">
+        <button class="btn-import" id="svc-btn-import" onclick="runSvcImport()">&#128228; Import All Services</button>
+        <button class="btn-reset" onclick="resetSvcImport()">&#10005; Clear</button>
+        <span class="progress-msg" id="svc-progress-msg"></span>
+      </div>
+      <div class="progress-bar-wrap" id="svc-progress-wrap" style="display:none"><div class="progress-bar" id="svc-progress-bar"></div></div>
+      <div id="svc-results-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS TAB -->
+<div class="tab-content" id="tab-products">
+  <div class="import-card">
+    <h2>&#129514; Import Products</h2>
+    <div class="desc">Upload your SAP products CSV.</div>
+    <div class="upload-zone" id="prod-upload-zone"
+         onclick="document.getElementById('prod-file-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleProdDrop(event)">
+      <div class="uz-icon">&#128196;</div>
+      <div class="uz-label">Click to upload or drag &amp; drop your SAP products CSV</div>
+      <div class="uz-sub">Accepts .csv or .xlsx exported from Service AutoPilot</div>
+    </div>
+    <input type="file" id="prod-file-input" accept=".csv,.CSV,.xls,.xlsx" style="display:none" onchange="handleProdFile(this.files[0])"/>
+    <div class="preview-section" id="prod-preview-section" style="display:none">
+      <div class="preview-header">
+        <h3>Preview — first 5 rows</h3>
+        <div class="preview-stat">Found <strong id="prod-total-count">0</strong> products ready to import</div>
+      </div>
+      <div class="preview-table-wrap">
+        <table class="preview-table">
+          <thead><tr><th>#</th><th>Product Name</th><th>EPA Reg #</th><th>Price</th><th>Active</th></tr></thead>
+          <tbody id="prod-preview-body"></tbody>
+        </table>
+      </div>
+      <div class="import-actions">
+        <button class="btn-import" id="prod-btn-import" onclick="runProdImport()">&#128228; Import All Products</button>
+        <button class="btn-reset" onclick="resetProdImport()">&#10005; Clear</button>
+        <span class="progress-msg" id="prod-progress-msg"></span>
+      </div>
+      <div class="progress-bar-wrap" id="prod-progress-wrap" style="display:none"><div class="progress-bar" id="prod-progress-bar"></div></div>
+      <div id="prod-results-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WAITING LIST TAB -->
+<div class="tab-content" id="tab-schedule">
+  <div class="import-card">
+    <h2>&#9201; Import Waiting List</h2>
+    <div class="desc">Upload your SAP waiting list CSV. Completed and cancelled rows are automatically skipped. Run Clients import first.</div>
+    <div class="upload-zone" id="sched-upload-zone"
+         onclick="document.getElementById('sched-file-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleSchedDrop(event)">
+      <div class="uz-icon">&#128196;</div>
+      <div class="uz-label">Click to upload or drag &amp; drop your SAP waiting list CSV</div>
+      <div class="uz-sub">Completed and cancelled rows are automatically skipped</div>
+    </div>
+    <input type="file" id="sched-file-input" accept=".csv,.CSV,.xls,.xlsx" style="display:none" onchange="handleSchedFile(this.files[0])"/>
+    <div class="preview-section" id="sched-preview-section" style="display:none">
+      <div class="preview-header">
+        <h3>Preview — first 5 rows</h3>
+        <div class="preview-stat"><strong id="sched-future-count">0</strong> services to import &nbsp;|&nbsp; <span id="sched-skip-count" style="color:#aaa;">0 skipped</span></div>
+      </div>
+      <div class="preview-table-wrap">
+        <table class="preview-table">
+          <thead><tr><th>#</th><th>Client</th><th>Service</th><th>Date</th><th>Address</th><th>Amount</th></tr></thead>
+          <tbody id="sched-preview-body"></tbody>
+        </table>
+      </div>
+      <div class="import-actions">
+        <button class="btn-import" id="sched-btn-import" onclick="runSchedImport()">&#128228; Import All</button>
+        <button class="btn-reset" onclick="resetSchedImport()">&#10005; Clear</button>
+        <span class="progress-msg" id="sched-progress-msg"></span>
+      </div>
+      <div class="progress-bar-wrap" id="sched-progress-wrap" style="display:none"><div class="progress-bar" id="sched-progress-bar"></div></div>
+      <div id="sched-results-box"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  // ── Tab switching ──
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── File parser: CSV and Excel ──
+  function parseFile(file, callback) {
+    var name = (file.name || '').toLowerCase();
+    if (name.endsWith('.xls') || name.endsWith('.xlsx')) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        callback(XLSX.utils.sheet_to_json(ws, { defval: '' }));
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      Papa.parse(file, {
+        header: true, skipEmptyLines: true,
+        complete: function(r) { callback(r.data); }
+      });
+    }
+  }
+
+  function v(row, keys) {
+    for (var i = 0; i < keys.length; i++) {
+      var val = row[keys[i]];
+      if (val !== undefined && val !== null && String(val).trim() !== '') return String(val).trim();
+    }
+    return '';
+  }
+
+  // ════════════════════════════════════════════
+  //  CLIENTS ONLY
+  // ════════════════════════════════════════════
+  var cliRows = [];
+
+  function handleCliDrop(e) {
+    e.preventDefault();
+    document.getElementById('cli-upload-zone').classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleCliFile(e.dataTransfer.files[0]);
+  }
+
+  function handleCliFile(file) {
+    if (!file) return;
+    parseFile(file, function(rows) {
+      cliRows = rows.filter(function(r) { return r && typeof r === 'object'; });
+      document.getElementById('cli-total-count').textContent = cliRows.length;
+      document.getElementById('cli-preview-section').style.display = '';
+      var tbody = document.getElementById('cli-preview-body');
+      tbody.innerHTML = '';
+      cliRows.slice(0, 5).forEach(function(row, i) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i+1) + '</td>' +
+          '<td>' + (v(row, ['FirstName','First Name']) || '—') + '</td>' +
+          '<td>' + (v(row, ['LastName','Last Name']) || '—') + '</td>' +
+          '<td>' + (v(row, ['Email','BillingEmail']) || '—') + '</td>' +
+          '<td>' + (v(row, ['CellPhone','HomePhone']) || '—') + '</td>' +
+          '<td>' + (v(row, ['BillingAddress','Address']) || '—') + '</td>' +
+          '<td>' + (v(row, ['BillingCity','City']) || '—') + '</td>' +
+          '<td>' + (v(row, ['BillingState','State']) || '—') + '</td>' +
+          '<td>' + (v(row, ['BillingZip','Zip']) || '—') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+  }
+
+  function resetCliImport() {
+    cliRows = [];
+    document.getElementById('cli-preview-section').style.display = 'none';
+    document.getElementById('cli-file-input').value = '';
+    document.getElementById('cli-results-box').innerHTML = '';
+    document.getElementById('cli-progress-msg').textContent = '';
+    document.getElementById('cli-progress-wrap').style.display = 'none';
+    document.getElementById('cli-upload-zone').classList.remove('uploaded');
+  }
+
+  async function runCliImport() {
+    if (!cliRows.length) return;
+    var btn = document.getElementById('cli-btn-import');
+    btn.disabled = true;
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { document.getElementById('cli-results-box').innerHTML = '<div class="results-box has-errors"><h3>Not logged in</h3></div>'; btn.disabled = false; return; }
+
+    var total = cliRows.length, done = 0, ok = 0, errors = [];
+    document.getElementById('cli-progress-wrap').style.display = '';
+
+    for (var i = 0; i < total; i++) {
+      try {
+        var row = cliRows[i];
+        var fn    = v(row, ['FirstName', 'First Name']);
+        var ln    = v(row, ['LastName',  'Last Name']);
+        if (!fn && !ln) { var parts = v(row, ['ClientName','Client Name']).split(' '); fn = parts[0]||''; ln = parts.slice(1).join(' ')||''; }
+        var phone = v(row, ['CellPhone', 'Cell Phone', 'HomePhone', 'Home Phone']);
+        var addr1 = v(row, ['BillingAddress', 'Billing Address', 'Address']);
+        var city  = v(row, ['BillingCity',    'Billing City',    'City']);
+        var state = v(row, ['BillingState',   'Billing State',   'State']);
+        var zip   = v(row, ['BillingZip',     'Billing Zip',     'Zip']);
+
+        var record = {
+          user_id:    uid,
+          name:       (fn + ' ' + ln).trim() || 'Client',
+          first_name: fn,
+          last_name:  ln,
+          email:      v(row, ['Email', 'BillingEmail']) || null,
+          phone:      phone,
+          cell:       phone,
+          home_phone: v(row, ['HomePhone', 'Home Phone']),
+          addr1:      addr1,
+          city:       city,
+          state:      state,
+          zip:        zip,
+          address:    [addr1, city, state].filter(Boolean).join(', '),
+          notes:      v(row, ['OfficeNotes', 'Office Notes']),
+        };
+
+        var { data, error } = await sb.from('Clients').insert(record).select('id');
+        if (error) {
+          errors.push('Row ' + (i+1) + ' ' + record.name + ': ' + error.message);
+        } else {
+          ok++;
+          var clientId = data && data[0] ? data[0].id : null;
+          if (clientId) {
+            await sb.from('Properties').insert({
+              user_id:      uid,
+              customer_id:  clientId,
+              name:         record.name,
+              address:      v(row, ['PhysicalAddress', 'Physical Address', 'BillingAddress', 'Address']),
+              city:         v(row, ['PhysicalCity',    'Physical City',    'BillingCity',    'City']),
+              state:        v(row, ['PhysicalState',   'Physical State',   'BillingState',   'State']),
+              zip:          v(row, ['PhysicalZip',     'Physical Zip',     'BillingZip',     'Zip']),
+              lat:          parseFloat(v(row, ['Latitude']))  || null,
+              lng:          parseFloat(v(row, ['Longitude'])) || null,
+              area_treated: {
+                lawn_care:   v(row, ['5LAWNSQFT']),
+                lawn_insect: v(row, ['6ICPSQFT']),
+                flower_beds: v(row, ['7FlowerBedsSQFT']),
+                mosquito:    v(row, ['8MCAreaTreated']),
+              },
+            });
+          }
+        }
+      } catch(ex) {
+        errors.push('Row ' + (i+1) + ' crashed: ' + ex.message);
+      }
+
+      done++;
+      var pct = Math.round(done / total * 100);
+      document.getElementById('cli-progress-bar').style.width = pct + '%';
+      document.getElementById('cli-progress-msg').textContent = 'Importing… ' + done + ' of ' + total;
+    }
+
+    document.getElementById('cli-progress-wrap').style.display = 'none';
+    document.getElementById('cli-progress-msg').textContent = '';
+    var html = '<div class="results-box' + (errors.length ? ' has-errors' : '') + '">' +
+      '<h3>' + (errors.length ? '&#9888; Completed with errors' : '&#10003; Import complete!') + '</h3>' +
+      '<div class="results-row"><div class="results-stat"><div class="n">' + ok + '</div>Clients created</div>' +
+      '<div class="results-stat err"><div class="n">' + (total - ok) + '</div>Errors</div></div>' +
+      (errors.length ? '<div class="error-list">' + errors.slice(0,20).map(function(e){return '&bull; '+e;}).join('<br/>') + '</div>' : '') +
+      '</div>';
+    document.getElementById('cli-results-box').innerHTML = html;
+    if (ok > 0) { document.getElementById('cli-upload-zone').classList.add('uploaded'); document.getElementById('tab-btn-clients').classList.add('done-tab'); }
+    btn.textContent = ok > 0 ? '&#10003; Imported' : 'Import Failed';
+    btn.style.background = ok > 0 ? '#1a7a3c' : '#c0392b';
+  }
+
+  // ════════════════════════════════════════════
+  //  SERVICES
+  // ════════════════════════════════════════════
+  var parsedSvcRows = [];
+
+  function handleSvcDrop(e) {
+    e.preventDefault();
+    document.getElementById('svc-upload-zone').classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleSvcFile(e.dataTransfer.files[0]);
+  }
+
+  function handleSvcFile(file) {
+    if (!file) return;
+    parseFile(file, function(rows) {
+      parsedSvcRows = rows.filter(function(r) { return r && typeof r === 'object'; });
+      document.getElementById('svc-total-count').textContent = parsedSvcRows.length;
+      document.getElementById('svc-preview-section').style.display = '';
+      var tbody = document.getElementById('svc-preview-body');
+      tbody.innerHTML = '';
+      parsedSvcRows.slice(0, 5).forEach(function(row, i) {
+        var active = String(v(row, ['Active'])).toLowerCase();
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (i+1) + '</td><td>' + (v(row, ['ServiceName','Service Name']) || '—') + '</td><td>$' + (parseFloat(v(row, ['DefaultRate','Default Rate'])) || 0).toFixed(2) + '</td><td>' + (active === 'true' || active === '1' ? '✓' : '—') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+  }
+
+  function resetSvcImport() {
+    parsedSvcRows = [];
+    document.getElementById('svc-preview-section').style.display = 'none';
+    document.getElementById('svc-file-input').value = '';
+    document.getElementById('svc-results-box').innerHTML = '';
+  }
+
+  async function runSvcImport() {
+    if (!parsedSvcRows.length) return;
+    var btn = document.getElementById('svc-btn-import');
+    btn.disabled = true;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { btn.disabled = false; return; }
+
+    var total = parsedSvcRows.length, done = 0, ok = 0, errors = [];
+    document.getElementById('svc-progress-wrap').style.display = '';
+
+    for (var i = 0; i < total; i += 100) {
+      var batch = parsedSvcRows.slice(i, i + 100).map(function(row) {
+        var active = String(v(row, ['Active'])).toLowerCase();
+        return {
+          user_id:     uid,
+          name:        v(row, ['ServiceName', 'Service Name']),
+          service:     v(row, ['ServiceName', 'Service Name']),
+          amount:      parseFloat(v(row, ['DefaultRate', 'Default Rate'])) || 0,
+          active:      active === 'true' || active === '1' || active === 'yes',
+          sched_notes: v(row, ['InvoiceDescription', 'Invoice Description']),
+          work_order:  v(row, ['Code']),
+          property_id: null,
+        };
+      }).filter(function(r) { return r.name; });
+
+      var { data: ins, error } = await sb.from('Services').insert(batch).select('id');
+      if (error) errors.push('Batch: ' + error.message);
+      else ok += ins.length;
+      done += batch.length;
+      var pct = Math.round(done / total * 100);
+      document.getElementById('svc-progress-bar').style.width = pct + '%';
+      document.getElementById('svc-progress-msg').textContent = 'Importing… ' + done + ' of ' + total;
+    }
+
+    document.getElementById('svc-progress-wrap').style.display = 'none';
+    document.getElementById('svc-progress-msg').textContent = '';
+    document.getElementById('svc-results-box').innerHTML =
+      '<div class="results-box' + (errors.length ? ' has-errors' : '') + '"><h3>' + (errors.length ? '&#9888; Errors' : '&#10003; Done!') + '</h3>' +
+      '<div class="results-row"><div class="results-stat"><div class="n">' + ok + '</div>Services created</div></div>' +
+      (errors.length ? '<div class="error-list">' + errors.map(function(e){return '&bull; '+e;}).join('<br/>') + '</div>' : '') + '</div>';
+    if (ok > 0) { document.getElementById('svc-upload-zone').classList.add('uploaded'); document.getElementById('tab-btn-services').classList.add('done-tab'); }
+    btn.textContent = ok > 0 ? '✓ Imported' : 'Import Failed';
+    btn.style.background = ok > 0 ? '#1a7a3c' : '#c0392b';
+  }
+
+  // ════════════════════════════════════════════
+  //  PRODUCTS
+  // ════════════════════════════════════════════
+  var parsedProdRows = [];
+
+  function handleProdDrop(e) {
+    e.preventDefault();
+    document.getElementById('prod-upload-zone').classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleProdFile(e.dataTransfer.files[0]);
+  }
+
+  function handleProdFile(file) {
+    if (!file) return;
+    parseFile(file, function(rows) {
+      parsedProdRows = rows.filter(function(r) { return r && typeof r === 'object'; });
+      document.getElementById('prod-total-count').textContent = parsedProdRows.length;
+      document.getElementById('prod-preview-section').style.display = '';
+      var tbody = document.getElementById('prod-preview-body');
+      tbody.innerHTML = '';
+      parsedProdRows.slice(0, 5).forEach(function(row, i) {
+        var active = String(v(row, ['Active'])).toLowerCase();
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (i+1) + '</td><td>' + (v(row, ['ProductName','Product Name']) || '—') + '</td><td>' + (v(row, ['EPARegistrationNumber','EPA Registration Number']) || '—') + '</td><td>$' + (parseFloat(v(row, ['Price','ProductCost'])) || 0).toFixed(2) + '</td><td>' + (active === 'true' || active === '1' ? '✓' : '—') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+  }
+
+  function resetProdImport() {
+    parsedProdRows = [];
+    document.getElementById('prod-preview-section').style.display = 'none';
+    document.getElementById('prod-file-input').value = '';
+    document.getElementById('prod-results-box').innerHTML = '';
+  }
+
+  async function runProdImport() {
+    if (!parsedProdRows.length) return;
+    var btn = document.getElementById('prod-btn-import');
+    btn.disabled = true;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { btn.disabled = false; return; }
+
+    var total = parsedProdRows.length, done = 0, ok = 0, errors = [];
+    document.getElementById('prod-progress-wrap').style.display = '';
+
+    for (var i = 0; i < total; i += 100) {
+      var batch = parsedProdRows.slice(i, i + 100).map(function(row) {
+        var active = String(v(row, ['Active'])).toLowerCase();
+        return {
+          user_id:     uid,
+          name:        v(row, ['ProductName', 'Product Name']),
+          description: v(row, ['SalesDescription', 'PurchaseDescription']),
+          part_number: v(row, ['PartNumber', 'Part Number']),
+          price:       parseFloat(v(row, ['Price', 'ProductCost'])) || 0,
+          epa_reg:     v(row, ['EPARegistrationNumber', 'EPA Registration Number', 'EPAReg']),
+          active:      active === 'true' || active === '1' || active === 'yes',
+        };
+      }).filter(function(r) { return r.name; });
+
+      var { data: ins, error } = await sb.from('Products').insert(batch).select('id');
+      if (error) errors.push('Batch: ' + error.message);
+      else ok += ins.length;
+      done += batch.length;
+      document.getElementById('prod-progress-bar').style.width = Math.round(done/total*100) + '%';
+      document.getElementById('prod-progress-msg').textContent = 'Importing… ' + done + ' of ' + total;
+    }
+
+    document.getElementById('prod-progress-wrap').style.display = 'none';
+    document.getElementById('prod-progress-msg').textContent = '';
+    document.getElementById('prod-results-box').innerHTML =
+      '<div class="results-box' + (errors.length ? ' has-errors' : '') + '"><h3>' + (errors.length ? '&#9888; Errors' : '&#10003; Done!') + '</h3>' +
+      '<div class="results-row"><div class="results-stat"><div class="n">' + ok + '</div>Products created</div></div>' +
+      (errors.length ? '<div class="error-list">' + errors.map(function(e){return '&bull; '+e;}).join('<br/>') + '</div>' : '') + '</div>';
+    if (ok > 0) { document.getElementById('prod-upload-zone').classList.add('uploaded'); document.getElementById('tab-btn-products').classList.add('done-tab'); }
+    btn.textContent = ok > 0 ? '✓ Imported' : 'Import Failed';
+    btn.style.background = ok > 0 ? '#1a7a3c' : '#c0392b';
+  }
+
+  // ════════════════════════════════════════════
+  //  WAITING LIST
+  // ════════════════════════════════════════════
+  var parsedSchedRows = [], filteredSchedRows = [];
+
+  function handleSchedDrop(e) {
+    e.preventDefault();
+    document.getElementById('sched-upload-zone').classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleSchedFile(e.dataTransfer.files[0]);
+  }
+
+  function handleSchedFile(file) {
+    if (!file) return;
+    parseFile(file, function(rows) {
+      parsedSchedRows = rows.filter(function(r) { return r && typeof r === 'object'; });
+      var skipped = 0;
+      filteredSchedRows = parsedSchedRows.filter(function(row) {
+        var status = String(v(row, ['ScheduleStatus','Schedule Status','Status'])).toLowerCase();
+        if (status === 'complete' || status === 'completed' || status === 'cancelled' || status === 'canceled') { skipped++; return false; }
+        return true;
+      });
+      document.getElementById('sched-future-count').textContent = filteredSchedRows.length;
+      document.getElementById('sched-skip-count').textContent = skipped + ' completed/cancelled skipped';
+      document.getElementById('sched-preview-section').style.display = '';
+      var tbody = document.getElementById('sched-preview-body');
+      tbody.innerHTML = '';
+      filteredSchedRows.slice(0, 5).forEach(function(row, i) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (i+1) + '</td>' +
+          '<td>' + (v(row, ['ClientName','Client Name']) || '—') + '</td>' +
+          '<td>' + (v(row, ['Service','ServiceName','Service Name']) || '—') + '</td>' +
+          '<td>' + (v(row, ['ScheduleDate','Schedule Date','Date']) || '—') + '</td>' +
+          '<td>' + (v(row, ['ServiceAddressLine1','ClientAddressLine1']) || '—') + '</td>' +
+          '<td>$' + (parseFloat(v(row, ['Amount','Rate'])) || 0).toFixed(2) + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+  }
+
+  function resetSchedImport() {
+    parsedSchedRows = []; filteredSchedRows = [];
+    document.getElementById('sched-preview-section').style.display = 'none';
+    document.getElementById('sched-file-input').value = '';
+    document.getElementById('sched-results-box').innerHTML = '';
+  }
+
+  function parseSAPDate(str) {
+    if (!str) return null;
+    str = str.trim();
+    var m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m) return new Date(parseInt(m[3]), parseInt(m[1])-1, parseInt(m[2])).toISOString().split('T')[0];
+    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return str.split('T')[0];
+    return null;
+  }
+
+  async function runSchedImport() {
+    if (!filteredSchedRows.length) return;
+    var btn = document.getElementById('sched-btn-import');
+    btn.disabled = true;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { btn.disabled = false; return; }
+
+    document.getElementById('sched-progress-msg').textContent = 'Loading client records…';
+
+    var { data: clients } = await sb.from('Clients').select('id, name, first_name, last_name').eq('user_id', uid);
+    var clientMap = {};
+    (clients || []).forEach(function(c) {
+      var k1 = ((c.first_name || '') + ' ' + (c.last_name || '')).toLowerCase().trim();
+      var k2 = (c.name || '').toLowerCase().trim();
+      if (k1) clientMap[k1] = c.id;
+      if (k2) clientMap[k2] = c.id;
+    });
+
+    var { data: props } = await sb.from('Properties').select('id, customer_id').eq('user_id', uid);
+    var propMap = {};
+    (props || []).forEach(function(p) { if (p.customer_id && !propMap[p.customer_id]) propMap[p.customer_id] = p.id; });
+
+    var total = filteredSchedRows.length, done = 0, ok = 0, errors = [];
+    document.getElementById('sched-progress-wrap').style.display = '';
+
+    for (var i = 0; i < total; i += 50) {
+      var batch = filteredSchedRows.slice(i, i + 50).map(function(row) {
+        var clientName = v(row, ['ClientName','Client Name']) || (v(row,['FirstName']) + ' ' + v(row,['LastName'])).trim();
+        var cid = clientMap[clientName.toLowerCase()] || null;
+        return {
+          user_id:        uid,
+          client_name:    clientName,
+          address:        v(row, ['ServiceAddressLine1','ClientAddressLine1']),
+          service:        v(row, ['Service','NewService','ServiceName','Service Name']) || 'Imported Service',
+          scheduled_date: parseSAPDate(v(row, ['ScheduleDate','Schedule Date','Date','ServiceDate'])),
+          assigned_to:    v(row, ['AssignedTo']),
+          amount:         parseFloat(v(row, ['Amount','Rate'])) || 0,
+          route_order:    parseInt(v(row, ['RouteOrder'])) || 0,
+          sched_notes:    v(row, ['RouteNotes']),
+          dispatched:     false,
+          status:         'pending',
+          customer_id:    cid,
+          property_id:    cid ? (propMap[cid] || null) : null,
+        };
+      }).filter(function(r) { return r.client_name && r.client_name.trim(); });
+
+      var { data: ins, error } = await sb.from('Services').insert(batch).select('id');
+      if (error) errors.push('Batch: ' + error.message);
+      else ok += ins.length;
+      done += batch.length;
+      document.getElementById('sched-progress-bar').style.width = Math.round(done/total*100) + '%';
+      document.getElementById('sched-progress-msg').textContent = 'Importing… ' + done + ' of ' + total;
+    }
+
+    document.getElementById('sched-progress-wrap').style.display = 'none';
+    document.getElementById('sched-progress-msg').textContent = '';
+    document.getElementById('sched-results-box').innerHTML =
+      '<div class="results-box' + (errors.length ? ' has-errors' : '') + '"><h3>' + (errors.length ? '&#9888; Errors' : '&#10003; Done!') + '</h3>' +
+      '<div class="results-row"><div class="results-stat"><div class="n">' + ok + '</div>Services created</div></div>' +
+      (errors.length ? '<div class="error-list">' + errors.map(function(e){return '&bull; '+e;}).join('<br/>') + '</div>' : '') + '</div>';
+    if (ok > 0) { document.getElementById('sched-upload-zone').classList.add('uploaded'); document.getElementById('tab-btn-schedule').classList.add('done-tab'); }
+    btn.textContent = ok > 0 ? '✓ Imported' : 'Import Failed';
+    btn.style.background = ok > 0 ? '#1a7a3c' : '#c0392b';
+  }
+</script>
+</body>
+</html>

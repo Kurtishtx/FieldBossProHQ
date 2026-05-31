@@ -1,0 +1,576 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Client</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      background: #ebebeb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 10px;
+      min-height: 100vh;
+    }
+
+    /* ── Modal shell ── */
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 1100px;
+      border: 1px solid #999;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    }
+
+    /* ── Header ── */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 8px;
+    }
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #222;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #555;
+      line-height: 1;
+      padding: 2px 6px;
+    }
+    .close-btn:hover { color: #000; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+      padding: 0 10px;
+      gap: 2px;
+    }
+    .tab {
+      padding: 7px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 13px;
+      color: #444;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: #111; }
+    .tab.active {
+      background: #3a3a3a;
+      color: #fff;
+      border-radius: 3px 3px 0 0;
+      border-bottom: 2px solid #3a3a3a;
+    }
+
+    /* ── Tab content ── */
+    .tab-content { padding: 0 0 6px; }
+    .tab-content.hidden { display: none; }
+    .placeholder { padding: 20px; color: #777; }
+    .cf-row {
+      display: flex; align-items: center;
+      border-bottom: 1px solid #eee; padding: 0;
+    }
+    .cf-row:last-child { border-bottom: none; }
+    .cf-label {
+      width: 240px; min-width: 240px; padding: 10px 16px;
+      font-size: 13px; color: #555; border-right: 1px solid #eee;
+    }
+    .cf-input {
+      flex: 1; border: 1px solid #333; outline: none; padding: 8px 14px;
+      font-size: 13px; font-family: inherit; color: #222; background: #fff; margin: 6px 10px;
+    }
+    .cf-input:focus { border-color: #e07820; }
+    .cf-empty { padding: 20px 16px; color: #aaa; font-style: italic; font-size: 13px; }
+
+    /* ── Section header (dark bar) ── */
+    .sec-header {
+      background: #3a3a3a;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 10px;
+    }
+
+    /* ── Client Name row ── */
+    .section-wrap { margin-bottom: 0; }
+    .name-table {
+      width: 100%;
+      border-collapse: collapse;
+      padding: 6px 8px;
+      display: block;
+    }
+    .name-table tr { display: flex; gap: 4px; padding: 6px 8px; }
+    .name-table td { flex: 1; display: flex; }
+    .name-table td:nth-child(3) { flex: 0 0 140px; }
+    .name-table input {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid #bbb;
+      font-size: 13px;
+      height: 28px;
+    }
+    .name-table input[readonly] { background: #f5f5f5; }
+
+    /* ── 3-column table ── */
+    .cols-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-top: 1px solid #ddd;
+    }
+    .col-td {
+      vertical-align: top;
+      border-right: 1px solid #ddd;
+    }
+    .col-td:last-child { border-right: none; }
+
+    /* ── Field rows inside columns ── */
+    .sec-body { padding: 6px 8px; }
+    .fr {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      gap: 4px;
+    }
+    .lbl {
+      width: 90px;
+      min-width: 90px;
+      color: #444;
+      font-size: 12.5px;
+      text-align: right;
+      padding-right: 6px;
+    }
+    .lbl.bold { font-weight: 700; }
+    .lbl-select { width: 46px; min-width: 46px; }
+
+    .fr input[type="text"],
+    .fr input[type="email"] {
+      flex: 1;
+      padding: 3px 6px;
+      border: 1px solid #bbb;
+      font-size: 13px;
+      height: 26px;
+      min-width: 0;
+    }
+    .input-sm { max-width: 80px; flex: 0 0 80px !important; }
+
+    /* ── Selects ── */
+    .sel-wrap { flex: 1; min-width: 0; }
+    .sel-wrap select {
+      width: 100%;
+      height: 26px;
+      padding: 0 4px;
+      border: 1px solid #bbb;
+      font-size: 13px;
+      background: #fff;
+    }
+    .sel-sm { max-width: 80px; flex: 0 0 80px !important; }
+    .sel-master { max-width: 420px; }
+
+    /* ── Master Property ── */
+    .helper-text {
+      margin-top: 4px;
+      padding-left: 104px;
+      color: #555;
+      font-style: italic;
+      font-size: 12.5px;
+    }
+
+    /* ── Footer ── */
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid #ddd;
+    }
+    .btn-save {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      padding: 8px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .or-text { color: #555; font-size: 13px; }
+    .btn-cancel {
+      color: #444;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .btn-cancel:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="modal">
+
+  <div class="modal-header">
+    <h2>Add Client &ndash; <span id="client-title">New Client</span></h2>
+    <button class="close-btn" onclick="closeModal()">&#10005;</button>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="personal">Personal Information</button>
+    <button class="tab" data-tab="details">Details</button>
+    <button class="tab" data-tab="sales">Sales</button>
+    <button class="tab" data-tab="billing">Billing</button>
+    <button class="tab" data-tab="notes">Office Notes</button>
+  </nav>
+
+  <div class="tab-content" id="tab-personal">
+
+    <!-- Client Name -->
+    <div class="section-wrap">
+      <div class="sec-header">Client Name</div>
+      <table class="name-table">
+        <tr>
+          <td><input type="text" id="first-name"   placeholder="First Name"/></td>
+          <td><input type="text" id="last-name"    placeholder="Last Name"/></td>
+          <td><input type="text" id="nickname"     placeholder="Nickname"/></td>
+          <td><input type="text" id="display-name" placeholder="Display Name" readonly/></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 3 Columns -->
+    <table class="cols-table" cellspacing="0" cellpadding="0">
+      <colgroup>
+        <col style="width:33.33%"/>
+        <col style="width:33.33%"/>
+        <col style="width:33.34%"/>
+      </colgroup>
+      <tr>
+
+        <!-- CONTACT -->
+        <td class="col-td">
+          <div class="sec-header">Contact</div>
+          <div class="sec-body">
+            <div class="fr"><span class="lbl">Email</span><input type="email" id="email"/></div>
+            <div class="fr"><span class="lbl">Home</span><input type="text" id="home-phone"/></div>
+            <div class="fr"><span class="lbl">Cell</span><input type="text" id="cell"/></div>
+            <div class="fr"><span class="lbl">Provider:</span>
+              <div class="sel-wrap"><select id="provider"><option>Search Providers...</option></select></div>
+            </div>
+            <div class="fr"><span class="lbl">Work</span><input type="text" id="work"/></div>
+            <div class="fr"><span class="lbl">Other</span><input type="text" id="other"/></div>
+            <div class="fr"><span class="lbl">FAX:</span><input type="text" id="fax"/></div>
+            <div class="fr"><span class="lbl">Preferred</span>
+              <div class="sel-wrap"><select id="preferred">
+                <option value=""></option>
+                <option value="email">Email</option>
+                <option value="cell">Cell</option>
+                <option value="home">Home</option>
+                <option value="work">Work</option>
+              </select></div>
+            </div>
+            <div class="fr"><span class="lbl">Title</span><input type="text" id="title"/></div>
+          </div>
+        </td>
+
+        <!-- SERVICE ADDRESS -->
+        <td class="col-td">
+          <div class="sec-header">Service Address</div>
+          <div class="sec-body">
+            <div class="fr"><span class="lbl">Property Name</span><input type="text" id="prop-name"/></div>
+            <div class="fr"><span class="lbl"></span><input type="text" id="prop-name2" placeholder="Property Name Continued"/></div>
+            <div class="fr"><span class="lbl">Address</span><input type="text" id="svc-addr1"/></div>
+            <div class="fr"><span class="lbl"></span><input type="text" id="svc-addr2"/></div>
+            <div class="fr"><span class="lbl">Postal Code</span><input type="text" id="svc-zip" class="input-sm"/></div>
+            <div class="fr"><span class="lbl">City</span><input type="text" id="svc-city"/></div>
+            <div class="fr"><span class="lbl">State</span>
+              <div class="sel-wrap sel-sm"><select id="svc-state">
+                <option value="">--</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+                <option>CA</option><option>CO</option><option>CT</option><option>FL</option><option>GA</option>
+                <option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+                <option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option>
+                <option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option>
+                <option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option>
+                <option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+                <option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option>
+                <option>TN</option><option selected>TX</option><option>UT</option><option>VT</option><option>VA</option>
+                <option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+              </select></div>
+            </div>
+            <div class="fr"><span class="lbl">Map Code</span><input type="text" id="map-code" class="input-sm"/></div>
+          </div>
+        </td>
+
+        <!-- BILLING ADDRESS -->
+        <td class="col-td">
+          <div class="sec-header">Billing Address</div>
+          <div class="sec-body">
+            <div class="fr"><span class="lbl">Name on Inv.</span><input type="text" id="inv-name"/></div>
+            <div class="fr"><span class="lbl">Attention To</span><input type="text" id="attention"/></div>
+            <div class="fr"><span class="lbl">Address</span><input type="text" id="bill-addr1"/></div>
+            <div class="fr"><span class="lbl"></span><input type="text" id="bill-addr2"/></div>
+            <div class="fr"><span class="lbl">Postal Code</span><input type="text" id="bill-zip" class="input-sm"/></div>
+            <div class="fr"><span class="lbl">City</span><input type="text" id="bill-city"/></div>
+            <div class="fr"><span class="lbl">State</span>
+              <div class="sel-wrap sel-sm"><select id="bill-state">
+                <option value="">--</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+                <option>CA</option><option>CO</option><option>CT</option><option>FL</option><option>GA</option>
+                <option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+                <option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option>
+                <option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option>
+                <option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option>
+                <option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+                <option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option>
+                <option>TN</option><option selected>TX</option><option>UT</option><option>VT</option><option>VA</option>
+                <option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+              </select></div>
+            </div>
+            <div class="fr"><span class="lbl">Country</span>
+              <div class="sel-wrap"><select id="country">
+                <option value=""></option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="MX">Mexico</option>
+              </select></div>
+            </div>
+            <div class="fr"><span class="lbl bold">Sales Tax</span>
+              <div class="sel-wrap"><select id="sales-tax">
+                <option value="">-- Select Sales Tax --</option>
+              </select></div>
+            </div>
+          </div>
+        </td>
+
+      </tr>
+    </table>
+
+    <!-- Master Property -->
+    <div class="section-wrap">
+      <div class="sec-header">Master Property</div>
+      <div class="sec-body">
+        <div class="fr">
+          <span class="lbl lbl-select">Select</span>
+          <div class="sel-wrap sel-master">
+            <select id="master-prop"><option value="">Type to search for clients</option></select>
+          </div>
+        </div>
+        <p class="helper-text"><em>Select the client from the list that owns or manages this property.</em></p>
+      </div>
+    </div>
+
+  </div><!-- /tab-personal -->
+
+  <div class="tab-content hidden" id="tab-details"><p class="placeholder">Details tab content goes here.</p></div>
+  <div class="tab-content hidden" id="tab-sales"><p class="placeholder">Sales tab content goes here.</p></div>
+  <div class="tab-content hidden" id="tab-billing"><p class="placeholder">Billing tab content goes here.</p></div>
+  <div class="tab-content hidden" id="tab-notes">
+    <div style="padding:20px">
+      <label style="font-size:13px;font-weight:700;color:#333;display:block;margin-bottom:8px">Office Notes</label>
+      <textarea id="office-notes" rows="8" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:10px;font-size:13.5px;font-family:inherit;color:#222;resize:vertical;" placeholder="Internal notes about this client..."></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-save" onclick="saveClient()">Save</button>
+    <span class="or-text">or</span>
+    <a href="#" class="btn-cancel" onclick="cancelEdit(event)">Cancel</a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sbClient = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var editId = new URLSearchParams(window.location.search).get('id');
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.add('hidden'); });
+      tab.classList.add('active');
+      var target = document.getElementById('tab-' + tab.dataset.tab);
+      if (target) target.classList.remove('hidden');
+    });
+  });
+
+  // Auto-build display name from first + last
+  var firstNameEl  = document.getElementById('first-name');
+  var lastNameEl   = document.getElementById('last-name');
+  var displayEl    = document.getElementById('display-name');
+  var clientTitle  = document.getElementById('client-title');
+
+  function updateDisplay() {
+    var f = firstNameEl.value.trim();
+    var l = lastNameEl.value.trim();
+    var full = (l && f) ? l + ', ' + f : (l || f);
+    displayEl.value = full;
+    clientTitle.textContent = (f + ' ' + l).trim() || 'New Client';
+  }
+  firstNameEl.addEventListener('input', updateDisplay);
+  lastNameEl.addEventListener('input', updateDisplay);
+
+  // Load existing client when editing
+  (async function init() {
+    if (!editId) return;
+    document.querySelector('.modal-header h2').innerHTML =
+      'Edit Client &ndash; <span id="client-title">Loading...</span>';
+
+    var { data: c, error } = await sbClient.from('Clients').select('*').eq('id', editId).single();
+    if (error || !c) {
+      alert('Could not load client: ' + (error ? error.message : 'not found'));
+      return;
+    }
+
+    function set(id, val) {
+      var el = document.getElementById(id);
+      if (el) el.value = val || '';
+    }
+
+    set('first-name',   c.first_name);
+    set('last-name',    c.last_name);
+    set('nickname',     c.nickname);
+    set('email',        c.email);
+    set('home-phone',   c.home_phone);
+    set('cell',         c.cell || c.phone);
+    set('work',         c.work);
+    set('other',        c.other);
+    set('fax',          c.fax);
+    set('preferred',    c.preferred);
+    set('title',        c.title);
+    set('prop-name',    c.prop_name);
+    set('prop-name2',   c.prop_name2);
+    set('svc-addr1',    c.addr1);
+    set('svc-addr2',    c.addr2);
+    set('svc-zip',      c.zip);
+    set('svc-city',     c.city);
+    set('svc-state',    c.state);
+    set('map-code',     c.map_code);
+    set('inv-name',     c.inv_name);
+    set('attention',    c.attention);
+    set('bill-addr1',   c.bill_addr1);
+    set('bill-addr2',   c.bill_addr2);
+    set('bill-zip',     c.bill_zip);
+    set('bill-city',    c.bill_city);
+    set('bill-state',   c.bill_state);
+    set('country',      c.country);
+    set('office-notes', c.notes);
+
+    // Set saved sales tax after options are loaded
+    await loadSalesTaxOptions(c.sales_tax);
+
+    // Refresh computed display name and title
+    firstNameEl = document.getElementById('first-name');
+    lastNameEl  = document.getElementById('last-name');
+    displayEl   = document.getElementById('display-name');
+    clientTitle = document.getElementById('client-title');
+    updateDisplay();
+  })();
+
+  async function loadSalesTaxOptions(selectedValue) {
+    var sel = document.getElementById('sales-tax');
+    var { data } = await sbClient.from('sales_taxes').select('id,name,tax_rate').eq('active', true).order('name');
+    sel.innerHTML = '<option value="">-- Select Sales Tax --</option>';
+    (data || []).forEach(function(t) {
+      var pct = t.tax_rate != null ? ' (' + (parseFloat(t.tax_rate) * 100).toFixed(4).replace(/\.?0+$/, '') + '%)' : '';
+      var opt = document.createElement('option');
+      opt.value = t.name;
+      opt.textContent = t.name + pct;
+      if (selectedValue && t.name === selectedValue) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  loadSalesTaxOptions();
+
+  function saveClient() {
+    var fn    = document.getElementById('first-name').value.trim();
+    var ln    = document.getElementById('last-name').value.trim();
+    var addr1 = document.getElementById('svc-addr1').value.trim();
+    var city  = document.getElementById('svc-city').value.trim();
+    var state = document.getElementById('svc-state').value;
+    var zip   = document.getElementById('svc-zip').value.trim();
+
+    var record = {
+      name:         (fn + ' ' + ln).trim() || 'Client',
+      first_name:   fn,
+      last_name:    ln,
+      nickname:     document.getElementById('nickname').value.trim(),
+      email:        document.getElementById('email').value.trim(),
+      phone:        document.getElementById('cell').value.trim(),
+      home_phone:   document.getElementById('home-phone').value.trim(),
+      cell:         document.getElementById('cell').value.trim(),
+      addr1:        addr1,
+      city:         city,
+      state:        state,
+      zip:          zip,
+      notes:        document.getElementById('office-notes').value.trim(),
+      address:      [addr1, city, state].filter(Boolean).join(', '),
+    };
+
+    persistClient(record);
+  }
+
+  async function persistClient(record) {
+    var { data: sessionData } = await sbClient.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    record.user_id = uid;
+
+    var savedId = editId;
+    var error;
+    if (editId) {
+      var result = await sbClient.from('Clients').update(record).eq('id', editId);
+      error = result.error;
+    } else {
+      var result = await sbClient.from('Clients').insert(record).select('id').single();
+      error = result.error;
+      if (result.data) savedId = result.data.id;
+    }
+
+    if (error) {
+      alert('Error saving client: ' + error.message);
+      return;
+    }
+
+    var destId = savedId || editId;
+    if (destId) {
+      if (window.parent && window.parent.loadPage) {
+        window.parent.loadPage('clientprofile?id=' + destId);
+      } else {
+        window.location.href = 'ClientProfile.html?id=' + destId;
+      }
+    } else {
+      window.history.back();
+    }
+  }
+
+  function cancelEdit(e) {
+    e.preventDefault();
+    if (confirm('Discard changes?')) {
+      window.history.back();
+    }
+  }
+
+  function closeModal() {
+    if (confirm('Close without saving?')) {
+      window.history.back();
+    }
+  }
+</script>
+</body>
+</html>
+

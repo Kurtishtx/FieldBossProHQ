@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Custom Fields</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Page header ── */
+    .page-header { padding: 10px 20px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .page-header-left h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #111;
+    }
+    .item-count {
+      font-size: 13px;
+      color: #666;
+      margin-top: 2px;
+    }
+        .btn-orange-filled {
+      background: #e07820;
+      border: 3px solid #111;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #3a3a3a;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .actions-split { display: flex; align-items: stretch; position: relative; }
+    .btn-green-main {
+      background: #e8c000;
+      color: #000;
+      border: 2px solid #fff;
+      border-right: none;
+      border-radius: 3px 0 0 3px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-green-main:hover { background: #d4ae00; }
+    .btn-green-caret {
+      background: #e8c000;
+      color: #000;
+      border: 2px solid #fff;
+      border-left: 1px solid rgba(0,0,0,.15);
+      border-radius: 0 3px 3px 0;
+      padding: 5px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-green-caret:hover { background: #d4ae00; }
+
+    .actions-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      z-index: 200;
+      min-width: 180px;
+      padding: 4px 0;
+    }
+    .actions-dropdown.open { display: block; }
+    .dropdown-header {
+      font-size: 13px;
+      font-weight: 700;
+      color: #222;
+      padding: 7px 16px 5px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 3px;
+    }
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #333;
+      cursor: pointer;
+    }
+    .dropdown-item:hover { background: #f5f5f5; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      background: #3a3a3a;
+      padding: 0 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+      border-top: 1px solid #2a2a2a;
+    }
+    .tab-btn {
+      background: #bbb;
+      color: #111;
+      border: none;
+      border-radius: 4px 4px 0 0;
+      padding: 5px 16px;
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
+    .tab-btn:hover:not(.active) { background: #aaa; }
+
+    /* ── Table ── */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 8px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      white-space: nowrap;
+      font-size: 12.5px;
+    }
+    thead th:first-child { width: 36px; text-align: center; }
+
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:hover { background: #fdfbe8; }
+    tbody td { padding: 9px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #888888;
+    }
+    .field-link {
+      color: #444;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .field-link:hover { text-decoration: underline; color: #111; }
+
+    .badge-active {
+      display: inline-block;
+      background: #e6f4ea;
+      color: #2e7d32;
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-inactive {
+      display: inline-block;
+      background: #f3f3f3;
+      color: #888;
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #aaa;
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+
+    /* ── Footer bar ── */
+    .footer-bar {
+      background: #2a2a2a;
+      height: 22px;
+      flex-shrink: 0;
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<!-- Page header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Custom Fields <span class="showing-count" id="results-count"></span></h1>
+    <div class="item-count" id="item-count">0 items</div>
+  </div>
+  <button class="btn-orange-filled" onclick="window.location.href='CustomFieldsAdd.html'">Add Custom Field</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="actions-split">
+    <button class="btn-green-main">Actions</button>
+    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
+    <div class="actions-dropdown" id="actions-dropdown">
+      <div class="dropdown-header">Actions</div>
+      <button class="dropdown-item" onclick="window.location.href='CustomFieldsAdd.html'">Add Custom Field</button>
+      <button class="dropdown-item" onclick="bulkSetActive(true)">Make Active</button>
+      <button class="dropdown-item" onclick="bulkSetActive(false)">Make Inactive</button>
+      <button class="dropdown-item" onclick="bulkDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="setTab(this,'active')">Active</button>
+  <button class="tab-btn" onclick="setTab(this,'inactive')">Inactive</button>
+  <button class="tab-btn" onclick="setTab(this,'all')">All</button>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Display Order</th>
+        <th>Associated To</th>
+        <th>Type</th>
+        <th>Active</th>
+        <th>Add To Export</th>
+      </tr>
+    </thead>
+    <tbody id="fields-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg">No custom fields found.</div>
+</div>
+<div style="height:28px;background:#3a3a3a;"></div>
+
+<!-- Footer bar -->
+<div class="footer-bar"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var currentTab = 'active';
+  var allFields = [];
+
+  function setTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentTab = tab;
+    renderTable();
+  }
+
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('actions-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', function() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+  });
+
+  async function loadFields() {
+    var { data, error } = await sb.from('custom_fields').select('*').order('display_order');
+    if (error) { console.error(error); return; }
+    allFields = data || [];
+    renderTable();
+  }
+
+  function renderTable() {
+    var tbody    = document.getElementById('fields-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+
+    var filtered = allFields.filter(function(f) {
+      if (currentTab === 'active')   return f.active;
+      if (currentTab === 'inactive') return !f.active;
+      return true;
+    });
+
+    document.getElementById('item-count').textContent = allFields.length + ' item' + (allFields.length !== 1 ? 's' : '');
+
+    if (filtered.length === 0) {
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    filtered.forEach(function(f) {
+      var tr = document.createElement('tr');
+      tr.dataset.id = f.id;
+      tr.style.cursor = 'pointer';
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" onclick="event.stopPropagation()"/></td>' +
+        '<td><a class="field-link">' + (f.name || '') + '</a></td>' +
+        '<td>' + (f.description || '') + '</td>' +
+        '<td>' + (f.display_order !== undefined ? f.display_order : '') + '</td>' +
+        '<td>' + (f.applies_to || '') + '</td>' +
+        '<td>' + (f.field_type || '') + '</td>' +
+        '<td><span class="' + (f.active ? 'badge-active' : 'badge-inactive') + '">' + (f.active ? 'Active' : 'Inactive') + '</span></td>' +
+        '<td>' + (f.add_to_export ? 'Yes' : 'No') + '</td>';
+      tr.addEventListener('click', function(e) {
+        if (e.target.classList.contains('row-cb')) return;
+        window.location.href = 'CustomFieldsAdd.html?id=' + f.id;
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = cb.checked; });
+  }
+
+  function getCheckedIds() {
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) {
+      ids.push(cb.closest('tr').dataset.id);
+    });
+    return ids;
+  }
+
+  async function bulkSetActive(active) {
+    var ids = getCheckedIds();
+    if (!ids.length) return;
+    await sb.from('custom_fields').update({ active: active }).in('id', ids);
+    document.getElementById('actions-dropdown').classList.remove('open');
+    loadFields();
+  }
+
+  async function bulkDelete() {
+    var ids = getCheckedIds();
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' field(s)?')) return;
+    await sb.from('custom_fields').delete().in('id', ids);
+    document.getElementById('actions-dropdown').classList.remove('open');
+    loadFields();
+  }
+
+  loadFields();
+</script>
+</body>
+</html>
+
