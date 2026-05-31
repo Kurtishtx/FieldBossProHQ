@@ -1506,6 +1506,8 @@
     routeOrderMode = true;
     routeCounter = 0;
     routeOrderMap = {};
+    document.getElementById('select-all').checked = true;
+    document.querySelectorAll('.row-cb').forEach(function(cb) { cb.checked = true; });
     loadMarkers();
     document.getElementById('routing-section').style.display = 'flex';
   }
