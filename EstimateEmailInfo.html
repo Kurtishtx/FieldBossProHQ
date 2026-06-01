@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estimate Email Setup</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+
+    .page-hdr { padding: 20px 24px 14px; }
+    .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
+    .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
+
+    .content { padding: 0 24px 40px; max-width: 680px; }
+
+    .section-title {
+      font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase;
+      letter-spacing: .5px; padding: 20px 0 10px; border-bottom: 1px solid #eee; margin-bottom: 16px;
+    }
+
+    .field-row { margin-bottom: 16px; }
+    .field-row label { display: block; font-size: 13px; font-weight: 700; color: #444; margin-bottom: 5px; }
+    .field-row input[type="text"],
+    .field-row textarea {
+      width: 100%; border: 1px solid #ddd; border-radius: 4px;
+      padding: 9px 12px; font-size: 13px; font-family: inherit; color: #222; outline: none;
+    }
+    .field-row input[type="text"]:focus,
+    .field-row textarea:focus { border-color: #e07820; }
+    .field-row textarea { min-height: 220px; resize: vertical; line-height: 1.6; }
+    .field-row .hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+    .vars-box {
+      background: #f9f9f9; border: 1px solid #eee; border-radius: 4px;
+      padding: 12px 16px; margin-bottom: 20px;
+    }
+    .vars-box .vars-title { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .4px; }
+    .vars-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .var-chip {
+      background: #e8f0fe; color: #2272c3; padding: 3px 10px;
+      border-radius: 12px; font-size: 12px; font-family: monospace; cursor: pointer;
+      border: 1px solid #c5d8f8;
+    }
+    .var-chip:hover { background: #d0e4fc; }
+
+    .btn-row { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+    .btn-save {
+      background: #e07820; color: #fff; border: none; padding: 10px 32px;
+      font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer;
+    }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save:disabled { background: #e8a870; cursor: default; }
+    .btn-save.saved { background: #27a567; }
+    .status-msg { font-size: 12.5px; color: #27a567; }
+    .status-msg.err { color: #d9534f; }
+
+    .preview-box {
+      background: #fff; border: 1px solid #ddd; border-radius: 4px;
+      padding: 16px 20px; margin-top: 20px; font-size: 13px; line-height: 1.7; color: #333;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .preview-label { font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .4px; margin-top: 20px; margin-bottom: 6px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-hdr">
+  <h1>Estimate Email Setup</h1>
+  <p>Configure the email sent to clients when you send an estimate.</p>
+</div>
+
+<div class="content">
+
+  <div class="section-title">Template Variables</div>
+  <div class="vars-box">
+    <div class="vars-title">Click to copy — paste into subject or body</div>
+    <div class="vars-list">
+      <span class="var-chip" onclick="copyVar('[clientname]')">[clientname]</span>
+      <span class="var-chip" onclick="copyVar('[estimatenumber]')">[estimatenumber]</span>
+      <span class="var-chip" onclick="copyVar('[estimatetotal]')">[estimatetotal]</span>
+      <span class="var-chip" onclick="copyVar('[expirydate]')">[expirydate]</span>
+      <span class="var-chip" onclick="copyVar('[companyname]')">[companyname]</span>
+      <span class="var-chip" onclick="copyVar('[estimatelink]')">[estimatelink]</span>
+    </div>
+  </div>
+
+  <div class="section-title">Email Settings</div>
+
+  <div class="field-row">
+    <label>From Name</label>
+    <input type="text" id="from-name" placeholder="e.g. SprayBoss Pro"/>
+    <div class="hint">The name clients will see in their inbox.</div>
+  </div>
+
+  <div class="field-row">
+    <label>Reply-To Email</label>
+    <input type="text" id="reply-to" placeholder="e.g. info@yourbusiness.com"/>
+  </div>
+
+  <div class="field-row">
+    <label>Subject Line</label>
+    <input type="text" id="email-subject" placeholder="e.g. Your Estimate #[estimatenumber] from [companyname]"/>
+  </div>
+
+  <div class="field-row">
+    <label>Email Body</label>
+    <textarea id="email-body" placeholder="Hi [clientname],&#10;&#10;Please review your estimate #[estimatenumber] for [estimatetotal].&#10;&#10;Click the link below to view your estimate and add your card on file:&#10;[estimatelink]&#10;&#10;This estimate expires on [expirydate].&#10;&#10;Thank you,&#10;[companyname]"></textarea>
+    <div class="hint">The [estimatelink] variable inserts the button/link where the client clicks to view and accept the estimate.</div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-save" id="save-btn" onclick="save()">Save</button>
+    <span class="status-msg" id="status-msg"></span>
+  </div>
+
+  <div class="preview-label">Preview</div>
+  <div class="preview-box" id="preview-box">Fill in the fields above to preview the email.</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  function copyVar(v) {
+    navigator.clipboard.writeText(v).catch(function() {});
+    var chips = document.querySelectorAll('.var-chip');
+    chips.forEach(function(c) { if (c.textContent === v) { c.style.background = '#27a567'; c.style.color = '#fff'; setTimeout(function() { c.style.background = ''; c.style.color = ''; }, 800); } });
+  }
+
+  ['from-name','reply-to','email-subject','email-body'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+
+  function updatePreview() {
+    var subject = document.getElementById('email-subject').value;
+    var body    = document.getElementById('email-body').value;
+    var sample  = { '[clientname]': 'Smith, John', '[estimatenumber]': '42', '[estimatetotal]': '$850.00', '[expirydate]': '06/15/2026', '[companyname]': 'SprayBoss Pro', '[estimatelink]': 'https://yourdomain.com/estimate/abc123' };
+    function replace(s) { return s.replace(/\[clientname\]|\[estimatenumber\]|\[estimatetotal\]|\[expirydate\]|\[companyname\]|\[estimatelink\]/g, function(m) { return sample[m] || m; }); }
+    var preview = 'Subject: ' + replace(subject) + '\n\n' + replace(body);
+    document.getElementById('preview-box').textContent = preview;
+  }
+
+  async function save() {
+    var btn = document.getElementById('save-btn');
+    var msg = document.getElementById('status-msg');
+    btn.disabled = true; btn.textContent = 'Saving…'; msg.textContent = ''; msg.className = 'status-msg';
+
+    var payload = {
+      key:          'estimate_email',
+      from_name:    document.getElementById('from-name').value.trim(),
+      reply_to:     document.getElementById('reply-to').value.trim(),
+      subject:      document.getElementById('email-subject').value.trim(),
+      body:         document.getElementById('email-body').value.trim(),
+      updated_at:   new Date().toISOString(),
+    };
+
+    var { error } = await sb.from('email_templates').upsert(payload, { onConflict: 'key' });
+    btn.disabled = false;
+    if (error) {
+      btn.textContent = 'Save';
+      msg.textContent = 'Error: ' + error.message; msg.className = 'status-msg err';
+    } else {
+      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      msg.textContent = 'Estimate email template saved.';
+      setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 3000);
+    }
+  }
+
+  async function load() {
+    var { data } = await sb.from('email_templates').select('*').eq('key', 'estimate_email').single();
+    if (data) {
+      document.getElementById('from-name').value    = data.from_name || '';
+      document.getElementById('reply-to').value     = data.reply_to  || '';
+      document.getElementById('email-subject').value = data.subject  || '';
+      document.getElementById('email-body').value   = data.body      || '';
+      updatePreview();
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Estimate Service</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
+
+    .dialog { max-width: 780px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
+    .close-btn:hover { background: #f0f0f0; }
+
+    .dialog-body { padding: 20px 24px 8px; }
+
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
+
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 130px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"],
+    .field-row select,
+    .field-row textarea {
+      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
+    }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
+    .field-row textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+    .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
+
+    .toggle-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .toggle-row label.lbl { width: 130px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; }
+    .toggle { position: relative; width: 42px; height: 22px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; transition: .2s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    .toggle input:checked + .toggle-slider { background: #e07820; }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .toggle-label { font-size: 13px; color: #555; }
+
+    /* Price Matrix */
+    .matrix-info { background: #f0f8ff; border: 1px solid #cce5ff; border-radius: 4px; padding: 10px 14px; font-size: 12px; color: #555; line-height: 1.6; margin-bottom: 14px; }
+
+    .matrix-row { border: 1px solid #ddd; border-radius: 4px; padding: 12px 14px; margin-bottom: 10px; background: #fafafa; position: relative; }
+    .matrix-row-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .matrix-row-bottom { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: #555; }
+    .mx-label { font-size: 12px; font-weight: 600; color: #555; white-space: nowrap; }
+    .mx-input { border: 1px solid #ccc; padding: 5px 7px; font-size: 13px; font-family: inherit; border-radius: 2px; outline: none; width: 80px; text-align: right; }
+    .mx-input:focus { border-color: #e07820; }
+    .mx-input.wide { width: 100px; }
+    .mx-del { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #c0392b; font-size: 18px; cursor: pointer; line-height: 1; padding: 0; }
+    .mx-del:hover { color: #a93226; }
+
+    .matrix-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .btn-mx { border: 1px solid #bbb; background: #fff; padding: 6px 14px; font-size: 12.5px; cursor: pointer; border-radius: 3px; color: #444; font-family: inherit; }
+    .btn-mx:hover { background: #f0f0f0; }
+
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save-new { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
+    .btn-delete { margin-left: auto; background: none; border: 1px solid #c0392b; color: #c0392b; padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; }
+    .btn-delete:hover { background: #fdecea; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add Estimate Service</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
+  <div class="dialog-body">
+
+    <div class="section-label">Service Info</div>
+
+    <div class="field-row">
+      <label for="svc-name">Service Name</label>
+      <div style="flex:1;">
+        <input type="text" id="svc-name" autocomplete="off" placeholder="e.g. Lawn Treatment"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="svc-desc">Description</label>
+      <div style="flex:1;">
+        <textarea id="svc-desc" placeholder="Describe what this service includes. The client will see this when reviewing their estimate."></textarea>
+        <div class="field-hint">This description appears on the client's estimate acceptance form.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Pricing</div>
+
+    <div class="field-row">
+      <label for="area-treated">Based on Area</label>
+      <div style="flex:1;">
+        <select id="area-treated">
+          <option value="">— Flat Rate (no area calculation) —</option>
+          <option value="lawn_care">Lawn Sq Ft</option>
+          <option value="lawn_insect">Lawn Insect Sq Ft</option>
+          <option value="flower_beds">Flower Beds Sq Ft</option>
+          <option value="mosquito">Mosquito Control Sq Ft</option>
+          <option value="mosquito_linear_ft">Mosquito Control Linear Ft</option>
+        </select>
+        <div class="field-hint">The system will look up this area from the property profile to auto-calculate price using the matrix below.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Price Matrix</div>
+
+    <div class="matrix-info">
+      Set price tiers based on area size. The system finds the matching row and calculates the price automatically when building an estimate.
+      If no area is selected above, you can still use a single flat-rate row.
+    </div>
+
+    <div id="matrix-rows"></div>
+
+    <div class="matrix-actions">
+      <button class="btn-mx" onclick="addMatrixRow()">+ Add Matrix Item</button>
+      <button class="btn-mx" onclick="copyLastRow()">Copy Last Row</button>
+    </div>
+
+    <div class="section-label" id="active-section" style="display:none;">Status</div>
+    <div class="toggle-row" id="active-row" style="display:none;">
+      <label class="lbl">Active</label>
+      <label class="toggle">
+        <input type="checkbox" id="svc-active" checked/>
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label" id="active-label">Active</span>
+    </div>
+
+  </div>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="save(false)">Save</button>
+    <button class="btn-save-new" id="btn-save-new" onclick="save(true)">Save &amp; New</button>
+    <span class="btn-cancel" onclick="cancel()">Cancel</span>
+    <button class="btn-delete" id="btn-delete" style="display:none;" onclick="deleteSvc()">Delete</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var editId = null;
+
+  document.getElementById('svc-active').addEventListener('change', function() {
+    document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
+  });
+
+  /* ── Price Matrix ── */
+  function addMatrixRow(row) {
+    var r = row || { from: '', to: '', rate: '', b_hrs: 0, b_cost: 0, overage_every: '', overage_over: '', overage_price: '', overage_time: '', overage_cost: '' };
+    var container = document.getElementById('matrix-rows');
+    var div = document.createElement('div');
+    div.className = 'matrix-row';
+    div.innerHTML =
+      '<button class="mx-del" onclick="this.closest(\'.matrix-row\').remove()" title="Remove">&#10005;</button>' +
+      '<div class="matrix-row-top">' +
+        '<span class="mx-label">From:</span><input type="number" class="mx-input mx-from" value="' + (r.from||'') + '" placeholder="0" min="0"/>' +
+        '<span class="mx-label">To:</span><input type="number" class="mx-input mx-to" value="' + (r.to||'') + '" placeholder="9999" min="0"/>' +
+        '<span class="mx-label">Rate: $</span><input type="number" class="mx-input mx-rate" value="' + (r.rate||'') + '" placeholder="0.00" step="0.01" min="0"/>' +
+        '<span class="mx-label">B. Hrs:</span><input type="number" class="mx-input mx-bhrs" value="' + (r.b_hrs||0) + '" step="0.5" min="0"/>' +
+        '<span class="mx-label">B. Cost: $</span><input type="number" class="mx-input mx-bcost" value="' + (r.b_cost||0) + '" step="0.01" min="0"/>' +
+      '</div>' +
+      '<div class="matrix-row-bottom">' +
+        '<span>Every</span><input type="number" class="mx-input mx-ov-every" value="' + (r.overage_every||'') + '" placeholder="100" min="0"/>' +
+        '<span>over</span><input type="number" class="mx-input mx-ov-over" value="' + (r.overage_over||'') + '" placeholder="0" min="0"/>' +
+        '<span>is $</span><input type="number" class="mx-input mx-ov-price" value="' + (r.overage_price||'') + '" placeholder="0" step="0.01" min="0"/>' +
+        '<span>more and</span><input type="number" class="mx-input mx-ov-time" value="' + (r.overage_time||0) + '" step="0.1" min="0"/>' +
+        '<span>more time with additional cost of $</span><input type="number" class="mx-input mx-ov-cost wide" value="' + (r.overage_cost||0) + '" step="0.01" min="0"/>' +
+      '</div>';
+    container.appendChild(div);
+  }
+
+  function copyLastRow() {
+    var rows = document.querySelectorAll('.matrix-row');
+    if (!rows.length) { addMatrixRow(); return; }
+    var last = rows[rows.length - 1];
+    addMatrixRow({
+      from:          last.querySelector('.mx-from')?.value,
+      to:            last.querySelector('.mx-to')?.value,
+      rate:          last.querySelector('.mx-rate')?.value,
+      b_hrs:         last.querySelector('.mx-bhrs')?.value,
+      b_cost:        last.querySelector('.mx-bcost')?.value,
+      overage_every: last.querySelector('.mx-ov-every')?.value,
+      overage_over:  last.querySelector('.mx-ov-over')?.value,
+      overage_price: last.querySelector('.mx-ov-price')?.value,
+      overage_time:  last.querySelector('.mx-ov-time')?.value,
+      overage_cost:  last.querySelector('.mx-ov-cost')?.value,
+    });
+  }
+
+  function getMatrix() {
+    return Array.from(document.querySelectorAll('.matrix-row')).map(function(div) {
+      return {
+        from:          parseFloat(div.querySelector('.mx-from')?.value)    || 0,
+        to:            parseFloat(div.querySelector('.mx-to')?.value)      || 0,
+        rate:          parseFloat(div.querySelector('.mx-rate')?.value)    || 0,
+        b_hrs:         parseFloat(div.querySelector('.mx-bhrs')?.value)    || 0,
+        b_cost:        parseFloat(div.querySelector('.mx-bcost')?.value)   || 0,
+        overage_every: parseFloat(div.querySelector('.mx-ov-every')?.value)|| 0,
+        overage_over:  parseFloat(div.querySelector('.mx-ov-over')?.value) || 0,
+        overage_price: parseFloat(div.querySelector('.mx-ov-price')?.value)|| 0,
+        overage_time:  parseFloat(div.querySelector('.mx-ov-time')?.value) || 0,
+        overage_cost:  parseFloat(div.querySelector('.mx-ov-cost')?.value) || 0,
+      };
+    });
+  }
+
+  /* ── Init ── */
+  async function init() {
+    var params = new URLSearchParams(window.location.search);
+    editId = params.get('id') || null;
+    if (editId) {
+      document.getElementById('page-title').textContent = 'Edit Estimate Service';
+      document.getElementById('btn-save-new').style.display = 'none';
+      document.getElementById('btn-delete').style.display = '';
+      document.getElementById('active-section').style.display = '';
+      document.getElementById('active-row').style.display = 'flex';
+      var { data } = await sb.from('estimate_services').select('*').eq('id', editId).single();
+      if (data) {
+        document.getElementById('svc-name').value   = data.name         || '';
+        document.getElementById('svc-desc').value   = data.description  || '';
+        document.getElementById('area-treated').value = data.area_treated || '';
+        var active = document.getElementById('svc-active');
+        active.checked = data.active !== false;
+        document.getElementById('active-label').textContent = active.checked ? 'Active' : 'Inactive';
+        (data.price_matrix || []).forEach(function(r) { addMatrixRow(r); });
+      }
+    } else {
+      addMatrixRow();
+    }
+  }
+
+  /* ── Save ── */
+  async function save(andNew) {
+    var name = document.getElementById('svc-name').value.trim();
+    if (!name) { alert('Please enter a service name.'); return; }
+    var payload = {
+      name:          name,
+      description:   document.getElementById('svc-desc').value.trim()   || null,
+      area_treated:  document.getElementById('area-treated').value       || null,
+      price_matrix:  getMatrix(),
+    };
+    if (editId) payload.active = document.getElementById('svc-active').checked;
+
+    var error;
+    if (editId) {
+      ({ error } = await sb.from('estimate_services').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await sb.from('estimate_services').insert(payload));
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+
+    if (andNew) {
+      document.getElementById('svc-name').value  = '';
+      document.getElementById('svc-desc').value  = '';
+      document.getElementById('area-treated').value = '';
+      document.getElementById('matrix-rows').innerHTML = '';
+      addMatrixRow();
+      document.getElementById('svc-name').focus();
+    } else {
+      cancel();
+    }
+  }
+
+  async function deleteSvc() {
+    if (!confirm('Delete this service?')) return;
+    await sb.from('estimate_services').delete().eq('id', editId);
+    cancel();
+  }
+
+  function cancel() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('estimateserviceslist');
+    else window.location.href = 'EstimateServicesList.html';
+  }
+
+  init();
+</script>
+</body>
+</html>

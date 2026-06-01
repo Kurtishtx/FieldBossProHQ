@@ -516,7 +516,7 @@
           <span>Open Estimates</span>
           <span class="hdr-links" style="font-weight:400;font-size:12px;">(0) <a href="#">All</a></span>
         </div>
-        <div class="add-btn-wrap"><button class="add-btn">&#10010; Add an Estimate</button></div>
+        <div class="add-btn-wrap"><button class="add-btn" onclick="addEstimate()">&#10010; Add an Estimate</button></div>
       </div>
     </div>
   </div>
@@ -1356,6 +1356,14 @@
         '</div>' +
       '</div>';
     }).join('');
+  }
+
+  function addEstimate() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateadd?property_id=' + propId);
+    } else {
+      window.location.href = 'EstimateAdd.html?property_id=' + propId;
+    }
   }
 
   function openAddInvoiceForProperty() {

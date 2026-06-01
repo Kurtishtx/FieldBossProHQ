@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estimate Email Template</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #111; color: #333; }
+
+    .page-hdr { padding: 24px 28px 20px; background: #1a1a1a; border-bottom: 1px solid #333; }
+    .page-hdr h2 { font-size: 22px; font-weight: 800; color: #fff; }
+    .page-hdr p  { font-size: 13px; color: #aaa; margin-top: 4px; }
+
+    .tpl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 28px; }
+
+    .tpl-card {
+      display: flex; flex-direction: column;
+      border: 2px solid #333; border-radius: 6px;
+      overflow: hidden; cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .tpl-card:hover { border-color: #e07820; box-shadow: 0 0 0 3px rgba(224,120,32,.25); }
+
+    .tpl-preview { flex: 1; min-height: 420px; overflow: hidden; position: relative; }
+    .tpl-preview iframe { width: 600px; height: 700px; border: none; transform-origin: top left; pointer-events: none; }
+
+    .tpl-label { padding: 10px 16px; font-size: 14px; font-weight: 700; color: #fff; border-top: 2px solid #333; background: #1a1a1a; }
+    .tpl-desc  { padding: 0 16px 10px; font-size: 12px; color: #888; background: #1a1a1a; }
+
+    .tpl-use-btn {
+      background: #e07820; color: #fff; border: none;
+      width: 100%; padding: 13px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .tpl-use-btn:hover { background: #c96a10; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-hdr">
+  <h2>Choose an Estimate Email Template</h2>
+  <p>Pick a color theme — everything is customizable after selecting.</p>
+</div>
+
+<div class="tpl-grid">
+
+  <div class="tpl-card" onclick="useTemplate(0)">
+    <div class="tpl-preview" id="preview-0"></div>
+    <div class="tpl-label">Dark &amp; Bold</div>
+    <div class="tpl-desc">Dark green theme. Professional and striking.</div>
+    <button class="tpl-use-btn">Use This Template</button>
+  </div>
+
+  <div class="tpl-card" onclick="useTemplate(1)">
+    <div class="tpl-preview" id="preview-1"></div>
+    <div class="tpl-label">Royal Blue</div>
+    <div class="tpl-desc">Blue theme. Clean and trustworthy.</div>
+    <button class="tpl-use-btn">Use This Template</button>
+  </div>
+
+  <div class="tpl-card" onclick="useTemplate(2)">
+    <div class="tpl-preview" id="preview-2"></div>
+    <div class="tpl-label">Deep Purple</div>
+    <div class="tpl-desc">Purple theme. Bold and memorable.</div>
+    <button class="tpl-use-btn">Use This Template</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  function buildTemplate(accent, headerBg, bodyBg, footerBg, btnColor, textLight) {
+    return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#111;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="600" cellpadding="0" cellspacing="0" style="margin:0 auto;background:${bodyBg};">
+  <!-- Header -->
+  <tr><td style="background:${headerBg};padding:20px 28px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td><div style="background:#444;width:64px;height:40px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:10px;font-weight:700;">YOUR LOGO</div></td>
+        <td style="text-align:right;">
+          <div style="color:${accent};font-size:11px;font-weight:700;letter-spacing:2px;">ESTIMATE</div>
+          <div style="color:#fff;font-size:22px;font-weight:800;">#[estimatenumber]</div>
+          <div style="color:${accent};font-size:11px;margin-top:2px;">Expires: [expirydate]</div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  <!-- Company name -->
+  <tr><td style="background:${headerBg};padding:0 28px 16px;color:#ccc;font-size:12px;">[companyname]</td></tr>
+  <!-- Letter -->
+  <tr><td style="padding:24px 28px;background:${bodyBg};">
+    <p style="color:${textLight};font-size:14px;margin-bottom:6px;">Dear [clientname],</p>
+    <p style="color:#aaa;font-size:13px;background:#ffffff11;padding:10px;border-left:3px solid ${accent};margin:10px 0;">[Email Opening Message]</p>
+    <p style="color:#aaa;font-size:13px;margin:10px 0;">Sincerely,<br/><span style="color:${textLight};">[Sign-Off Name]</span></p>
+  </td></tr>
+  <!-- Bill To -->
+  <tr><td style="padding:0 28px 16px;background:${bodyBg};">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="60%">
+          <div style="color:${accent};font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:6px;">ESTIMATE FOR</div>
+          <div style="color:${textLight};font-size:14px;font-weight:700;">[clientname]</div>
+          <div style="color:#aaa;font-size:12px;">[address]</div>
+        </td>
+        <td width="40%" style="text-align:right;">
+          <div style="color:${accent};font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:6px;">EXPIRES</div>
+          <div style="color:${accent};font-size:14px;font-weight:700;">[expirydate]</div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  <!-- Services placeholder -->
+  <tr><td style="padding:0 28px 16px;background:${bodyBg};">
+    <div style="background:#ffffff0d;border:1px solid #ffffff22;padding:10px 14px;color:#888;font-size:12px;">[Services Summary]</div>
+  </td></tr>
+  <!-- Total -->
+  <tr><td style="padding:0 28px 20px;background:${bodyBg};">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:${headerBg};">
+      <tr>
+        <td style="padding:14px 18px;color:#aaa;font-size:12px;font-weight:700;letter-spacing:1px;">ESTIMATE TOTAL</td>
+        <td style="padding:14px 18px;text-align:right;color:${accent};font-size:22px;font-weight:800;">[estimatetotal]</td>
+      </tr>
+    </table>
+  </td></tr>
+  <!-- Button -->
+  <tr><td style="padding:0 28px 28px;background:${bodyBg};text-align:center;">
+    <a href="[estimatelink]" style="display:inline-block;background:${btnColor};color:#fff;padding:13px 36px;text-decoration:none;font-size:14px;font-weight:700;border-radius:4px;">REVIEW &amp; ACCEPT ESTIMATE</a>
+  </td></tr>
+  <!-- Footer -->
+  <tr><td style="background:${footerBg};padding:20px 28px;text-align:center;">
+    <p style="color:${accent};font-size:13px;font-weight:700;margin-bottom:6px;">Thank you for your business!</p>
+    <p style="color:#aaa;font-size:12px;">[companyphonenumber] | [companyemail]</p>
+    <div style="margin-top:12px;">
+      <span style="display:inline-block;width:28px;height:28px;background:${accent};border-radius:50%;margin:0 4px;"></span>
+      <span style="display:inline-block;width:28px;height:28px;background:${accent};border-radius:50%;margin:0 4px;"></span>
+      <span style="display:inline-block;width:28px;height:28px;background:${accent};border-radius:50%;margin:0 4px;"></span>
+    </div>
+  </td></tr>
+</table>
+</body></html>`;
+  }
+
+  var templates = [
+    {
+      name: 'Dark & Bold',
+      subject: 'Your Estimate #[estimatenumber] from [companyname]',
+      html: buildTemplate('#e8c000', '#1a3a2a', '#111', '#0d2018', '#2a6a3a', '#fff'),
+    },
+    {
+      name: 'Royal Blue',
+      subject: 'Your Estimate #[estimatenumber] from [companyname]',
+      html: buildTemplate('#e8c000', '#1a3a8a', '#1e2a6a', '#142060', '#2272c3', '#fff'),
+    },
+    {
+      name: 'Deep Purple',
+      subject: 'Your Estimate #[estimatenumber] from [companyname]',
+      html: buildTemplate('#e07820', '#2d1060', '#1a0840', '#120530', '#7c3ab5', '#fff'),
+    },
+  ];
+
+  // Render preview iframes
+  templates.forEach(function(t, i) {
+    var container = document.getElementById('preview-' + i);
+    var iframe = document.createElement('iframe');
+    iframe.srcdoc = t.html;
+    // Scale down to fit the card
+    var scale = container.offsetWidth / 600 || 0.4;
+    iframe.style.transform = 'scale(' + scale + ')';
+    iframe.style.width = '600px';
+    iframe.style.height = '800px';
+    container.style.height = Math.round(800 * scale) + 'px';
+    container.style.overflow = 'hidden';
+    container.appendChild(iframe);
+  });
+
+  // Recalculate scale after layout
+  window.addEventListener('load', function() {
+    templates.forEach(function(t, i) {
+      var container = document.getElementById('preview-' + i);
+      var iframe = container.querySelector('iframe');
+      var scale = container.offsetWidth / 600;
+      iframe.style.transform = 'scale(' + scale + ')';
+      container.style.height = Math.round(800 * scale) + 'px';
+    });
+  });
+
+  async function useTemplate(idx) {
+    var t = templates[idx];
+    var payload = {
+      key:        'estimate_email',
+      subject:    t.subject,
+      body:       t.html,
+      updated_at: new Date().toISOString(),
+    };
+    await sb.from('email_templates').upsert(payload, { onConflict: 'key' });
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateemailinfo');
+    }
+  }
+</script>
+</body>
+</html>

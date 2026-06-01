@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estimates</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .page-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; }
+    .page-topbar h1 { font-size:20px; font-weight:700; color:#111; }
+    .page-topbar .sub { font-size:13px; color:#666; margin-top:2px; }
+    .btn-add { background:#e07820; color:#fff; border:none; padding:9px 20px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; }
+    .btn-add:hover { background:#c96a10; }
+
+    .filter-tabs { display:flex; gap:4px; padding:8px 20px; border-bottom:1px solid #eee; flex-wrap:wrap; }
+    .ftab { padding:5px 16px; border:1px solid #bbb; background:#fff; font-size:13px; cursor:pointer; border-radius:20px; color:#555; }
+    .ftab:hover { background:#f0f0f0; }
+    .ftab.active { background:#3a3a3a; color:#fff; border-color:#3a3a3a; font-weight:700; }
+
+    .toolbar { background:#3a3a3a; display:flex; align-items:center; padding:7px 14px; gap:6px; }
+    .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:700; border-radius:3px 0 0 3px; cursor:pointer; }
+    .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); border-radius:0 3px 3px 0; padding:5px 8px; font-size:12px; cursor:pointer; }
+    .dd-wrap { position:relative; display:inline-flex; }
+    .dd-menu { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:300; background:#fff; border:1px solid #ccc; box-shadow:0 4px 12px rgba(0,0,0,.2); min-width:180px; padding:4px 0; }
+    .dd-menu.show { display:block; }
+    .dd-menu a { display:block; padding:8px 14px; color:#444; text-decoration:none; font-size:13px; cursor:pointer; }
+    .dd-menu a:hover { background:#f5f5f5; }
+    .total-pill { margin-left:auto; color:#fff; font-size:13px; font-weight:600; }
+
+    table { width:100%; border-collapse:collapse; }
+    thead th { padding:9px 14px; text-align:left; font-size:12px; font-weight:700; color:#555; border-bottom:2px solid #ddd; background:#fafafa; text-transform:uppercase; letter-spacing:.4px; }
+    thead th:first-child { width:40px; text-align:center; }
+    tbody tr { border-bottom:1px solid #eee; cursor:pointer; }
+    tbody tr:hover { background:#f9f9f9; }
+    tbody td { padding:10px 14px; color:#333; vertical-align:middle; }
+    tbody td:first-child { text-align:center; }
+
+    .badge { display:inline-block; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:700; }
+    .badge-draft    { background:#f0f0f0; color:#666; }
+    .badge-sent     { background:#d1ecf1; color:#0c5460; }
+    .badge-accepted { background:#d4edda; color:#155724; }
+    .badge-declined { background:#f8d7da; color:#721c24; }
+    .badge-expired  { background:#fff3cd; color:#856404; }
+
+    .empty-msg { padding:40px; text-align:center; color:#888; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-topbar">
+  <div>
+    <h1>Estimates</h1>
+    <div class="sub" id="showing-count">0 estimates</div>
+  </div>
+  <button class="btn-add" onclick="navigate('estimateadd')">+ Add Estimate</button>
+</div>
+
+<div class="filter-tabs">
+  <button class="ftab active" onclick="setFilter('all',this)">All</button>
+  <button class="ftab" onclick="setFilter('draft',this)">Draft</button>
+  <button class="ftab" onclick="setFilter('sent',this)">Sent</button>
+  <button class="ftab" onclick="setFilter('accepted',this)">Accepted</button>
+  <button class="ftab" onclick="setFilter('declined',this)">Declined</button>
+  <button class="ftab" onclick="setFilter('expired',this)">Expired</button>
+</div>
+
+<div class="toolbar">
+  <div class="dd-wrap">
+    <button class="btn-actions">Actions</button>
+    <button class="btn-actions-caret" onclick="toggleDD(event)">&#9660;</button>
+    <div class="dd-menu" id="actions-dd">
+      <a onclick="deleteSelected()">Delete Selected</a>
+    </div>
+  </div>
+  <span class="total-pill" id="total-pill"></span>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
+      <th>Est #</th>
+      <th>Client</th>
+      <th>Address</th>
+      <th>Date</th>
+      <th>Expires</th>
+      <th>Amount</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="est-tbody"></tbody>
+</table>
+<div class="empty-msg" id="empty-msg" style="display:none;">No estimates found.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var estimates = [];
+  var activeFilter = 'all';
+
+  function navigate(page, params) {
+    var url = params ? page + '?' + params : page;
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(url);
+    else window.location.href = url.replace('estimateadd', 'EstimateAdd.html').replace('estimateslist', 'EstimatesList.html');
+  }
+
+  function fmt(n) { return '$' + (parseFloat(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function toggleDD(e) { e.stopPropagation(); document.getElementById('actions-dd').classList.toggle('show'); }
+  document.addEventListener('click', function() { document.getElementById('actions-dd').classList.remove('show'); });
+
+  function toggleAll(checked) { document.querySelectorAll('.row-cb').forEach(function(cb){ cb.checked = checked; }); }
+
+  function getSelected() {
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb){ ids.push(cb.dataset.id); });
+    return ids;
+  }
+
+  async function deleteSelected() {
+    var ids = getSelected();
+    if (!ids.length) { alert('Select at least one estimate.'); return; }
+    if (!confirm('Delete ' + ids.length + ' estimate(s)?')) return;
+    var { error } = await sb.from('estimates').delete().in('id', ids);
+    if (error) { alert('Error: ' + error.message); return; }
+    estimates = estimates.filter(function(e){ return !ids.includes(e.id); });
+    renderTable();
+  }
+
+  function setFilter(f, btn) {
+    activeFilter = f;
+    document.querySelectorAll('.ftab').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function badgeHtml(status) {
+    var map = { draft:'badge-draft', sent:'badge-sent', accepted:'badge-accepted', declined:'badge-declined', expired:'badge-expired' };
+    var cls = map[status] || 'badge-draft';
+    return '<span class="badge ' + cls + '">' + (status || 'draft').charAt(0).toUpperCase() + (status||'draft').slice(1) + '</span>';
+  }
+
+  function renderTable() {
+    var filtered = estimates.filter(function(e){
+      return activeFilter === 'all' || e.status === activeFilter;
+    });
+    var total = filtered.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+    document.getElementById('showing-count').textContent = filtered.length + ' estimate' + (filtered.length !== 1 ? 's' : '');
+    document.getElementById('total-pill').textContent = filtered.length ? 'Total: ' + fmt(total) : '';
+
+    var tbody = document.getElementById('est-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+    if (!filtered.length) { emptyMsg.style.display = ''; return; }
+    emptyMsg.style.display = 'none';
+
+    filtered.forEach(function(e) {
+      var tr = document.createElement('tr');
+      var date = e.created_at ? new Date(e.created_at).toLocaleDateString() : '';
+      var expiry = e.expiry_date ? new Date(e.expiry_date + 'T00:00:00').toLocaleDateString() : '—';
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" data-id="' + e.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td style="font-weight:700;color:#e07820;">#' + (e.estimate_number || '') + '</td>' +
+        '<td>' + esc(e.client_name || '') + '</td>' +
+        '<td style="font-size:12px;color:#666;">' + esc(e.address || '') + '</td>' +
+        '<td>' + date + '</td>' +
+        '<td>' + expiry + '</td>' +
+        '<td style="font-weight:700;">' + fmt(e.amount) + '</td>' +
+        '<td>' + badgeHtml(e.status) + '</td>';
+      tr.addEventListener('click', function(ev) {
+        if (ev.target.type === 'checkbox') return;
+        navigate('estimateadd', 'id=' + e.id);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function load() {
+    var { data, error } = await sb.from('estimates').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    estimates = data || [];
+    renderTable();
+  }
+
+  load();
+</script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estimate</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f7f7f7; color: #222; }
+
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:#fff; border-bottom:1px solid #eee; }
+    .page-header h1 { font-size:20px; font-weight:800; color:#111; }
+    .header-actions { display:flex; gap:8px; align-items:center; }
+    .btn-draft  { background:#fff; color:#555; border:1px solid #bbb; padding:8px 18px; font-size:13px; font-weight:600; border-radius:4px; cursor:pointer; }
+    .btn-draft:hover { background:#f5f5f5; }
+    .btn-send   { background:#2272c3; color:#fff; border:none; padding:8px 20px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; }
+    .btn-send:hover { background:#1a5ea0; }
+    .btn-convert { background:#27a567; color:#fff; border:none; padding:8px 20px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; }
+    .btn-convert:hover { background:#1e8050; }
+    .btn-delete { background:none; border:1px solid #c0392b; color:#c0392b; padding:7px 14px; font-size:13px; border-radius:4px; cursor:pointer; }
+    .btn-delete:hover { background:#fdecea; }
+    .btn-back { background:none; border:none; color:#2272c3; font-size:13px; cursor:pointer; padding:0; }
+    .btn-back:hover { text-decoration:underline; }
+
+    .status-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700; }
+    .status-draft    { background:#f0f0f0; color:#666; }
+    .status-sent     { background:#d1ecf1; color:#0c5460; }
+    .status-accepted { background:#d4edda; color:#155724; }
+    .status-declined { background:#f8d7da; color:#721c24; }
+    .status-expired  { background:#fff3cd; color:#856404; }
+
+    .body-wrap { max-width:900px; margin:24px auto; padding:0 20px; }
+
+    .card { background:#fff; border:1px solid #e0e0e0; border-radius:6px; margin-bottom:16px; }
+    .card-hdr { padding:14px 18px; border-bottom:1px solid #eee; font-size:13px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; }
+    .card-body { padding:18px; }
+
+    .field-row { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+    .field-row label { width:110px; font-size:13px; color:#666; flex-shrink:0; }
+    .field-row input[type="text"], .field-row input[type="date"], .field-row select {
+      flex:1; border:1px solid #ccc; padding:7px 10px; font-size:13px; font-family:inherit; border-radius:3px; outline:none;
+    }
+    .field-row input:focus, .field-row select:focus { border-color:#e07820; }
+    .field-row textarea { flex:1; border:1px solid #ccc; padding:7px 10px; font-size:13px; font-family:inherit; border-radius:3px; outline:none; min-height:80px; resize:vertical; }
+    .field-row textarea:focus { border-color:#e07820; }
+
+    /* Line items table */
+    .svc-table { width:100%; border-collapse:collapse; }
+    .svc-table thead th { background:#3a3a3a; color:#fff; padding:8px 10px; font-size:12px; font-weight:700; text-align:left; }
+    .svc-table thead th:last-child { text-align:right; }
+    .svc-table tbody td { padding:6px 8px; border-bottom:1px solid #eee; vertical-align:middle; }
+    .svc-table input[type="text"], .svc-table input[type="number"] {
+      width:100%; border:1px solid #ddd; padding:5px 7px; font-size:13px; font-family:inherit; border-radius:2px; outline:none;
+    }
+    .svc-table input:focus { border-color:#e07820; }
+    .del-btn { background:none; border:none; color:#c0392b; font-size:16px; cursor:pointer; padding:0 4px; line-height:1; }
+    .del-btn:hover { color:#a93226; }
+    .btn-add-line { background:none; border:1px dashed #bbb; color:#555; padding:7px 16px; font-size:13px; cursor:pointer; border-radius:3px; margin-top:10px; }
+    .btn-add-line:hover { background:#f5f5f5; }
+
+    .totals-box { background:#f9f9f9; border:1px solid #eee; border-radius:4px; padding:14px 18px; }
+    .totals-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; }
+    .totals-row.grand { font-size:16px; font-weight:800; border-top:2px solid #ccc; margin-top:6px; padding-top:8px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <button class="btn-back" onclick="goBack()">&#8592; Estimates</button>
+    <h1 id="page-title">New Estimate</h1>
+    <span class="status-badge status-draft" id="status-badge">Draft</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn-convert" id="btn-convert" style="display:none;" onclick="convertToServices()">&#10003; Convert to Services</button>
+    <button class="btn-delete" id="btn-delete" style="display:none;" onclick="deleteEstimate()">Delete</button>
+    <button class="btn-draft" onclick="save('draft')">Save Draft</button>
+    <button class="btn-send" onclick="save('sent')">Send Estimate</button>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <!-- Client & Property -->
+  <div class="card">
+    <div class="card-hdr">Client & Property</div>
+    <div class="card-body">
+      <div class="field-row">
+        <label>Property</label>
+        <select id="property-select" onchange="onPropertyChange()">
+          <option value="">— select property —</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>Client</label>
+        <input type="text" id="client-name" readonly style="background:#f9f9f9;"/>
+      </div>
+      <div class="field-row">
+        <label>Address</label>
+        <input type="text" id="address" readonly style="background:#f9f9f9;"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estimate Details -->
+  <div class="card">
+    <div class="card-hdr">Details</div>
+    <div class="card-body">
+      <div class="field-row">
+        <label>Expiry Date</label>
+        <input type="date" id="expiry-date" style="max-width:200px;"/>
+      </div>
+      <div class="field-row">
+        <label>Notes</label>
+        <textarea id="notes" placeholder="Optional notes for the client..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Line Items -->
+  <div class="card">
+    <div class="card-hdr">Services / Line Items</div>
+    <div class="card-body">
+      <table class="svc-table">
+        <thead>
+          <tr>
+            <th style="width:28px;"></th>
+            <th>Service / Description</th>
+            <th style="width:80px;">Qty</th>
+            <th style="width:110px;">Rate</th>
+            <th style="width:110px;text-align:right;">Total</th>
+          </tr>
+        </thead>
+        <tbody id="line-tbody"></tbody>
+      </table>
+      <button class="btn-add-line" onclick="addLine()">+ Add Line</button>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+        <div class="totals-box" style="min-width:260px;">
+          <div class="totals-row"><span>Subtotal</span><span id="tot-sub">$0.00</span></div>
+          <div class="totals-row grand"><span>Total</span><span id="tot-total">$0.00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status (edit mode only) -->
+  <div class="card" id="status-card" style="display:none;">
+    <div class="card-hdr">Status</div>
+    <div class="card-body">
+      <div class="field-row">
+        <label>Status</label>
+        <select id="status-select" onchange="onStatusChange()">
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="accepted">Accepted</option>
+          <option value="declined">Declined</option>
+          <option value="expired">Expired</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /body-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var editId = null;
+  var propData = {};
+
+  function fmt(n) { return '$' + (parseFloat(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+  function goBack() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('estimateslist');
+    else window.location.href = 'EstimatesList.html';
+  }
+
+  /* ── Properties dropdown ── */
+  async function loadProperties() {
+    var { data } = await sb.from('Properties')
+      .select('id, first_name, last_name, address, city, customer_id')
+      .order('last_name');
+    var sel = document.getElementById('property-select');
+    (data || []).forEach(function(p) {
+      propData[p.id] = p;
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = (p.last_name || '') + ', ' + (p.first_name || '') + ' — ' + (p.address || '');
+      sel.appendChild(opt);
+    });
+  }
+
+  function onPropertyChange() {
+    var id = document.getElementById('property-select').value;
+    var p = propData[id];
+    if (p) {
+      document.getElementById('client-name').value = (p.last_name || '') + ', ' + (p.first_name || '');
+      document.getElementById('address').value = (p.address || '') + (p.city ? ', ' + p.city : '');
+    } else {
+      document.getElementById('client-name').value = '';
+      document.getElementById('address').value = '';
+    }
+  }
+
+  var estimateCatalog = [];
+
+  async function loadEstimateServicesCatalog() {
+    var { data } = await sb.from('estimate_services').select('id, name, description, default_price').eq('active', true).order('name');
+    estimateCatalog = data || [];
+  }
+
+  /* ── Line items ── */
+  function addLine(desc, qty, rate, details) {
+    var tbody = document.getElementById('line-tbody');
+    var catalogOptions = '<option value="">— pick from catalog or type below —</option>' +
+      estimateCatalog.map(function(s) {
+        return '<option value="' + s.id + '" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-price="' + (s.default_price||0) + '" data-desc="' + (s.description||'').replace(/"/g,'&quot;') + '">' + s.name + '</option>';
+      }).join('');
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
+      '<td>' +
+        '<select class="li-catalog" onchange="onCatalogPick(this)" style="width:100%;margin-bottom:4px;border:1px solid #ddd;padding:4px 6px;font-size:12px;font-family:inherit;">' + catalogOptions + '</select>' +
+        '<input type="text" class="li-desc" placeholder="Service name" value="' + (desc||'') + '" oninput="calcTotals()"/>' +
+        '<input type="text" class="li-details" placeholder="Description shown to client" value="' + (details||'') + '" style="font-size:11px;color:#888;margin-top:3px;border:1px solid #eee;padding:4px 7px;width:100%;font-family:inherit;border-radius:2px;"/>' +
+      '</td>' +
+      '<td><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;"/></td>' +
+      '<td><input type="number" class="li-rate" value="' + (rate||'0.00') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;"/></td>' +
+      '<td class="li-total" style="text-align:right;font-weight:600;padding-right:12px;">$0.00</td>';
+    tbody.appendChild(tr);
+    calcTotals();
+  }
+
+  function onCatalogPick(sel) {
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    var tr = sel.closest('tr');
+    tr.querySelector('.li-desc').value    = opt.dataset.name  || '';
+    tr.querySelector('.li-details').value = opt.dataset.desc  || '';
+    tr.querySelector('.li-rate').value    = opt.dataset.price || '0.00';
+    calcTotals();
+  }
+
+  function removeLine(btn) {
+    btn.closest('tr').remove();
+    calcTotals();
+  }
+
+  function calcTotals() {
+    var sub = 0;
+    document.querySelectorAll('#line-tbody tr').forEach(function(tr) {
+      var qty  = parseFloat(tr.querySelector('.li-qty')?.value) || 0;
+      var rate = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
+      var total = qty * rate;
+      sub += total;
+      var td = tr.querySelector('.li-total');
+      if (td) td.textContent = fmt(total);
+    });
+    document.getElementById('tot-sub').textContent   = fmt(sub);
+    document.getElementById('tot-total').textContent = fmt(sub);
+  }
+
+  function getLineItems() {
+    var items = [];
+    document.querySelectorAll('#line-tbody tr').forEach(function(tr) {
+      var desc    = tr.querySelector('.li-desc')?.value.trim()    || '';
+      var details = tr.querySelector('.li-details')?.value.trim() || '';
+      var qty     = parseFloat(tr.querySelector('.li-qty')?.value)  || 0;
+      var rate    = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
+      items.push({ description: desc, details: details, qty: qty, rate: rate, total: qty * rate });
+    });
+    return items;
+  }
+
+  function getTotal() {
+    return getLineItems().reduce(function(s, i) { return s + i.total; }, 0);
+  }
+
+  /* ── Status ── */
+  function onStatusChange() {
+    var status = document.getElementById('status-select').value;
+    updateStatusBadge(status);
+    document.getElementById('btn-convert').style.display = status === 'accepted' ? '' : 'none';
+  }
+
+  function updateStatusBadge(status) {
+    var badge = document.getElementById('status-badge');
+    badge.className = 'status-badge status-' + status;
+    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  /* ── Save ── */
+  async function save(statusOverride) {
+    var propId = document.getElementById('property-select').value;
+    if (!propId) { alert('Please select a property.'); return; }
+    var p = propData[propId];
+    var items = getLineItems();
+    var status = statusOverride || document.getElementById('status-select').value || 'draft';
+
+    var payload = {
+      property_id:  propId,
+      customer_id:  p ? p.customer_id : null,
+      client_name:  p ? ((p.last_name||'') + ', ' + (p.first_name||'')) : '',
+      address:      document.getElementById('address').value,
+      status:       status,
+      line_items:   items,
+      amount:       getTotal(),
+      notes:        document.getElementById('notes').value.trim() || null,
+      expiry_date:  document.getElementById('expiry-date').value || null,
+      updated_at:   new Date().toISOString(),
+    };
+
+    var error, savedData;
+    if (editId) {
+      var res = await sb.from('estimates').update(payload).eq('id', editId).select().single();
+      error = res.error; savedData = res.data;
+    } else {
+      var res = await sb.from('estimates').insert(payload).select().single();
+      error = res.error; savedData = res.data;
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+
+    if (statusOverride === 'sent' && savedData) {
+      var { data: emailRes, error: emailErr } = await sb.functions.invoke('send-estimate-email', {
+        body: { estimate_id: savedData.id }
+      });
+      if (emailErr || (emailRes && emailRes.error)) {
+        var errMsg = (emailRes && emailRes.error) ? emailRes.error : (emailErr ? emailErr.message : 'Unknown error');
+        alert('Estimate saved but email failed: ' + errMsg);
+      } else {
+        alert('Estimate sent! The client will receive an email with a link to view and accept.');
+      }
+    }
+
+    goBack();
+  }
+
+  /* ── Convert to Services ── */
+  async function convertToServices() {
+    if (!editId) return;
+    var items = getLineItems();
+    if (!items.length) { alert('No line items to convert.'); return; }
+    var propId   = document.getElementById('property-select').value;
+    var p        = propData[propId];
+    var clientName = p ? ((p.last_name||'') + ', ' + (p.first_name||'')) : '';
+    var address    = document.getElementById('address').value;
+
+    var inserts = items.map(function(item) {
+      return {
+        property_id:  propId,
+        customer_id:  p ? p.customer_id : null,
+        client_name:  clientName,
+        address:      address,
+        service:      item.description,
+        amount:       item.total,
+        status:       'pending',
+        dispatched:   false,
+        job_type:     'one_time',
+        service_lines: [item],
+      };
+    });
+
+    var { error } = await sb.from('Services').insert(inserts);
+    if (error) { alert('Error: ' + error.message); return; }
+
+    await sb.from('estimates').update({ status: 'accepted' }).eq('id', editId);
+    alert(items.length + ' service' + (items.length > 1 ? 's' : '') + ' added to the Waiting List.');
+    goBack();
+  }
+
+  /* ── Delete ── */
+  async function deleteEstimate() {
+    if (!editId) return;
+    if (!confirm('Delete this estimate?')) return;
+    var { error } = await sb.from('estimates').delete().eq('id', editId);
+    if (error) { alert('Error: ' + error.message); return; }
+    goBack();
+  }
+
+  /* ── Init ── */
+  async function init() {
+    await Promise.all([loadProperties(), loadEstimateServicesCatalog()]);
+    var params = new URLSearchParams(window.location.search);
+    editId = params.get('id') || null;
+
+    // Pre-select property if coming from property profile
+    var pid = params.get('property_id');
+    if (pid) {
+      document.getElementById('property-select').value = pid;
+      onPropertyChange();
+    }
+
+    if (editId) {
+      document.getElementById('page-title').textContent = 'Edit Estimate';
+      document.getElementById('btn-delete').style.display = '';
+      document.getElementById('status-card').style.display = '';
+
+      var { data, error } = await sb.from('estimates').select('*').eq('id', editId).single();
+      if (error || !data) { alert('Estimate not found.'); goBack(); return; }
+
+      document.getElementById('property-select').value = data.property_id || '';
+      onPropertyChange();
+      document.getElementById('expiry-date').value  = data.expiry_date || '';
+      document.getElementById('notes').value        = data.notes || '';
+      document.getElementById('status-select').value = data.status || 'draft';
+      updateStatusBadge(data.status || 'draft');
+      if (data.status === 'accepted') document.getElementById('btn-convert').style.display = '';
+
+      (data.line_items || []).forEach(function(item) {
+        addLine(item.description, item.qty, item.rate, item.details);
+      });
+    } else {
+      addLine();
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Estimate</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; background: #f5f5f5; color: #222; min-height: 100vh; }
+
+    .page-wrap { max-width: 680px; margin: 0 auto; padding: 30px 16px 60px; }
+
+    /* Header */
+    .est-header { text-align: center; margin-bottom: 24px; }
+    .company-name { font-size: 26px; font-weight: 800; color: #111; margin-bottom: 4px; }
+    .est-header .sub { font-size: 14px; color: #777; }
+
+    /* Steps indicator */
+    .steps { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 28px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .step-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; border: 2px solid #ddd; background: #fff; color: #bbb; transition: all .3s; }
+    .step-circle.active { background: #e07820; border-color: #e07820; color: #fff; }
+    .step-circle.done   { background: #27a567; border-color: #27a567; color: #fff; }
+    .step-label { font-size: 11px; font-weight: 600; color: #bbb; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+    .step-label.active { color: #e07820; }
+    .step-label.done   { color: #27a567; }
+    .step-line { width: 60px; height: 2px; background: #ddd; margin: 0; position: relative; top: -14px; }
+    .step-line.done { background: #27a567; }
+
+    /* Card */
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); margin-bottom: 16px; overflow: hidden; }
+    .card-hdr { padding: 14px 20px; background: #3a3a3a; color: #fff; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .card-body { padding: 20px; }
+
+    /* Services list */
+    .service-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 16px; border: 2px solid #eee; border-radius: 6px;
+      margin-bottom: 10px; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .service-item:hover { border-color: #e07820; background: #fff8f4; }
+    .service-item.selected { border-color: #e07820; background: #fff8f4; }
+    .service-check { width: 22px; height: 22px; border-radius: 4px; border: 2px solid #ddd; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .service-item.selected .service-check { background: #e07820; border-color: #e07820; }
+    .service-check::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; display: none; }
+    .service-item.selected .service-check::after { display: block; }
+    .service-info { flex: 1; }
+    .service-name { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 3px; }
+    .service-desc { font-size: 13px; color: #777; line-height: 1.5; }
+    .service-price { font-size: 16px; font-weight: 800; color: #e07820; flex-shrink: 0; margin-top: 2px; }
+
+    .selection-total { background: #3a3a3a; color: #fff; padding: 14px 18px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+    .selection-total .lbl { font-size: 13px; color: #aaa; }
+    .selection-total .val { font-size: 20px; font-weight: 800; color: #e07820; }
+
+    /* Stripe */
+    #card-element { border: 1px solid #ddd; border-radius: 4px; padding: 13px; background: #fff; margin-bottom: 10px; }
+    #card-errors { color: #c0392b; font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+    .card-note { font-size: 12px; color: #888; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .card-note::before { content: '🔒'; }
+
+    .card-on-file { background: #f0fff4; border: 1px solid #b2dfdb; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #1b5e20; }
+
+    /* Navigation buttons */
+    .btn-next {
+      width: 100%; background: #e07820; color: #fff; border: none;
+      padding: 14px; font-size: 16px; font-weight: 800; border-radius: 6px;
+      cursor: pointer; transition: background .15s; margin-top: 10px;
+    }
+    .btn-next:hover:not(:disabled) { background: #c96a10; }
+    .btn-next:disabled { background: #ccc; cursor: default; }
+    .btn-back-step { background: none; border: none; color: #2272c3; font-size: 14px; cursor: pointer; padding: 8px 0; display: block; text-align: center; width: 100%; margin-top: 8px; }
+    .btn-back-step:hover { text-decoration: underline; }
+
+    .btn-submit {
+      width: 100%; background: #27a567; color: #fff; border: none;
+      padding: 14px; font-size: 16px; font-weight: 800; border-radius: 6px;
+      cursor: pointer; transition: background .15s; margin-top: 10px;
+    }
+    .btn-submit:hover:not(:disabled) { background: #1e8050; }
+    .btn-submit:disabled { background: #ccc; cursor: default; }
+
+    /* Step 3 summary */
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .summary-row:last-child { border: none; }
+    .summary-total { display: flex; justify-content: space-between; padding: 12px 0 4px; font-size: 18px; font-weight: 800; }
+
+    /* Accepted banner */
+    .accepted-banner { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 30px 20px; text-align: center; color: #155724; }
+    .accepted-banner .icon { font-size: 48px; margin-bottom: 12px; }
+    .accepted-banner h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .accepted-banner p { font-size: 14px; color: #1e7e34; }
+
+    .loading { text-align: center; padding: 60px 20px; color: #888; font-size: 15px; }
+    .error-msg { text-align: center; padding: 60px 20px; color: #c0392b; font-size: 15px; }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <div id="loading-state" class="loading">Loading your estimate…</div>
+  <div id="error-state" class="error-msg" style="display:none;"></div>
+
+  <div id="main-content" style="display:none;">
+
+    <div class="est-header">
+      <div class="company-name" id="company-name-hdr">SprayBoss Pro</div>
+      <div class="sub" id="est-number-hdr">Estimate</div>
+    </div>
+
+    <!-- Already accepted -->
+    <div id="accepted-state" style="display:none;">
+      <div class="accepted-banner">
+        <div class="icon">✅</div>
+        <h2>Estimate Accepted!</h2>
+        <p>Thank you — we'll be in touch shortly to schedule your services.</p>
+      </div>
+    </div>
+
+    <!-- Active estimate flow -->
+    <div id="active-flow">
+
+      <!-- Steps indicator -->
+      <div class="steps">
+        <div class="step">
+          <div class="step-circle active" id="circle-1">1</div>
+          <div class="step-label active" id="label-1">Services</div>
+        </div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step">
+          <div class="step-circle" id="circle-2">2</div>
+          <div class="step-label" id="label-2">Card</div>
+        </div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step">
+          <div class="step-circle" id="circle-3">3</div>
+          <div class="step-label" id="label-3">Confirm</div>
+        </div>
+      </div>
+
+      <!-- Step 1: Pick Services -->
+      <div class="step-panel active" id="step-1">
+        <div class="card">
+          <div class="card-hdr">Select Your Services</div>
+          <div class="card-body">
+            <p style="color:#777;font-size:13px;margin-bottom:16px;">Check the services you'd like to proceed with. You must select at least one.</p>
+            <div id="services-list"></div>
+            <div class="selection-total">
+              <span class="lbl">Selected Total</span>
+              <span class="val" id="selected-total">$0.00</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-next" id="btn-step1-next" disabled onclick="goStep(2)">Continue to Card →</button>
+      </div>
+
+      <!-- Step 2: Add Card -->
+      <div class="step-panel" id="step-2">
+        <div class="card">
+          <div class="card-hdr">Add Your Card</div>
+          <div class="card-body">
+            <p style="color:#777;font-size:13px;margin-bottom:16px;">Your card is saved securely. You won't be charged until the work is complete.</p>
+            <div id="card-on-file-display" style="display:none;"></div>
+            <div id="stripe-form">
+              <div id="card-element"></div>
+              <div id="card-errors"></div>
+              <div class="card-note">Card info is encrypted and never stored on our servers.</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-next" id="btn-step2-next" onclick="saveCard()">Continue to Confirm →</button>
+        <button class="btn-back-step" onclick="goStep(1)">← Back</button>
+      </div>
+
+      <!-- Step 3: Confirm -->
+      <div class="step-panel" id="step-3">
+        <div class="card">
+          <div class="card-hdr">Confirm Your Estimate</div>
+          <div class="card-body">
+            <p style="color:#777;font-size:13px;margin-bottom:16px;">Review your selected services and submit to accept.</p>
+            <div id="confirm-services"></div>
+            <div class="summary-total">
+              <span>Total</span>
+              <span id="confirm-total" style="color:#e07820;">$0.00</span>
+            </div>
+            <div style="margin-top:16px;padding:12px 16px;background:#f9f9f9;border-radius:4px;font-size:12px;color:#888;line-height:1.6;">
+              By clicking Submit you agree to have the above services performed and authorize us to charge the card on file upon completion.
+            </div>
+          </div>
+        </div>
+        <button class="btn-submit" id="btn-submit" onclick="submitEstimate()">✓ Submit &amp; Accept Estimate</button>
+        <button class="btn-back-step" onclick="goStep(2)">← Back</button>
+      </div>
+
+    </div><!-- /active-flow -->
+
+  </div><!-- /main-content -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var stripe, cardElement, estimateData, companyData, clientData;
+  var selectedItems = {};
+  var stripeCustomerId = null;
+  var cardSaved = false;
+  var currentStep = 1;
+
+  function fmt(n) { return '$' + (parseFloat(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function showError(msg) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = '';
+    document.getElementById('error-state').textContent = msg;
+  }
+
+  /* ── Step navigation ── */
+  function goStep(n) {
+    document.querySelectorAll('.step-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('step-' + n).classList.add('active');
+    currentStep = n;
+    updateStepIndicator();
+    window.scrollTo(0, 0);
+  }
+
+  function updateStepIndicator() {
+    for (var i = 1; i <= 3; i++) {
+      var circle = document.getElementById('circle-' + i);
+      var label  = document.getElementById('label-' + i);
+      circle.className = 'step-circle' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+      if (i < currentStep) { circle.textContent = '✓'; }
+      else { circle.textContent = i; }
+      label.className = 'step-label' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    }
+    var line1 = document.getElementById('line-1');
+    var line2 = document.getElementById('line-2');
+    if (line1) line1.className = 'step-line' + (currentStep > 1 ? ' done' : '');
+    if (line2) line2.className = 'step-line' + (currentStep > 2 ? ' done' : '');
+  }
+
+  /* ── Step 1: Services ── */
+  function renderServices() {
+    var list = document.getElementById('services-list');
+    var items = estimateData.line_items || [];
+    list.innerHTML = '';
+    items.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'service-item';
+      div.dataset.idx = idx;
+      div.innerHTML =
+        '<div class="service-check"></div>' +
+        '<div class="service-info">' +
+          '<div class="service-name">' + esc(item.description || '') + '</div>' +
+          (item.details ? '<div class="service-desc">' + esc(item.details) + '</div>' : '') +
+        '</div>' +
+        '<div class="service-price">' + fmt(item.total) + '</div>';
+      div.addEventListener('click', function() { toggleService(idx, item); });
+      list.appendChild(div);
+    });
+    updateSelectionTotal();
+  }
+
+  function toggleService(idx, item) {
+    var div = document.querySelector('.service-item[data-idx="' + idx + '"]');
+    if (selectedItems[idx]) {
+      delete selectedItems[idx];
+      div.classList.remove('selected');
+    } else {
+      selectedItems[idx] = item;
+      div.classList.add('selected');
+    }
+    updateSelectionTotal();
+  }
+
+  function updateSelectionTotal() {
+    var total = Object.values(selectedItems).reduce(function(s, i) { return s + (parseFloat(i.total)||0); }, 0);
+    document.getElementById('selected-total').textContent = fmt(total);
+    document.getElementById('btn-step1-next').disabled = Object.keys(selectedItems).length === 0;
+  }
+
+  /* ── Step 2: Card ── */
+  function initStripe(pubKey) {
+    if (!pubKey) return;
+    stripe = Stripe(pubKey);
+    var elements = stripe.elements();
+    cardElement = elements.create('card', {
+      style: { base: { fontSize: '14px', color: '#222', fontFamily: 'Segoe UI, Arial, sans-serif', '::placeholder': { color: '#aaa' } } }
+    });
+    cardElement.mount('#card-element');
+    cardElement.on('change', function(e) {
+      document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+    });
+  }
+
+  async function saveCard() {
+    var btn = document.getElementById('btn-step2-next');
+
+    // If card already on file, skip to step 3
+    if (cardSaved) { buildConfirmStep(); goStep(3); return; }
+
+    if (!stripe || !cardElement) { buildConfirmStep(); goStep(3); return; }
+
+    btn.disabled = true; btn.textContent = 'Saving card…';
+
+    var { data, error } = await sb.functions.invoke('stripe-setup-card', {
+      body: { estimate_id: estimateData.id, customer_id: estimateData.customer_id }
+    });
+
+    if (error || !data || !data.client_secret) {
+      btn.disabled = false; btn.textContent = 'Continue to Confirm →';
+      document.getElementById('card-errors').textContent = 'Could not connect to payment service. Please try again.';
+      return;
+    }
+
+    stripeCustomerId = data.stripe_customer_id;
+
+    var result = await stripe.confirmCardSetup(data.client_secret, {
+      payment_method: { card: cardElement }
+    });
+
+    if (result.error) {
+      btn.disabled = false; btn.textContent = 'Continue to Confirm →';
+      document.getElementById('card-errors').textContent = result.error.message;
+      return;
+    }
+
+    if (estimateData.customer_id && result.setupIntent?.payment_method) {
+      await sb.functions.invoke('stripe-setup-card', {
+        body: {
+          action: 'save_card',
+          payment_method_id: result.setupIntent.payment_method,
+          stripe_customer_id: stripeCustomerId,
+          customer_id: estimateData.customer_id,
+        }
+      });
+    }
+
+    cardSaved = true;
+    btn.disabled = false; btn.textContent = 'Continue to Confirm →';
+    buildConfirmStep();
+    goStep(3);
+  }
+
+  /* ── Step 3: Confirm ── */
+  function buildConfirmStep() {
+    var container = document.getElementById('confirm-services');
+    var items = Object.values(selectedItems);
+    var total = items.reduce(function(s, i) { return s + (parseFloat(i.total)||0); }, 0);
+    container.innerHTML = items.map(function(item) {
+      return '<div class="summary-row"><span>' + esc(item.description||'') + '</span><span style="font-weight:700;">' + fmt(item.total) + '</span></div>';
+    }).join('');
+    document.getElementById('confirm-total').textContent = fmt(total);
+  }
+
+  async function submitEstimate() {
+    var btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    var selectedLineItems = Object.values(selectedItems);
+    var total = selectedLineItems.reduce(function(s, i) { return s + (parseFloat(i.total)||0); }, 0);
+
+    await sb.from('estimates').update({
+      status:         'accepted',
+      accepted_at:    new Date().toISOString(),
+      line_items:     selectedLineItems,
+      amount:         total,
+    }).eq('id', estimateData.id);
+
+    document.getElementById('active-flow').style.display = 'none';
+    document.getElementById('accepted-state').style.display = '';
+  }
+
+  /* ── Init ── */
+  async function init() {
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+    if (!id) { showError('Invalid estimate link.'); return; }
+
+    var [estRes, coRes] = await Promise.all([
+      sb.from('estimates').select('*').eq('id', id).single(),
+      sb.from('company_info').select('company_name, display_name, stripe_publishable_key').limit(1).single()
+    ]);
+
+    if (estRes.error || !estRes.data) { showError('Estimate not found.'); return; }
+    estimateData = estRes.data;
+    companyData  = coRes.data || {};
+
+    if (estimateData.customer_id) {
+      var { data: cl } = await sb.from('Clients').select('id, stripe_customer_id, card_last4, card_brand, card_exp_month, card_exp_year').eq('id', estimateData.customer_id).single();
+      clientData = cl;
+    }
+
+    var companyName = companyData.display_name || companyData.company_name || 'SprayBoss Pro';
+    document.getElementById('company-name-hdr').textContent = companyName;
+    document.getElementById('est-number-hdr').textContent   = 'Estimate #' + (estimateData.estimate_number || '');
+
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('main-content').style.display  = '';
+
+    if (estimateData.status === 'accepted') {
+      document.getElementById('active-flow').style.display  = 'none';
+      document.getElementById('accepted-state').style.display = '';
+      return;
+    }
+
+    // Check card on file
+    if (clientData && clientData.card_last4) {
+      cardSaved = true;
+      stripeCustomerId = clientData.stripe_customer_id;
+      document.getElementById('stripe-form').style.display = 'none';
+      var d = document.getElementById('card-on-file-display');
+      d.style.display = '';
+      d.className = 'card-on-file';
+      d.innerHTML = '💳 <span><strong>' + esc(clientData.card_brand||'Card') + ' ending in ' + esc(clientData.card_last4) + '</strong> — expires ' + esc(clientData.card_exp_month) + '/' + esc(clientData.card_exp_year) + ' (saved)</span>';
+    } else if (companyData.stripe_publishable_key) {
+      initStripe(companyData.stripe_publishable_key);
+    }
+
+    renderServices();
+  }
+
+  init();
+</script>
+</body>
+</html>

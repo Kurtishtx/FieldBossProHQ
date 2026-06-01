@@ -205,6 +205,7 @@
     <button class="tab-btn active" onclick="switchTab('details', this)">Details</button>
     <button class="tab-btn" onclick="switchTab('contact', this)">Contact Details</button>
     <button class="tab-btn" onclick="switchTab('settings', this)">Settings</button>
+    <button class="tab-btn" onclick="switchTab('payments', this)">Payments</button>
   </div>
 
   <!-- ═══════════════════════════════
@@ -420,20 +421,6 @@
     <div class="section-bar"></div>
     <div class="tab-body">
 
-      <div class="fr">
-        <span class="lbl">Company Type</span>
-        <div class="field">
-          <select id="company-type">
-            <option selected>Lawn &amp; Landscape</option>
-            <option>Pest Control</option>
-            <option>Cleaning</option>
-            <option>HVAC</option>
-            <option>Plumbing</option>
-            <option>General Contractor</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
 
       <div class="fr">
         <span class="lbl">Culture</span>
@@ -644,6 +631,48 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════
+       PAYMENTS TAB
+  ═══════════════════════════════ -->
+  <div class="tab-content" id="tab-payments">
+    <div class="section-bar"></div>
+    <div class="tab-body">
+
+      <div class="fr">
+        <span class="lbl">Resend API Key</span>
+        <div class="field">
+          <input type="password" id="resend-api-key" placeholder="re_..." autocomplete="off"/>
+          <div class="field-note">Used to send estimate emails. Get a free key at <strong>resend.com</strong> — free tier is 100 emails/day.</div>
+        </div>
+      </div>
+
+      <div class="fr">
+        <span class="lbl">Site URL</span>
+        <div class="field">
+          <input type="text" id="site-url" placeholder="https://yourdomain.com"/>
+          <div class="field-note">The public URL where your app is hosted. Used in estimate links sent to clients.</div>
+        </div>
+      </div>
+
+      <div class="fr">
+        <span class="lbl">Stripe Publishable Key</span>
+        <div class="field">
+          <input type="text" id="stripe-pub-key" placeholder="pk_live_..." autocomplete="off"/>
+          <div style="font-size:11px;color:#999;margin-top:4px;">This key is safe to expose — used on the client-facing estimate page.</div>
+        </div>
+      </div>
+
+      <div class="fr">
+        <span class="lbl">Stripe Secret Key</span>
+        <div class="field">
+          <input type="password" id="stripe-secret-key" placeholder="sk_live_..." autocomplete="off"/>
+          <div style="font-size:11px;color:#999;margin-top:4px;">Keep this private — never share it. Used server-side only for charging cards.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Footer -->
   <div class="card-footer">
     <button class="btn-save" onclick="saveChanges()">Save Changes</button>
@@ -699,7 +728,6 @@
       contactPhoneExt:    document.getElementById('contact-phone-ext').value,
       contactFax:         document.getElementById('contact-fax').value,
       // Settings
-      companyType:        document.getElementById('company-type').value,
       culture:            document.getElementById('culture').value,
       phoneFormat:        document.getElementById('phone-format').value,
       workPhoneExt:       document.getElementById('work-phone-ext').value,
@@ -723,6 +751,10 @@
       multidayDays:       document.getElementById('multiday-days').value,
       enableClasses:      document.getElementById('enable-classes').checked,
       productPrint:       document.getElementById('product-print').value,
+      resendApiKey:       document.getElementById('resend-api-key').value,
+      siteUrl:            document.getElementById('site-url').value,
+      stripePubKey:       document.getElementById('stripe-pub-key').value,
+      stripeSecretKey:    document.getElementById('stripe-secret-key').value,
     };
   }
 
@@ -742,7 +774,7 @@
     set('contact-title', d.contactTitle);   set('contact-email', d.contactEmail);
     set('contact-phone', d.contactPhone);   set('contact-phone-ext', d.contactPhoneExt);
     set('contact-fax', d.contactFax);
-    set('company-type', d.companyType);     set('culture', d.culture);
+    set('culture', d.culture);
     set('phone-format', d.phoneFormat);     set('work-phone-ext', d.workPhoneExt);
     set('def-state', d.defState);           set('def-country', d.defCountry);
     if (d.distance) { var r = document.querySelector('input[name="distance"][value="' + d.distance + '"]'); if (r) r.checked = true; }
@@ -756,6 +788,8 @@
     set('custom-pkg-svc', d.customPkgSvc);  set('work-order-setting', d.workOrderSetting);
     set('max-man-hours', d.maxManHours);    set('multiday-days', d.multidayDays);
     set('enable-classes', d.enableClasses); set('product-print', d.productPrint);
+    set('resend-api-key', d.resendApiKey);  set('site-url', d.siteUrl);
+    set('stripe-pub-key', d.stripePubKey);  set('stripe-secret-key', d.stripeSecretKey);
   }
 
   var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
@@ -814,7 +848,6 @@
       contact_phone:         d.contactPhone,
       contact_phone_ext:     d.contactPhoneExt,
       contact_fax:           d.contactFax,
-      company_type:          d.companyType,
       culture:               d.culture,
       phone_format:          d.phoneFormat,
       work_phone_ext:        d.workPhoneExt,
@@ -836,8 +869,12 @@
       work_order_setting:    d.workOrderSetting,
       max_man_hours:         d.maxManHours,
       multiday_days:         d.multidayDays,
-      enable_classes:        d.enableClasses,
-      product_print:         d.productPrint
+      enable_classes:            d.enableClasses,
+      product_print:             d.productPrint,
+      resend_api_key:            d.resendApiKey    || null,
+      site_url:                  d.siteUrl         || null,
+      stripe_publishable_key:    d.stripePubKey    || null,
+      stripe_secret_key:         d.stripeSecretKey || null
     };
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
@@ -891,7 +928,6 @@
       contactPhone:        data.contact_phone,
       contactPhoneExt:     data.contact_phone_ext,
       contactFax:          data.contact_fax,
-      companyType:         data.company_type,
       culture:             data.culture,
       phoneFormat:         data.phone_format,
       workPhoneExt:        data.work_phone_ext,
