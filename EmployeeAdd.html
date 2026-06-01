@@ -78,6 +78,38 @@
       padding: 16px 24px 24px;
       display: flex; align-items: center; gap: 10px;
     }
+    .btn-add-truck {
+      background: none; border: 1px dashed #e07820; color: #e07820;
+      padding: 5px 10px; font-size: 12px; font-weight: 700; border-radius: 3px;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-add-truck:hover { background: #fff5ee; }
+    .mini-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 600;
+      align-items: center; justify-content: center;
+    }
+    .mini-modal-overlay.open { display: flex; }
+    .mini-modal {
+      background: #fff; border-radius: 6px; padding: 24px 28px;
+      width: 320px; position: relative; box-shadow: 0 8px 40px rgba(0,0,0,.3);
+    }
+    .mini-modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111; }
+    .mini-modal-close {
+      position: absolute; top: 10px; right: 12px;
+      background: none; border: 1px solid #aaa; width: 24px; height: 24px;
+      cursor: pointer; font-size: 12px; border-radius: 2px; line-height: 1;
+    }
+    .mini-modal input[type="text"] {
+      width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; border-radius: 2px; outline: none; margin-bottom: 14px;
+    }
+    .mini-modal input[type="text"]:focus { border-color: #e07820; }
+    .mini-modal-footer { display: flex; gap: 10px; align-items: center; }
+    .btn-mini-save { background: #e07820; color: #fff; border: none; padding: 8px 22px; font-size: 13px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-mini-save:hover { background: #c96a10; }
+    .btn-mini-cancel { color: #555; font-size: 13px; cursor: pointer; }
+    .btn-mini-cancel:hover { text-decoration: underline; }
     .btn-save {
       background: #e07820; color: #fff; border: none;
       padding: 9px 28px; font-size: 14px; font-weight: 700;
@@ -129,7 +161,21 @@
       <select id="emp-truck">
         <option value="">— no truck assigned —</option>
       </select>
+      <button type="button" class="btn-add-truck" onclick="openAddTruck()">+ Truck</button>
     </div>
+
+<!-- Add Truck mini modal -->
+<div class="mini-modal-overlay" id="add-truck-overlay">
+  <div class="mini-modal">
+    <button class="mini-modal-close" onclick="closeAddTruck()">&#10005;</button>
+    <h3>Add Truck</h3>
+    <input type="text" id="new-truck-name" placeholder="e.g. Truck 1" autocomplete="off"/>
+    <div class="mini-modal-footer">
+      <button class="btn-mini-save" onclick="saveTruck()">Save</button>
+      <span class="btn-mini-cancel" onclick="closeAddTruck()">Cancel</span>
+    </div>
+  </div>
+</div>
 
     <div class="section-label" id="active-section" style="display:none;">Status</div>
     <div class="toggle-row" id="active-row" style="display:none;">
@@ -161,6 +207,27 @@
   document.getElementById('emp-active').addEventListener('change', function() {
     document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
   });
+
+  function openAddTruck() {
+    document.getElementById('new-truck-name').value = '';
+    document.getElementById('add-truck-overlay').classList.add('open');
+    setTimeout(function() { document.getElementById('new-truck-name').focus(); }, 50);
+  }
+  function closeAddTruck() {
+    document.getElementById('add-truck-overlay').classList.remove('open');
+  }
+  async function saveTruck() {
+    var name = document.getElementById('new-truck-name').value.trim();
+    if (!name) { alert('Please enter a truck name.'); return; }
+    var { data, error } = await sb.from('trucks').insert({ name: name, active: true }).select('id, name').single();
+    if (error) { alert('Error: ' + error.message); return; }
+    closeAddTruck();
+    var sel = document.getElementById('emp-truck');
+    var opt = document.createElement('option');
+    opt.value = data.id; opt.textContent = data.name;
+    sel.appendChild(opt);
+    sel.value = data.id;
+  }
 
   async function loadTrucks() {
     var { data } = await sb.from('trucks').select('id, name').eq('active', true).order('name');
