@@ -407,32 +407,6 @@
     </div>
   </div>
 
-  <div class="nav-section">
-    <div class="nav-label">Service <span class="chevron">&#9660;</span></div>
-    <div class="nav-items">
-      <button class="nav-btn" data-page="services" onclick="loadPage('services', this)">
-        <span class="icon">&#128203;</span> Services
-      </button>
-      <button class="nav-btn" data-page="packageplans" onclick="loadPage('packageplans', this)">
-        <span class="icon">&#128230;</span> Package Plans
-      </button>
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">Chemical <span class="chevron">&#9660;</span></div>
-    <div class="nav-items">
-      <button class="nav-btn" data-page="products" onclick="loadPage('products', this)">
-        <span class="icon">&#129514;</span> Products
-      </button>
-      <button class="nav-btn" data-page="productmixes" onclick="loadPage('productmixes', this)">
-        <span class="icon">&#9878;</span> Product Mixes
-      </button>
-      <button class="nav-btn" data-page="chemtracking" onclick="loadPage('chemtracking', this)">
-        <span class="icon">&#9879;</span> Chemical Tracking
-      </button>
-    </div>
-  </div>
 
   <div class="nav-section">
     <div class="nav-label">Billing <span class="chevron">&#9660;</span></div>
@@ -461,14 +435,7 @@
     </div>
   </div>
 
-  <div class="nav-section">
-    <div class="nav-label">Reports <span class="chevron">&#9660;</span></div>
-    <div class="nav-items">
-      <button class="nav-btn" data-page="reportslist" onclick="loadPage('reportslist', this)">
-        <span class="icon">&#128202;</span> All Reports
-      </button>
-    </div>
-  </div>
+
 
   <div class="nav-section">
     <div class="nav-label">System <span class="chevron">&#9660;</span></div>
@@ -854,6 +821,14 @@
     }
 
   }
+  window._userRole = 'full_access'; // default until loaded
+  (async function loadUserRole() {
+    var { data: authData } = await sbMain.auth.getUser();
+    if (!authData || !authData.user) return;
+    var { data: prof } = await sbMain.from('user_profiles').select('role').eq('id', authData.user.id).single();
+    if (prof && prof.role) window._userRole = prof.role;
+  })();
+
   window.loadDashboardSettings();
 
   // ── Map page keys to HTML files ──
@@ -875,10 +850,13 @@
     chemreport:   'ChemicalReport.html',
     chemtracking: 'ChemicalReport.html',
     settings:     'settings.html',
+    mobileinstall: 'MobileInstall.html',
     customfields: 'CustomFieldsList.html',
     companyinfo:  'CompanyInfo.html',
     userroles:      'UserRoles.html',
     cancelreasons:  'CancellationReasons.html',
+    userslist:      'UsersList.html',
+    usersadd:       'UsersAdd.html',
     trucks:         'Trucks.html',
     trucksadd:      'TrucksAdd.html',
     employeelist:   'EmployeeList.html',
@@ -935,6 +913,8 @@
     companyinfo:  'Company Information',
     userroles:      'User Roles & Rights',
     cancelreasons:  'Cancellation Reasons',
+    userslist:      'Users',
+    usersadd:       'Users',
     trucks:         'Trucks',
     trucksadd:      'Trucks',
     employeelist:   'Employees',
@@ -942,8 +922,8 @@
     employeehours:  'Employee Hours',
     estimateslist:      'Estimates',
     estimateadd:        'Estimates',
-    estimateserviceslist:  'Estimate Services',
-    estimateservicesadd:   'Estimate Services',
+    estimateserviceslist:  'Estimate Services / Packages',
+    estimateservicesadd:   'Estimate Services / Packages',
     estimateemailsetup:    'Estimate Email Setup',
     estimateemailinfo:     'Estimate Email Setup',
     estimateemailtemplate: 'Estimate Email Setup',
@@ -1033,6 +1013,8 @@
     dd.innerHTML = html;
   }
 
+  var OWNER_ONLY_PAGES = ['companyinfo', 'userslist', 'usersadd', 'userroles'];
+
   function loadPage(page) {
     var frame     = document.getElementById('page-frame');
     var homeScreen = document.getElementById('home-screen');
@@ -1040,6 +1022,12 @@
     var pageKey = qIdx >= 0 ? page.substring(0, qIdx) : page;
     var queryStr = qIdx >= 0 ? page.substring(qIdx) : '';
     var file      = pageFiles[pageKey];
+
+    // Block Office Assistants from owner-only pages
+    if (OWNER_ONLY_PAGES.indexOf(pageKey) >= 0 && window._userRole && window._userRole !== 'full_access') {
+      alert('Access denied. This section is for Full Access users only.');
+      return;
+    }
 
     // Update topbar title
     document.getElementById('page-title').textContent = pageTitles[pageKey] || pageKey;
@@ -1091,8 +1079,9 @@
     loadDashboardSettings();
   }
 
-  function logout() {
+  async function logout() {
     if (confirm('Are you sure you want to log out?')) {
+      await sbMain.auth.signOut();
       window.location.href = 'index.html';
     }
   }
