@@ -1327,12 +1327,15 @@
   (function() {
     var lastY = 0;
     var mobileBar = document.querySelector('.mobile-topbar');
+    var mainEl = document.querySelector('.main');
     function onScroll(y) {
       if (window.innerWidth > 768) return;
       if (y > lastY && y > 40) {
         mobileBar.classList.add('hidden');
+        if (mainEl) mainEl.style.paddingTop = '0';
       } else {
         mobileBar.classList.remove('hidden');
+        if (mainEl) mainEl.style.paddingTop = '52px';
       }
       lastY = y;
     }
