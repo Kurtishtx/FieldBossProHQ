@@ -502,6 +502,11 @@
       cursor: pointer;
       border: 2px solid transparent;
       transition: border-color .15s, box-shadow .15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 90px;
     }
     .quick-card:hover {
       border-color: #2a6cb5;
@@ -641,7 +646,7 @@
       <span class="mobile-search-icon">&#128269;</span>
       <input type="text" placeholder="Search..." autocomplete="off" oninput="globalSearchInput()" onfocus="globalSearchInput()" id="mobile-search" />
     </div>
-    <div class="mobile-brand">SprayBossPro &#127807;</div>
+    <div class="user-badge" style="flex-shrink:0;">SBP</div>
   </div>
 
   <!-- Mobile nav overlay -->
@@ -1313,8 +1318,8 @@
 
   // Mobile orientation tip — show once per session on mobile
   (function() {
-    if (window.innerWidth <= 768 && !sessionStorage.getItem('orientationTipShown')) {
-      sessionStorage.setItem('orientationTipShown', '1');
+    if (window.innerWidth <= 768 && !sessionStorage.getItem('orientationTipShown2')) {
+      sessionStorage.setItem('orientationTipShown2', '1');
       var overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.innerHTML = '<div style="background:#fff;border-radius:12px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);">' +
