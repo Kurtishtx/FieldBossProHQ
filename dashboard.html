@@ -38,6 +38,7 @@
     .sidebar-brand {
       padding: 22px 18px 16px;
       border-bottom: 1px solid rgba(255,255,255,.1);
+      position: relative;
     }
     .sidebar-brand .brand-icon {
       font-size: 26px;
@@ -57,6 +58,54 @@
       font-weight: 400;
       display: block;
       margin-top: 2px;
+    }
+    .sidebar-collapse-btn {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.1);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .sidebar-collapse-btn:hover { background: rgba(255,255,255,.2); }
+
+    .sidebar.collapsed {
+      width: 52px;
+      min-width: 52px;
+    }
+    .sidebar.collapsed .sidebar-brand h2,
+    .sidebar.collapsed .sidebar-brand > span,
+    .sidebar.collapsed .sidebar-brand .brand-icon,
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .nav-btn span:last-child,
+    .sidebar.collapsed .logout-btn span:last-child {
+      display: none;
+    }
+    .sidebar.collapsed .nav-btn,
+    .sidebar.collapsed .logout-btn {
+      justify-content: center;
+      padding: 9px 0;
+    }
+    .sidebar.collapsed .nav-btn .icon { width: auto; }
+    .sidebar.collapsed .sidebar-brand {
+      padding: 14px 0;
+      display: flex;
+      justify-content: center;
+    }
+    .sidebar.collapsed .sidebar-collapse-btn {
+      position: static;
+      transform: none;
+      margin: 0;
     }
 
     .nav-section {
@@ -371,6 +420,7 @@
     <span class="brand-icon">&#127807;</span>
     <h2>SprayBossPro</h2>
     <span>Field Management</span>
+    <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">&#9664;</button>
   </div>
 
   <div class="nav-section">
@@ -1064,6 +1114,13 @@
       frame.src = 'about:blank';
       homeScreen.style.display = '';
     }
+  }
+
+  function toggleSidebar() {
+    var sidebar = document.querySelector('.sidebar');
+    var btn = document.querySelector('.sidebar-collapse-btn');
+    sidebar.classList.toggle('collapsed');
+    btn.innerHTML = sidebar.classList.contains('collapsed') ? '&#9654;' : '&#9664;';
   }
 
   // Home / Dashboard button resets to welcome screen
