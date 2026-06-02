@@ -219,7 +219,7 @@
 
     .mobile-nav-overlay {
       display: none;
-      position: fixed;
+      position: absolute;
       top: 52px;
       left: 0; right: 0; bottom: 0;
       background: #1a2b3c;
@@ -274,6 +274,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
 
     .topbar {
@@ -598,40 +599,40 @@
 
 </div>
 
-<!-- Mobile top bar -->
-<div class="mobile-topbar">
-  <button class="mobile-hamburger" onclick="toggleMobileNav()">&#9776;</button>
-  <div class="mobile-brand">&#127807; SprayBossPro <span>Field Management</span></div>
-</div>
-
-<!-- Mobile nav overlay -->
-<div class="mobile-nav-overlay" id="mobile-nav-overlay">
-  <button class="mobile-nav-btn" onclick="mobileNav('home')"><span class="icon">&#127968;</span> Dashboard</button>
-  <div class="mobile-nav-section-label">Schedule</div>
-  <button class="mobile-nav-btn" data-page="waitinglist" onclick="mobileNav('waitinglist')"><span class="icon">&#9201;</span> Waiting</button>
-  <button class="mobile-nav-btn" data-page="dispatched" onclick="mobileNav('dispatched')"><span class="icon">&#128665;</span> Scheduled</button>
-  <div class="mobile-nav-section-label">Clients</div>
-  <button class="mobile-nav-btn" data-page="customers" onclick="mobileNav('customers')"><span class="icon">&#128101;</span> Clients</button>
-  <button class="mobile-nav-btn" data-page="properties" onclick="mobileNav('properties')"><span class="icon">&#127968;</span> Properties</button>
-  <button class="mobile-nav-btn" data-page="leads" onclick="mobileNav('leads')"><span class="icon">&#127919;</span> Leads</button>
-  <div class="mobile-nav-section-label">Billing</div>
-  <button class="mobile-nav-btn" data-page="estimateslist" onclick="mobileNav('estimateslist')"><span class="icon">&#128203;</span> Estimates</button>
-  <button class="mobile-nav-btn" data-page="invoices" onclick="mobileNav('invoices')"><span class="icon">&#128196;</span> Invoices</button>
-  <button class="mobile-nav-btn" data-page="payments" onclick="mobileNav('payments')"><span class="icon">&#128178;</span> Payments</button>
-  <div class="mobile-nav-section-label">Messaging</div>
-  <button class="mobile-nav-btn" data-page="alerts" onclick="mobileNav('alerts')"><span class="icon">&#128276;</span> Alerts</button>
-  <button class="mobile-nav-btn" data-page="texts" onclick="mobileNav('texts')"><span class="icon">&#128172;</span> Texts</button>
-  <div class="mobile-nav-section-label">System</div>
-  <button class="mobile-nav-btn" data-page="settings" onclick="mobileNav('settings')"><span class="icon">&#9881;</span> Settings</button>
-  <div class="mobile-nav-logout">
-    <button class="mobile-nav-btn" onclick="logout()" style="color:#ff7b7b;"><span class="icon">&#128682;</span> Log Out</button>
-  </div>
-</div>
-
 <!-- ════════════════════════════════
      MAIN
 ════════════════════════════════ -->
 <div class="main">
+
+  <!-- Mobile top bar (inside main, replaces topbar on small screens) -->
+  <div class="mobile-topbar">
+    <button class="mobile-hamburger" onclick="toggleMobileNav()">&#9776;</button>
+    <div class="mobile-brand">&#127807; SprayBossPro <span>Field Management</span></div>
+  </div>
+
+  <!-- Mobile nav overlay -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <button class="mobile-nav-btn" onclick="mobileNav('home')"><span class="icon">&#127968;</span> Dashboard</button>
+    <div class="mobile-nav-section-label">Schedule</div>
+    <button class="mobile-nav-btn" data-page="waitinglist" onclick="mobileNav('waitinglist')"><span class="icon">&#9201;</span> Waiting</button>
+    <button class="mobile-nav-btn" data-page="dispatched" onclick="mobileNav('dispatched')"><span class="icon">&#128665;</span> Scheduled</button>
+    <div class="mobile-nav-section-label">Clients</div>
+    <button class="mobile-nav-btn" data-page="customers" onclick="mobileNav('customers')"><span class="icon">&#128101;</span> Clients</button>
+    <button class="mobile-nav-btn" data-page="properties" onclick="mobileNav('properties')"><span class="icon">&#127968;</span> Properties</button>
+    <button class="mobile-nav-btn" data-page="leads" onclick="mobileNav('leads')"><span class="icon">&#127919;</span> Leads</button>
+    <div class="mobile-nav-section-label">Billing</div>
+    <button class="mobile-nav-btn" data-page="estimateslist" onclick="mobileNav('estimateslist')"><span class="icon">&#128203;</span> Estimates</button>
+    <button class="mobile-nav-btn" data-page="invoices" onclick="mobileNav('invoices')"><span class="icon">&#128196;</span> Invoices</button>
+    <button class="mobile-nav-btn" data-page="payments" onclick="mobileNav('payments')"><span class="icon">&#128178;</span> Payments</button>
+    <div class="mobile-nav-section-label">Messaging</div>
+    <button class="mobile-nav-btn" data-page="alerts" onclick="mobileNav('alerts')"><span class="icon">&#128276;</span> Alerts</button>
+    <button class="mobile-nav-btn" data-page="texts" onclick="mobileNav('texts')"><span class="icon">&#128172;</span> Texts</button>
+    <div class="mobile-nav-section-label">System</div>
+    <button class="mobile-nav-btn" data-page="settings" onclick="mobileNav('settings')"><span class="icon">&#9881;</span> Settings</button>
+    <div class="mobile-nav-logout">
+      <button class="mobile-nav-btn" onclick="logout()" style="color:#ff7b7b;"><span class="icon">&#128682;</span> Log Out</button>
+    </div>
+  </div>
 
   <div class="topbar">
     <h1 id="page-title">Dashboard</h1>
