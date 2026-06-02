@@ -196,7 +196,10 @@
       gap: 8px;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,.3);
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 100;
     }
     .mobile-hamburger {
@@ -248,7 +251,7 @@
 
     .mobile-nav-overlay {
       display: none;
-      position: absolute;
+      position: fixed;
       top: 52px;
       left: 0; right: 0; bottom: 0;
       background: #1a2b3c;
@@ -291,9 +294,10 @@
 
     @media (max-width: 768px) {
       .sidebar { display: none !important; }
-      .mobile-topbar { display: flex; transition: transform .25s ease, opacity .25s ease; }
-      .mobile-topbar.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+      .mobile-topbar { display: flex; transition: transform .25s ease; }
+      .mobile-topbar.hidden { transform: translateY(-100%); }
       .topbar { display: none !important; }
+      .main { padding-top: 52px; }
     }
 
     /* ══════════════════════════════
