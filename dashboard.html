@@ -292,7 +292,7 @@
     @media (max-width: 768px) {
       .sidebar { display: none !important; }
       .mobile-topbar { display: flex; }
-      .topbar { display: none; }
+      .topbar { display: none !important; }
     }
 
     /* ══════════════════════════════
@@ -1310,6 +1310,22 @@
       window.location.href = 'index.html';
     }
   }
+
+  // Mobile orientation tip — show once per session on mobile
+  (function() {
+    if (window.innerWidth <= 768 && !sessionStorage.getItem('orientationTipShown')) {
+      sessionStorage.setItem('orientationTipShown', '1');
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = '<div style="background:#fff;border-radius:12px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);">' +
+        '<div style="font-size:36px;margin-bottom:12px;">&#128241;&#10227;</div>' +
+        '<h2 style="font-size:17px;font-weight:700;color:#1a2b3c;margin-bottom:10px;">Tip: Rotate Your Phone Sideways</h2>' +
+        '<p style="font-size:14px;color:#555;line-height:1.5;margin-bottom:20px;">For the best view, turn your phone to landscape mode.</p>' +
+        '<button onclick="this.closest(\'div\').parentNode.remove()" style="background:#e07820;color:#fff;border:none;border-radius:8px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%;">OK</button>' +
+        '</div>';
+      document.body.appendChild(overlay);
+    }
+  })();
 </script>
 </body>
 </html>
