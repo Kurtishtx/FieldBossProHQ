@@ -192,8 +192,8 @@
       background: linear-gradient(90deg, #1a2b3c, #162436);
       height: 52px;
       align-items: center;
-      padding: 0 14px;
-      gap: 12px;
+      padding: 0 10px;
+      gap: 8px;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,.3);
       position: relative;
@@ -209,13 +209,42 @@
       line-height: 1;
       flex-shrink: 0;
     }
+    .mobile-page-title {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mobile-search-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+    .mobile-search-wrap input {
+      width: 100%;
+      padding: 6px 10px 6px 30px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 6px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+    .mobile-search-wrap input::placeholder { color: rgba(255,255,255,.5); }
+    .mobile-search-wrap input:focus { border-color: #e07820; background: rgba(255,255,255,.18); }
+    .mobile-search-icon {
+      position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,.6); font-size: 13px; pointer-events: none;
+    }
     .mobile-brand {
       color: #fff;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
-      flex: 1;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .mobile-brand span { color: #5bbfff; font-size: 11px; font-weight: 400; margin-left: 6px; }
 
     .mobile-nav-overlay {
       display: none;
@@ -607,7 +636,12 @@
   <!-- Mobile top bar (inside main, replaces topbar on small screens) -->
   <div class="mobile-topbar">
     <button class="mobile-hamburger" onclick="toggleMobileNav()">&#9776;</button>
-    <div class="mobile-brand">&#127807; SprayBossPro <span>Field Management</span></div>
+    <div class="mobile-page-title" id="mobile-page-title">Dashboard</div>
+    <div class="mobile-search-wrap">
+      <span class="mobile-search-icon">&#128269;</span>
+      <input type="text" placeholder="Search..." autocomplete="off" oninput="globalSearchInput()" onfocus="globalSearchInput()" id="mobile-search" />
+    </div>
+    <div class="mobile-brand">SprayBossPro &#127807;</div>
   </div>
 
   <!-- Mobile nav overlay -->
@@ -642,7 +676,6 @@
       <div class="global-search-dropdown" id="global-search-dd"></div>
     </div>
     <div class="topbar-right">
-      <span class="topbar-date" id="topbar-date"></span>
       <div class="user-badge">SBP</div>
     </div>
   </div>
@@ -1245,6 +1278,9 @@
     document.getElementById('mobile-nav-overlay').classList.remove('open');
     if (page === 'home') { goHome(); return; }
     var btn = document.querySelector('.mobile-nav-btn[data-page="' + page + '"]');
+    var label = btn ? btn.textContent.trim() : '';
+    var mpt = document.getElementById('mobile-page-title');
+    if (mpt) mpt.textContent = label;
     loadPage(page, btn);
   }
 
