@@ -78,15 +78,7 @@
     </h1>
     <div class="login-fields">
       <input id="email" type="email" placeholder="Email">
-      <div style="display:flex;align-items:center;border:1px solid #ccc;border-radius:4px;background:#fff;">
-        <input id="password" type="password" placeholder="Password" style="flex:1;width:auto !important;min-width:0;border:none;outline:none;padding:13px 14px;font-size:16px;font-family:inherit;color:#333;background:transparent;">
-        <button type="button" onclick="var p=document.getElementById('password');p.type=p.type==='password'?'text':'password';this.querySelector('svg').style.stroke=p.type==='text'?'#e07820':'#555';" style="background:none;border:none;cursor:pointer;padding:0 14px;display:flex;align-items:center;flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
+      <input id="password" type="password" placeholder="Password">
       <button onclick="login()">Log In</button>
     </div>
   </div>
