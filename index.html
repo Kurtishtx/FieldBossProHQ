@@ -78,7 +78,10 @@
     </h1>
     <div class="login-fields">
       <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
+      <div style="position:relative;">
+        <input id="password" type="password" placeholder="Password" style="padding-right:44px;">
+        <button type="button" onclick="var p=document.getElementById('password');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'👁':'🙈';" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:#888;">👁</button>
+      </div>
       <button onclick="login()">Log In</button>
     </div>
   </div>
