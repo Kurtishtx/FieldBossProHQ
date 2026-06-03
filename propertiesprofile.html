@@ -593,7 +593,7 @@
     <div class="measure-hdr" style="flex-direction:column; align-items:stretch; gap:8px;">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <span class="measure-hdr-title">&#9634; Property Measurements</span>
-        <button class="btn-measure-close" onclick="closeMeasureMode()">&#10005;</button>
+        <button class="btn-measure-close" id="measure-collapse-btn" onclick="toggleMeasurePanel()" title="Collapse">&#9650;</button>
       </div>
       <div class="measure-draw-btns" style="flex-direction:column; gap:6px;">
         <button class="btn-draw" id="btn-draw-area" onclick="setDrawMode('polygon')" style="width:100%; text-align:left; padding:8px 12px;">&#11041; Draw Area (sq ft)</button>
@@ -1669,6 +1669,19 @@
 
   function _nextColor() {
     return MEASURE_COLORS[(_measureShapes.length) % MEASURE_COLORS.length];
+  }
+
+  function toggleMeasurePanel() {
+    var body = document.getElementById('measure-panel').querySelector('.measure-body');
+    var drawBtns = document.querySelector('.measure-draw-btns');
+    var hint = document.querySelector('.measure-hdr span[style*="11px"]');
+    var btn = document.getElementById('measure-collapse-btn');
+    var collapsed = body.style.display === 'none';
+    body.style.display = collapsed ? '' : 'none';
+    if (drawBtns) drawBtns.style.display = collapsed ? '' : 'none';
+    if (hint) hint.style.display = collapsed ? '' : 'none';
+    btn.innerHTML = collapsed ? '&#9650;' : '&#9660;';
+    btn.title = collapsed ? 'Collapse' : 'Expand';
   }
 
   function openMeasureMode() {
