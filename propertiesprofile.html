@@ -1677,22 +1677,30 @@
     var btn = document.getElementById('measure-collapse-btn');
     var collapsed = panel.dataset.collapsed === '1';
 
+    var expandBtn = document.getElementById('measure-expand-float');
     if (collapsed) {
       // Expand
       panel.dataset.collapsed = '0';
-      panel.style.width = '380px';
-      panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = ''; });
+      panel.style.display = '';
+      if (expandBtn) expandBtn.style.display = 'none';
       btn.innerHTML = '&#9650;';
-      btn.title = 'Collapse';
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
     } else {
-      // Collapse — shrink panel to header only, map fills the freed space
+      // Collapse — hide panel entirely, map fills full width
       panel.dataset.collapsed = '1';
-      panel.style.width = 'auto';
-      panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = 'none'; });
-      panel.querySelector('.measure-hdr-title').style.display = '';
-      btn.innerHTML = '&#9660;';
-      btn.title = 'Expand';
+      panel.style.display = 'none';
+      // Show floating expand button on map
+      if (!expandBtn) {
+        expandBtn = document.createElement('button');
+        expandBtn.id = 'measure-expand-float';
+        expandBtn.innerHTML = '&#9660; Measurements';
+        expandBtn.style.cssText = 'position:absolute;top:10px;left:10px;z-index:999;background:#1a2b3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3);';
+        expandBtn.onclick = function() { toggleMeasurePanel(); };
+        document.getElementById('map-measure-container').style.position = 'relative';
+        document.getElementById('map-measure-container').appendChild(expandBtn);
+      } else {
+        expandBtn.style.display = '';
+      }
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
     }
   }
