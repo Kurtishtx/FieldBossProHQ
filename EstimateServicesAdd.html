@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Estimate Service</title>
+  <title>Add Estimate Service / Package</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
 
-    .dialog { max-width: 780px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
     .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
     .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
     .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
@@ -20,11 +20,11 @@
     .section-label:first-child { border-top: none; padding-top: 0; }
 
     .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
-    .field-row label { width: 130px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
     .field-row input[type="text"],
     .field-row select,
     .field-row textarea {
-      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
+      flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
       font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
     .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
@@ -69,22 +69,33 @@
     .btn-delete:hover { background: #fdecea; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
 </head>
 <body>
 
 <div class="dialog">
   <div class="dialog-header">
-    <h1 id="page-title">Add Estimate Service</h1>
+    <h1 id="page-title">Add Estimate Service / Package</h1>
     <button class="close-btn" onclick="cancel()">&#10005;</button>
   </div>
-  <div class="dialog-body">
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:16px;align-items:center;padding:10px 20px 0;border-bottom:2px solid #eee;background:#fafafa;">
+    <button id="etab-details" onclick="switchETab('details')" style="background:#3a3a3a;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;">Details</button>
+    <button id="etab-estimates" onclick="switchETab('estimates')" style="background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;">Estimates</button>
+  </div>
+
+  <!-- Details panel -->
+  <div id="epanel-details" class="dialog-body">
 
     <div class="section-label">Service Info</div>
 
     <div class="field-row">
       <label for="svc-name">Service Name</label>
       <div style="flex:1;">
-        <input type="text" id="svc-name" autocomplete="off" placeholder="e.g. Lawn Treatment"/>
+        <input type="text" id="svc-name" autocomplete="off" placeholder="e.g. Lawn Treatment Package"/>
       </div>
     </div>
 
@@ -93,6 +104,16 @@
       <div style="flex:1;">
         <textarea id="svc-desc" placeholder="Describe what this service includes. The client will see this when reviewing their estimate."></textarea>
         <div class="field-hint">This description appears on the client's estimate acceptance form.</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="pkg-assign">Assign to Package</label>
+      <div style="flex:1;">
+        <select id="pkg-assign">
+          <option value="">— No package (one-time service) —</option>
+        </select>
+        <div class="field-hint">When a client accepts this service, it will automatically create this package plan for their property at the estimate price.</div>
       </div>
     </div>
 
@@ -108,6 +129,8 @@
           <option value="flower_beds">Flower Beds Sq Ft</option>
           <option value="mosquito">Mosquito Control Sq Ft</option>
           <option value="mosquito_linear_ft">Mosquito Control Linear Ft</option>
+          <option value="pest_control">Pest Control Sq Ft</option>
+          <option value="pest_control_linear_ft">Pest Control Linear Ft</option>
         </select>
         <div class="field-hint">The system will look up this area from the property profile to auto-calculate price using the matrix below.</div>
       </div>
@@ -138,6 +161,13 @@
     </div>
 
   </div>
+
+  <!-- Estimates panel -->
+  <div id="epanel-estimates" style="display:none;" class="dialog-body">
+    <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;">Description on Estimate</div>
+    <textarea id="estimate-desc-editor"></textarea>
+  </div>
+
   <div class="dialog-footer">
     <button class="btn-save" onclick="save(false)">Save</button>
     <button class="btn-save-new" id="btn-save-new" onclick="save(true)">Save &amp; New</button>
@@ -155,6 +185,31 @@
 
   var editId = null;
 
+  function switchETab(tab) {
+    document.getElementById('epanel-details').style.display   = tab === 'details'   ? '' : 'none';
+    document.getElementById('epanel-estimates').style.display = tab === 'estimates' ? '' : 'none';
+    document.getElementById('etab-details').style.cssText   = tab === 'details'   ? 'background:#3a3a3a;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;' : 'background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;';
+    document.getElementById('etab-estimates').style.cssText = tab === 'estimates' ? 'background:#3a3a3a;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;' : 'background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;';
+  }
+
+  $(document).ready(function() {
+    $('#estimate-desc-editor').summernote({
+      height: 280,
+      toolbar: [
+        ['style', ['style']],
+        ['font', ['bold','italic','underline','strikethrough','superscript','subscript','clear']],
+        ['fontname', ['fontname']],
+        ['fontsize', ['fontsize']],
+        ['color', ['color']],
+        ['para', ['ul','ol','paragraph']],
+        ['table', ['table']],
+        ['insert', ['link','picture','hr']],
+        ['view', ['codeview']]
+      ],
+      placeholder: 'Type the description that will appear on the estimate sent to the client...'
+    });
+  });
+
   document.getElementById('svc-active').addEventListener('change', function() {
     document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
   });
@@ -171,15 +226,10 @@
         '<span class="mx-label">From:</span><input type="number" class="mx-input mx-from" value="' + (r.from||'') + '" placeholder="0" min="0"/>' +
         '<span class="mx-label">To:</span><input type="number" class="mx-input mx-to" value="' + (r.to||'') + '" placeholder="9999" min="0"/>' +
         '<span class="mx-label">Rate: $</span><input type="number" class="mx-input mx-rate" value="' + (r.rate||'') + '" placeholder="0.00" step="0.01" min="0"/>' +
-        '<span class="mx-label">B. Hrs:</span><input type="number" class="mx-input mx-bhrs" value="' + (r.b_hrs||0) + '" step="0.5" min="0"/>' +
-        '<span class="mx-label">B. Cost: $</span><input type="number" class="mx-input mx-bcost" value="' + (r.b_cost||0) + '" step="0.01" min="0"/>' +
-      '</div>' +
-      '<div class="matrix-row-bottom">' +
-        '<span>Every</span><input type="number" class="mx-input mx-ov-every" value="' + (r.overage_every||'') + '" placeholder="100" min="0"/>' +
-        '<span>over</span><input type="number" class="mx-input mx-ov-over" value="' + (r.overage_over||'') + '" placeholder="0" min="0"/>' +
-        '<span>is $</span><input type="number" class="mx-input mx-ov-price" value="' + (r.overage_price||'') + '" placeholder="0" step="0.01" min="0"/>' +
-        '<span>more and</span><input type="number" class="mx-input mx-ov-time" value="' + (r.overage_time||0) + '" step="0.1" min="0"/>' +
-        '<span>more time with additional cost of $</span><input type="number" class="mx-input mx-ov-cost wide" value="' + (r.overage_cost||0) + '" step="0.01" min="0"/>' +
+        '<span class="mx-label">Every</span><input type="number" class="mx-input mx-ov-every" value="' + (r.overage_every||'') + '" placeholder="100" min="0"/>' +
+        '<span class="mx-label">over</span><input type="number" class="mx-input mx-ov-over" value="' + (r.overage_over||'') + '" placeholder="0" min="0"/>' +
+        '<span class="mx-label">is $</span><input type="number" class="mx-input mx-ov-price" value="' + (r.overage_price||'') + '" placeholder="0" step="0.01" min="0"/>' +
+        '<span class="mx-label">more</span>' +
       '</div>';
     container.appendChild(div);
   }
@@ -205,39 +255,49 @@
   function getMatrix() {
     return Array.from(document.querySelectorAll('.matrix-row')).map(function(div) {
       return {
-        from:          parseFloat(div.querySelector('.mx-from')?.value)    || 0,
-        to:            parseFloat(div.querySelector('.mx-to')?.value)      || 0,
-        rate:          parseFloat(div.querySelector('.mx-rate')?.value)    || 0,
-        b_hrs:         parseFloat(div.querySelector('.mx-bhrs')?.value)    || 0,
-        b_cost:        parseFloat(div.querySelector('.mx-bcost')?.value)   || 0,
-        overage_every: parseFloat(div.querySelector('.mx-ov-every')?.value)|| 0,
-        overage_over:  parseFloat(div.querySelector('.mx-ov-over')?.value) || 0,
-        overage_price: parseFloat(div.querySelector('.mx-ov-price')?.value)|| 0,
-        overage_time:  parseFloat(div.querySelector('.mx-ov-time')?.value) || 0,
-        overage_cost:  parseFloat(div.querySelector('.mx-ov-cost')?.value) || 0,
+        from:          parseFloat(div.querySelector('.mx-from')?.value)     || 0,
+        to:            parseFloat(div.querySelector('.mx-to')?.value)       || 0,
+        rate:          parseFloat(div.querySelector('.mx-rate')?.value)     || 0,
+        overage_every: parseFloat(div.querySelector('.mx-ov-every')?.value) || 0,
+        overage_over:  parseFloat(div.querySelector('.mx-ov-over')?.value)  || 0,
+        overage_price: parseFloat(div.querySelector('.mx-ov-price')?.value) || 0,
       };
     });
   }
 
   /* ── Init ── */
+  async function loadPackages() {
+    var { data } = await sb.from('Packages').select('id, name').eq('active', true).order('name');
+    var sel = document.getElementById('pkg-assign');
+    (data || []).forEach(function(p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+  }
+
   async function init() {
+    await loadPackages();
     var params = new URLSearchParams(window.location.search);
     editId = params.get('id') || null;
     if (editId) {
-      document.getElementById('page-title').textContent = 'Edit Estimate Service';
+      document.getElementById('page-title').textContent = 'Edit Estimate Service / Package';
       document.getElementById('btn-save-new').style.display = 'none';
       document.getElementById('btn-delete').style.display = '';
       document.getElementById('active-section').style.display = '';
       document.getElementById('active-row').style.display = 'flex';
       var { data } = await sb.from('estimate_services').select('*').eq('id', editId).single();
       if (data) {
-        document.getElementById('svc-name').value   = data.name         || '';
-        document.getElementById('svc-desc').value   = data.description  || '';
-        document.getElementById('area-treated').value = data.area_treated || '';
+        document.getElementById('svc-name').value      = data.name         || '';
+        document.getElementById('svc-desc').value      = data.description  || '';
+        document.getElementById('area-treated').value  = data.area_treated || '';
+        document.getElementById('pkg-assign').value    = data.package_id   || '';
         var active = document.getElementById('svc-active');
         active.checked = data.active !== false;
         document.getElementById('active-label').textContent = active.checked ? 'Active' : 'Inactive';
         (data.price_matrix || []).forEach(function(r) { addMatrixRow(r); });
+        if (data.estimate_description) $('#estimate-desc-editor').summernote('code', data.estimate_description);
       }
     } else {
       addMatrixRow();
@@ -248,11 +308,15 @@
   async function save(andNew) {
     var name = document.getElementById('svc-name').value.trim();
     if (!name) { alert('Please enter a service name.'); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
-      name:          name,
-      description:   document.getElementById('svc-desc').value.trim()   || null,
-      area_treated:  document.getElementById('area-treated').value       || null,
-      price_matrix:  getMatrix(),
+      name:                 name,
+      description:          document.getElementById('svc-desc').value.trim() || null,
+      area_treated:         document.getElementById('area-treated').value     || null,
+      package_id:           document.getElementById('pkg-assign').value       || null,
+      price_matrix:         getMatrix(),
+      estimate_description: $('#estimate-desc-editor').summernote('code').trim() || null,
     };
     if (editId) payload.active = document.getElementById('svc-active').checked;
 
@@ -260,6 +324,7 @@
     if (editId) {
       ({ error } = await sb.from('estimate_services').update(payload).eq('id', editId));
     } else {
+      payload.user_id = uid;
       ({ error } = await sb.from('estimate_services').insert(payload));
     }
     if (error) { alert('Error: ' + error.message); return; }
@@ -277,7 +342,7 @@
   }
 
   async function deleteSvc() {
-    if (!confirm('Delete this service?')) return;
+    if (!confirm('Delete this service / package?')) return;
     await sb.from('estimate_services').delete().eq('id', editId);
     cancel();
   }

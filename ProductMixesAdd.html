@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,264 +6,129 @@
   <title>Add Mix</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
-      padding: 24px 28px 40px;
-      overflow-y: auto;
-      min-height: 100vh;
-      color: #333;
-    }
-
-    /* ── Title ── */
-    .title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .title-row h1 {
-      font-size: 26px;
-      font-weight: 800;
-      color: #111;
-    }
-    .close-btn {
-      background: none;
-      border: 1px solid #bbb;
-      border-radius: 3px;
-      width: 28px;
-      height: 28px;
-      font-size: 15px;
-      cursor: pointer;
-      color: #555;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
     .close-btn:hover { background: #f0f0f0; }
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 22px;
-    }
-    .tab-active {
-      background: #3a3a3a;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tab-link {
-      background: none;
-      border: none;
-      color: #444;
-      font-size: 13.5px;
-      font-family: inherit;
-      cursor: pointer;
-      padding: 0;
-    }
-    .tab-link:hover { text-decoration: underline; }
+    .dialog-body { padding: 20px 24px 8px; }
 
-    /* ── Tab panels ── */
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
 
-    /* ── Section card ── */
-    .section-card {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 18px;
-      overflow: hidden;
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"],
+    .field-row input[type="number"],
+    .field-row select {
+      flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
-    .section-header {
-      background: #3a3a3a;
-      color: #fff;
-      padding: 9px 14px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .section-body {
-      padding: 14px;
-      background: #fff;
-    }
+    .field-row input:focus, .field-row select:focus { border-color: #e07820; }
+    .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
 
-    /* ── Inputs ── */
-    input[type="text"], input[type="number"] {
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 6px 9px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
+    /* Application Rate row */
+    .app-rate-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .app-rate-row input[type="number"] {
+      width: 80px; border: 1px solid #ccc; border-radius: 2px; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; text-align: right;
     }
-    input[type="text"]:focus, input[type="number"]:focus {
-      outline: none;
-      border-color: #f5c800;
-      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    .app-rate-row input:focus { border-color: #e07820; }
+    .app-rate-row select {
+      border: 1px solid #ccc; border-radius: 2px; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none;
     }
-    input[type="number"] {
-      width: 80px;
-      text-align: right;
-    }
-    .input-full { width: 100%; }
+    .app-rate-row select:focus { border-color: #e07820; }
+    .per-label { font-size: 14px; font-weight: 700; color: #333; }
 
-    select {
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 6px 28px 6px 9px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #555;
-      appearance: none;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 9px center;
-      cursor: pointer;
+    /* Mix product rows */
+    .mix-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+    .mix-row select { border: 1px solid #ccc; border-radius: 2px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; }
+    .mix-row select:focus { border-color: #e07820; }
+    .mix-row input[type="number"] {
+      width: 80px; border: 1px solid #ccc; border-radius: 2px; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; text-align: right;
     }
-    select:focus { outline: none; border-color: #f5c800; }
-
-    /* ── Application Rate row ── */
-    .app-rate-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .per-label {
-      font-size: 14px;
-      font-weight: 700;
-      color: #333;
-    }
-
-    /* ── Mix product rows ── */
-    .mix-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
+    .mix-row input:focus { border-color: #e07820; }
     .mix-row select.products-select { width: 200px; }
-    .del-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #c0392b;
-      font-size: 20px;
-      line-height: 1;
-      padding: 0 2px;
-    }
+    .del-btn { background: none; border: none; cursor: pointer; color: #c0392b; font-size: 20px; line-height: 1; padding: 0 2px; }
     .del-btn:hover { color: #a93226; }
 
-    .btn-add-product {
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 14px;
-      font-size: 13px;
-      font-family: inherit;
-      color: #333;
-      cursor: pointer;
-      margin-top: 6px;
-    }
+    .btn-add-product { background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; color: #333; cursor: pointer; margin-top: 6px; }
     .btn-add-product:hover { background: #e4e4e4; }
 
-    /* ── Custom Field row ── */
-    .custom-field-row {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .custom-field-label {
-      font-size: 13.5px;
-      color: #888;
-      min-width: 180px;
-    }
-
-    /* ── Notes textarea ── */
-    .notes-body textarea {
-      width: 100%;
-      min-height: 200px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 10px;
-      font-size: 14px;
-      font-family: inherit;
-      resize: vertical;
-      color: #333;
-    }
-    .notes-body textarea:focus { outline: none; border-color: #f5c800; }
-
-    /* ── Footer ── */
-    .form-footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      padding: 16px 0 8px;
-    }
-    .btn-save, .btn-save-new {
-      background: #e07820;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 10px 30px;
-      font-size: 15px;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-save:hover, .btn-save-new:hover { background: #c96a15; }
-    .footer-or { font-size: 14px; color: #555; }
-    .btn-cancel {
-      background: none;
-      border: none;
-      color: #444;
-      font-size: 14px;
-      font-family: inherit;
-      cursor: pointer;
-      text-decoration: underline;
-    }
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save-new { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<!-- Title -->
-<div class="title-row">
-  <h1>Add Mix</h1>
-  <button class="close-btn" onclick="history.back()">&#10005;</button>
-</div>
-
-<!-- Tabs -->
-<div class="tabs">
-  <button class="tab-active" id="tab-btn-details" onclick="switchTab('details')">Details</button>
-</div>
-
-<!-- ══ DETAILS TAB ══ -->
-<div id="panel-details" class="tab-panel active">
-
-  <!-- Mix Name -->
-  <div class="section-card">
-    <div class="section-header">Mix Name</div>
-    <div class="section-body">
-      <input type="text" id="mix-name" class="input-full" placeholder=""/>
-    </div>
+<div class="dialog">
+  <div class="dialog-header">
+    <h1>Add Mix</h1>
+    <button class="close-btn" onclick="history.back()">&#10005;</button>
   </div>
 
-  <!-- Application Rate -->
-  <div class="section-card">
-    <div class="section-header">Application Rate</div>
-    <div class="section-body">
-      <div class="app-rate-row">
-        <input type="number" id="app-rate-amount" placeholder="0"/>
-        <select id="app-rate-uom" style="width:160px;">
+  <div class="dialog-body">
+
+    <div class="section-label">Mix Name</div>
+
+    <div class="field-row">
+      <label for="mix-name">Name</label>
+      <div style="flex:1;">
+        <input type="text" id="mix-name" placeholder=""/>
+      </div>
+    </div>
+
+    <div class="section-label">Application Rate</div>
+
+    <div class="app-rate-row">
+      <input type="number" id="app-rate-amount" placeholder="0"/>
+      <select id="app-rate-uom" style="width:160px;">
+        <option value="">Select UoM</option>
+        <option>Cups</option>
+        <option>Gallons</option>
+        <option>Grams</option>
+        <option>Kilograms</option>
+        <option>Liters</option>
+        <option>Milliliters</option>
+        <option>Ounces - Liquid</option>
+        <option>Ounces - Weight</option>
+        <option>Pints</option>
+        <option>Pounds</option>
+        <option>Quarts</option>
+        <option>Tablespoon</option>
+        <option>Teaspoon(s)</option>
+      </select>
+      <span class="per-label">per</span>
+      <input type="number" id="app-rate-per" placeholder="0"/>
+      <select id="app-rate-per-uom" style="width:170px;">
+        <option value="">Select Area Uom</option>
+        <option>Acres</option>
+        <option>Gallons</option>
+        <option>Linear Feet</option>
+        <option>Sq Feet</option>
+      </select>
+    </div>
+
+    <div class="section-label">Mix Products</div>
+
+    <div id="mix-rows">
+      <div class="mix-row">
+        <select class="products-select">
+          <option value="">Search Products...</option>
+        </select>
+        <input type="number" class="mix-amount" placeholder="0"/>
+        <select class="mix-uom" style="width:150px;">
           <option value="">Select UoM</option>
           <option>Cups</option>
           <option>Gallons</option>
@@ -280,111 +145,68 @@
           <option>Teaspoon(s)</option>
         </select>
         <span class="per-label">per</span>
-        <input type="number" id="app-rate-per" placeholder="0"/>
-        <select id="app-rate-per-uom" style="width:170px;">
-          <option value="">Select Area Uom</option>
+        <input type="number" class="mix-per" placeholder="0"/>
+        <select class="mix-per-uom" style="width:150px;">
+          <option value="">Select UoM</option>
           <option>Acres</option>
+          <option>Cups</option>
           <option>Gallons</option>
+          <option>Grams</option>
+          <option>Kilograms</option>
           <option>Linear Feet</option>
+          <option>Liters</option>
+          <option>Milliliters</option>
+          <option>Ounces - Liquid</option>
+          <option>Ounces - Weight</option>
+          <option>Pints</option>
+          <option>Pounds</option>
+          <option>Quarts</option>
           <option>Sq Feet</option>
+        </select>
+        <button class="del-btn" onclick="removeMixRow(this)">&#10005;</button>
+      </div>
+    </div>
+    <button class="btn-add-product" onclick="addMixRow()">Add Product</button>
+
+    <div class="section-label">Application Method</div>
+
+    <div class="field-row">
+      <label for="app-method">Method</label>
+      <div style="flex:1;">
+        <select id="app-method" style="max-width:320px;">
+          <option value="">Select Method</option>
+          <option>Blower Sprayer</option>
+          <option>Cup</option>
+          <option>DBH</option>
+          <option>FlowZone - Backpack</option>
+          <option>Scoop</option>
+          <option>Spray - Hand sprayer</option>
+          <option>Spray - Truck</option>
+          <option>Spreader - Broadcast</option>
+          <option>Spreader - Hand</option>
         </select>
       </div>
     </div>
-  </div>
 
-  <!-- Mix -->
-  <div class="section-card">
-    <div class="section-header">Mix</div>
-    <div class="section-body">
-      <div id="mix-rows">
-        <div class="mix-row">
-          <select class="products-select">
-            <option value="">Search Products...</option>
-          </select>
-          <input type="number" class="mix-amount" placeholder="0"/>
-          <select class="mix-uom" style="width:150px;">
-            <option value="">Select UoM</option>
-            <option>Cups</option>
-            <option>Gallons</option>
-            <option>Grams</option>
-            <option>Kilograms</option>
-            <option>Liters</option>
-            <option>Milliliters</option>
-            <option>Ounces - Liquid</option>
-            <option>Ounces - Weight</option>
-            <option>Pints</option>
-            <option>Pounds</option>
-            <option>Quarts</option>
-            <option>Tablespoon</option>
-            <option>Teaspoon(s)</option>
-          </select>
-          <span class="per-label">per</span>
-          <input type="number" class="mix-per" placeholder="0"/>
-          <select class="mix-per-uom" style="width:150px;">
-            <option value="">Select UoM</option>
-            <option>Acres</option>
-            <option>Cups</option>
-            <option>Gallons</option>
-            <option>Grams</option>
-            <option>Kilograms</option>
-            <option>Linear Feet</option>
-            <option>Liters</option>
-            <option>Milliliters</option>
-            <option>Ounces - Liquid</option>
-            <option>Ounces - Weight</option>
-            <option>Pints</option>
-            <option>Pounds</option>
-            <option>Quarts</option>
-            <option>Sq Feet</option>
-          </select>
-          <button class="del-btn" onclick="removeMixRow(this)">&#10005;</button>
-        </div>
-      </div>
-      <button class="btn-add-product" onclick="addMixRow()">Add Product</button>
-    </div>
-  </div>
+    <div class="section-label">Custom Field</div>
 
-  <!-- Application Method -->
-  <div class="section-card">
-    <div class="section-header">Application Method</div>
-    <div class="section-body">
-      <select id="app-method" style="width:280px;">
-        <option value="">Select Method</option>
-        <option>Blower Sprayer</option>
-        <option>Cup</option>
-        <option>DBH</option>
-        <option>FlowZone - Backpack</option>
-        <option>Scoop</option>
-        <option>Spray - Hand sprayer</option>
-        <option>Spray - Truck</option>
-        <option>Spreader - Broadcast</option>
-        <option>Spreader - Hand</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Custom Field -->
-  <div class="section-card">
-    <div class="section-header">Custom Field</div>
-    <div class="section-body">
-      <div class="custom-field-row">
-        <span class="custom-field-label">Custom Field Selection</span>
-        <select style="width:300px;">
+    <div class="field-row">
+      <label>Custom Field Selection</label>
+      <div style="flex:1;">
+        <select style="max-width:320px;">
           <option value="">Select Custom Field</option>
           <option>5 LAWN SQ FT</option>
         </select>
       </div>
     </div>
+
   </div>
 
-</div><!-- /panel-details -->
-
-<!-- Footer -->
-<div class="form-footer">
-  <button class="btn-save" onclick="saveMix()">Save</button>
-  <button class="btn-save-new" onclick="saveMix(true)">Save &amp; New</button>
-  <span class="footer-or">or</span>
-  <button class="btn-cancel" onclick="history.back()">Cancel</button>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveMix()">Save</button>
+    <button class="btn-save-new" onclick="saveMix(true)">Save &amp; New</button>
+    <span class="btn-cancel" onclick="history.back()">Cancel</span>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -520,4 +342,3 @@
 </script>
 </body>
 </html>
-

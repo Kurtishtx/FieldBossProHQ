@@ -476,6 +476,8 @@
     var breakStart = document.getElementById('modal-break-start').value;
     var breakEnd   = document.getElementById('modal-break-end').value;
 
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
       employee_id:  empId,
       clock_in:     clockIn,
@@ -489,6 +491,7 @@
     if (editId) {
       ({ error } = await sb.from('employee_time_logs').update(payload).eq('id', editId));
     } else {
+      payload.user_id = uid;
       ({ error } = await sb.from('employee_time_logs').insert(payload));
     }
     if (error) {

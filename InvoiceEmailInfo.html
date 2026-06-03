@@ -555,7 +555,9 @@ async function handleLogo2File(file) {
 }
 
 async function loadSettings() {
-  var { data } = await sb.from('invoice_email_settings').select('*').eq('id', 1).single();
+  var { data: sessionData } = await sb.auth.getSession();
+  var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+  var { data } = await sb.from('invoice_email_settings').select('*').eq('user_id', uid).single();
   if (!data) return;
   FIELDS.forEach(function(f) {
     var el = document.getElementById(f);
@@ -578,7 +580,9 @@ async function loadSettings() {
 }
 
 async function saveSettings() {
-  var payload = { id: 1 };
+  var { data: sessionData } = await sb.auth.getSession();
+  var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+  var payload = { user_id: uid };
   FIELDS.forEach(function(f) {
     var el = document.getElementById(f);
     payload[f] = el ? el.value.trim() : '';
@@ -591,7 +595,7 @@ async function saveSettings() {
     payload[id] = el ? el.checked : true;
   });
 
-  var { error } = await sb.from('invoice_email_settings').upsert(payload, { onConflict: 'id' });
+  var { error } = await sb.from('invoice_email_settings').upsert(payload, { onConflict: 'user_id' });
   if (error) { alert('Error saving: ' + error.message); return; }
 
   var status = document.getElementById('save-status');

@@ -549,8 +549,8 @@
   /* ── Column management ── */
   var CORE_COLS = ['order','client','service','lastsvc','amount'];
   var activeCoreColumns = CORE_COLS.slice();
-  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
-  var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito' };
+  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito','areapest'];
+  var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
   var activeAreaCols = AREA_COL_KEYS.slice();
   var activeCustomCols = [];
 
@@ -1339,7 +1339,7 @@
 
     /* area treated totals — only count area types associated with each service */
     var areaTotals = {};
-    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft' };
+    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
     var seenPropForArea = {};
     selected.forEach(function(svc) {
       var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
@@ -1837,7 +1837,10 @@
   async function confirmSaveView() {
     var name = document.getElementById('sv-name-input').value.trim();
     if (!name) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var { data, error } = await sb.from('saved_views').insert({
+      user_id: uid,
       page: 'waiting',
       name: name,
       service_filter: activeServiceFilter,

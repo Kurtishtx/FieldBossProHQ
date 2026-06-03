@@ -159,7 +159,15 @@
       </div>
     </div>
 
-    <div class="setting-item" onclick="navigate('userroles')" data-name="user roles rights permissions">
+    <div class="setting-item owner-only" onclick="navigate('userslist')" data-name="users accounts logins passwords create user">
+      <div class="setting-icon">&#128101;</div>
+      <div class="setting-text">
+        <div class="setting-name">Users</div>
+        <div class="setting-desc">Create and manage user accounts. Add email and password logins for your team.</div>
+      </div>
+    </div>
+
+    <div class="setting-item owner-only" onclick="navigate('userroles')" data-name="user roles rights permissions">
       <div class="setting-icon">&#128100;</div>
       <div class="setting-text">
         <div class="setting-name">User Roles &amp; Rights</div>
@@ -256,8 +264,8 @@
     <div class="setting-item" onclick="navigate('estimateserviceslist')" data-name="estimate services catalog list">
       <div class="setting-icon">&#128203;</div>
       <div class="setting-text">
-        <div class="setting-name">Estimate Services</div>
-        <div class="setting-desc">Build your estimate services catalog. These services appear on client estimate forms for selection.</div>
+        <div class="setting-name">Estimate Services / Packages</div>
+        <div class="setting-desc">Build your estimate services and packages catalog. These appear on client estimate forms for selection.</div>
       </div>
     </div>
 
@@ -291,12 +299,90 @@
   </div>
 </div>
 
+<div class="settings-group" id="group-services">
+  <div class="group-header" onclick="toggleGroup('services')">
+    <span>Services</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-services">
+
+    <div class="setting-item" onclick="navigate('services')" data-name="services service list">
+      <div class="setting-icon">&#128203;</div>
+      <div class="setting-text">
+        <div class="setting-name">Services</div>
+        <div class="setting-desc">Create and manage the services you offer to clients.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('packageplans')" data-name="package plans packages">
+      <div class="setting-icon">&#128230;</div>
+      <div class="setting-text">
+        <div class="setting-name">Package Plans</div>
+        <div class="setting-desc">Build and manage recurring service packages assigned to clients.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="settings-group" id="group-chemical">
+  <div class="group-header" onclick="toggleGroup('chemical')">
+    <span>Chemical</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-chemical">
+
+    <div class="setting-item" onclick="navigate('products')" data-name="products chemicals chemical products">
+      <div class="setting-icon">&#129514;</div>
+      <div class="setting-text">
+        <div class="setting-name">Products</div>
+        <div class="setting-desc">Manage your chemical and product inventory used in services.</div>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="navigate('productmixes')" data-name="product mixes mix chemical mix">
+      <div class="setting-icon">&#9878;</div>
+      <div class="setting-text">
+        <div class="setting-name">Product Mixes</div>
+        <div class="setting-desc">Create and manage custom chemical mix formulas.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="settings-group" id="group-reports">
+  <div class="group-header" onclick="toggleGroup('reports')">
+    <span>Reports</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-reports">
+
+    <div class="setting-item" onclick="navigate('reportslist')" data-name="reports all reports">
+      <div class="setting-icon">&#128202;</div>
+      <div class="setting-text">
+        <div class="setting-name">All Reports</div>
+        <div class="setting-desc">View and run all available reports including sales tax and chemical tracking.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div class="settings-group" id="group-system">
   <div class="group-header" onclick="toggleGroup('system')">
     <span>System</span>
     <span class="caret">&#9660;</span>
   </div>
   <div class="group-body" id="body-system">
+
+    <div class="setting-item" onclick="navigate('mobileinstall')" data-name="mobile app install phone">
+      <div class="setting-icon">&#128242;</div>
+      <div class="setting-text">
+        <div class="setting-name">Get the Mobile App</div>
+        <div class="setting-desc">Install the SprayBossPro mobile app on your phone or tablet.</div>
+      </div>
+    </div>
 
     <div class="setting-item" onclick="navigate('customfields')" data-name="custom fields">
       <div class="setting-icon">&#128203;</div>
@@ -318,6 +404,14 @@
 </div>
 
 <script>
+  // Hide owner-only items from non-owners
+  (function() {
+    var role = (window.parent && window.parent._userRole) ? window.parent._userRole : 'owner';
+    if (role !== 'owner') {
+      document.querySelectorAll('.owner-only').forEach(function(el) { el.style.display = 'none'; });
+    }
+  })();
+
   function navigate(page) {
     if (window.parent && window.parent.loadPage) {
       window.parent.loadPage(page);

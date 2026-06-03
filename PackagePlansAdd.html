@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,347 +6,104 @@
   <title>Package Plans Editor</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
-      padding: 24px 28px 40px;
-      overflow-y: auto;
-      min-height: 100vh;
-      color: #333;
-    }
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
+    .close-btn:hover { background: #f0f0f0; }
 
-    /* ── Title ── */
-    h1 {
-      font-size: 26px;
-      font-weight: 800;
-      color: #111;
-      margin-bottom: 16px;
-    }
+    .dialog-body { padding: 20px 24px 8px; }
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 22px;
-    }
-    .tab-active {
-      background: #3a3a3a;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tab-link {
-      background: none;
-      border: none;
-      color: #444;
-      font-size: 13.5px;
-      font-family: inherit;
-      cursor: pointer;
-      padding: 0;
-    }
-    .tab-link:hover { text-decoration: underline; color: #111; }
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
 
-    /* ── Form fields ── */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      row-gap: 12px;
-      align-items: center;
-      max-width: 680px;
-      margin-bottom: 28px;
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"],
+    .field-row input[type="number"],
+    .field-row input[type="date"],
+    .field-row select,
+    .field-row textarea {
+      flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
-    .field-label {
-      font-size: 13.5px;
-      color: #666;
-    }
-    .field-label.bold {
-      font-weight: 700;
-      color: #333;
-    }
-    .field-value { display: flex; align-items: center; gap: 8px; }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
+    .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
 
-    input[type="text"], input[type="date"], input[type="number"] {
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 8px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-    }
-    input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus {
-      outline: none;
-      border-color: #f5c800;
-      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
-    }
-    .input-wide  { width: 380px; }
-    .input-date  { width: 130px; }
-    .input-sm    { width: 60px; text-align: right; }
+    .toggle-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .toggle-row label.lbl { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; }
+    .toggle { position: relative; width: 42px; height: 22px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; transition: .2s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    .toggle input:checked + .toggle-slider { background: #e07820; }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .toggle-label { font-size: 13px; color: #555; }
 
-    input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      accent-color: #888888;
-    }
-
-    .cal-btn {
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 4px 7px;
-      font-size: 13px;
-      cursor: pointer;
-      color: #555;
-    }
-    .cal-btn:hover { background: #e4e4e4; }
-
-    .help-icon {
-      color: #aaa;
-      font-size: 16px;
-      cursor: default;
-    }
-
-    /* ── Service table section ── */
-    .svc-section {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 28px;
-      overflow: hidden;
-    }
-    .svc-toolbar {
-      background: #3a3a3a;
-      padding: 6px 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .tool-btn-icon {
-      background: #555;
-      color: #ddd;
-      border: 1px solid #666;
-      border-radius: 3px;
-      padding: 3px 8px;
-      font-size: 13px;
-      cursor: pointer;
-    }
+    /* Service table */
+    .svc-section { border: 1px solid #ccc; border-radius: 4px; margin-bottom: 18px; overflow: hidden; }
+    .svc-toolbar { background: #3a3a3a; padding: 6px 10px; display: flex; align-items: center; gap: 6px; }
+    .tool-btn-icon { background: #555; color: #ddd; border: 1px solid #666; border-radius: 3px; padding: 3px 8px; font-size: 13px; cursor: pointer; }
     .tool-btn-icon:hover { background: #666; color: #fff; }
-    .tool-btn {
-      background: #555;
-      color: #ddd;
-      border: 1px solid #666;
-      border-radius: 3px;
-      padding: 3px 10px;
-      font-size: 12.5px;
-      font-family: inherit;
-      cursor: pointer;
-    }
+    .tool-btn { background: #555; color: #ddd; border: 1px solid #666; border-radius: 3px; padding: 3px 10px; font-size: 12.5px; font-family: inherit; cursor: pointer; }
     .tool-btn:hover { background: #666; color: #fff; }
 
     .svc-table-wrap { overflow-x: auto; }
-    .svc-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12.5px;
-    }
-    .svc-table thead th {
-      background: #e8e8e8;
-      border-bottom: 1px solid #ccc;
-      border-right: 1px solid #ddd;
-      padding: 7px 10px;
-      text-align: left;
-      font-weight: 600;
-      color: #444;
-      white-space: nowrap;
-    }
+    .svc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .svc-table thead th { background: #e8e8e8; border-bottom: 1px solid #ccc; border-right: 1px solid #ddd; padding: 7px 10px; text-align: left; font-weight: 600; color: #444; white-space: nowrap; }
     .svc-table thead th:first-child { width: 30px; text-align: center; }
     .svc-table tbody tr { border-bottom: 1px solid #eee; }
-    .svc-table tbody td {
-      padding: 6px 8px;
-      vertical-align: middle;
-      border-right: 1px solid #f0f0f0;
-    }
+    .svc-table tbody td { padding: 6px 8px; vertical-align: middle; border-right: 1px solid #f0f0f0; }
     .svc-table tbody td:first-child { text-align: center; }
-
-    select {
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 24px 5px 7px;
-      font-size: 12.5px;
-      font-family: inherit;
-      color: #555;
-      appearance: none;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 7px center;
-      cursor: pointer;
+    .svc-table input[type="text"], .svc-table input[type="number"] {
+      border: 1px solid #ccc; border-radius: 2px; padding: 5px 8px; font-size: 12.5px; font-family: inherit; outline: none;
     }
-    select:focus { outline: none; border-color: #f5c800; }
-
-    .doc-btn {
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      color: #888;
-      padding: 0 2px;
+    .svc-table input:focus { border-color: #e07820; }
+    .svc-table select {
+      border: 1px solid #ccc; border-radius: 3px; padding: 5px 24px 5px 7px; font-size: 12.5px; font-family: inherit; color: #555;
+      appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 7px center; cursor: pointer;
     }
+    .svc-table select:focus { outline: none; border-color: #e07820; }
+    .cal-btn { background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; padding: 4px 7px; font-size: 13px; cursor: pointer; color: #555; }
+    .cal-btn:hover { background: #e4e4e4; }
+    .doc-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #888; padding: 0 2px; }
     .doc-btn:hover { color: #444; }
-
-    .btn-add-svc {
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 14px;
-      font-size: 13px;
-      font-family: inherit;
-      color: #333;
-      cursor: pointer;
-      margin: 10px 10px;
-    }
+    .btn-add-svc { background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; color: #333; cursor: pointer; margin: 10px; }
     .btn-add-svc:hover { background: #e4e4e4; }
+    .fill-below-btn { background: #1a6fc4; border: 2px solid #1a6fc4; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: #fff; font-size: 13px; padding: 0; vertical-align: middle; line-height: 1; margin-left: 4px; }
+    .input-sm { width: 60px; text-align: right; }
+    .rate-input::-webkit-outer-spin-button, .rate-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .rate-input { -moz-appearance: textfield; appearance: textfield; }
 
-    /* ── Save footer ── */
-    .form-footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      padding: 10px 0 28px;
-    }
-    .btn-save {
-      background: #e07820;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 11px 34px;
-      font-size: 15px;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-save:hover { background: #c96a15; }
-    .footer-or { font-size: 14px; color: #555; }
-    .btn-cancel {
-      background: none;
-      border: none;
-      color: #444;
-      font-size: 14px;
-      font-family: inherit;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    /* ── Clients Assigned section ── */
-    .clients-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 10px;
-    }
-    .clients-section {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    .clients-toolbar {
-      background: #3a3a3a;
-      padding: 6px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .clients-tabs-bar {
-      background: #3a3a3a;
-      padding: 0 8px;
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      border-top: 1px solid #4a4a4a;
-      justify-content: space-between;
-    }
+    /* Clients section */
+    .clients-section { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+    .clients-toolbar { background: #3a3a3a; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; }
+    .clients-tabs-bar { background: #3a3a3a; padding: 0 8px; display: flex; align-items: flex-end; gap: 3px; border-top: 1px solid #4a4a4a; justify-content: space-between; }
     .clients-tabs-left { display: flex; align-items: flex-end; gap: 3px; }
-    .ctab-btn {
-      background: #888888;
-      color: #111;
-      border: none;
-      border-radius: 4px 4px 0 0;
-      padding: 4px 14px;
-      font-size: 12px;
-      font-family: inherit;
-      cursor: pointer;
-      font-weight: 600;
-    }
+    .ctab-btn { background: #888888; color: #111; border: none; border-radius: 4px 4px 0 0; padding: 4px 14px; font-size: 12px; font-family: inherit; cursor: pointer; font-weight: 600; }
     .ctab-btn.active { background: #fff; color: #111; font-weight: 700; }
-    .ctab-btn:hover:not(.active) { background: #777777; color: #111; }
-    .items-count {
-      font-size: 12px;
-      color: #ccc;
-      padding-bottom: 6px;
-    }
-
-    .clients-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12.5px;
-    }
-    .clients-table thead th {
-      background: #f5f5f5;
-      border-bottom: 1px solid #ddd;
-      padding: 7px 12px;
-      text-align: left;
-      font-weight: 600;
-      color: #444;
-      white-space: nowrap;
-    }
+    .ctab-btn:hover:not(.active) { background: #777777; }
+    .items-count { font-size: 12px; color: #ccc; padding-bottom: 6px; }
+    .clients-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .clients-table thead th { background: #f5f5f5; border-bottom: 1px solid #ddd; padding: 7px 12px; text-align: left; font-weight: 600; color: #444; white-space: nowrap; }
     .clients-table tbody tr { border-bottom: 1px solid #eee; }
-    .clients-table tbody td {
-      padding: 8px 12px;
-      color: #555;
-      font-size: 13px;
-    }
-    .no-records {
-      padding: 14px 12px;
-      font-size: 13px;
-      color: #555;
-    }
-
-    .pg-mini {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .pg-mini-btn {
-      background: rgba(255,255,255,.12);
-      color: rgba(255,255,255,.7);
-      border: none;
-      padding: 3px 6px;
-      border-radius: 2px;
-      font-size: 11px;
-      cursor: pointer;
-    }
+    .clients-table tbody td { padding: 8px 12px; color: #555; font-size: 13px; }
+    .no-records { padding: 14px 12px; font-size: 13px; color: #555; }
+    .pg-mini { display: flex; align-items: center; gap: 3px; }
+    .pg-mini-btn { background: rgba(255,255,255,.12); color: rgba(255,255,255,.7); border: none; padding: 3px 6px; border-radius: 2px; font-size: 11px; cursor: pointer; }
     .pg-mini-btn:hover { background: rgba(255,255,255,.2); }
-    .pg-mini-cur {
-      background: #f5c800;
-      color: #111;
-      border: none;
-      padding: 3px 8px;
-      border-radius: 2px;
-      font-size: 11px;
-      font-weight: 700;
-    }
+    .pg-mini-cur { background: #f5c800; color: #111; border: none; padding: 3px 8px; border-radius: 2px; font-size: 11px; font-weight: 700; }
+    .clients-footer-bar { background: #2a2a2a; height: 18px; }
 
-    .clients-footer-bar {
-      background: #2a2a2a;
-      height: 18px;
-    }
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
 
-    /* ── Inline Calendar Popup ── */
+    /* Inline Calendar Popup */
     #cal-popup { display:none; position:fixed; z-index:9999; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.25); min-width:230px; border-radius:4px; overflow:hidden; }
     .cpop-hdr { display:flex; align-items:center; justify-content:space-between; background:#222; color:#fff; padding:6px 10px; font-size:13px; font-weight:600; }
     .cpop-nav { background:none; border:none; color:#fff; cursor:pointer; font-size:18px; padding:0 4px; line-height:1; }
@@ -358,136 +115,148 @@
     .cpop-other { color:#ddd; pointer-events:none; }
     .cpop-close-row { padding:4px 8px 8px; display:flex; justify-content:flex-end; }
     .cpop-close-btn { background:#e07820; color:#fff; border:none; padding:4px 14px; font-size:12px; border-radius:3px; cursor:pointer; font-weight:600; }
-    .rate-input::-webkit-outer-spin-button, .rate-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
-    .rate-input { -moz-appearance:textfield; appearance:textfield; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<!-- Title -->
-<h1>Package Plans Editor</h1>
-
-<!-- Form fields -->
-<div class="form-grid">
-
-  <div class="field-label bold">Name</div>
-  <div class="field-value">
-    <input type="text" id="pkg-name" class="input-wide"/>
+<div class="dialog">
+  <div class="dialog-header">
+    <h1>Package Plans Editor</h1>
+    <button class="close-btn" onclick="history.back()">&#10005;</button>
   </div>
 
-  <div class="field-label">Description</div>
-  <div class="field-value">
-    <input type="text" id="pkg-description" class="input-wide"/>
-  </div>
+  <div class="dialog-body">
 
+    <div class="section-label">Package Info</div>
 
-  <div class="field-label">Active</div>
-  <div class="field-value">
-    <input type="checkbox" id="pkg-active" checked/>
-  </div>
-
-</div>
-
-<!-- Service table -->
-<div class="svc-section">
-  <div class="svc-toolbar">
-    <button class="tool-btn-icon" title="Download">&#8595;</button>
-    <button class="tool-btn">Delete</button>
-  </div>
-  <div class="svc-table-wrap">
-    <table class="svc-table">
-      <thead>
-        <tr>
-          <th><input type="checkbox" onchange="toggleSvcAll(this)"/></th>
-          <th>Name</th>
-          <th>Service</th>
-          <th>Start</th>
-          <th>End</th>
-          <th>Min. Days</th>
-          <th>Default Rate</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="svc-tbody">
-        <tr>
-          <td><input type="checkbox"/></td>
-          <td><input type="text" style="width:130px;"/></td>
-          <td>
-            <select class="svc-select" style="width:200px;">
-              <option value="">Select Service...</option>
-            </select>
-          </td>
-          <td>
-            <div style="display:flex;align-items:center;gap:4px;">
-              <input type="text" class="input-date" placeholder="mm/dd/yyyy" style="width:100px;"/>
-              <button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button>
-            </div>
-          </td>
-          <td>
-            <div style="display:flex;align-items:center;gap:4px;">
-              <input type="text" class="input-date" placeholder="mm/dd/yyyy" style="width:100px;"/>
-              <button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button>
-            </div>
-          </td>
-          <td><input type="number" class="input-sm" placeholder="0"/></td>
-          <td><input type="number" class="input-sm" placeholder="0.00" step="0.01"/></td>
-          <td><button class="doc-btn" title="View">&#128196;</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <button class="btn-add-svc" onclick="addSvcRow()">Add Service</button>
-</div>
-
-<!-- Save footer -->
-<div class="form-footer">
-  <button class="btn-save" onclick="savePackage()">Save Changes</button>
-  <span class="footer-or">or</span>
-  <button class="btn-cancel" onclick="history.back()">Cancel</button>
-</div>
-
-<!-- Clients Assigned section -->
-<div class="clients-title">Clients Assigned to this Package</div>
-<div class="clients-section">
-  <div class="clients-toolbar">
-    <button class="tool-btn">Export</button>
-    <div class="pg-mini">
-      <button class="pg-mini-btn">|&lt;</button>
-      <button class="pg-mini-btn">&lt;</button>
-      <button class="pg-mini-cur">1</button>
-      <button class="pg-mini-btn">&gt;</button>
-      <button class="pg-mini-btn">&gt;|</button>
+    <div class="field-row">
+      <label for="pkg-name">Name</label>
+      <div style="flex:1;">
+        <input type="text" id="pkg-name"/>
+      </div>
     </div>
-  </div>
-  <div class="clients-tabs-bar">
-    <div class="clients-tabs-left">
-      <button class="ctab-btn active">Active</button>
-      <button class="ctab-btn">Canceled</button>
-      <button class="ctab-btn">Paused</button>
+
+    <div class="field-row">
+      <label for="pkg-description">Description</label>
+      <div style="flex:1;">
+        <input type="text" id="pkg-description"/>
+      </div>
     </div>
-    <span class="items-count">0 plans</span>
+
+    <div class="section-label">Status</div>
+
+    <div class="toggle-row">
+      <label class="lbl">Active</label>
+      <label class="toggle">
+        <input type="checkbox" id="pkg-active" checked/>
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label" id="active-label">Active</span>
+    </div>
+
+    <div class="section-label">Services</div>
+
+    <!-- Service table -->
+    <div class="svc-section">
+      <div class="svc-toolbar">
+        <button class="tool-btn-icon" title="Download">&#8595;</button>
+        <button class="tool-btn">Delete</button>
+      </div>
+      <div class="svc-table-wrap">
+        <table class="svc-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" onchange="toggleSvcAll(this)"/></th>
+              <th>Name</th>
+              <th>Service</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Min. Days</th>
+              <th>Default Rate</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="svc-tbody">
+            <tr>
+              <td><input type="checkbox"/></td>
+              <td><input type="text" style="width:130px;"/></td>
+              <td>
+                <select class="svc-select" style="width:200px;">
+                  <option value="">Select Service...</option>
+                </select>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="text" placeholder="mm/dd/yyyy" style="width:100px;"/>
+                  <button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="text" placeholder="mm/dd/yyyy" style="width:100px;"/>
+                  <button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button>
+                </div>
+              </td>
+              <td><input type="number" class="input-sm" placeholder="0"/></td>
+              <td><input type="number" class="input-sm" placeholder="0.00" step="0.01"/></td>
+              <td><button class="doc-btn" title="View">&#128196;</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn-add-svc" onclick="addSvcRow()">Add Service</button>
+    </div>
+
+    <div class="section-label">Clients Assigned to this Package</div>
+
+    <div class="clients-section">
+      <div class="clients-toolbar">
+        <button class="tool-btn">Export</button>
+        <div class="pg-mini">
+          <button class="pg-mini-btn">|&lt;</button>
+          <button class="pg-mini-btn">&lt;</button>
+          <button class="pg-mini-cur">1</button>
+          <button class="pg-mini-btn">&gt;</button>
+          <button class="pg-mini-btn">&gt;|</button>
+        </div>
+      </div>
+      <div class="clients-tabs-bar">
+        <div class="clients-tabs-left">
+          <button class="ctab-btn active">Active</button>
+          <button class="ctab-btn">Canceled</button>
+          <button class="ctab-btn">Paused</button>
+        </div>
+        <span class="items-count">0 plans</span>
+      </div>
+      <table class="clients-table">
+        <thead>
+          <tr>
+            <th>Edit</th>
+            <th>Client Name</th>
+            <th>Location</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th>Map Code</th>
+            <th>Customer Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="7" class="no-records">No Records to display.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="clients-footer-bar"></div>
+
   </div>
-  <table class="clients-table">
-    <thead>
-      <tr>
-        <th>Edit</th>
-        <th>Client Name</th>
-        <th>Location</th>
-        <th>Contact</th>
-        <th>Status</th>
-        <th>Map Code</th>
-        <th>Customer Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td colspan="7" class="no-records">No Records to display.</td>
-      </tr>
-    </tbody>
-  </table>
+
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="savePackage()">Save Changes</button>
+    <span class="btn-cancel" onclick="history.back()">Cancel</span>
+  </div>
 </div>
-<div class="clients-footer-bar"></div>
 
 <!-- Calendar Popup -->
 <div id="cal-popup">
@@ -507,6 +276,10 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
   );
 
+  document.getElementById('pkg-active').addEventListener('change', function() {
+    document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
+  });
+
   var pkgId = new URLSearchParams(window.location.search).get('id');
   var existing = null;
   var serviceOptions = '<option value="">Select Service...</option>';
@@ -525,6 +298,7 @@
         document.getElementById('pkg-name').value = data.name || '';
         document.getElementById('pkg-description').value = data.description || '';
         document.getElementById('pkg-active').checked = data.active !== false;
+        document.getElementById('active-label').textContent = data.active !== false ? 'Active' : 'Inactive';
       }
       var { data: pkgRows } = await sb.from('package_services').select('*').eq('package_id', pkgId).order('id');
       if (pkgRows && pkgRows.length) {
@@ -551,6 +325,8 @@
   async function savePackage() {
     var name = document.getElementById('pkg-name').value.trim();
     if (!name) { alert('Please enter a package name.'); document.getElementById('pkg-name').focus(); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
       name: name,
       description: document.getElementById('pkg-description').value.trim(),
@@ -561,6 +337,7 @@
       ({ error } = await sb.from('Packages').update(payload).eq('id', existing.id));
       savedPkgId = existing.id;
     } else {
+      payload.user_id = uid;
       var { data: newPkg, error: insErr } = await sb.from('Packages').insert(payload).select('id').single();
       error = insErr;
       if (newPkg) savedPkgId = newPkg.id;
@@ -581,12 +358,13 @@
       var defR = parseFloat((cells[6].querySelector('input') || {}).value) || 0;
       if (!rowName && !svcName) return;
       rows.push({
-        package_id: savedPkgId,
-        name: rowName || null,
+        user_id:      uid,
+        package_id:   savedPkgId,
+        name:         rowName || null,
         service_name: svcName || null,
-        start_date: parseDateToISO(startInput ? startInput.value : ''),
-        end_date: parseDateToISO(endInput ? endInput.value : ''),
-        min_days: minD,
+        start_date:   parseDateToISO(startInput ? startInput.value : ''),
+        end_date:     parseDateToISO(endInput ? endInput.value : ''),
+        min_days:     minD,
         default_rate: defR
       });
     });
@@ -689,7 +467,7 @@
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td><input type="number" class="input-sm" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
       '<td style="white-space:nowrap;"><input type="number" class="input-sm rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:65px;"/>' +
-        ' <button class="fill-below-btn" title="Copy rate to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;">&#8595;</button>' +
+        ' <button class="fill-below-btn" title="Copy rate to all rows below">&#8595;</button>' +
         ' <button title="Apply discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
       '</td>' +
       '<td><button class="doc-btn">&#128196;</button></td>';
@@ -712,4 +490,3 @@
 </script>
 </body>
 </html>
-

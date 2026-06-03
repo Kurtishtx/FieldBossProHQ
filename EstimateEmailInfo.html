@@ -151,7 +151,10 @@
     var msg = document.getElementById('status-msg');
     btn.disabled = true; btn.textContent = 'Saving…'; msg.textContent = ''; msg.className = 'status-msg';
 
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
+      user_id:      uid,
       key:          'estimate_email',
       from_name:    document.getElementById('from-name').value.trim(),
       reply_to:     document.getElementById('reply-to').value.trim(),
@@ -160,7 +163,7 @@
       updated_at:   new Date().toISOString(),
     };
 
-    var { error } = await sb.from('email_templates').upsert(payload, { onConflict: 'key' });
+    var { error } = await sb.from('email_templates').upsert(payload, { onConflict: 'user_id,key' });
     btn.disabled = false;
     if (error) {
       btn.textContent = 'Save';

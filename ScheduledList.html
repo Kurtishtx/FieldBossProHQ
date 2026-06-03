@@ -624,8 +624,8 @@
 
   var CORE_COLS = ['order','client','service','lastsvc','amount','truck'];
   var activeCoreColumns = CORE_COLS.slice();
-  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
-  var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito' };
+  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito','areapest'];
+  var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
   var activeAreaCols = AREA_COL_KEYS.slice();
   var activeCustomCols = [];
 
@@ -1372,7 +1372,7 @@
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
     var areaTotals = {};
-    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft' };
+    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
     var seenPropForArea = {};
     selected.forEach(function(svc) {
       var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
@@ -1849,7 +1849,10 @@
   async function confirmSaveView() {
     var name = document.getElementById('sv-name-input').value.trim();
     if (!name) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var { data, error } = await sb.from('saved_views').insert({
+      user_id: uid,
       page: 'scheduled', name: name,
       service_filter: activeServiceFilter, tag_filter: activeTagFilter, status_filter: activeStatusFilter,
       settings: captureViewSettings()
@@ -2013,7 +2016,7 @@
           var at = prop.area_treated;
           var catalogEntry = serviceCatalog.find(function(c) { return c.name === first.service; });
           var aa = (catalogEntry && catalogEntry.associated_areas) ? catalogEntry.associated_areas : {};
-          var areaKeys = ['lawn_care', 'lawn_insect', 'flower_beds', 'mosquito', 'mosquito_linear_ft'];
+          var areaKeys = ['lawn_care', 'lawn_insect', 'flower_beds', 'mosquito', 'mosquito_linear_ft', 'pest_control', 'pest_control_linear_ft'];
           var matchedKey = areaKeys.find(function(k) { return aa[k] && at[k]; });
           document.getElementById('chem-area').value = matchedKey ? at[matchedKey] : '';
         }

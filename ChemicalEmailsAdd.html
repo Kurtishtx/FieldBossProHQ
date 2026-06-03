@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,208 +6,156 @@
   <title>Add Client Instruction Email</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    /* ── Header ── */
-    .dialog-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px 12px; border-bottom: 1px solid #eee; flex-shrink: 0;
-    }
+    .dialog { max-width: 1100px; margin: 0 auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; display: flex; flex-direction: column; height: 100vh; }
+
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; flex-shrink: 0; }
     .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
-    .close-btn {
-      background: none; border: 1px solid #bbb; padding: 2px 8px;
-      font-size: 13px; cursor: pointer; color: #555; border-radius: 2px;
-    }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
     .close-btn:hover { background: #f0f0f0; }
 
-    /* ── Name field ── */
-    .name-row {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 24px 12px; border-bottom: 1px solid #eee; flex-shrink: 0;
-    }
-    .name-row label { font-size: 13px; color: #666; width: 60px; flex-shrink: 0; }
-    .name-row input {
+    /* Name field row */
+    .name-field-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 24px 12px; border-bottom: 1px solid #eee; flex-shrink: 0; }
+    .name-field-row label { width: 60px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .name-field-row input {
       flex: 1; border: 1px solid #ccc; padding: 7px 10px;
       font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
-    .name-row input:focus { border-color: #e07820; }
+    .name-field-row input:focus { border-color: #e07820; }
 
-    /* ── Editor area ── */
-    .editor-wrap {
-      display: flex; flex: 1; overflow: hidden;
-    }
+    /* Editor area */
+    .editor-wrap { display: flex; flex: 1; overflow: hidden; }
 
-    /* ── Toolbar ── */
-    .rte-col {
-      flex: 1; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid #ddd;
-    }
-    .rte-toolbar {
-      background: #f5f5f5; border-bottom: 1px solid #ddd;
-      padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 3px; flex-shrink: 0;
-    }
-    .rte-toolbar button {
-      background: none; border: 1px solid transparent; padding: 4px 7px;
-      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
-      line-height: 1; font-family: inherit;
-    }
+    /* Toolbar */
+    .rte-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid #ddd; }
+    .rte-toolbar { background: #f5f5f5; border-bottom: 1px solid #ddd; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 3px; flex-shrink: 0; }
+    .rte-toolbar button { background: none; border: 1px solid transparent; padding: 4px 7px; font-size: 13px; cursor: pointer; border-radius: 2px; color: #333; line-height: 1; font-family: inherit; }
     .rte-toolbar button:hover { background: #e0e0e0; border-color: #ccc; }
     .rte-toolbar button.active { background: #dce8f5; border-color: #90b8e0; color: #1a5ea0; }
-    .rte-toolbar select {
-      border: 1px solid #ccc; padding: 4px 6px; font-size: 12.5px; font-family: inherit;
-      background: #fff; border-radius: 2px; cursor: pointer; outline: none; color: #333;
-    }
+    .rte-toolbar select { border: 1px solid #ccc; padding: 4px 6px; font-size: 12.5px; font-family: inherit; background: #fff; border-radius: 2px; cursor: pointer; outline: none; color: #333; }
     .rte-toolbar .sep { width: 1px; background: #ccc; margin: 2px 4px; align-self: stretch; }
-    .rte-toolbar input[type="color"] {
-      width: 28px; height: 26px; border: 1px solid #ccc; padding: 1px; cursor: pointer;
-      border-radius: 2px; background: #fff;
-    }
+    .rte-toolbar input[type="color"] { width: 28px; height: 26px; border: 1px solid #ccc; padding: 1px; cursor: pointer; border-radius: 2px; background: #fff; }
     .rte-toolbar-row { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; width: 100%; }
     .rte-toolbar-row + .rte-toolbar-row { margin-top: 4px; }
 
-    /* ── Content editable ── */
-    .rte-body {
-      flex: 1; overflow-y: auto; padding: 20px 24px;
-    }
-    .rte-content {
-      min-height: 300px; outline: none; font-size: 13px; line-height: 1.6;
-      color: #222;
-    }
+    /* Content editable */
+    .rte-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .rte-content { min-height: 300px; outline: none; font-size: 13px; line-height: 1.6; color: #222; }
     .rte-content:empty::before { content: 'Type your email content here...'; color: #aaa; }
 
-    /* ── Merge fields panel ── */
-    .merge-panel {
-      width: 220px; min-width: 220px; display: flex; flex-direction: column; overflow: hidden;
-    }
-    .merge-panel-header {
-      background: #3a3a3a; color: #fff; padding: 9px 14px;
-      font-size: 12.5px; font-weight: 700; letter-spacing: .2px; flex-shrink: 0;
-    }
+    /* Merge fields panel */
+    .merge-panel { width: 220px; min-width: 220px; display: flex; flex-direction: column; overflow: hidden; }
+    .merge-panel-header { background: #3a3a3a; color: #fff; padding: 9px 14px; font-size: 12.5px; font-weight: 700; letter-spacing: .2px; flex-shrink: 0; }
     .merge-panel-body { flex: 1; overflow-y: auto; }
-    .merge-group-header {
-      background: #f0f0f0; padding: 6px 14px;
-      font-size: 11.5px; font-weight: 700; color: #555; letter-spacing: .3px;
-      border-bottom: 1px solid #e0e0e0; border-top: 1px solid #e0e0e0;
-      text-transform: uppercase;
-    }
-    .merge-item {
-      padding: 7px 14px; border-bottom: 1px solid #eee; cursor: pointer;
-      font-size: 12.5px; color: #2272c3;
-    }
+    .merge-group-header { background: #f0f0f0; padding: 6px 14px; font-size: 11.5px; font-weight: 700; color: #555; letter-spacing: .3px; border-bottom: 1px solid #e0e0e0; border-top: 1px solid #e0e0e0; text-transform: uppercase; }
+    .merge-item { padding: 7px 14px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 12.5px; color: #2272c3; }
     .merge-item:hover { background: #f0f6ff; text-decoration: underline; }
 
-    /* ── Footer ── */
-    .dialog-footer {
-      padding: 10px 24px 16px; display: flex; align-items: center; gap: 10px;
-      border-top: 1px solid #eee; flex-shrink: 0;
-    }
-    .btn-save {
-      background: #e07820; color: #fff; border: none;
-      padding: 9px 28px; font-size: 14px; font-weight: 700;
-      border-radius: 4px; cursor: pointer;
-    }
+    /* Footer */
+    .dialog-footer { padding: 12px 24px 16px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; flex-shrink: 0; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-save:hover { background: #c96a10; }
-    .btn-save-new {
-      background: #555; color: #fff; border: none;
-      padding: 9px 20px; font-size: 13px; font-weight: 700;
-      border-radius: 4px; cursor: pointer;
-    }
-    .btn-save-new:hover { background: #3a3a3a; }
-    .btn-cancel { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; margin-left: 4px; }
-    .btn-cancel:hover { color: #1a5ea0; }
+    .btn-save-new { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<div class="dialog-header">
-  <h1 id="page-title">Add Client Instruction Emails</h1>
-  <button class="close-btn" onclick="cancel()">&#10005;</button>
-</div>
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add Client Instruction Emails</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
 
-<div class="name-row">
-  <label>Name</label>
-  <input type="text" id="email-name" autocomplete="off" placeholder="Email name"/>
-</div>
+  <div class="name-field-row">
+    <label for="email-name">Name</label>
+    <input type="text" id="email-name" autocomplete="off" placeholder="Email name"/>
+  </div>
 
-<div class="editor-wrap">
-  <div class="rte-col">
-    <div class="rte-toolbar">
-      <div class="rte-toolbar-row">
-        <button title="Source code" onclick="toggleSource()"><b>&lt;/&gt;</b></button>
-        <div class="sep"></div>
-        <button title="Bold" onclick="fmt('bold')"><b>B</b></button>
-        <button title="Italic" onclick="fmt('italic')"><i>I</i></button>
-        <button title="Underline" onclick="fmt('underline')"><u>U</u></button>
-        <button title="Strikethrough" onclick="fmt('strikeThrough')"><s>S</s></button>
-        <button title="Subscript" onclick="fmt('subscript')">x<sub>2</sub></button>
-        <button title="Superscript" onclick="fmt('superscript')">x<sup>2</sup></button>
-        <div class="sep"></div>
-        <button title="Align left" onclick="fmt('justifyLeft')">&#8676;</button>
-        <button title="Align center" onclick="fmt('justifyCenter')">&#8286;</button>
-        <button title="Align right" onclick="fmt('justifyRight')">&#8677;</button>
-        <button title="Justify" onclick="fmt('justifyFull')">&#8801;</button>
-        <div class="sep"></div>
-        <button title="Bullet list" onclick="fmt('insertUnorderedList')">&#8226;&#8226;</button>
-        <button title="Numbered list" onclick="fmt('insertOrderedList')">1.</button>
-        <div class="sep"></div>
-        <button title="Indent" onclick="fmt('indent')">&#8677;&#8677;</button>
-        <button title="Outdent" onclick="fmt('outdent')">&#8676;&#8676;</button>
-        <div class="sep"></div>
-        <button title="Horizontal rule" onclick="insertHR()">&#9135;</button>
-        <button title="Insert link" onclick="insertLink()">&#128279;</button>
-        <button title="Insert image" onclick="insertImg()">&#128247;</button>
-        <button title="Insert table" onclick="insertTable()">&#9776;</button>
+  <div class="editor-wrap">
+    <div class="rte-col">
+      <div class="rte-toolbar">
+        <div class="rte-toolbar-row">
+          <button title="Source code" onclick="toggleSource()"><b>&lt;/&gt;</b></button>
+          <div class="sep"></div>
+          <button title="Bold" onclick="fmt('bold')"><b>B</b></button>
+          <button title="Italic" onclick="fmt('italic')"><i>I</i></button>
+          <button title="Underline" onclick="fmt('underline')"><u>U</u></button>
+          <button title="Strikethrough" onclick="fmt('strikeThrough')"><s>S</s></button>
+          <button title="Subscript" onclick="fmt('subscript')">x<sub>2</sub></button>
+          <button title="Superscript" onclick="fmt('superscript')">x<sup>2</sup></button>
+          <div class="sep"></div>
+          <button title="Align left" onclick="fmt('justifyLeft')">&#8676;</button>
+          <button title="Align center" onclick="fmt('justifyCenter')">&#8286;</button>
+          <button title="Align right" onclick="fmt('justifyRight')">&#8677;</button>
+          <button title="Justify" onclick="fmt('justifyFull')">&#8801;</button>
+          <div class="sep"></div>
+          <button title="Bullet list" onclick="fmt('insertUnorderedList')">&#8226;&#8226;</button>
+          <button title="Numbered list" onclick="fmt('insertOrderedList')">1.</button>
+          <div class="sep"></div>
+          <button title="Indent" onclick="fmt('indent')">&#8677;&#8677;</button>
+          <button title="Outdent" onclick="fmt('outdent')">&#8676;&#8676;</button>
+          <div class="sep"></div>
+          <button title="Horizontal rule" onclick="insertHR()">&#9135;</button>
+          <button title="Insert link" onclick="insertLink()">&#128279;</button>
+          <button title="Insert image" onclick="insertImg()">&#128247;</button>
+          <button title="Insert table" onclick="insertTable()">&#9776;</button>
+        </div>
+        <div class="rte-toolbar-row" style="margin-top:4px">
+          <select id="sel-font" onchange="fmtVal('fontName',this.value)" title="Font family">
+            <option value="">Font Family</option>
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+          </select>
+          <select id="sel-size" onchange="fmtVal('fontSize',this.value)" title="Font size">
+            <option value="2">10</option>
+            <option value="3" selected>12</option>
+            <option value="4">14</option>
+            <option value="5">18</option>
+            <option value="6">24</option>
+            <option value="7">36</option>
+          </select>
+          <select id="sel-block" onchange="fmtVal('formatBlock',this.value)" title="Block style">
+            <option value="p">Normal</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+            <option value="h4">Heading 4</option>
+            <option value="pre">Preformatted</option>
+            <option value="blockquote">Blockquote</option>
+          </select>
+          <div class="sep"></div>
+          <label title="Text color" style="font-size:11px;color:#666;">A</label>
+          <input type="color" id="txt-color" value="#222222" onchange="fmtVal('foreColor',this.value)" title="Text color"/>
+          <label title="Highlight" style="font-size:11px;color:#666;">Hl</label>
+          <input type="color" id="hl-color" value="#ffff00" onchange="fmtVal('hiliteColor',this.value)" title="Highlight color"/>
+        </div>
       </div>
-      <div class="rte-toolbar-row" style="margin-top:4px">
-        <select id="sel-font" onchange="fmtVal('fontName',this.value)" title="Font family">
-          <option value="">Font Family</option>
-          <option value="Arial">Arial</option>
-          <option value="Verdana">Verdana</option>
-          <option value="Times New Roman">Times New Roman</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Courier New">Courier New</option>
-          <option value="Trebuchet MS">Trebuchet MS</option>
-        </select>
-        <select id="sel-size" onchange="fmtVal('fontSize',this.value)" title="Font size">
-          <option value="2">10</option>
-          <option value="3" selected>12</option>
-          <option value="4">14</option>
-          <option value="5">18</option>
-          <option value="6">24</option>
-          <option value="7">36</option>
-        </select>
-        <select id="sel-block" onchange="fmtVal('formatBlock',this.value)" title="Block style">
-          <option value="p">Normal</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-          <option value="h4">Heading 4</option>
-          <option value="pre">Preformatted</option>
-          <option value="blockquote">Blockquote</option>
-        </select>
-        <div class="sep"></div>
-        <label title="Text color" style="font-size:11px;color:#666;">A</label>
-        <input type="color" id="txt-color" value="#222222" onchange="fmtVal('foreColor',this.value)" title="Text color"/>
-        <label title="Highlight" style="font-size:11px;color:#666;">Hl</label>
-        <input type="color" id="hl-color" value="#ffff00" onchange="fmtVal('hiliteColor',this.value)" title="Highlight color"/>
+      <div class="rte-body">
+        <div class="rte-content" id="rte" contenteditable="true"></div>
       </div>
     </div>
-    <div class="rte-body">
-      <div class="rte-content" id="rte" contenteditable="true"></div>
+
+    <div class="merge-panel">
+      <div class="merge-panel-header">Merge Fields</div>
+      <div class="merge-panel-body" id="merge-body"></div>
     </div>
   </div>
 
-  <div class="merge-panel">
-    <div class="merge-panel-header">Merge Fields</div>
-    <div class="merge-panel-body" id="merge-body"></div>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveEmail(false)">Save</button>
+    <button class="btn-save-new" onclick="saveEmail(true)">Save &amp; New</button>
+    <span style="color:#888;">or</span>
+    <span class="btn-cancel" onclick="cancel()">Cancel</span>
   </div>
-</div>
-
-<div class="dialog-footer">
-  <button class="btn-save" onclick="saveEmail(false)">Save</button>
-  <button class="btn-save-new" onclick="saveEmail(true)">Save &amp; New</button>
-  <span style="color:#888;">or</span>
-  <span class="btn-cancel" onclick="cancel()">Cancel</span>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -383,4 +331,3 @@
 </script>
 </body>
 </html>
-

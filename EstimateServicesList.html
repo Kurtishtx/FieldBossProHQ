@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Estimate Services</title>
+  <title>Estimate Services / Packages</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #ebebeb; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -49,8 +49,8 @@
 <body>
 
 <div class="page-header">
-  <h1>Estimate Services <span class="showing-count" id="showing-count"></span></h1>
-  <button class="btn-add" onclick="navigate('estimateservicesadd')">+ Add Service</button>
+  <h1>Estimate Services / Packages <span class="showing-count" id="showing-count"></span></h1>
+  <button class="btn-add" onclick="navigate('estimateservicesadd')">+ Add Service / Package</button>
 </div>
 
 <div class="toolbar">
@@ -83,7 +83,7 @@
     </thead>
     <tbody id="svc-tbody"></tbody>
   </table>
-  <div class="empty-msg" id="empty-msg" style="display:none;">No estimate services found. Add one to get started.</div>
+  <div class="empty-msg" id="empty-msg" style="display:none;">No estimate services / packages found. Add one to get started.</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

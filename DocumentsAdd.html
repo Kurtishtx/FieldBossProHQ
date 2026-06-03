@@ -4032,7 +4032,10 @@ async function saveTemplate() {
     await sb.from('documents').update({ is_default: false }).eq('doc_type', 'Invoice');
   }
 
+  var { data: sessionData } = await sb.auth.getSession();
+  var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
   var payload = {
+    user_id:     uid,
     name:        name,
     doc_type:    'Invoice',
     template_id: selectedTemplate,

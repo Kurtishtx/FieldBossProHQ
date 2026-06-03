@@ -18,5 +18,14 @@ async function login() {
     return;
   }
 
+  // Check role — Mobile Users cannot access the web app
+  var userId = data.user.id;
+  var { data: prof } = await client.from('user_profiles').select('role').eq('id', userId).single();
+  if (prof && prof.role === 'mobile') {
+    await client.auth.signOut();
+    alert('This account is for the mobile app only. Please use the SprayBossPro mobile app to log in.');
+    return;
+  }
+
   window.location.href = "dashboard.html";
 }

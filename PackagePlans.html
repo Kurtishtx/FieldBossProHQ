@@ -335,19 +335,22 @@
     var ids = getSelectedIds();
     if (!ids.length) { alert('Select at least one package first.'); return; }
     if (!confirm('Copy ' + ids.length + ' package(s)?')) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     for (var i = 0; i < ids.length; i++) {
       var pkg = packages.find(function(p) { return String(p.id) === ids[i]; });
       if (!pkg) continue;
       var { data: inserted } = await sb.from('Packages').insert({
-        name: (pkg.name || '') + ' (Copy)',
+        user_id:     uid,
+        name:        (pkg.name || '') + ' (Copy)',
         description: pkg.description || null,
-        active: pkg.active
+        active:      pkg.active
       }).select('id').single();
       if (inserted) {
         var { data: rows } = await sb.from('package_services').select('*').eq('package_id', pkg.id);
         if (rows && rows.length) {
           var newRows = rows.map(function(r) {
-            return { package_id: inserted.id, name: r.name, service_id: r.service_id, service_name: r.service_name,
+            return { user_id: uid, package_id: inserted.id, name: r.name, service_id: r.service_id, service_name: r.service_name,
               start_date: r.start_date, end_date: r.end_date, min_days: r.min_days,
               default_hours: r.default_hours, default_rate: r.default_rate };
           });

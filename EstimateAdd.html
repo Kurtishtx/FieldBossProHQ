@@ -173,6 +173,7 @@
 
   var editId = null;
   var propData = {};
+  var currentAreaTreated = {};
 
   function fmt(n) { return '$' + (parseFloat(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 
@@ -184,7 +185,7 @@
   /* ── Properties dropdown ── */
   async function loadProperties() {
     var { data } = await sb.from('Properties')
-      .select('id, first_name, last_name, address, city, customer_id')
+      .select('id, first_name, last_name, address, city, customer_id, area_treated')
       .order('last_name');
     var sel = document.getElementById('property-select');
     (data || []).forEach(function(p) {
@@ -202,16 +203,18 @@
     if (p) {
       document.getElementById('client-name').value = (p.last_name || '') + ', ' + (p.first_name || '');
       document.getElementById('address').value = (p.address || '') + (p.city ? ', ' + p.city : '');
+      currentAreaTreated = p.area_treated || {};
     } else {
       document.getElementById('client-name').value = '';
       document.getElementById('address').value = '';
+      currentAreaTreated = {};
     }
   }
 
   var estimateCatalog = [];
 
   async function loadEstimateServicesCatalog() {
-    var { data } = await sb.from('estimate_services').select('id, name, description, default_price').eq('active', true).order('name');
+    var { data } = await sb.from('estimate_services').select('id, name, description, default_price, area_treated, price_matrix, package_id').eq('active', true).order('name');
     estimateCatalog = data || [];
   }
 
@@ -238,13 +241,46 @@
     calcTotals();
   }
 
+  function calcPriceFromMatrix(matrix, areaSqFt) {
+    if (!matrix || !matrix.length || !areaSqFt) return null;
+    var tier = null;
+    for (var i = 0; i < matrix.length; i++) {
+      if (areaSqFt >= matrix[i].from && (areaSqFt <= matrix[i].to || matrix[i].to === 0)) {
+        tier = matrix[i]; break;
+      }
+    }
+    if (!tier) tier = matrix[matrix.length - 1];
+    if (!tier) return null;
+    var price = parseFloat(tier.rate) || 0;
+    if (tier.overage_every > 0 && areaSqFt > tier.overage_over) {
+      var excess = areaSqFt - tier.overage_over;
+      var units  = Math.ceil(excess / tier.overage_every);
+      price += units * (parseFloat(tier.overage_price) || 0);
+    }
+    return price;
+  }
+
   function onCatalogPick(sel) {
     var opt = sel.options[sel.selectedIndex];
     if (!opt.value) return;
+    var svc = estimateCatalog.find(function(s) { return s.id === opt.value; });
+    if (!svc) return;
     var tr = sel.closest('tr');
-    tr.querySelector('.li-desc').value    = opt.dataset.name  || '';
-    tr.querySelector('.li-details').value = opt.dataset.desc  || '';
-    tr.querySelector('.li-rate').value    = opt.dataset.price || '0.00';
+    tr.querySelector('.li-desc').value    = svc.name        || '';
+    tr.querySelector('.li-details').value = svc.description || '';
+
+    var calculatedPrice = null;
+    if (svc.area_treated && svc.price_matrix && svc.price_matrix.length) {
+      var areaSqFt = parseFloat(currentAreaTreated[svc.area_treated]) || 0;
+      if (areaSqFt > 0) {
+        calculatedPrice = calcPriceFromMatrix(svc.price_matrix, areaSqFt);
+        var areaLabels = { lawn_care:'Lawn', lawn_insect:'Lawn Insect', flower_beds:'Flower Beds', mosquito:'Mosquito', mosquito_linear_ft:'Mosquito Linear Ft', pest_control:'Pest Control', pest_control_linear_ft:'Pest Control Linear Ft' };
+        var areaLabel = areaLabels[svc.area_treated] || svc.area_treated;
+        tr.querySelector('.li-details').value = (svc.description || '') + (svc.description ? '\n' : '') + '(' + areaSqFt.toLocaleString() + ' ' + areaLabel + ' sq ft)';
+      }
+    }
+
+    tr.querySelector('.li-rate').value = calculatedPrice !== null ? calculatedPrice.toFixed(2) : (svc.default_price || '0.00');
     calcTotals();
   }
 
@@ -304,7 +340,10 @@
     var items = getLineItems();
     var status = statusOverride || document.getElementById('status-select').value || 'draft';
 
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
+      user_id:      uid,
       property_id:  propId,
       customer_id:  p ? p.customer_id : null,
       client_name:  p ? ((p.last_name||'') + ', ' + (p.first_name||'')) : '',
@@ -352,26 +391,64 @@
     var clientName = p ? ((p.last_name||'') + ', ' + (p.first_name||'')) : '';
     var address    = document.getElementById('address').value;
 
-    var inserts = items.map(function(item) {
+    var { data: convertSession } = await sb.auth.getSession();
+    var convertUid = convertSession && convertSession.session ? convertSession.session.user.id : null;
+    var serviceInserts = items.map(function(item) {
       return {
-        property_id:  propId,
-        customer_id:  p ? p.customer_id : null,
-        client_name:  clientName,
-        address:      address,
-        service:      item.description,
-        amount:       item.total,
-        status:       'pending',
-        dispatched:   false,
-        job_type:     'one_time',
+        user_id:       convertUid,
+        property_id:   propId,
+        customer_id:   p ? p.customer_id : null,
+        client_name:   clientName,
+        address:       address,
+        service:       item.description,
+        amount:        item.total,
+        status:        'pending',
+        dispatched:    false,
+        job_type:      'one_time',
         service_lines: [item],
       };
     });
 
-    var { error } = await sb.from('Services').insert(inserts);
+    var { error } = await sb.from('Services').insert(serviceInserts);
     if (error) { alert('Error: ' + error.message); return; }
 
+    // For any line items linked to a package, also create the full package services
+    var pkgInserts = [];
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var svc  = estimateCatalog.find(function(s) { return s.name === item.description; });
+      if (!svc || !svc.package_id) continue;
+
+      var { data: pkgRows } = await sb.from('package_services').select('*').eq('package_id', svc.package_id).order('id');
+      if (!pkgRows || !pkgRows.length) continue;
+
+      var rateEach = pkgRows.length > 1 ? (item.total / pkgRows.length) : item.total;
+      pkgRows.forEach(function(r) {
+        pkgInserts.push({
+          user_id:            convertUid,
+          property_id:        propId,
+          customer_id:        p ? p.customer_id : null,
+          client_name:        clientName,
+          address:            address,
+          service:            r.service_name || '',
+          amount:             parseFloat(rateEach.toFixed(2)),
+          min_days:           r.min_days     || 0,
+          package_service_id: r.id,
+          start_date:         r.start_date   || null,
+          end_date:           r.end_date     || null,
+          dispatched:         false,
+          status:             'pending',
+        });
+      });
+    }
+    if (pkgInserts.length) {
+      var { error: pkgErr } = await sb.from('Services').insert(pkgInserts);
+      if (pkgErr) { alert('Warning: package services could not be created: ' + pkgErr.message); }
+    }
+
     await sb.from('estimates').update({ status: 'accepted' }).eq('id', editId);
-    alert(items.length + ' service' + (items.length > 1 ? 's' : '') + ' added to the Waiting List.');
+    var pkgCount = pkgInserts.length;
+    alert(serviceInserts.length + ' service' + (serviceInserts.length > 1 ? 's' : '') + ' added to the Waiting List.' + (pkgCount ? '\n' + pkgCount + ' package service(s) also created for this property.' : ''));
     goBack();
   }
 

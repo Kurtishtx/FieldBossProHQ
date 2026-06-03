@@ -639,6 +639,14 @@
     <div class="tab-body">
 
       <div class="fr">
+        <span class="lbl">Delete Protection Password</span>
+        <div class="field">
+          <input type="password" id="delete-password" autocomplete="off" placeholder="Set a password for delete confirmations"/>
+          <div class="field-note">Office Assistants in Limited Access mode must enter this password to delete anything.</div>
+        </div>
+      </div>
+
+      <div class="fr">
         <span class="lbl">Resend API Key</span>
         <div class="field">
           <input type="password" id="resend-api-key" placeholder="re_..." autocomplete="off"/>
@@ -751,6 +759,7 @@
       multidayDays:       document.getElementById('multiday-days').value,
       enableClasses:      document.getElementById('enable-classes').checked,
       productPrint:       document.getElementById('product-print').value,
+      deletePassword:     document.getElementById('delete-password').value,
       resendApiKey:       document.getElementById('resend-api-key').value,
       siteUrl:            document.getElementById('site-url').value,
       stripePubKey:       document.getElementById('stripe-pub-key').value,
@@ -788,6 +797,7 @@
     set('custom-pkg-svc', d.customPkgSvc);  set('work-order-setting', d.workOrderSetting);
     set('max-man-hours', d.maxManHours);    set('multiday-days', d.multidayDays);
     set('enable-classes', d.enableClasses); set('product-print', d.productPrint);
+    set('delete-password', d.deletePassword);
     set('resend-api-key', d.resendApiKey);  set('site-url', d.siteUrl);
     set('stripe-pub-key', d.stripePubKey);  set('stripe-secret-key', d.stripeSecretKey);
   }
@@ -871,6 +881,7 @@
       multiday_days:         d.multidayDays,
       enable_classes:            d.enableClasses,
       product_print:             d.productPrint,
+      delete_password:           d.deletePassword  || null,
       resend_api_key:            d.resendApiKey    || null,
       site_url:                  d.siteUrl         || null,
       stripe_publishable_key:    d.stripePubKey    || null,

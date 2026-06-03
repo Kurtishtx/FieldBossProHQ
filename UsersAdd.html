@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add User</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
+
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
+    .close-btn:hover { background: #f0f0f0; }
+
+    .dialog-body { padding: 20px 24px 8px; }
+
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
+
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"],
+    .field-row input[type="email"],
+    .field-row input[type="password"],
+    .field-row select {
+      flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
+    }
+    .field-row input:focus, .field-row select:focus { border-color: #e07820; }
+    .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
+
+    .pwd-wrap { position: relative; flex: 1; }
+    .pwd-wrap input { width: 100%; border: 1px solid #ccc; padding: 7px 36px 7px 10px; font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; }
+    .pwd-wrap input:focus { border-color: #e07820; }
+    .eye-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; color: #888; padding: 0; line-height: 1; }
+    .eye-btn:hover { color: #333; }
+
+    /* Role cards */
+    .role-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .role-card { display: flex; align-items: flex-start; gap: 12px; border: 2px solid #eee; border-radius: 6px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, background .15s; }
+    .role-card:hover { border-color: #e07820; background: #fff8f4; }
+    .role-card.selected { border-color: #e07820; background: #fff8f4; }
+    .role-radio { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 50%; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
+    .role-card.selected .role-radio { border-color: #e07820; }
+    .role-radio::after { content: ''; width: 8px; height: 8px; background: #e07820; border-radius: 50%; display: none; }
+    .role-card.selected .role-radio::after { display: block; }
+    .role-info .role-name { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 2px; }
+    .role-info .role-desc { font-size: 12px; color: #777; line-height: 1.4; }
+
+    /* Limited access toggle */
+    .limited-row { display: flex; align-items: center; gap: 12px; background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 12px 14px; margin-bottom: 14px; }
+    .toggle { position: relative; width: 42px; height: 22px; cursor: pointer; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; transition: .2s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    .toggle input:checked + .toggle-slider { background: #e07820; }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .limited-info .limited-name { font-size: 13px; font-weight: 700; color: #333; }
+    .limited-info .limited-desc { font-size: 12px; color: #888; margin-top: 2px; line-height: 1.4; }
+
+    .err-msg { color: #c0392b; font-size: 12px; margin-top: 6px; min-height: 16px; }
+
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save:disabled { background: #e8a870; cursor: default; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
+    .btn-delete { margin-left: auto; background: none; border: 1px solid #c0392b; color: #c0392b; padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; }
+    .btn-delete:hover { background: #fdecea; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-header">
+    <h1 id="page-title">Add User</h1>
+    <button class="close-btn" onclick="cancel()">&#10005;</button>
+  </div>
+
+  <div class="dialog-body">
+
+    <div class="section-label">Login Info</div>
+
+    <div class="field-row">
+      <label>Email</label>
+      <div style="flex:1;">
+        <input type="email" id="user-email" autocomplete="off" placeholder="user@example.com"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label id="pwd-field-label">Password</label>
+      <div class="pwd-wrap">
+        <input type="password" id="user-password" autocomplete="new-password" placeholder="Minimum 6 characters"/>
+        <button class="eye-btn" onclick="togglePwd()" type="button" id="eye-btn" title="Show/hide password">&#128065;</button>
+      </div>
+    </div>
+    <div class="err-msg" id="err-msg"></div>
+
+    <div class="section-label">Access Level</div>
+
+    <div class="role-cards">
+      <div class="role-card selected" id="role-full_access" onclick="selectRole('full_access')">
+        <div class="role-radio"></div>
+        <div class="role-info">
+          <div class="role-name">&#128081; Full Access User</div>
+          <div class="role-desc">Full access to everything — all pages, settings, deletes, and reports. Recommended for the business owner only.</div>
+        </div>
+      </div>
+      <div class="role-card" id="role-office_assistant" onclick="selectRole('office_assistant')">
+        <div class="role-radio"></div>
+        <div class="role-info">
+          <div class="role-name">&#128188; Office Assistant</div>
+          <div class="role-desc">Full access to the web app except Company Info and User management (owner-only). Optionally restrict deletions so a special password is required to delete anything.</div>
+        </div>
+      </div>
+      <div class="role-card" id="role-mobile" onclick="selectRole('mobile')">
+        <div class="role-radio"></div>
+        <div class="role-info">
+          <div class="role-name">&#128241; Mobile User</div>
+          <div class="role-desc">Mobile app access only. Can view their schedule, clock in/out, and mark services complete. Cannot access the office software.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Limited access (Office Assistant only) -->
+    <div class="limited-row" id="limited-row" style="display:none;">
+      <label class="toggle">
+        <input type="checkbox" id="limited-access"/>
+        <span class="toggle-slider"></span>
+      </label>
+      <div class="limited-info">
+        <div class="limited-name">Limited Access Mode</div>
+        <div class="limited-desc">When enabled, this user can add and edit records but cannot delete anything without entering the delete protection password set in Company Info.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="dialog-footer">
+    <button class="btn-save" id="save-btn" onclick="save()">Create User</button>
+    <span class="btn-cancel" onclick="cancel()">Cancel</span>
+    <button class="btn-delete" id="btn-delete" style="display:none;" onclick="deleteUser()">Delete User</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var editUserId = null;
+  var selectedRole = 'full_access';
+  var pwdVisible = false;
+
+  function togglePwd() {
+    pwdVisible = !pwdVisible;
+    var inp = document.getElementById('user-password');
+    inp.type = pwdVisible ? 'text' : 'password';
+    document.getElementById('eye-btn').style.opacity = pwdVisible ? '1' : '.6';
+  }
+
+  function selectRole(role) {
+    selectedRole = role;
+    ['full_access','office_assistant','mobile'].forEach(function(r) {
+      document.getElementById('role-' + r).classList.toggle('selected', r === role);
+    });
+    document.getElementById('limited-row').style.display = role === 'office_assistant' ? '' : 'none';
+  }
+
+  async function init() {
+    var params = new URLSearchParams(window.location.search);
+    editUserId = params.get('id') || null;
+    if (editUserId) {
+      document.getElementById('page-title').textContent        = 'Edit User';
+      document.getElementById('save-btn').textContent          = 'Save Changes';
+      document.getElementById('pwd-field-label').textContent   = 'New Password';
+      document.getElementById('user-password').placeholder     = 'Leave blank to keep current password';
+      document.getElementById('btn-delete').style.display      = '';
+      document.getElementById('user-email').disabled           = true;
+      document.getElementById('user-email').style.background   = '#f9f9f9';
+
+      // Load profile
+      var { data } = await sb.from('user_profiles').select('*').eq('id', editUserId).single();
+      if (data) {
+        document.getElementById('user-email').value = data.email || '';
+        selectRole(data.role || 'full_access');
+        document.getElementById('limited-access').checked = data.limited_access === true;
+      }
+    }
+  }
+
+  async function save() {
+    var btn    = document.getElementById('save-btn');
+    var errEl  = document.getElementById('err-msg');
+    var email  = document.getElementById('user-email').value.trim();
+    var password = document.getElementById('user-password').value;
+    var limited = document.getElementById('limited-access').checked;
+
+    errEl.textContent = '';
+
+    if (!editUserId && !email) { errEl.textContent = 'Please enter an email address.'; return; }
+    if (!editUserId && !password) { errEl.textContent = 'Please enter a password.'; return; }
+    if (password && password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    var userId = editUserId;
+
+    // Create or update auth user
+    if (!editUserId) {
+      var { data: authRes, error: authErr } = await sb.functions.invoke('manage-users', {
+        body: { action: 'create', email: email, password: password }
+      });
+      if (authErr || (authRes && authRes.error)) {
+        btn.disabled = false; btn.textContent = 'Create User';
+        errEl.textContent = 'Error: ' + (authRes?.error || authErr?.message);
+        return;
+      }
+      userId = authRes.user.id;
+    } else if (password) {
+      var { data: pwdRes, error: pwdErr } = await sb.functions.invoke('manage-users', {
+        body: { action: 'update_password', user_id: editUserId, password: password }
+      });
+      if (pwdErr || (pwdRes && pwdRes.error)) {
+        btn.disabled = false; btn.textContent = 'Save Changes';
+        errEl.textContent = 'Error updating password: ' + (pwdRes?.error || pwdErr?.message);
+        return;
+      }
+    }
+
+    // Get current user's tenant_id (or their own uid if they are the primary owner)
+    var { data: authData } = await sb.auth.getUser();
+    var currentUid = authData && authData.user ? authData.user.id : null;
+    var { data: currentProf } = await sb.from('user_profiles').select('tenant_id').eq('id', currentUid).single();
+    var tenantId = (currentProf && currentProf.tenant_id) || currentUid;
+
+    // Save profile
+    var { error: profErr } = await sb.from('user_profiles').upsert({
+      id:             userId,
+      email:          email || document.getElementById('user-email').value,
+      role:           selectedRole,
+      limited_access: limited,
+      tenant_id:      tenantId,
+    }, { onConflict: 'id' });
+
+    btn.disabled = false;
+    btn.textContent = editUserId ? 'Save Changes' : 'Create User';
+
+    if (profErr) { errEl.textContent = 'User created but profile save failed: ' + profErr.message; return; }
+
+    cancel();
+  }
+
+  async function deleteUser() {
+    var email = document.getElementById('user-email').value;
+    if (!confirm('Delete user ' + email + '?\n\nThis cannot be undone.')) return;
+    var { data, error } = await sb.functions.invoke('manage-users', {
+      body: { action: 'delete', user_id: editUserId }
+    });
+    if (error || (data && data.error)) { alert('Error: ' + (data?.error || error?.message)); return; }
+    await sb.from('user_profiles').delete().eq('id', editUserId);
+    cancel();
+  }
+
+  function cancel() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('userslist');
+    else window.location.href = 'UsersList.html';
+  }
+
+  init();
+</script>
+</body>
+</html>

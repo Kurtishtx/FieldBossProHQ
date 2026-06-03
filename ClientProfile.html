@@ -478,7 +478,7 @@
     </div>
     <div class="revenue-col">
       <div class="revenue-box">
-        $0.00
+        <span id="client-balance-val">$0.00</span>
         <div class="rev-label">Balance</div>
       </div>
     </div>
@@ -704,6 +704,7 @@
     loadProperties();
     loadContacts();
     loadTags();
+    loadClientBalance();
     loadDetailsGrid();
   }
   initClient();
@@ -847,6 +848,22 @@
       clientTagNames = Array.isArray(client.client_tags) ? client.client_tags : [];
     }
     renderTagChips();
+  }
+
+  async function loadClientBalance() {
+    if (!clientId) return;
+    var { data: props } = await sb.from('Properties').select('id').eq('customer_id', clientId);
+    if (!props || !props.length) return;
+    var propIds = props.map(function(p) { return p.id; });
+    var { data: invs } = await sb.from('Invoices')
+      .select('inv_bal')
+      .in('property_id', propIds)
+      .neq('deleted', true);
+    var total = (invs || []).reduce(function(sum, inv) {
+      return sum + (parseFloat(inv.inv_bal) || 0);
+    }, 0);
+    var el = document.getElementById('client-balance-val');
+    if (el) el.textContent = '$' + total.toFixed(2);
   }
 
   function renderTagChips() {

@@ -30,10 +30,10 @@
     .gear-btn:hover { background: #ddd; }
 
     /* ── Split buttons ── */
-    .btn-group { display: flex; }
+    .btn-group { display: flex; align-items: stretch; }
     .btn-main-outline {
       background: #fff; color: #e07820; border: 3px solid #e07820;
-      padding: 7px 18px; font-size: 13.5px; font-weight: 700;
+      padding: 7px 18px; font-size: 13.5px; font-weight: 700; font-family: inherit;
       cursor: pointer; border-radius: 6px 0 0 6px; border-right: none;
     }
     .btn-main-outline:hover { background: #fff5ec; }
@@ -45,7 +45,7 @@
     .btn-main {
       background: #e07820; color: #fff;
       border: 3px solid #111; border-right: 1px solid rgba(255,255,255,.35);
-      padding: 7px 18px; font-size: 13.5px; font-weight: 700;
+      padding: 7px 18px; font-size: 13.5px; font-weight: 700; font-family: inherit;
       cursor: pointer; border-radius: 6px 0 0 6px;
     }
     .btn-main:hover { background: #c96a10; }
@@ -299,9 +299,153 @@
     #pkg-modal-rows input[type="number"] { -moz-appearance: textfield; }
     .btn-map-toggle { background:#111; border:3px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
     .btn-map-toggle:hover { background:#222; }
+
+    /* ── Measurement Panel ── */
+    #measure-panel {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .measure-hdr {
+      background: #1a2b3c;
+      color: #fff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .measure-hdr-title { font-size: 14px; font-weight: 700; }
+    .measure-draw-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-draw {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+      border-radius: 3px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    .btn-draw:hover { background: rgba(255,255,255,.22); }
+    .btn-draw.active { background: #e07820; border-color: #e07820; }
+    .btn-measure-close {
+      background: none;
+      border: 1px solid rgba(255,255,255,.4);
+      color: #fff;
+      border-radius: 3px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-measure-close:hover { background: rgba(255,255,255,.15); }
+    .measure-body { padding: 12px 16px; }
+    .measure-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+    .measure-table th {
+      background: #f5f5f5;
+      border-bottom: 2px solid #ddd;
+      padding: 6px 6px;
+      text-align: left;
+      font-weight: 700;
+      color: #333;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .measure-table td { padding: 6px 6px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    .measure-table tr:last-child td { border-bottom: none; }
+    .measure-color-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 2px solid rgba(0,0,0,.2);
+      cursor: pointer;
+    }
+    .measure-label-input {
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 4px 7px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 70px;
+    }
+    .measure-label-input:focus { outline: none; border-color: #e07820; }
+    .btn-measure-del {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      color: #c0392b;
+      cursor: pointer;
+      padding: 3px 8px;
+      font-size: 12px;
+    }
+    .btn-measure-del:hover { background: #fdecea; }
+    .measure-totals {
+      display: flex;
+      gap: 24px;
+      padding: 10px 0 4px;
+      border-top: 2px solid #eee;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+    .measure-total-item { display: flex; flex-direction: column; gap: 2px; }
+    .measure-total-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .4px; }
+    .measure-total-val { font-size: 18px; font-weight: 800; color: #1a2b3c; }
+    .measure-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 0 0;
+      gap: 8px;
+    }
+    .btn-measure-save {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 22px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .btn-measure-save:hover { background: #c96a18; }
+    .measure-empty { color: #aaa; font-size: 13px; padding: 12px 0; text-align: center; }
+    .btn-mode {
+      font-size: 14px; font-weight: 800; font-family: inherit;
+      border: 2px solid; border-radius: 4px;
+      width: 32px; height: 32px; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .btn-mode-add      { background: #e8f8ee; color: #1a7a3c; border-color: #1a7a3c; }
+    .btn-mode-subtract { background: #fdecea; color: #c0392b; border-color: #c0392b; }
+    .btn-mode-exclude  { background: #f0f0f0; color: #888;    border-color: #bbb; }
+    .color-picker-row { display: flex; gap: 5px; flex-wrap: wrap; padding: 6px 0; }
+    .color-swatch {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,.2);
+      cursor: pointer;
+      transition: transform .1s;
+    }
+    .color-swatch:hover { transform: scale(1.2); }
+    .color-swatch.selected { border-color: #111; border-width: 3px; }
+    .sync-box { border:1px solid #ccc; border-radius:4px; background:#fff; font-size:12px; }
+    .sync-box-hdr { display:flex; justify-content:space-between; align-items:center; padding:6px 8px; cursor:pointer; user-select:none; border-bottom:1px solid #eee; }
+    .sync-box-hdr:hover { background:#f9f9f9; }
+    .sync-box-hdr span { font-size:12px; color:#555; }
+    .sync-box-checks { padding:5px 8px; max-height:120px; overflow-y:auto; display:none; border-bottom:1px solid #eee; }
+    .sync-box-checks label { display:flex; align-items:center; gap:6px; padding:3px 2px; cursor:pointer; border-radius:3px; }
+    .sync-box-checks label:hover { background:#f5f5f5; }
+    .sync-box-field { padding:5px 6px; }
+    .sync-box-field select { width:100%; border:1px solid #ccc; border-radius:3px; padding:5px 6px; font-size:12px; font-family:inherit; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM&libraries=drawing,geometry"></script>
 </head>
 <body>
 
@@ -378,7 +522,7 @@
     <a class="back-link" id="back-link" href="#" onclick="goBack(event)">&#8592; Client</a>
     <a class="edit-link" href="#" onclick="openPropEditModal(event)">Edit</a>
   </div>
-  <div style="display:flex; gap:6px; align-items:center;">
+  <div style="display:flex; gap:6px; align-items:stretch;">
     <button class="btn-map-toggle" id="map-toggle-btn" onclick="togglePropMap()" style="display:none;">Show Map</button>
     <div class="dropdown">
       <div class="btn-group">
@@ -398,7 +542,7 @@
       <div class="dropdown-menu" id="more-menu">
         <div class="dd-title">More Options</div>
         <a href="#">Show Property on Map</a>
-        <a href="#">Property Measurements</a>
+        <a href="#" onclick="openMeasureMode();return false;">Property Measurements</a>
         <a href="#">Add Job</a>
         <a href="#">Add Estimate</a>
         <a href="#">Fill Out Form</a>
@@ -429,19 +573,120 @@
       <div><span class="col-label">Sales Tax: </span><span id="display-sales-tax">—</span></div>
     </div>
     <div class="status-col">
-      <div class="status-box">
-        <div class="status-badge" id="status-badge">Active</div>
-        <div class="status-label">Property Status</div>
+      <div class="status-box" style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div style="background:rgba(255,255,255,.1);border-radius:8px;padding:12px 24px;text-align:center;width:100%;box-sizing:border-box;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;opacity:.65;margin-bottom:4px;">Total Owed</div>
+          <div id="total-owed-val" style="font-size:28px;font-weight:700;color:#fff;">$0.00</div>
+        </div>
+        <div style="width:100%;font-size:12.5px;">
+          <div style="display:flex;justify-content:space-between;padding:3px 0;opacity:.85;"><span>Prepayments</span><span id="owed-prepay-val">$0.00</span></div>
+        </div>
       </div>
-      <div class="status-detail">
-        <div class="sd-row"><span>Services</span><span id="stat-jobs">0</span></div>
-        <div class="sd-row"><span>Estimates</span><span>0</span></div>
+    </div>
+  </div>
+
+  <!-- Map + Measure layout container -->
+  <div id="map-measure-container" style="display:flex; flex-direction:column; margin-bottom:8px;">
+
+  <!-- Measurement Panel (moves to left column in measure mode) -->
+  <div id="measure-panel" style="display:none; width:380px; flex-shrink:0; overflow-y:auto; border:1px solid #ccc; border-radius:4px 0 0 4px; border-right:none;">
+    <div class="measure-hdr" style="flex-direction:column; align-items:stretch; gap:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="measure-hdr-title">&#9634; Property Measurements</span>
+        <button class="btn-measure-close" onclick="closeMeasureMode()">&#10005;</button>
+      </div>
+      <div class="measure-draw-btns" style="flex-direction:column; gap:6px;">
+        <button class="btn-draw" id="btn-draw-area" onclick="setDrawMode('polygon')" style="width:100%; text-align:left; padding:8px 12px;">&#11041; Draw Area (sq ft)</button>
+        <button class="btn-draw" id="btn-draw-line" onclick="setDrawMode('polyline')" style="width:100%; text-align:left; padding:8px 12px;">&#8213; Draw Line (linear ft)</button>
+        <button class="btn-draw" id="btn-draw-stop" onclick="setDrawMode(null)" style="display:none; width:100%; text-align:left; padding:8px 12px;">&#9632; Stop Drawing</button>
+      </div>
+      <span style="color:#fff; font-size:11px;">Click a button again to draw another area or line</span>
+    </div>
+    <div class="measure-body">
+      <!-- Sync to Areas Treated -->
+      <div style="border-bottom:2px solid #eee; padding:12px 0 10px; margin-bottom:8px;">
+        <div style="font-size:12px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;">Sync to Areas Treated on Save</div>
+
+        <div style="display:flex; flex-direction:row; gap:8px;">
+          <!-- Sq Ft -->
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Sq Ft</div>
+            <div style="position:relative; margin-bottom:4px;" onmouseleave="closeSyncDrop('sync-sqft-drop-1')">
+              <button onclick="toggleSyncDrop('sync-sqft-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-sqft-lbl-1">Measurement...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-sqft-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:150px;overflow-y:auto;padding:4px 0;"></div>
+            </div>
+            <div style="position:relative;" onmouseleave="closeSyncDrop('sync-sqft-field-drop-1')">
+              <button onclick="toggleSyncDrop('sync-sqft-field-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-sqft-field-lbl-1">Save to area field...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-sqft-field-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:200px;overflow-y:auto;padding:4px 0;">
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="lawn_care" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Lawn Care</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="lawn_insect" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Lawn Insect</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="flower_beds" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Flower Beds</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="mosquito" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Mosquito</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="pest_control" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Pest Control</label>
+              </div>
+            </div>
+          </div>
+          <!-- Linear Ft -->
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Linear Ft</div>
+            <div style="position:relative; margin-bottom:4px;" onmouseleave="closeSyncDrop('sync-lin-drop-1')">
+              <button onclick="toggleSyncDrop('sync-lin-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-lin-lbl-1">Measurement...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-lin-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:150px;overflow-y:auto;padding:4px 0;"></div>
+            </div>
+            <div style="position:relative;" onmouseleave="closeSyncDrop('sync-lin-field-drop-1')">
+              <button onclick="toggleSyncDrop('sync-lin-field-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-lin-field-lbl-1">Save to area field...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-lin-field-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:200px;overflow-y:auto;padding:4px 0;">
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="mosquito_linear_ft" onchange="_updateFieldLbl('sync-lin-field-drop-1','sync-lin-field-lbl-1')"/> Mosquito Linear</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="pest_control_linear_ft" onchange="_updateFieldLbl('sync-lin-field-drop-1','sync-lin-field-lbl-1')"/> Pest Control Linear</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="measure-empty" class="measure-empty">Click "Draw Area" or "Draw Line" on the map above to start measuring.</div>
+      <table class="measure-table" id="measure-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Color</th>
+            <th>Label</th>
+            <th>Type</th>
+            <th title="+  adds to total&#10;-  deducts from total&#10;0  not counted">+/-/0</th>
+            <th>Measurement</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="measure-tbody"></tbody>
+      </table>
+      <div class="measure-totals" id="measure-totals" style="display:none;">
+        <div class="measure-total-item">
+          <span class="measure-total-label">Total Sq Ft</span>
+          <span class="measure-total-val" id="total-sqft">0</span>
+        </div>
+        <div class="measure-total-item">
+          <span class="measure-total-label">Total Linear Ft</span>
+          <span class="measure-total-val" id="total-linearft">0</span>
+        </div>
+      </div>
+
+      <div class="measure-footer">
+        <button class="btn-measure-save" onclick="saveMeasurements()">Save Measurements</button>
       </div>
     </div>
   </div>
 
   <!-- Google Map -->
-  <div id="prop-map" style="width:100%; height:355px; background:#e8e8e8; margin-bottom:8px; display:none;"></div>
+  <div id="prop-map" style="width:100%; height:355px; background:#e8e8e8; display:none;"></div>
+
+  </div><!-- end map-measure-container -->
 
   <!-- Tags -->
   <div class="tags-row" id="tags-row">
@@ -584,6 +829,14 @@
           <span class="dl">Mosquito Control Linear Ft</span>
           <input type="text" class="dv-text at-inp" data-at-key="mosquito_linear_ft" placeholder="—"/>
         </div>
+        <div class="details-cell">
+          <span class="dl">Pest Control Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="pest_control" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Pest Control Linear Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="pest_control_linear_ft" placeholder="—"/>
+        </div>
       </div>
       <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
     </div>
@@ -647,13 +900,30 @@
 
     var _propLat = prop.lat ? parseFloat(prop.lat) : null;
     var _propLng = prop.lng ? parseFloat(prop.lng) : null;
-    var _propMapInit = false;
+    window._propMapInit = false;
+    window._propMapObj  = null;
+    window._propLat     = prop.lat ? parseFloat(prop.lat) : null;
+    window._propLng     = prop.lng ? parseFloat(prop.lng) : null;
 
-    if (_propLat && _propLng) {
+    if (window._propLat && window._propLng) {
       document.getElementById('map-toggle-btn').style.display = 'inline-block';
     } else {
       document.getElementById('map-toggle-btn').style.display = 'none';
     }
+
+    window._initPropMap = function(zoom) {
+      var mapEl = document.getElementById('prop-map');
+      window._propMapInit = true;
+      window._propMapObj = new google.maps.Map(mapEl, {
+        center: { lat: window._propLat, lng: window._propLng },
+        zoom: zoom || 17,
+        mapTypeId: 'satellite',
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false
+      });
+      new google.maps.Marker({ position: { lat: window._propLat, lng: window._propLng }, map: window._propMapObj });
+    };
 
     window.togglePropMap = function() {
       var mapEl = document.getElementById('prop-map');
@@ -665,18 +935,7 @@
       } else {
         mapEl.style.display = 'block';
         btn.textContent = 'Hide Map';
-        if (!_propMapInit && _propLat && _propLng) {
-          _propMapInit = true;
-          var propMap = new google.maps.Map(mapEl, {
-            center: { lat: _propLat, lng: _propLng },
-            zoom: 17,
-            mapTypeId: 'satellite',
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false
-          });
-          new google.maps.Marker({ position: { lat: _propLat, lng: _propLng }, map: propMap });
-        }
+        if (!window._propMapInit && window._propLat && window._propLng) window._initPropMap(17);
       }
     };
     document.getElementById('display-state').textContent   = prop.state || '';
@@ -726,6 +985,7 @@
     loadAreaTreated();
     loadPackageCards();
     loadPropertyInvoices();
+    loadTotalOwed();
   }
   initProperty();
 
@@ -1366,6 +1626,19 @@
     }
   }
 
+  async function loadTotalOwed() {
+    if (!propId) return;
+    var { data } = await sb.from('Invoices')
+      .select('inv_bal')
+      .eq('property_id', propId)
+      .neq('deleted', true);
+    var owed = 0;
+    (data || []).forEach(function(inv) {
+      owed += parseFloat(inv.inv_bal) || 0;
+    });
+    document.getElementById('total-owed-val').textContent = '$' + owed.toFixed(2);
+  }
+
   function openAddInvoiceForProperty() {
     if (window.parent && window.parent.loadPage) {
       window.parent.loadPage('invoices');
@@ -1378,6 +1651,439 @@
         }
       }, 600);
     }
+  }
+
+  /* ════════════════════════════════════════════
+     PROPERTY MEASUREMENTS
+  ════════════════════════════════════════════ */
+  var _measureMap      = null;
+  var _drawingManager  = null;
+  var _measureShapes   = [];   // { id, label, type, value, color, shape (google object) }
+  var _measureMode     = null; // 'polygon' | 'polyline' | null
+  var _measureNextId   = 1;
+
+  var MEASURE_COLORS = [
+    '#e07820','#1a7a3c','#1a2b3c','#c0392b',
+    '#8e44ad','#2980b9','#f5c800','#16a085'
+  ];
+
+  function _nextColor() {
+    return MEASURE_COLORS[(_measureShapes.length) % MEASURE_COLORS.length];
+  }
+
+  function openMeasureMode() {
+    /* Close the dropdown */
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.style.display = 'none'; });
+
+    if (!window._propLat || !window._propLng) {
+      alert('This property has no coordinates saved. Edit the property and geocode the address first.');
+      return;
+    }
+
+    /* Switch to side-by-side layout */
+    var container = document.getElementById('map-measure-container');
+    container.style.flexDirection = 'row';
+    container.style.alignItems    = 'stretch';
+    container.style.borderRadius  = '4px';
+    container.style.overflow      = 'hidden';
+    container.style.border        = '1px solid #ccc';
+
+    /* Show and expand map */
+    var mapEl = document.getElementById('prop-map');
+    mapEl.style.display = 'block';
+    mapEl.style.flex    = '1';
+    mapEl.style.width   = 'auto';
+    mapEl.style.height  = '580px';
+    mapEl.style.borderRadius = '0';
+    document.getElementById('map-toggle-btn').textContent = 'Hide Map';
+
+    /* Init map if not yet created */
+    if (!window._propMapInit) window._initPropMap(19);
+
+    /* Zoom in for measuring */
+    if (window._propMapObj) {
+      window._propMapObj.setZoom(19);
+      google.maps.event.trigger(window._propMapObj, 'resize');
+    }
+
+    /* Show measurement panel */
+    document.getElementById('measure-panel').style.display = 'block';
+
+    /* Init drawing manager once using the shared map */
+    if (!_drawingManager && window.google && window.google.maps.drawing) {
+      _measureMap = window._propMapObj;
+
+      _drawingManager = new google.maps.drawing.DrawingManager({
+        drawingMode: null,
+        drawingControl: false,
+        polygonOptions:  { fillOpacity: 0.25, strokeWeight: 2, clickable: true, editable: true, zIndex: 1 },
+        polylineOptions: { strokeWeight: 3, clickable: true, editable: true, zIndex: 1 }
+      });
+      _drawingManager.setMap(_measureMap);
+
+      google.maps.event.addListener(_drawingManager, 'polygoncomplete', function(polygon) {
+        /* Stay in polygon mode so they can keep drawing more areas */
+        _drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+        var sqft = _calcSqFt(polygon);
+        var color = _nextColor();
+        _applyShapeColor(polygon, color);
+        var id = _measureNextId++;
+        _measureShapes.push({ id: id, label: 'Area ' + id, type: 'polygon', value: sqft, color: color, mode: 'add', shape: polygon });
+        google.maps.event.addListener(polygon.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polygon.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        renderMeasureTable();
+      });
+
+      google.maps.event.addListener(_drawingManager, 'polylinecomplete', function(polyline) {
+        /* Stay in polyline mode so they can keep drawing more lines */
+        _drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
+        var linearft = _calcLinearFt(polyline);
+        var color = _nextColor();
+        polyline.setOptions({ strokeColor: color });
+        var id = _measureNextId++;
+        _measureShapes.push({ id: id, label: 'Line ' + id, type: 'polyline', value: linearft, color: color, mode: 'add', shape: polyline });
+        google.maps.event.addListener(polyline.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polyline.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        renderMeasureTable();
+      });
+
+      /* Load saved measurements */
+      _loadSavedMeasurements();
+    }
+  }
+
+  function closeMeasureMode() {
+    setDrawMode(null);
+    document.getElementById('measure-panel').style.display = 'none';
+
+    /* Restore normal map layout */
+    var container = document.getElementById('map-measure-container');
+    container.style.flexDirection = 'column';
+    container.style.border        = 'none';
+    container.style.overflow      = 'visible';
+
+    var mapEl = document.getElementById('prop-map');
+    mapEl.style.flex         = '';
+    mapEl.style.width        = '100%';
+    mapEl.style.height       = '355px';
+    mapEl.style.borderRadius = '';
+    if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize');
+  }
+
+  function setDrawMode(mode) {
+    _measureMode = mode;
+    if (_drawingManager) {
+      _drawingManager.setDrawingMode(
+        mode === 'polygon'  ? google.maps.drawing.OverlayType.POLYGON  :
+        mode === 'polyline' ? google.maps.drawing.OverlayType.POLYLINE :
+        null
+      );
+    }
+    document.getElementById('btn-draw-area').classList.toggle('active', mode === 'polygon');
+    document.getElementById('btn-draw-line').classList.toggle('active', mode === 'polyline');
+    document.getElementById('btn-draw-stop').style.display = mode ? 'inline-block' : 'none';
+  }
+
+  function _calcSqFt(polygon) {
+    var area = google.maps.geometry.spherical.computeArea(polygon.getPath());
+    return Math.round(area * 10.7639 * 100) / 100;
+  }
+
+  function _calcLinearFt(polyline) {
+    var len = google.maps.geometry.spherical.computeLength(polyline.getPath());
+    return Math.round(len * 3.28084 * 100) / 100;
+  }
+
+  function _applyShapeColor(polygon, color) {
+    polygon.setOptions({ fillColor: color, strokeColor: color });
+  }
+
+  function _updateShapeValue(id) {
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (!m) return;
+    m.value = m.type === 'polygon' ? _calcSqFt(m.shape) : _calcLinearFt(m.shape);
+    renderMeasureTable();
+  }
+
+  function renderMeasureTable() {
+    var tbody  = document.getElementById('measure-tbody');
+    var table  = document.getElementById('measure-table');
+    var empty  = document.getElementById('measure-empty');
+    var totals = document.getElementById('measure-totals');
+
+    tbody.innerHTML = '';
+
+    if (!_measureShapes.length) {
+      table.style.display  = 'none';
+      totals.style.display = 'none';
+      empty.style.display  = 'block';
+      return;
+    }
+
+    table.style.display  = '';
+    totals.style.display = '';
+    empty.style.display  = 'none';
+
+    var totalSqFt = 0, totalLinFt = 0;
+
+    _measureShapes.forEach(function(m) {
+      var mode = m.mode || 'add';
+      if (m.type === 'polygon') {
+        if (mode === 'add')      totalSqFt += m.value;
+        if (mode === 'subtract') totalSqFt -= m.value;
+      }
+      if (m.type === 'polyline') {
+        if (mode === 'add')      totalLinFt += m.value;
+        if (mode === 'subtract') totalLinFt -= m.value;
+      }
+
+      var modeLabel = mode === 'add' ? '+' : mode === 'subtract' ? '&minus;' : '0';
+      var modeCls   = mode === 'add' ? 'btn-mode-add' : mode === 'subtract' ? 'btn-mode-subtract' : 'btn-mode-exclude';
+      var modeTitle = mode === 'add' ? 'Adds to total' : mode === 'subtract' ? 'Deducts from total' : 'Not counted';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' +
+          '<span class="measure-color-dot" style="background:' + m.color + ';" onclick="openColorPicker(' + m.id + ', this)"></span>' +
+        '</td>' +
+        '<td>' +
+          '<input class="measure-label-input" value="' + escHtml(m.label) + '" ' +
+            'onchange="updateMeasureLabel(' + m.id + ', this.value)" />' +
+        '</td>' +
+        '<td>' + (m.type === 'polygon' ? 'Area' : 'Line') + '</td>' +
+        '<td>' +
+          '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' — click to change">' + modeLabel + '</button>' +
+        '</td>' +
+        '<td><strong>' + m.value.toLocaleString() + '</strong> ' + (m.type === 'polygon' ? 'sq ft' : 'linear ft') + '</td>' +
+        '<td><button class="btn-measure-del" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>';
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('total-sqft').textContent     = totalSqFt.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    document.getElementById('total-linearft').textContent = totalLinFt.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+    /* Rebuild sync boxes */
+    var sqftItems = [{ id:'__total_sqft__', label:'Total Sq Ft (' + totalSqFt.toLocaleString(undefined,{maximumFractionDigits:2}) + ')' }];
+    _measureShapes.filter(function(m){return m.type==='polygon';}).forEach(function(m){
+      sqftItems.push({ id:String(m.id), label:escHtml(m.label)+' ('+m.value.toLocaleString(undefined,{maximumFractionDigits:2})+' sq ft)' });
+    });
+    var linItems = [{ id:'__total_linearft__', label:'Total Linear Ft (' + totalLinFt.toLocaleString(undefined,{maximumFractionDigits:2}) + ')' }];
+    _measureShapes.filter(function(m){return m.type==='polyline';}).forEach(function(m){
+      linItems.push({ id:String(m.id), label:escHtml(m.label)+' ('+m.value.toLocaleString(undefined,{maximumFractionDigits:2})+' linear ft)' });
+    });
+    var sqftFields = [{v:'',l:'Save to...'},{v:'lawn_care',l:'Lawn Care'},{v:'lawn_insect',l:'Lawn Insect'},{v:'flower_beds',l:'Flower Beds'},{v:'mosquito',l:'Mosquito'},{v:'pest_control',l:'Pest Control'}];
+    var linFields  = [{v:'',l:'Save to...'},{v:'mosquito_linear_ft',l:'Mosquito Linear'},{v:'pest_control_linear_ft',l:'Pest Control Linear'}];
+
+    _fillSyncDrop('sync-sqft-drop-1', 'sync-sqft-lbl-1', sqftItems);
+    _fillSyncDrop('sync-lin-drop-1',  'sync-lin-lbl-1',  linItems);
+  }
+
+  function updateMeasureLabel(id, val) {
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (m) m.label = val;
+  }
+
+  function _fillSyncDrop(dropId, lblId, items) {
+    var drop = document.getElementById(dropId);
+    var lbl  = document.getElementById(lblId);
+    if (!drop) return;
+    var prevChecked = {};
+    drop.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){ prevChecked[cb.value]=true; });
+    drop.innerHTML = items.map(function(item){
+      return '<label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'\'">' +
+        '<input type="checkbox" value="'+item.id+'"'+(prevChecked[item.id]?' checked':'')+'/> '+item.label+'</label>';
+    }).join('');
+    drop.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        var n = drop.querySelectorAll('input:checked').length;
+        if (lbl) lbl.textContent = n ? n+' measurement'+(n>1?'s':'')+' selected' : 'Measurement...';
+      });
+    });
+    if (lbl) {
+      var n = Object.keys(prevChecked).length;
+      lbl.textContent = n ? n+' measurement'+(n>1?'s':'')+' selected' : 'Measurement...';
+    }
+  }
+
+  function closeSyncDrop(dropId) {
+    var drop = document.getElementById(dropId);
+    if (drop) drop.style.display = 'none';
+  }
+
+  function toggleSyncDrop(dropId, btn) {
+    document.querySelectorAll('.sync-drop').forEach(function(d){
+      if (d.id !== dropId) d.style.display = 'none';
+    });
+    var drop = document.getElementById(dropId);
+    if (drop) drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+    document.addEventListener('click', function handler(e) {
+      if (!btn.parentNode.contains(e.target)) {
+        drop.style.display = 'none';
+        document.removeEventListener('click', handler);
+      }
+    });
+  }
+
+  function _syncDropTotal(dropId, fieldDropId, sqftTotal, linTotal, toSave) {
+    var drop      = document.getElementById(dropId);
+    var fieldDrop = document.getElementById(fieldDropId);
+    if (!drop || !fieldDrop) return [];
+    var total = 0;
+    drop.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){
+      var v = cb.value;
+      if (v === '__total_sqft__')          total += sqftTotal;
+      else if (v === '__total_linearft__') total += linTotal;
+      else { var m = toSave.find(function(s){ return String(s.id)===v; }); if(m) total += m.value; }
+    });
+    var val = Math.round(total * 100) / 100;
+    var results = [];
+    fieldDrop.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){
+      results.push({ field: cb.value, val: val });
+    });
+    return results;
+  }
+
+  function _updateFieldLbl(dropId, lblId) {
+    var drop = document.getElementById(dropId);
+    var lbl  = document.getElementById(lblId);
+    if (!drop || !lbl) return;
+    var n = drop.querySelectorAll('input:checked').length;
+    lbl.textContent = n ? n + ' field' + (n > 1 ? 's' : '') + ' selected' : 'Save to area field...';
+  }
+
+  function toggleMeasureMode(id) {
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (!m) return;
+    var cycle = { add: 'subtract', subtract: 'exclude', exclude: 'add' };
+    m.mode = cycle[m.mode || 'add'] || 'add';
+    renderMeasureTable();
+  }
+
+  function deleteMeasure(id) {
+    var idx = _measureShapes.findIndex(function(s) { return s.id === id; });
+    if (idx < 0) return;
+    _measureShapes[idx].shape.setMap(null);
+    _measureShapes.splice(idx, 1);
+    renderMeasureTable();
+  }
+
+  function openColorPicker(id, dotEl) {
+    /* Remove any existing picker */
+    var existing = document.getElementById('inline-color-picker');
+    if (existing) { existing.remove(); if (existing._forId === id) return; }
+
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (!m) return;
+
+    var picker = document.createElement('div');
+    picker.id = 'inline-color-picker';
+    picker._forId = id;
+    picker.className = 'color-picker-row';
+    picker.style.cssText = 'position:absolute;background:#fff;border:1px solid #ccc;border-radius:4px;padding:6px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+
+    MEASURE_COLORS.forEach(function(c) {
+      var sw = document.createElement('span');
+      sw.className = 'color-swatch' + (c === m.color ? ' selected' : '');
+      sw.style.background = c;
+      sw.onclick = function() {
+        m.color = c;
+        if (m.type === 'polygon') _applyShapeColor(m.shape, c);
+        else m.shape.setOptions({ strokeColor: c });
+        renderMeasureTable();
+        picker.remove();
+      };
+      picker.appendChild(sw);
+    });
+
+    dotEl.parentNode.style.position = 'relative';
+    dotEl.parentNode.appendChild(picker);
+
+    setTimeout(function() {
+      document.addEventListener('click', function handler(e) {
+        if (!picker.contains(e.target) && e.target !== dotEl) {
+          picker.remove();
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 0);
+  }
+
+
+  async function saveMeasurements() {
+    if (!propId) return;
+    var toSave = _measureShapes.map(function(m) {
+      var paths = [];
+      m.shape.getPath().forEach(function(latLng) {
+        paths.push({ lat: latLng.lat(), lng: latLng.lng() });
+      });
+      return { id: m.id, label: m.label, type: m.type, value: m.value, color: m.color, mode: m.mode || 'add', paths: paths };
+    });
+    /* Build area_treated sync from the 4 dropdowns */
+    var { data: propRow } = await sb.from('Properties').select('area_treated').eq('id', propId).single();
+    var at = (propRow && propRow.area_treated) || {};
+
+    var sqftTotal = 0, linTotal = 0;
+    toSave.forEach(function(m) {
+      if (m.type === 'polygon'  && m.mode === 'add') sqftTotal += m.value;
+      if (m.type === 'polygon'  && m.mode === 'subtract') sqftTotal -= m.value;
+      if (m.type === 'polyline' && m.mode === 'add') linTotal += m.value;
+      if (m.type === 'polyline' && m.mode === 'subtract') linTotal -= m.value;
+    });
+
+    [['sync-sqft-drop-1','sync-sqft-field-drop-1'],
+     ['sync-lin-drop-1', 'sync-lin-field-drop-1']].forEach(function(pair) {
+      var results = _syncDropTotal(pair[0], pair[1], sqftTotal, linTotal, toSave);
+      results.forEach(function(r) { if (r.field) at[r.field] = String(r.val); });
+    });
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('Properties').update({ measurements: toSave, area_treated: at, user_id: uid }).eq('id', propId);
+    if (error) { alert('Error saving: ' + error.message); return; }
+    var btn = document.querySelector('.btn-measure-save');
+    btn.textContent = 'Saved ✓';
+    setTimeout(function() { btn.textContent = 'Save Measurements'; }, 2000);
+  }
+
+  function _loadSavedMeasurements() {
+    if (!prop || !prop.measurements || !prop.measurements.length) return;
+    prop.measurements.forEach(function(m) {
+      var paths = m.paths.map(function(p) { return new google.maps.LatLng(p.lat, p.lng); });
+      if (m.type === 'polygon') {
+        var polygon = new google.maps.Polygon({
+          paths: paths,
+          fillColor: m.color,
+          strokeColor: m.color,
+          fillOpacity: 0.25,
+          strokeWeight: 2,
+          editable: true,
+          map: _measureMap
+        });
+        var id = m.id;
+        _measureShapes.push({ id: id, label: m.label, type: 'polygon', value: m.value, color: m.color, mode: m.mode || 'add', shape: polygon });
+        google.maps.event.addListener(polygon.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polygon.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        if (m.id >= _measureNextId) _measureNextId = m.id + 1;
+      } else if (m.type === 'polyline') {
+        var polyline = new google.maps.Polyline({
+          path: paths,
+          strokeColor: m.color,
+          strokeWeight: 3,
+          editable: true,
+          map: _measureMap
+        });
+        var id = m.id;
+        _measureShapes.push({ id: id, label: m.label, type: 'polyline', value: m.value, color: m.color, mode: m.mode || 'add', shape: polyline });
+        google.maps.event.addListener(polyline.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polyline.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        if (m.id >= _measureNextId) _measureNextId = m.id + 1;
+      }
+    });
+    renderMeasureTable();
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 </script>
 </body>

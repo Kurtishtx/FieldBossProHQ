@@ -235,7 +235,10 @@
     var name = document.getElementById('doc-name').value.trim();
     if (!name) { alert('Please enter a document name.'); document.getElementById('doc-name').focus(); return; }
 
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
+      user_id:     uid,
       doc_type:    type,
       name:        name,
       description: document.getElementById('doc-desc').value.trim(),

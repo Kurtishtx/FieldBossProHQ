@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,195 +6,112 @@
   <title>Add Property</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
 
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      background: #ebebeb;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 30px 10px;
-      min-height: 100vh;
-    }
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
+    .close-btn:hover { background: #f0f0f0; }
 
-    /* ── Modal shell ── */
-    .modal {
-      background: #fff;
-      width: 100%;
-      max-width: 1100px;
-      border: 1px solid #999;
-      box-shadow: 0 4px 18px rgba(0,0,0,.35);
-    }
+    /* Tabs */
+    .tabs-row { display: flex; gap: 16px; align-items: center; padding: 10px 20px 0; border-bottom: 2px solid #eee; background: #fafafa; }
+    .tab-btn { background: none; border: none; color: #444; font-size: 13.5px; font-family: inherit; cursor: pointer; padding: 7px 4px; }
+    .tab-btn.active { background: #3a3a3a; color: #fff; border-radius: 4px 4px 0 0; padding: 7px 18px; font-weight: 600; }
 
-    /* ── Header ── */
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px 8px;
-    }
-    .modal-header h2 { font-size: 20px; font-weight: 700; color: #222; }
-    .close-btn {
-      background: none; border: none; font-size: 18px;
-      cursor: pointer; color: #555; line-height: 1; padding: 2px 6px;
-    }
-    .close-btn:hover { color: #000; }
+    .dialog-body { padding: 20px 24px 8px; }
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex; border-bottom: 1px solid #ccc;
-      padding: 0 10px; gap: 2px;
-    }
-    .tab {
-      padding: 7px 14px; border: none; background: none;
-      cursor: pointer; font-size: 13px; color: #444;
-      border-bottom: 2px solid transparent; margin-bottom: -1px;
-    }
-    .tab:hover { color: #111; }
-    .tab.active {
-      background: #3a3a3a; color: #fff;
-      border-radius: 3px 3px 0 0; border-bottom: 2px solid #3a3a3a;
-    }
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
 
-    /* ── Tab content ── */
-    .tab-content { padding: 0 0 6px; }
-    .tab-content.hidden { display: none; }
-    .placeholder { padding: 20px; color: #777; }
-
-    /* ── Custom fields ── */
-    .cf-row {
-      display: flex; align-items: center;
-      border-bottom: 1px solid #eee; padding: 0;
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"],
+    .field-row select,
+    .field-row textarea {
+      flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
+    .field-row textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+    .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
+    .field-row input[readonly] { background: #f5f5f5; color: #777; }
+
+    /* Inline select (state) width constraint inside field-row */
+    .sel-state { max-width: 90px; flex: 0 0 90px !important; }
+
+    /* Name row: 2 inputs side by side */
+    .name-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .name-row input { flex: 1; border: 1px solid #ccc; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; }
+    .name-row input:focus { border-color: #e07820; }
+    .name-row input[readonly] { background: #f5f5f5; color: #777; }
+
+    /* Area Treated tab: cf-row style */
+    .cf-row { display: flex; align-items: center; border-bottom: 1px solid #eee; }
     .cf-row:last-child { border-bottom: none; }
-    .cf-label {
-      width: 240px; min-width: 240px; padding: 10px 16px;
-      font-size: 13px; color: #555; border-right: 1px solid #eee;
-    }
-    .cf-input {
-      flex: 1; border: 1px solid #333; outline: none; padding: 8px 14px;
-      font-size: 13px; font-family: inherit; color: #222; background: #fff; margin: 6px 10px;
-    }
+    .cf-label { width: 220px; min-width: 220px; padding: 10px 16px; font-size: 13px; color: #555; border-right: 1px solid #eee; font-weight: 600; }
+    .cf-input { flex: 1; border: 1px solid #ccc; outline: none; padding: 7px 10px; font-size: 13px; font-family: inherit; color: #222; background: #fff; margin: 6px 16px; border-radius: 2px; }
     .cf-input:focus { border-color: #e07820; }
     .cf-empty { padding: 20px 16px; color: #aaa; font-style: italic; font-size: 13px; }
 
-    /* ── Section header ── */
-    .sec-header {
-      background: #3a3a3a; color: #fff;
-      font-size: 13px; font-weight: 600; padding: 5px 10px;
-    }
-
-    /* ── Name row ── */
-    .section-wrap { margin-bottom: 0; }
-    .name-table {
-      width: 100%; border-collapse: collapse;
-      padding: 6px 8px; display: block;
-    }
-    .name-table tr { display: flex; gap: 4px; padding: 6px 8px; }
-    .name-table td { flex: 1; display: flex; }
-    .name-table input {
-      width: 100%; padding: 4px 6px;
-      border: 1px solid #bbb; font-size: 13px; height: 28px;
-    }
-    .name-table input[readonly] { background: #f5f5f5; }
-
-    /* ── 3-column table ── */
-    .cols-table {
-      width: 100%; border-collapse: collapse; border-top: 1px solid #ddd;
-    }
-    .col-td { vertical-align: top; border-right: 1px solid #ddd; }
-    .col-td:last-child { border-right: none; }
-
-    /* ── Field rows ── */
-    .sec-body { padding: 6px 8px; }
-    .fr { display: flex; align-items: center; margin-bottom: 4px; gap: 4px; }
-    .lbl {
-      width: 90px; min-width: 90px; color: #444;
-      font-size: 12.5px; text-align: right; padding-right: 6px;
-    }
-    .lbl.bold { font-weight: 700; }
-    .lbl-select { width: 46px; min-width: 46px; }
-
-    .fr input[type="text"],
-    .fr input[type="email"] {
-      flex: 1; padding: 3px 6px; border: 1px solid #bbb;
-      font-size: 13px; height: 26px; min-width: 0;
-    }
-    .input-sm { max-width: 80px; flex: 0 0 80px !important; }
-
-    /* ── Selects ── */
-    .sel-wrap { flex: 1; min-width: 0; }
-    .sel-wrap select {
-      width: 100%; height: 26px; padding: 0 4px;
-      border: 1px solid #bbb; font-size: 13px; background: #fff;
-    }
-    .sel-sm { max-width: 80px; flex: 0 0 80px !important; }
-    .sel-master { max-width: 420px; }
-
-    /* ── Master Client ── */
-    .helper-text {
-      margin-top: 4px; padding-left: 104px;
-      color: #555; font-style: italic; font-size: 12.5px;
-    }
-
-    /* ── Footer ── */
-    .modal-footer {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 16px; border-top: 1px solid #ddd;
-    }
-    .btn-save {
-      background: #e07820; color: #fff; border: none;
-      padding: 8px 28px; font-size: 14px; font-weight: 600;
-      border-radius: 4px; cursor: pointer;
-    }
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-save:hover { background: #c96a10; }
-    .or-text { color: #555; font-size: 13px; }
-    .btn-cancel { color: #444; text-decoration: none; font-size: 13px; cursor: pointer; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
     .btn-cancel:hover { text-decoration: underline; }
+
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .placeholder-panel { padding: 24px; color: #777; font-style: italic; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<div class="modal">
+<div class="dialog">
 
-  <div class="modal-header">
-    <h2>Add Property &ndash; <span id="prop-title">New Property</span></h2>
+  <div class="dialog-header">
+    <h1>Add Property &ndash; <span id="prop-title">New Property</span></h1>
     <button class="close-btn" onclick="closeModal()">&#10005;</button>
   </div>
 
-  <nav class="tabs">
-    <button class="tab active" data-tab="info">Property Information</button>
-    <button class="tab" data-tab="details">Details</button>
-    <button class="tab" data-tab="notes">Office Notes</button>
-    <button class="tab" data-tab="custom">Custom Fields</button>
-    <button class="tab" data-tab="area">Area Treated</button>
-  </nav>
+  <!-- Tabs -->
+  <div class="tabs-row">
+    <button class="tab-btn active" data-tab="info">Property Information</button>
+    <button class="tab-btn" data-tab="details">Details</button>
+    <button class="tab-btn" data-tab="notes">Office Notes</button>
+    <button class="tab-btn" data-tab="custom">Custom Fields</button>
+    <button class="tab-btn" data-tab="area">Area Treated</button>
+  </div>
 
-  <!-- Property Information tab -->
-  <div class="tab-content" id="tab-info">
+  <!-- Property Information panel -->
+  <div class="tab-panel active" id="tab-info">
+    <div class="dialog-body">
 
-    <!-- Property Name -->
-    <div class="section-wrap">
-      <div class="sec-header">Property Name</div>
-      <table class="name-table">
-        <tr>
-          <td><input type="text" id="prop-name" placeholder="Client Name" readonly style="background:#f5f5f5; color:#555;"/></td>
-          <td><input type="text" id="prop-name2" placeholder="Property Name"/></td>
-        </tr>
-      </table>
-    </div>
+      <div class="section-label">Property Name</div>
+      <div class="name-row">
+        <input type="text" id="prop-name" placeholder="Client Name" readonly style="background:#f5f5f5; color:#555;"/>
+        <input type="text" id="prop-name2" placeholder="Property Name"/>
+      </div>
 
-    <!-- Service Address -->
-    <div class="section-wrap">
-      <div class="sec-header">Service Address</div>
-      <div class="sec-body">
-        <div class="fr"><span class="lbl bold">Address</span><input type="text" id="svc-addr1"/></div>
-        <div class="fr"><span class="lbl bold">Postal Code</span><input type="text" id="svc-zip"/></div>
-        <div class="fr"><span class="lbl bold">City</span><input type="text" id="svc-city"/></div>
-        <div class="fr"><span class="lbl bold">State</span>
-          <div class="sel-wrap sel-sm"><select id="svc-state">
+      <div class="section-label">Service Address</div>
+      <div class="field-row">
+        <label for="svc-addr1">Address</label>
+        <div style="flex:1;"><input type="text" id="svc-addr1"/></div>
+      </div>
+      <div class="field-row">
+        <label for="svc-zip">Postal Code</label>
+        <div style="flex:1;"><input type="text" id="svc-zip"/></div>
+      </div>
+      <div class="field-row">
+        <label for="svc-city">City</label>
+        <div style="flex:1;"><input type="text" id="svc-city"/></div>
+      </div>
+      <div class="field-row">
+        <label for="svc-state">State</label>
+        <div style="flex:1;">
+          <select id="svc-state" class="sel-state">
             <option value="">--</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
             <option>CA</option><option>CO</option><option>CT</option><option>FL</option><option>GA</option>
             <option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option>
@@ -205,58 +122,57 @@
             <option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option>
             <option>TN</option><option selected>TX</option><option>UT</option><option>VT</option><option>VA</option>
             <option>WA</option><option>WV</option><option>WI</option><option>WY</option>
-          </select></div>
+          </select>
         </div>
       </div>
-    </div>
 
-    <!-- Master Client -->
-    <div class="section-wrap">
-      <div class="sec-header">Master Client</div>
-      <div class="sec-body">
-        <div class="fr">
-          <span class="lbl lbl-select">Select</span>
-          <div class="sel-wrap sel-master">
-            <select id="master-client"><option value="">-- Select a Client --</option></select>
-          </div>
-        </div>
-        <p class="helper-text"><em>Select the client who owns or manages this property.</em></p>
-      </div>
-    </div>
-
-    <!-- Billing -->
-    <div class="section-wrap">
-      <div class="sec-header">Billing</div>
-      <div class="sec-body">
-        <div class="fr">
-          <span class="lbl lbl-select">Sales Tax</span>
-          <div class="sel-wrap sel-master">
-            <select id="prop-sales-tax"><option value="">-- No Tax --</option></select>
-          </div>
+      <div class="section-label">Master Client</div>
+      <div class="field-row">
+        <label for="master-client">Client</label>
+        <div style="flex:1;">
+          <select id="master-client"><option value="">-- Select a Client --</option></select>
+          <div class="field-hint">Select the client who owns or manages this property.</div>
         </div>
       </div>
-    </div>
 
+      <div class="section-label">Billing</div>
+      <div class="field-row">
+        <label for="prop-sales-tax">Sales Tax</label>
+        <div style="flex:1;">
+          <select id="prop-sales-tax"><option value="">-- No Tax --</option></select>
+        </div>
+      </div>
+
+    </div>
   </div><!-- /tab-info -->
 
-  <div class="tab-content hidden" id="tab-details"><p class="placeholder">Details tab content goes here.</p></div>
+  <div class="tab-panel" id="tab-details"><p class="placeholder-panel">Details tab content goes here.</p></div>
 
-  <div class="tab-content hidden" id="tab-notes">
-    <div style="padding:20px">
-      <label style="font-size:13px;font-weight:700;color:#333;display:block;margin-bottom:8px">Office Notes</label>
-      <textarea id="office-notes" rows="8" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:10px;font-size:13.5px;font-family:inherit;color:#222;resize:vertical;" placeholder="Internal notes about this property..."></textarea>
+  <div class="tab-panel" id="tab-notes">
+    <div class="dialog-body">
+      <div class="section-label">Office Notes</div>
+      <div class="field-row">
+        <label for="office-notes">Notes</label>
+        <div style="flex:1;">
+          <textarea id="office-notes" rows="8" placeholder="Internal notes about this property..."></textarea>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="tab-content hidden" id="tab-custom">
-    <div style="background:#4a4a4a;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;">Custom Fields</div>
+  <div class="tab-panel" id="tab-custom">
+    <div class="dialog-body" style="padding-bottom:0;">
+      <div class="section-label" style="padding-top:0;border-top:none;">Custom Fields</div>
+    </div>
     <div id="cf-fields-list" style="padding:0;">
       <div style="padding:20px;color:#aaa;font-style:italic;">Loading custom fields...</div>
     </div>
   </div>
 
-  <div class="tab-content hidden" id="tab-area">
-    <div style="background:#4a4a4a;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;">Area Treated</div>
+  <div class="tab-panel" id="tab-area">
+    <div class="dialog-body" style="padding-bottom:0;">
+      <div class="section-label" style="padding-top:0;border-top:none;">Area Treated</div>
+    </div>
     <div class="cf-row">
       <div class="cf-label">Lawn Sq Ft</div>
       <input class="cf-input" type="text" id="area-lawn-care" placeholder=""/>
@@ -277,12 +193,19 @@
       <div class="cf-label">Mosquito Control Linear Ft</div>
       <input class="cf-input" type="text" id="area-mosquito-linear" placeholder=""/>
     </div>
+    <div class="cf-row">
+      <div class="cf-label">Pest Control Sq Ft</div>
+      <input class="cf-input" type="text" id="area-pest-control" placeholder=""/>
+    </div>
+    <div class="cf-row">
+      <div class="cf-label">Pest Control Linear Ft</div>
+      <input class="cf-input" type="text" id="area-pest-control-linear" placeholder=""/>
+    </div>
   </div>
 
-  <div class="modal-footer">
+  <div class="dialog-footer">
     <button class="btn-save" onclick="saveProperty()">Save</button>
-    <span class="or-text">or</span>
-    <a href="#" class="btn-cancel" onclick="cancelEdit(event)">Cancel</a>
+    <span class="btn-cancel" onclick="cancelEdit(event)">Cancel</span>
   </div>
 
 </div>
@@ -299,13 +222,13 @@
   var presetClientId = params.get('clientId');
 
   /* ── Tab switching ── */
-  document.querySelectorAll('.tab').forEach(function(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(tab) {
     tab.addEventListener('click', function() {
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.add('hidden'); });
+      document.querySelectorAll('.tab-btn').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(c) { c.classList.remove('active'); });
       tab.classList.add('active');
       var target = document.getElementById('tab-' + tab.dataset.tab);
-      if (target) target.classList.remove('hidden');
+      if (target) target.classList.add('active');
       if (tab.dataset.tab === 'custom' && !cfLoaded) loadCustomFields();
     });
   });
@@ -350,7 +273,7 @@
   /* ── Init: load existing property OR preset client ── */
   (async function init() {
     if (editId) {
-      document.querySelector('.modal-header h2').innerHTML =
+      document.querySelector('.dialog-header h1').innerHTML =
         'Edit Property &ndash; <span id="prop-title">Loading...</span>';
       var { data: p, error } = await sb.from('Properties').select('*').eq('id', editId).single();
       if (error || !p) { alert('Could not load property: ' + (error ? error.message : 'not found')); return; }
@@ -372,6 +295,8 @@
       set('area-flower-beds', at.flower_beds);
       set('area-mosquito',         at.mosquito);
       set('area-mosquito-linear',  at.mosquito_linear_ft);
+      set('area-pest-control',        at.pest_control);
+      set('area-pest-control-linear', at.pest_control_linear_ft);
 
       await loadClientOptions(p.customer_id);
       await loadSalesTaxOptions(p.sales_tax_id || null);
@@ -473,8 +398,10 @@
       lawn_care:   document.getElementById('area-lawn-care').value.trim(),
       lawn_insect: document.getElementById('area-lawn-insect').value.trim(),
       flower_beds: document.getElementById('area-flower-beds').value.trim(),
-      mosquito:           document.getElementById('area-mosquito').value.trim(),
-      mosquito_linear_ft: document.getElementById('area-mosquito-linear').value.trim()
+      mosquito:              document.getElementById('area-mosquito').value.trim(),
+      mosquito_linear_ft:    document.getElementById('area-mosquito-linear').value.trim(),
+      pest_control:          document.getElementById('area-pest-control').value.trim(),
+      pest_control_linear_ft: document.getElementById('area-pest-control-linear').value.trim()
     };
 
     var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
@@ -547,4 +474,3 @@
 </script>
 </body>
 </html>
-

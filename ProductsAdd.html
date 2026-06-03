@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,154 +6,77 @@
   <title>Add Product</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
-      padding: 24px 28px 40px;
-      overflow-y: auto;
-      min-height: 100vh;
-      color: #333;
-    }
-
-    /* ── Title ── */
-    .title-row {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 18px;
-    }
-    .title-row h1 { font-size: 26px; font-weight: 800; color: #111; }
-    .close-btn {
-      background: none; border: 1px solid #bbb; border-radius: 3px;
-      width: 28px; height: 28px; font-size: 16px;
-      cursor: pointer; color: #555;
-      display: flex; align-items: center; justify-content: center;
-    }
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
     .close-btn:hover { background: #f0f0f0; }
 
-    /* ── Form card ── */
-    .form-card { border: 1px solid #ccc; border-radius: 4px; margin-bottom: 20px; }
-    .section-header {
-      background: #3a3a3a; color: #fff; padding: 10px 16px;
-      font-size: 14px; font-weight: 600; border-radius: 4px 4px 0 0;
-    }
+    /* Tabs row */
+    .tabs-row { display:flex; gap:16px; align-items:center; padding:10px 20px 0; border-bottom:2px solid #eee; background:#fafafa; }
+    .tab-active-btn { background:#3a3a3a; color:#fff; border:none; border-radius:4px 4px 0 0; padding:7px 18px; font-size:13.5px; font-weight:600; font-family:inherit; cursor:pointer; }
+    .tab-link-btn { background:none; border:none; color:#444; font-size:13.5px; font-family:inherit; cursor:pointer; padding:7px 4px; }
+    .tab-link-btn:hover { text-decoration: underline; }
 
-    /* ── Field rows ── */
-    .pm-body { padding: 0 16px; }
-    .pm-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 9px 0; border-bottom: 1px solid #f0f0f0;
-    }
-    .pm-row:last-child { border-bottom: none; }
-    .pm-label {
-      width: 180px; min-width: 180px; font-size: 13.5px; color: #555;
-    }
-    .pm-label.bold { font-weight: 700; color: #222; }
+    .dialog-body { padding: 20px 24px 8px; }
 
-    /* ── Inputs ── */
-    input[type="text"], input[type="number"] {
-      border: 1px solid #ccc; border-radius: 3px; padding: 6px 9px;
-      font-size: 13.5px; font-family: inherit; color: #333;
-    }
-    input[type="text"]:focus, input[type="number"]:focus {
-      outline: none; border-color: #f5c800;
-      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
-    }
-    input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #888888; }
-    input[type="radio"]    { width: 16px; height: 16px; cursor: pointer; accent-color: #888888; }
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
 
-    select {
-      border: 1px solid #ccc; border-radius: 3px;
-      padding: 6px 28px 6px 9px;
-      font-size: 13.5px; font-family: inherit; color: #333;
-      appearance: none;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 9px center;
-      cursor: pointer;
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"],
+    .field-row input[type="number"],
+    .field-row select,
+    .field-row textarea {
+      flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
-    select:focus { outline: none; border-color: #f5c800; }
-    .select-full { width: 100%; }
-    .input-full  { width: 100%; }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
+    .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
+    .field-row input[type="checkbox"] { flex: none; width: 16px; height: 16px; cursor: pointer; margin-top: 10px; }
+    .field-row input[type="radio"] { flex: none; width: 16px; height: 16px; cursor: pointer; margin-top: 10px; }
 
-    .note-italic { font-size: 12px; color: #666; font-style: italic; margin-top: 4px; }
-
-    /* ── Tabs ── */
-    .tabs { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
-    .tab-active {
-      background: #3a3a3a; color: #fff; border: none; border-radius: 4px;
-      padding: 6px 16px; font-size: 13.5px; font-family: inherit;
-      font-weight: 600; cursor: pointer;
-    }
-    .tab-link {
-      background: none; border: none; color: #444;
-      font-size: 13.5px; font-family: inherit; cursor: pointer; padding: 0;
-    }
-    .tab-link:hover { text-decoration: underline; }
-
-    /* ── Tab panels ── */
+    /* Tab panels */
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* ── Product Mix inner sections ── */
-    .pm-inner-body { padding: 16px; }
-    .pm-inner-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 9px 0; border-bottom: 1px solid #f0f0f0;
-    }
+    /* Product Mix inner sections */
+    .inner-section { border: 1px solid #ddd; border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+    .inner-section-header { background: #f0f0f0; padding: 8px 14px; font-size: 12px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid #ddd; }
+    .inner-section-body { padding: 14px; }
+
+    .pm-inner-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
     .pm-inner-row:last-child { border-bottom: none; }
     .pm-inner-label { width: 170px; min-width: 170px; font-size: 13px; color: #666; }
-
     .link-icon { color: #5a9e6f; font-size: 17px; cursor: pointer; margin-left: 6px; }
-    .plus-btn {
-      background: none; border: none; color: #27a567;
-      font-size: 22px; font-weight: 700; cursor: pointer; line-height: 1; padding: 0 2px;
-    }
+    .plus-btn { background: none; border: none; color: #27a567; font-size: 22px; font-weight: 700; cursor: pointer; line-height: 1; padding: 0 2px; }
 
-    /* ── Application Rate(s) ── */
-    .app-rate-body { padding: 16px; }
-    .app-method-row {
-      display: flex; align-items: flex-end; gap: 24px; margin-bottom: 20px;
-    }
+    /* Application Rate */
+    .app-method-row { display: flex; align-items: flex-end; gap: 24px; margin-bottom: 20px; }
     .app-method-col { display: flex; flex-direction: column; gap: 6px; }
-    .col-label    { font-size: 13px; font-weight: 700; color: #222; }
+    .col-label { font-size: 13px; font-weight: 700; color: #222; }
     .col-label-sm { font-size: 12.5px; color: #444; }
     .per-text { font-weight: 700; font-size: 14px; color: #333; align-self: flex-end; margin-bottom: 6px; }
 
-    /* ── Custom filter dropdown ── */
+    /* Custom filter dropdown */
     .csd-wrap { position: relative; display: inline-block; }
-    .csd-btn {
-      border: 1px solid #ccc; border-radius: 3px;
-      padding: 6px 28px 6px 9px;
-      font-size: 13.5px; font-family: inherit; color: #333;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 9px center;
-      cursor: pointer; text-align: left;
-    }
-    .csd-dropdown {
-      display: none; position: absolute; top: calc(100% + 2px); left: 0;
-      background: #fff; border: 1px solid #ccc; border-radius: 3px;
-      box-shadow: 0 4px 14px rgba(0,0,0,.15); z-index: 100; min-width: 200px;
-    }
+    .csd-btn { border: 1px solid #ccc; border-radius: 3px; padding: 6px 28px 6px 9px; font-size: 13.5px; font-family: inherit; color: #333; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 9px center; cursor: pointer; text-align: left; }
+    .csd-dropdown { display: none; position: absolute; top: calc(100% + 2px); left: 0; background: #fff; border: 1px solid #ccc; border-radius: 3px; box-shadow: 0 4px 14px rgba(0,0,0,.15); z-index: 100; min-width: 200px; }
     .csd-dropdown.open { display: block; }
-    .csd-filter-bar {
-      background: #555; padding: 6px 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
+    .csd-filter-bar { background: #555; padding: 6px 8px; display: flex; align-items: center; gap: 6px; }
     .csd-filter-label { color: #ddd; font-size: 12px; white-space: nowrap; }
-    .csd-filter-input {
-      flex: 1; border: 1px solid #888; border-radius: 2px;
-      padding: 3px 6px; font-size: 12.5px; font-family: inherit; background: #fff;
-    }
+    .csd-filter-input { flex: 1; border: 1px solid #888; border-radius: 2px; padding: 3px 6px; font-size: 12.5px; font-family: inherit; background: #fff; }
     .csd-clear { background: none; border: none; color: #ddd; cursor: pointer; font-size: 14px; padding: 0 2px; }
     .csd-options { max-height: 200px; overflow-y: auto; }
-    .csd-option {
-      padding: 7px 10px; font-size: 13.5px; cursor: pointer; color: #333;
-    }
+    .csd-option { padding: 7px 10px; font-size: 13.5px; cursor: pointer; color: #333; }
     .csd-option:hover { background: #f0f0f0; }
     .csd-option.selected { background: #fdfbe8; color: #111; font-weight: 600; }
-    .csd-scroll-btn {
-      text-align: center; padding: 3px; background: #f5f5f5;
-      border-top: 1px solid #eee; font-size: 11px; color: #888;
-    }
+    .csd-scroll-btn { text-align: center; padding: 3px; background: #f5f5f5; border-top: 1px solid #eee; font-size: 11px; color: #888; }
 
-    /* ── Mix type sections ── */
+    /* Mix type sections */
     .mix-section { margin-bottom: 14px; }
     .mix-radio-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .mix-radio-label { font-size: 15px; font-weight: 700; color: #222; }
@@ -161,88 +84,70 @@
     .mix-col-header { font-size: 12.5px; color: #555; }
     .mix-input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
     .solution-label { font-size: 13px; font-weight: 700; color: #333; min-width: 60px; }
-    .gallons-label  { font-size: 14px; font-weight: 700; color: #333; }
-
-    .products-mix-headers {
-      display: grid;
-      grid-template-columns: 160px 90px 140px 30px 90px 80px 30px;
-      gap: 8px; align-items: center; margin-bottom: 4px;
-    }
-    .products-mix-row {
-      display: grid;
-      grid-template-columns: 160px 90px 140px 30px 90px 80px 30px;
-      gap: 8px; align-items: center; margin-bottom: 6px;
-    }
-    .add-another {
-      color: #444; font-size: 13px; cursor: pointer;
-      text-decoration: underline; margin-top: 4px; display: inline-block;
-    }
+    .gallons-label { font-size: 14px; font-weight: 700; color: #333; }
+    .products-mix-headers { display: grid; grid-template-columns: 160px 90px 140px 30px 90px 80px 30px; gap: 8px; align-items: center; margin-bottom: 4px; }
+    .products-mix-row { display: grid; grid-template-columns: 160px 90px 140px 30px 90px 80px 30px; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .add-another { color: #444; font-size: 13px; cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; }
     .del-row-btn { background: none; border: none; cursor: pointer; color: #c0392b; font-size: 18px; }
-    .num-sm { width: 80px; }
-    .num-md { width: 110px; }
-
+    .num-sm { width: 80px; border: 1px solid #ccc; border-radius: 2px; padding: 5px 7px; font-size: 13px; font-family: inherit; outline: none; }
+    .num-sm:focus { border-color: #e07820; }
+    .num-md { width: 110px; border: 1px solid #ccc; border-radius: 2px; padding: 5px 7px; font-size: 13px; font-family: inherit; outline: none; }
+    .num-md:focus { border-color: #e07820; }
     .trash-row { display: flex; justify-content: flex-end; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; }
     .trash-btn { background: none; border: none; cursor: pointer; color: #c0392b; font-size: 22px; }
 
-    /* ── Notes tab ── */
-    .notes-body { padding: 16px; }
-    .notes-body textarea {
-      width: 100%; min-height: 200px;
-      border: 1px solid #ccc; border-radius: 3px;
-      padding: 10px; font-size: 14px; font-family: inherit;
-      resize: vertical; color: #333;
-    }
-    .notes-body textarea:focus { outline: none; border-color: #f5c800; }
+    /* Notes tab */
+    .notes-area { width: 100%; min-height: 200px; border: 1px solid #ccc; border-radius: 2px; padding: 10px; font-size: 14px; font-family: inherit; resize: vertical; color: #333; outline: none; }
+    .notes-area:focus { border-color: #e07820; }
 
-    /* ── Footer ── */
-    .form-footer {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; padding: 12px 0 8px;
-    }
-    .btn-save, .btn-save-new {
-      background: #e07820; color: #fff; border: none; border-radius: 4px;
-      padding: 10px 30px; font-size: 15px; font-family: inherit; font-weight: 700; cursor: pointer;
-    }
-    .btn-save:hover, .btn-save-new:hover { background: #c96a15; }
-    .footer-or { font-size: 14px; color: #555; }
-    .btn-cancel {
-      background: none; border: none; color: #444;
-      font-size: 14px; font-family: inherit; cursor: pointer; text-decoration: underline;
-    }
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save:hover { background: #c96a10; }
+    .btn-save-new { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<!-- Title -->
-<div class="title-row">
-  <h1>Add Product</h1>
-  <button class="close-btn" onclick="history.back()">&#10005;</button>
-</div>
+<div class="dialog">
+  <div class="dialog-header">
+    <h1>Add Product</h1>
+    <button class="close-btn" onclick="history.back()">&#10005;</button>
+  </div>
 
-<!-- ══════════ PRODUCT DETAILS (always visible) ══════════ -->
-<div class="form-card">
-  <div class="section-header">Product Details</div>
-  <div class="pm-body">
+  <!-- Tabs -->
+  <div class="tabs-row">
+    <button id="tab-btn-details" class="tab-active-btn" onclick="switchTab('details')">Details</button>
+    <button id="tab-btn-productmix" class="tab-link-btn" onclick="switchTab('productmix')">Product Mix</button>
+    <button id="tab-btn-notes" class="tab-link-btn" onclick="switchTab('notes')">Notes</button>
+  </div>
 
-    <div class="pm-row">
-      <div class="pm-label bold">Name</div>
-      <div style="flex:1;"><input type="text" id="prod-name" class="input-full"/></div>
+  <!-- Details panel -->
+  <div id="panel-details" class="dialog-body tab-panel active">
+
+    <div class="section-label">Product Details</div>
+
+    <div class="field-row">
+      <label for="prod-name">Name</label>
+      <div style="flex:1;"><input type="text" id="prod-name"/></div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Parent Product</div>
+    <div class="field-row">
+      <label>Parent Product</label>
       <div style="flex:1;">
-        <select class="select-full">
+        <select>
           <option value="">Search Products...</option>
         </select>
       </div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label bold">Tax Code</div>
+    <div class="field-row">
+      <label>Tax Code</label>
       <div style="flex:1;">
-        <select class="select-full">
+        <select>
           <option value="">Select...</option>
           <option>Tax</option>
           <option>No Tax</option>
@@ -250,40 +155,40 @@
       </div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label bold">Invoice Description</div>
-      <div style="flex:1;"><input type="text" id="prod-description" class="input-full"/></div>
+    <div class="field-row">
+      <label for="prod-description">Invoice Description</label>
+      <div style="flex:1;"><input type="text" id="prod-description"/></div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Part Number</div>
-      <div style="flex:1;"><input type="text" id="prod-part-num" class="input-full"/></div>
+    <div class="field-row">
+      <label for="prod-part-num">Part Number</label>
+      <div style="flex:1;"><input type="text" id="prod-part-num"/></div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Default Rate</div>
-      <input type="number" id="prod-price" class="num-md" placeholder="0.00" step="0.01" min="0"/>
+    <div class="field-row">
+      <label for="prod-price">Default Rate</label>
+      <div style="flex:1;"><input type="number" id="prod-price" placeholder="0.00" step="0.01" min="0" style="max-width:160px;"/></div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Default B. Cost</div>
-      <input type="number" class="num-md" placeholder="0.00" step="0.01" min="0"/>
+    <div class="field-row">
+      <label>Default B. Cost</label>
+      <div style="flex:1;"><input type="number" placeholder="0.00" step="0.01" min="0" style="max-width:160px;"/></div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Default B. Hrs</div>
-      <input type="number" class="num-md" placeholder="0.00" step="0.01" min="0"/>
+    <div class="field-row">
+      <label>Default B. Hrs</label>
+      <div style="flex:1;"><input type="number" placeholder="0.00" step="0.01" min="0" style="max-width:160px;"/></div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Track Chemicals</div>
+    <div class="field-row">
+      <label>Track Chemicals</label>
       <input type="checkbox"/>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label bold">Income Account</div>
+    <div class="field-row">
+      <label>Income Account</label>
       <div style="flex:1;">
-        <select class="select-full">
+        <select>
           <option value="">Select Income Account</option>
           <option>Bushes / Shrubs</option>
           <option>Lawn Care</option>
@@ -292,85 +197,72 @@
       </div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label bold">COGS Account</div>
+    <div class="field-row">
+      <label>COGS Account</label>
       <div style="flex:1;">
-        <select class="select-full">
+        <select>
           <option value="">Select COGS Account</option>
           <option>Materials</option>
           <option>Labor</option>
           <option>Subcontractors</option>
         </select>
-        <div class="note-italic">*This is the default account for products when creating expenses.</div>
+        <div class="field-hint">*This is the default account for products when creating expenses.</div>
       </div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Class</div>
+    <div class="field-row">
+      <label>Class</label>
       <div style="flex:1;">
-        <select class="select-full">
+        <select>
           <option value="">Not Specified</option>
         </select>
       </div>
     </div>
 
-    <div class="pm-row">
-      <div class="pm-label">Active</div>
+    <div class="field-row">
+      <label>Active</label>
       <input type="checkbox" checked/>
     </div>
 
   </div>
-</div>
 
-<!-- ══════════ TABS ══════════ -->
-<div class="tabs">
-  <button class="tab-active" id="tab-btn-productmix" onclick="switchTab('productmix')">Product Mix</button>
-  <button class="tab-link"   id="tab-btn-notes"      onclick="switchTab('notes')">Notes</button>
-</div>
+  <!-- Product Mix panel -->
+  <div id="panel-productmix" class="dialog-body tab-panel">
 
-<!-- ══════════ PRODUCT MIX TAB ══════════ -->
-<div id="panel-productmix" class="tab-panel active">
+    <div class="section-label">Product Fields</div>
 
-  <!-- Product Fields -->
-  <div class="form-card">
-    <div class="section-header">Product Fields</div>
-    <div class="pm-inner-body">
-
-      <div class="pm-inner-row">
-        <div class="pm-inner-label">Scientific Name</div>
-        <div style="flex:1"><input type="text" style="width:100%;"/></div>
-      </div>
-
-      <div class="pm-inner-row">
-        <div class="pm-inner-label">EPA Registration #</div>
-        <div style="flex:1; display:flex; align-items:center; gap:8px;">
-          <input type="text" id="prod-epa" style="flex:1;"/>
-          <span class="link-icon" title="Link">&#128279;</span>
+    <div class="inner-section">
+      <div class="inner-section-body">
+        <div class="pm-inner-row">
+          <div class="pm-inner-label">Scientific Name</div>
+          <div style="flex:1"><input type="text" style="width:100%;border:1px solid #ccc;border-radius:2px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;"/></div>
+        </div>
+        <div class="pm-inner-row">
+          <div class="pm-inner-label">EPA Registration #</div>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <input type="text" id="prod-epa" style="flex:1;border:1px solid #ccc;border-radius:2px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;"/>
+            <span class="link-icon" title="Link">&#128279;</span>
+          </div>
+        </div>
+        <div class="pm-inner-row">
+          <div class="pm-inner-label">Targets</div>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <select style="flex:1;border:1px solid #ccc;border-radius:2px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;">
+              <option value=""></option>
+              <option>Fungus Control</option>
+              <option>Grub Control</option>
+              <option>Insect Control</option>
+              <option>Weed Control</option>
+            </select>
+            <button class="plus-btn">&#43;</button>
+          </div>
         </div>
       </div>
-
-      <div class="pm-inner-row">
-        <div class="pm-inner-label">Targets</div>
-        <div style="flex:1; display:flex; align-items:center; gap:8px;">
-          <select style="flex:1;">
-            <option value=""></option>
-            <option>Fungus Control</option>
-            <option>Grub Control</option>
-            <option>Insect Control</option>
-            <option>Weed Control</option>
-          </select>
-          <button class="plus-btn">&#43;</button>
-        </div>
-      </div>
-
     </div>
-  </div>
 
-  <!-- Application Rate(s) -->
-  <div class="form-card">
-    <div class="section-header">Application Rate(s)</div>
-    <div class="app-rate-body" id="app-rates-container">
+    <div class="section-label">Application Rate(s)</div>
 
+    <div id="app-rates-container">
       <div class="app-rate-block">
 
         <!-- Method / Cost / Default -->
@@ -406,15 +298,13 @@
               <button class="plus-btn">&#43;</button>
             </div>
           </div>
-
           <div class="app-method-col">
             <div class="col-label">Product Cost</div>
             <input type="number" placeholder="0.00" step="0.01" min="0" class="num-md"/>
           </div>
-
           <div class="app-method-col">
             <div class="col-label">Make Default</div>
-            <input type="checkbox" style="margin-top:8px;"/>
+            <input type="checkbox" style="margin-top:8px;width:16px;height:16px;"/>
           </div>
         </div>
 
@@ -422,12 +312,10 @@
         <div style="margin-bottom:16px;">
           <div style="font-size:14px; font-weight:700; color:#222; margin-bottom:10px;">Application Rate</div>
           <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap;">
-
             <div class="app-method-col">
               <div class="col-label-sm">Applied</div>
               <input type="number" placeholder="0" class="num-sm"/>
             </div>
-
             <div class="app-method-col">
               <div class="col-label-sm">Units of Measure</div>
               <div class="csd-wrap">
@@ -460,14 +348,11 @@
                 </div>
               </div>
             </div>
-
             <div class="per-text">per</div>
-
             <div class="app-method-col">
               <div class="col-label-sm">Total</div>
               <input type="number" placeholder="0" class="num-md"/>
             </div>
-
             <div class="app-method-col">
               <div class="col-label-sm">Area</div>
               <div class="csd-wrap">
@@ -490,15 +375,13 @@
                 </div>
               </div>
             </div>
-
             <div class="app-method-col">
               <div class="col-label-sm">Custom Field</div>
-              <select style="width:140px;">
+              <select style="width:140px;border:1px solid #ccc;border-radius:2px;padding:6px 9px;font-size:13px;font-family:inherit;outline:none;">
                 <option value=""></option>
                 <option>5 LAWN SQ FT</option>
               </select>
             </div>
-
           </div>
         </div>
 
@@ -518,7 +401,7 @@
             <div class="mix-input-row">
               <span class="solution-label">Solution</span>
               <input type="number" placeholder="0" step="0.01" class="num-sm"/>
-              <select style="width:160px;">
+              <select style="width:160px;border:1px solid #ccc;border-radius:2px;padding:6px 9px;font-size:13px;font-family:inherit;outline:none;">
                 <option value="">Select...</option>
                 <option>Ounces - Liquid</option>
                 <option>Ounces - Weight</option>
@@ -553,9 +436,9 @@
             </div>
             <div id="mix-products-rows-1">
               <div class="products-mix-row">
-                <select style="width:100%;font-size:12.5px;"><option value="">Search Products...</option></select>
+                <select style="width:100%;font-size:12.5px;border:1px solid #ccc;border-radius:2px;padding:5px 7px;font-family:inherit;outline:none;"><option value="">Search Products...</option></select>
                 <input type="number" placeholder="0" class="num-sm"/>
-                <select style="width:100%;font-size:12.5px;">
+                <select style="width:100%;font-size:12.5px;border:1px solid #ccc;border-radius:2px;padding:5px 7px;font-family:inherit;outline:none;">
                   <option value="">Select UoM</option>
                   <option>Gallons</option>
                   <option>Liters</option>
@@ -583,33 +466,27 @@
           <button class="trash-btn" title="Delete this rate" onclick="this.closest('.app-rate-block').remove()">&#128465;</button>
         </div>
       </div>
-
     </div>
-    <div style="padding:0 16px 16px;">
+
+    <div style="padding: 0 0 16px;">
       <button onclick="addAppRate()" style="background:none;border:none;color:#444;font-size:13.5px;cursor:pointer;text-decoration:underline;font-family:inherit;">
         + Add Application Rate
       </button>
     </div>
+
   </div>
 
-</div><!-- /panel-productmix -->
-
-<!-- ══════════ NOTES TAB ══════════ -->
-<div id="panel-notes" class="tab-panel">
-  <div class="form-card">
-    <div class="section-header">Notes</div>
-    <div class="notes-body">
-      <textarea placeholder="Enter notes here..."></textarea>
-    </div>
+  <!-- Notes panel -->
+  <div id="panel-notes" class="dialog-body tab-panel">
+    <div class="section-label">Notes</div>
+    <textarea class="notes-area" placeholder="Enter notes here..."></textarea>
   </div>
-</div>
 
-<!-- Footer -->
-<div class="form-footer">
-  <button class="btn-save" onclick="saveProduct()">Save</button>
-  <button class="btn-save-new" onclick="saveProduct(true)">Save &amp; New</button>
-  <span class="footer-or">or</span>
-  <button class="btn-cancel" onclick="history.back()">Cancel</button>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveProduct()">Save</button>
+    <button class="btn-save-new" onclick="saveProduct(true)">Save &amp; New</button>
+    <span class="btn-cancel" onclick="history.back()">Cancel</span>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -671,10 +548,12 @@
 
   /* ── Tab switching ── */
   function switchTab(key) {
-    ['productmix','notes'].forEach(function(k) {
-      document.getElementById('panel-' + k).classList.toggle('active', k === key);
+    var tabs = ['details', 'productmix', 'notes'];
+    tabs.forEach(function(k) {
+      var panel = document.getElementById('panel-' + k);
       var btn = document.getElementById('tab-btn-' + k);
-      btn.className = (k === key) ? 'tab-active' : 'tab-link';
+      if (panel) panel.classList.toggle('active', k === key);
+      if (btn) btn.className = (k === key) ? 'tab-active-btn' : 'tab-link-btn';
     });
   }
 
@@ -723,9 +602,9 @@
     var row = document.createElement('div');
     row.className = 'products-mix-row';
     row.innerHTML =
-      '<select style="width:100%;font-size:12.5px;"><option value="">Search Products...</option></select>' +
+      '<select style="width:100%;font-size:12.5px;border:1px solid #ccc;border-radius:2px;padding:5px 7px;font-family:inherit;outline:none;"><option value="">Search Products...</option></select>' +
       '<input type="number" placeholder="0" class="num-sm"/>' +
-      '<select style="width:100%;font-size:12.5px;"><option value="">Select UoM</option><option>Gallons</option><option>Liters</option><option>Ounces - Liquid</option></select>' +
+      '<select style="width:100%;font-size:12.5px;border:1px solid #ccc;border-radius:2px;padding:5px 7px;font-family:inherit;outline:none;"><option value="">Select UoM</option><option>Gallons</option><option>Liters</option><option>Ounces - Liquid</option></select>' +
       '<span class="per-text" style="font-size:13px;">per</span>' +
       '<input type="number" placeholder="0" class="num-sm"/>' +
       '<span class="gallons-label" style="font-size:13px;">Gallons</span>' +
@@ -770,7 +649,7 @@
           '</div>' +
         '</div>' +
         '<div class="app-method-col"><div class="col-label">Product Cost</div><input type="number" placeholder="0.00" step="0.01" min="0" class="num-md"/></div>' +
-        '<div class="app-method-col"><div class="col-label">Make Default</div><input type="checkbox" style="margin-top:8px;"/></div>' +
+        '<div class="app-method-col"><div class="col-label">Make Default</div><input type="checkbox" style="margin-top:8px;width:16px;height:16px;"/></div>' +
       '</div>' +
       '<div style="margin-bottom:16px;">' +
         '<div style="font-size:14px;font-weight:700;color:#222;margin-bottom:10px;">Application Rate</div>' +
@@ -790,14 +669,14 @@
             '<div class="csd-options" id="opts-area' + n + '"><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'Create New\',this)">Create New</div><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'Gallons\',this)">Gallons</div><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'Linear Feet\',this)">Linear Feet</div><div class="csd-option" onclick="pickCSD(\'area' + n + '\',\'sq feet\',this)">sq feet</div></div>' +
             '<div class="csd-scroll-btn">&#9660;</div></div></div>' +
           '</div>' +
-          '<div class="app-method-col"><div class="col-label-sm">Custom Field</div><select style="width:140px;"><option value=""></option><option>5 LAWN SQ FT</option></select></div>' +
+          '<div class="app-method-col"><div class="col-label-sm">Custom Field</div><select style="width:140px;border:1px solid #ccc;border-radius:2px;padding:6px 9px;font-size:13px;font-family:inherit;outline:none;"><option value=""></option><option>5 LAWN SQ FT</option></select></div>' +
         '</div>' +
       '</div>' +
       '<div class="mix-section"><div class="mix-radio-row"><input type="radio" name="mix-type-' + n + '" id="mw' + n + '" checked/><label for="mw' + n + '" class="mix-radio-label">Mixed with Water</label></div>' +
-        '<div class="mix-content"><div class="mix-input-row"><span class="solution-label">Solution</span><input type="number" placeholder="0" step="0.01" class="num-sm"/><select style="width:160px;"><option value="">Select...</option><option>Ounces - Liquid</option><option>Milliliters</option><option>Cups</option></select><span class="per-text">per</span><input type="number" placeholder="0" class="num-sm"/><span class="gallons-label">Gallons</span></div></div>' +
+        '<div class="mix-content"><div class="mix-input-row"><span class="solution-label">Solution</span><input type="number" placeholder="0" step="0.01" class="num-sm"/><select style="width:160px;border:1px solid #ccc;border-radius:2px;padding:6px 9px;font-size:13px;font-family:inherit;outline:none;"><option value="">Select...</option><option>Ounces - Liquid</option><option>Milliliters</option><option>Cups</option></select><span class="per-text">per</span><input type="number" placeholder="0" class="num-sm"/><span class="gallons-label">Gallons</span></div></div>' +
       '</div>' +
       '<div class="mix-section"><div class="mix-radio-row"><input type="radio" name="mix-type-' + n + '" id="mp' + n + '"/><label for="mp' + n + '" class="mix-radio-label">Mixed with Products</label></div>' +
-        '<div class="mix-content"><div id="mix-products-rows-' + n + '"><div class="products-mix-row"><select style="width:100%;font-size:12.5px;"><option value="">Search Products...</option></select><input type="number" placeholder="0" class="num-sm"/><select style="width:100%;font-size:12.5px;"><option value="">Select UoM</option><option>Gallons</option></select><span class="per-text" style="font-size:13px;">per</span><input type="number" placeholder="0" class="num-sm"/><span class="gallons-label" style="font-size:13px;">Gallons</span><button class="del-row-btn" onclick="this.closest(\'.products-mix-row\').remove()">&#10005;</button></div></div>' +
+        '<div class="mix-content"><div id="mix-products-rows-' + n + '"><div class="products-mix-row"><select style="width:100%;font-size:12.5px;border:1px solid #ccc;border-radius:2px;padding:5px 7px;font-family:inherit;outline:none;"><option value="">Search Products...</option></select><input type="number" placeholder="0" class="num-sm"/><select style="width:100%;font-size:12.5px;border:1px solid #ccc;border-radius:2px;padding:5px 7px;font-family:inherit;outline:none;"><option value="">Select UoM</option><option>Gallons</option></select><span class="per-text" style="font-size:13px;">per</span><input type="number" placeholder="0" class="num-sm"/><span class="gallons-label" style="font-size:13px;">Gallons</span><button class="del-row-btn" onclick="this.closest(\'.products-mix-row\').remove()">&#10005;</button></div></div>' +
         '<a class="add-another" onclick="addMixRow(' + n + ')">Add Another</a></div>' +
       '</div>' +
       '<div class="mix-section"><div class="mix-radio-row"><input type="radio" name="mix-type-' + n + '" id="mn' + n + '"/><label for="mn' + n + '" class="mix-radio-label">Not Mixed</label></div></div>' +
@@ -807,4 +686,3 @@
 </script>
 </body>
 </html>
-

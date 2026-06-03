@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SprayBossPro — Get Started</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebebeb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.15);
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #1a2b3c;
+      color: #fff;
+      text-align: center;
+      padding: 22px 24px 18px;
+    }
+    .card-header h1 { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+    .card-header p  { font-size: 13px; color: #aec6d8; margin-top: 4px; }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .step-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.3);
+      transition: background .3s;
+    }
+    .step-dot.active { background: #f5c800; }
+
+    .card-body { padding: 28px 28px 24px; }
+
+    .form-row { display: flex; gap: 12px; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+      flex: 1;
+    }
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .form-group .optional { font-size: 11px; color: #999; font-weight: normal; margin-left: 4px; }
+    .form-group input {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 9px 11px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #333;
+      width: 100%;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #f5c800;
+      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+    }
+
+    .plan-box {
+      background: #f8f9fa;
+      border: 1px dashed #ccc;
+      border-radius: 4px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #888;
+    }
+    .plan-box strong { display: block; color: #555; font-size: 14px; margin-bottom: 4px; }
+    .plan-box span   { font-size: 12px; }
+
+    .btn {
+      width: 100%;
+      padding: 11px;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-primary { background: #e07820; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #c96a18; }
+    .btn-back {
+      background: transparent;
+      color: #666;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 8px;
+      text-decoration: underline;
+      padding: 4px;
+      width: auto;
+    }
+    .btn-back:hover { color: #333; }
+
+    .err-msg {
+      background: #fff0f0;
+      border: 1px solid #f5c6c6;
+      color: #c0392b;
+      border-radius: 3px;
+      padding: 9px 12px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .err-msg.show { display: block; }
+
+    /* ── Step 2 modal ── */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-bg.open { display: flex; }
+
+    .modal-card {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+    }
+    .modal-header {
+      background: #1a2b3c;
+      color: #fff;
+      padding: 18px 24px;
+    }
+    .modal-header h2 { font-size: 18px; font-weight: 800; }
+    .modal-header p  { font-size: 12px; color: #aec6d8; margin-top: 3px; }
+    .modal-body { padding: 24px; }
+
+    /* ── Success screen ── */
+    .success-screen {
+      text-align: center;
+      padding: 48px 28px;
+    }
+    .check-icon {
+      width: 64px; height: 64px;
+      background: #27ae60;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: #fff;
+      margin-bottom: 18px;
+    }
+    .success-screen h2 { color: #1a2b3c; font-size: 20px; margin-bottom: 8px; }
+    .success-screen p  { color: #666; font-size: 14px; }
+    .redirect-note     { margin-top: 12px; font-size: 12px; color: #aaa; }
+
+    .login-link {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 13px;
+      color: #888;
+    }
+    .login-link a { color: #e07820; font-weight: 600; text-decoration: none; }
+    .login-link a:hover { text-decoration: underline; }
+
+    @media (max-width: 400px) {
+      .form-row { flex-direction: column; gap: 0; }
+      .card-body { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ STEP 1 ═══════════════ -->
+<div class="card" id="step1-card">
+  <div class="card-header">
+    <h1>SprayBossPro</h1>
+    <p>Create your business account &mdash; free to get started</p>
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div id="step1-err" class="err-msg"></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="first-name" placeholder="John" autocomplete="given-name" />
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="last-name" placeholder="Smith" autocomplete="family-name" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Company Name</label>
+      <input type="text" id="company-name" placeholder="Smith Lawn &amp; Spray Co." autocomplete="organization" />
+    </div>
+
+    <div class="form-group">
+      <label>Contact Email</label>
+      <input type="email" id="contact-email" placeholder="you@yourcompany.com" autocomplete="email" />
+    </div>
+
+    <div class="form-group">
+      <label>Street Address <span class="optional">(optional)</span></label>
+      <input type="text" id="address1" placeholder="123 Main St" autocomplete="street-address" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>City <span class="optional">(optional)</span></label>
+        <input type="text" id="city" placeholder="Springfield" autocomplete="address-level2" />
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>State <span class="optional">(optional)</span></label>
+        <input type="text" id="state" placeholder="IL" maxlength="2" autocomplete="address-level1" />
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>ZIP <span class="optional">(optional)</span></label>
+        <input type="text" id="zip" placeholder="62701" maxlength="10" autocomplete="postal-code" />
+      </div>
+    </div>
+
+    <!-- Stripe / payment — wire up later -->
+    <div class="plan-box">
+      <strong>Subscription Plan</strong>
+      <span>Payment integration coming soon &mdash; you will be notified when billing goes live.</span>
+    </div>
+
+    <button class="btn btn-primary" id="next-btn" onclick="goToStep2()">Next: Create Login &rarr;</button>
+
+    <div class="login-link">Already have an account? <a href="LOGIN_URL_HERE">Sign in</a></div>
+  </div>
+</div>
+
+<!-- ═══════════════ STEP 2 MODAL ═══════════════ -->
+<div class="modal-bg" id="step2-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Create Your Login</h2>
+      <p>Step 2 of 2 &mdash; choose the email and password you will use to sign in</p>
+    </div>
+    <div class="modal-body">
+      <div id="step2-err" class="err-msg"></div>
+
+      <div class="form-group">
+        <label>Login Email</label>
+        <input type="email" id="login-email" placeholder="you@yourcompany.com" autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" />
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label>Confirm Password</label>
+        <input type="password" id="confirm-password" placeholder="Repeat password" autocomplete="new-password" />
+      </div>
+
+      <button class="btn btn-primary" id="create-btn" onclick="createAccount()">Create My Account</button>
+      <button class="btn btn-back" onclick="closeStep2()">&larr; Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SUCCESS ═══════════════ -->
+<div class="card" id="success-card" style="display:none; max-width:420px; width:100%;">
+  <div class="success-screen">
+    <div class="check-icon">&#10003;</div>
+    <h2>Account Created!</h2>
+    <p>Welcome to SprayBossPro. Taking you to your dashboard&hellip;</p>
+    <p class="redirect-note" id="redirect-note"></p>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var APP_URL       = 'LOGIN_URL_HERE'; /* ← replace with your app login page URL before going live */
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  /* ── Step 1: validate then open modal ── */
+  function goToStep2() {
+    var errEl = document.getElementById('step1-err');
+    errEl.className = 'err-msg';
+
+    var firstName   = document.getElementById('first-name').value.trim();
+    var lastName    = document.getElementById('last-name').value.trim();
+    var companyName = document.getElementById('company-name').value.trim();
+    var email       = document.getElementById('contact-email').value.trim();
+
+    if (!firstName || !lastName)          return showErr(errEl, 'Please enter your first and last name.');
+    if (!companyName)                     return showErr(errEl, 'Please enter your company name.');
+    if (!email || !email.includes('@'))   return showErr(errEl, 'Please enter a valid email address.');
+
+    document.getElementById('login-email').value = email;
+    document.getElementById('dot1').classList.remove('active');
+    document.getElementById('dot2').classList.add('active');
+    document.getElementById('step2-modal').classList.add('open');
+    document.getElementById('password').focus();
+  }
+
+  function closeStep2() {
+    document.getElementById('step2-modal').classList.remove('open');
+    document.getElementById('dot1').classList.add('active');
+    document.getElementById('dot2').classList.remove('active');
+    document.getElementById('step2-err').className = 'err-msg';
+  }
+
+  /* ── Step 2: create the account ── */
+  async function createAccount() {
+    var errEl  = document.getElementById('step2-err');
+    var btn    = document.getElementById('create-btn');
+    errEl.className = 'err-msg';
+
+    var loginEmail = document.getElementById('login-email').value.trim();
+    var password   = document.getElementById('password').value;
+    var confirm    = document.getElementById('confirm-password').value;
+
+    if (!loginEmail || !loginEmail.includes('@')) return showErr(errEl, 'Please enter a valid login email.');
+    if (password.length < 8)                      return showErr(errEl, 'Password must be at least 8 characters.');
+    if (password !== confirm)                      return showErr(errEl, 'Passwords do not match.');
+
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+
+    try {
+      /* 1. Create auth user via manage-users edge function (email auto-confirmed) */
+      var res  = await fetch(SUPABASE_URL + '/functions/v1/manage-users', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + SUPABASE_ANON,
+          'apikey':        SUPABASE_ANON
+        },
+        body: JSON.stringify({ action: 'create', email: loginEmail, password: password })
+      });
+      var result = await res.json();
+      if (result.error) throw new Error(result.error);
+
+      /* 2. Sign in immediately */
+      var { data: signInData, error: signInErr } = await sb.auth.signInWithPassword({
+        email: loginEmail, password: password
+      });
+      if (signInErr) throw new Error(signInErr.message);
+
+      var uid = signInData.user.id;
+
+      /* 3. Store owner full name in user metadata */
+      var firstName = document.getElementById('first-name').value.trim();
+      var lastName  = document.getElementById('last-name').value.trim();
+      await sb.auth.updateUser({ data: { full_name: firstName + ' ' + lastName } });
+
+      /* 4. Create user profile as primary full_access owner */
+      await sb.from('user_profiles').upsert({
+        id:               uid,
+        email:            loginEmail,
+        role:             'full_access',
+        is_primary_owner: true,
+        tenant_id:        null
+      }, { onConflict: 'id' });
+
+      /* 6. Insert company info row so their account is ready on first login */
+      var companyName = document.getElementById('company-name').value.trim();
+      var address1    = document.getElementById('address1').value.trim() || null;
+      var city        = document.getElementById('city').value.trim()     || null;
+      var state       = (document.getElementById('state').value.trim() || '').toUpperCase() || null;
+      var zip         = document.getElementById('zip').value.trim()     || null;
+
+      await sb.from('company_info').insert({
+        user_id:      uid,
+        company_name: companyName,
+        display_name: companyName,
+        address1,
+        city,
+        state,
+        zip
+      });
+
+      /* 5. Show success, then redirect */
+      showSuccess();
+
+    } catch (err) {
+      showErr(errEl, err.message || 'Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Create My Account';
+    }
+  }
+
+  function showSuccess() {
+    document.getElementById('step1-card').style.display  = 'none';
+    document.getElementById('step2-modal').classList.remove('open');
+    document.getElementById('success-card').style.display = 'block';
+
+    var secs = 4;
+    var el = document.getElementById('redirect-note');
+    el.textContent = 'Redirecting in ' + secs + ' seconds…';
+    var iv = setInterval(function() {
+      secs--;
+      if (secs <= 0) {
+        clearInterval(iv);
+        window.location.href = APP_URL;
+      } else {
+        el.textContent = 'Redirecting in ' + secs + ' second' + (secs === 1 ? '' : 's') + '…';
+      }
+    }, 1000);
+  }
+
+  function showErr(el, msg) {
+    el.textContent = msg;
+    el.className = 'err-msg show';
+  }
+
+  /* Enter key support */
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('step2-modal').classList.contains('open')) {
+      createAccount();
+    } else {
+      goToStep2();
+    }
+  });
+</script>
+</body>
+</html>

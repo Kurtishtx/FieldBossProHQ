@@ -6,459 +6,99 @@
   <title>Add Service</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
-      padding: 24px 28px 40px;
-      overflow-y: auto;
-      min-height: 100vh;
-      color: #333;
-    }
-
-    /* ── Title row ── */
-    .title-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 18px;
-    }
-    .title-row h1 {
-      font-size: 26px;
-      font-weight: 800;
-      color: #111;
-    }
-    .close-btn {
-      background: none;
-      border: 1px solid #bbb;
-      border-radius: 3px;
-      width: 28px;
-      height: 28px;
-      font-size: 16px;
-      cursor: pointer;
-      color: #555;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
+    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
+    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
     .close-btn:hover { background: #f0f0f0; }
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex;
-      align-items: center;
-      gap: 22px;
-      margin-bottom: 18px;
-    }
-    .tab-active {
-      background: #3a3a3a;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      font-weight: 600;
-      cursor: default;
-    }
-    .tab-link {
-      background: none;
-      border: none;
-      color: #444;
-      font-size: 13.5px;
-      font-family: inherit;
-      cursor: pointer;
-      padding: 0;
-    }
-    .tab-link:hover { text-decoration: underline; color: #111; }
+    .tabs { display: flex; gap: 16px; align-items: center; padding: 10px 20px 0; border-bottom: 2px solid #eee; background: #fafafa; }
+    .tab-active { background: #3a3a3a; color: #fff; border: none; border-radius: 4px 4px 0 0; padding: 7px 18px; font-size: 13.5px; font-weight: 600; font-family: inherit; cursor: pointer; }
 
-    /* ── Form card ── */
-    .form-card {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 24px;
-    }
-    .section-header {
-      background: #3a3a3a;
-      color: #fff;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 4px 4px 0 0;
-    }
-    .form-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 48px;
-      padding: 12px 20px 20px;
-    }
+    .dialog-body { padding: 20px 24px 8px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
+    .section-label:first-child { border-top: none; padding-top: 0; }
 
-    /* ── Form rows ── */
-    .form-col { display: flex; flex-direction: column; }
-    .form-row {
-      display: flex;
-      align-items: center;
-      padding: 9px 0;
-      border-bottom: 1px solid #f0f0f0;
-      gap: 12px;
-    }
-    .form-row:last-child { border-bottom: none; }
-    .form-label {
-      width: 160px;
-      min-width: 160px;
-      font-size: 13px;
-      color: #666;
-      line-height: 1.3;
-    }
-    .form-label.bold { font-weight: 700; color: #333; }
-    .form-field { flex: 1; }
+    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
+    .field-row input[type="text"], .field-row input[type="number"], .field-row select { flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; }
+    .field-row input:focus, .field-row select:focus { border-color: #e07820; }
 
-    /* ── Inputs ── */
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 8px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-    }
-    input[type="text"]:focus,
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #f5c800;
-      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
-    }
-    textarea {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 6px 8px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-      resize: vertical;
-      min-height: 80px;
-    }
-    textarea:focus {
-      outline: none;
-      border-color: #f5c800;
-      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
-    }
-    input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      accent-color: #888888;
-    }
+    .check-grid { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 4px; }
+    .check-grid label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; font-weight: 400; width: auto; padding-top: 0; }
+    .check-grid input[type="checkbox"] { width: 15px; height: 15px; accent-color: #e07820; cursor: pointer; flex-shrink: 0; }
 
-    /* Standard select */
-    .std-select {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 28px 5px 8px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-      appearance: none;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 8px center;
-      cursor: pointer;
-    }
-    .std-select:focus { outline: none; border-color: #f5c800; }
+    .std-select { width: 100%; border: 1px solid #ccc; border-radius: 2px; padding: 7px 10px; font-size: 13px; font-family: inherit; color: #333; }
+    .std-select:focus { outline: none; border-color: #e07820; }
 
-    /* ── Custom Service Mode dropdown ── */
-    .custom-select-wrap { position: relative; }
-    .custom-select-btn {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 5px 28px 5px 8px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 8px center;
-      cursor: pointer;
-      text-align: left;
-      appearance: none;
-      display: flex;
-      align-items: center;
-    }
-    .custom-select-btn:focus { outline: none; border-color: #f5c800; }
-
-    .custom-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 2px);
-      left: 0;
-      width: 100%;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      box-shadow: 0 4px 14px rgba(0,0,0,.15);
-      z-index: 100;
-    }
-    .custom-dropdown.open { display: block; }
-
-    .dropdown-filter-bar {
-      background: #555;
-      padding: 6px 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .dropdown-filter-label {
-      color: #ddd;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .dropdown-filter-input {
-      flex: 1;
-      border: 1px solid #888;
-      border-radius: 2px;
-      padding: 3px 6px;
-      font-size: 12.5px;
-      font-family: inherit;
-      background: #fff;
-    }
-    .dropdown-filter-clear {
-      background: none;
-      border: none;
-      color: #ddd;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      padding: 0 2px;
-    }
-    .dropdown-options { max-height: 180px; overflow-y: auto; }
-    .dropdown-option {
-      padding: 7px 10px;
-      font-size: 13.5px;
-      cursor: pointer;
-      color: #333;
-    }
-    .dropdown-option:hover { background: #f0f0f0; }
-    .dropdown-option.selected { background: #fdfbe8; color: #111; font-weight: 600; }
-    .dropdown-scroll-btn {
-      text-align: center;
-      padding: 3px;
-      background: #f5f5f5;
-      border-top: 1px solid #eee;
-      cursor: pointer;
-      font-size: 11px;
-      color: #888;
-    }
-
-    /* ── Task Color ── */
-    .color-wrap { display: flex; align-items: center; gap: 8px; }
-    .color-badge {
-      background: #0000ff;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      letter-spacing: .3px;
-    }
-    .color-input-hidden { opacity: 0; width: 0; height: 0; position: absolute; }
-
-    /* ── QuickBooks note ── */
-    .qb-note {
-      font-size: 12px;
-      color: #555;
-      font-style: italic;
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    /* ── Footer ── */
-    .form-footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      padding: 8px 0 20px;
-    }
-    .btn-save {
-      background: #e07820;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 10px 28px;
-      font-size: 15px;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-save:hover { background: #c96a15; }
-    .btn-save-new {
-      background: #e07820;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 10px 28px;
-      font-size: 15px;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-save-new:hover { background: #c96a15; }
-    .footer-or { font-size: 14px; color: #555; }
-    .btn-cancel {
-      background: none;
-      border: none;
-      color: #444;
-      font-size: 14px;
-      font-family: inherit;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .btn-cancel:hover { color: #111; }
+    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save, .btn-save-new { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    .btn-save:hover, .btn-save-new:hover { background: #c96a10; }
+    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; background: none; border: none; font-family: inherit; }
+    .btn-cancel:hover { text-decoration: underline; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<!-- Title row -->
-<div class="title-row">
-  <h1>Add Service</h1>
-  <button class="close-btn" onclick="history.back()">&#10005;</button>
-</div>
+<div class="dialog">
+  <div class="dialog-header">
+    <h1>Add Service</h1>
+    <button class="close-btn" onclick="history.back()">&#10005;</button>
+  </div>
 
-<!-- Tabs -->
-<div class="tabs">
-  <button class="tab-active">Details</button>
-  <button class="tab-link">Estimates</button>
-  <button class="tab-link">Rate Matrix</button>
-  <button class="tab-link">Job Costing/Analysis</button>
-</div>
+  <div class="tabs">
+    <button class="tab-active" id="tab-details">Details</button>
+  </div>
 
-<!-- Form card -->
-<div class="form-card">
-  <div class="section-header">Service Details</div>
-  <div class="form-body">
+  <div class="dialog-body">
+    <div class="section-label">Service Info</div>
 
-    <!-- LEFT COLUMN -->
-    <div class="form-col">
+    <div class="field-row">
+      <label for="service-name">Service Name</label>
+      <div style="flex:1;"><input type="text" id="service-name" autocomplete="off"/></div>
+    </div>
 
-      <div class="form-row">
-        <div class="form-label bold">Service</div>
-        <div class="form-field">
-          <input type="text" id="service-name"/>
-        </div>
+    <div class="field-row">
+      <label for="sales-tax-code">Sales Tax</label>
+      <div style="flex:1;">
+        <select class="std-select" id="sales-tax-code">
+          <option value="">Flat Rate (No Tax)</option>
+        </select>
       </div>
+    </div>
 
-      <div class="form-row">
-        <div class="form-label">Only use for Estimates</div>
-        <div class="form-field">
-          <input type="checkbox" id="estimates-only"/>
-        </div>
+    <div class="field-row">
+      <label for="default-rate">Default Rate</label>
+      <div style="flex:1;"><input type="number" id="default-rate" value="0.00" step="0.01" min="0"/></div>
+    </div>
+
+    <div class="section-label">Associated Areas</div>
+
+    <div class="field-row">
+      <label for="area-select">Associated Area</label>
+      <div style="flex:1;">
+        <select class="std-select" id="area-select">
+          <option value="">— None —</option>
+          <option value="lawn_care">Lawn Sq Ft</option>
+          <option value="lawn_insect">Lawn Insect Sq Ft</option>
+          <option value="flower_beds">Flower Bed(s) Sq Ft</option>
+          <option value="mosquito">Mosquito Control Sq Ft</option>
+          <option value="mosquito_linear_ft">Mosquito Control Linear Ft</option>
+          <option value="pest_control">Pest Control Sq Ft</option>
+          <option value="pest_control_linear_ft">Pest Control Linear Ft</option>
+        </select>
       </div>
+    </div>
+  </div>
 
-      <div class="form-row">
-        <div class="form-label">Track Chemicals</div>
-        <div class="form-field">
-          <input type="checkbox" id="track-chemicals"/>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-label bold">Sales Tax Code</div>
-        <div class="form-field">
-          <select class="std-select" id="sales-tax-code">
-            <option value="">Loading...</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-label bold">Service Mode</div>
-        <div class="form-field">
-          <div class="custom-select-wrap" id="svc-mode-wrap">
-            <button class="custom-select-btn" onclick="toggleSvcMode(event)" id="svc-mode-btn">
-              <span id="svc-mode-label">Flat Rate</span>
-            </button>
-            <div class="custom-dropdown" id="svc-mode-dropdown">
-              <div class="dropdown-filter-bar">
-                <span class="dropdown-filter-label">Filter:</span>
-                <input class="dropdown-filter-input" id="svc-mode-filter" placeholder="Enter keywords" oninput="filterSvcMode(this.value)"/>
-                <button class="dropdown-filter-clear" onclick="clearSvcFilter()">&#10005;</button>
-              </div>
-              <div class="dropdown-options" id="svc-mode-options">
-                <div class="dropdown-option selected" onclick="selectSvcMode('Flat Rate', this)">Flat Rate</div>
-                <div class="dropdown-option" onclick="selectSvcMode('Hourly', this)">Hourly</div>
-                <div class="dropdown-option" onclick="selectSvcMode('Per Unit', this)">Per Unit</div>
-              </div>
-              <div class="dropdown-scroll-btn">&#9660;</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-row" style="align-items: flex-start;">
-        <div class="form-label bold" style="padding-top:4px;">Invoice Description</div>
-        <div class="form-field">
-          <textarea id="invoice-desc"></textarea>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-label">Active</div>
-        <div class="form-field">
-          <input type="checkbox" id="is-active" checked/>
-        </div>
-      </div>
-
-    </div><!-- /left col -->
-
-    <!-- RIGHT COLUMN -->
-    <div class="form-col">
-
-      <div class="form-row">
-        <div class="form-label">Default Rate</div>
-        <div class="form-field">
-          <input type="number" id="default-rate" value="0.00" step="0.01" min="0"/>
-        </div>
-      </div>
-
-      <div class="form-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
-        <div class="form-label" style="width:auto; font-weight:700; color:#333;">This service is associated with</div>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-          <input type="checkbox" id="area-lawn-care" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
-          Lawn Sq Ft
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-          <input type="checkbox" id="area-lawn-insect" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
-          Lawn Insect Sq Ft
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-          <input type="checkbox" id="area-flower-beds" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
-          Flower Bed(s) Sq Ft
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-          <input type="checkbox" id="area-mosquito" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
-          Mosquito Control Sq Ft
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-          <input type="checkbox" id="area-mosquito-linear" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer;"/>
-          Mosquito Control Linear Ft
-        </label>
-      </div>
-
-    </div><!-- /right col -->
-
-  </div><!-- /form-body -->
-</div><!-- /form-card -->
-
-<!-- Footer -->
-<div class="form-footer">
-  <button class="btn-save" onclick="saveService()">Save</button>
-  <button class="btn-save-new" onclick="saveAndNew()">Save &amp; New</button>
-  <span class="footer-or">or</span>
-  <button class="btn-cancel" onclick="history.back()">Cancel</button>
+  <div class="dialog-footer">
+    <button class="btn-save" onclick="saveService()">Save</button>
+    <button class="btn-save-new" onclick="saveAndNew()">Save &amp; New</button>
+    <button class="btn-cancel" onclick="history.back()">Cancel</button>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -471,15 +111,18 @@
   var serviceId = new URLSearchParams(window.location.search).get('id');
   var existing = null;
 
+
+
+
   async function initEdit() {
     // Load sales taxes
-    var { data: taxes } = await sb.from('sales_taxes').select('id, name').order('name');
+    var { data: taxes } = await sb.from('sales_taxes').select('id, name, tax_rate').order('name');
     var taxSel = document.getElementById('sales-tax-code');
-    taxSel.innerHTML = '<option value="">-- Select --</option>';
+    taxSel.innerHTML = '<option value="">Flat Rate (No Tax)</option>';
     (taxes || []).forEach(function(t) {
       var o = document.createElement('option');
       o.value = t.id;
-      o.textContent = t.name;
+      o.textContent = t.name + ' (' + (parseFloat(t.tax_rate) * 100).toFixed(2) + '%)';
       taxSel.appendChild(o);
     });
 
@@ -489,14 +132,10 @@
       existing = data;
       document.getElementById('service-name').value  = data.name || '';
       document.getElementById('default-rate').value  = data.default_rate || '0.00';
-      document.getElementById('is-active').checked   = data.active !== false;
       if (data.sales_tax_id) taxSel.value = data.sales_tax_id;
       var aa = data.associated_areas || {};
-      document.getElementById('area-lawn-care').checked   = !!aa.lawn_care;
-      document.getElementById('area-lawn-insect').checked = !!aa.lawn_insect;
-      document.getElementById('area-flower-beds').checked = !!aa.flower_beds;
-      document.getElementById('area-mosquito').checked        = !!aa.mosquito;
-      document.getElementById('area-mosquito-linear').checked = !!aa.mosquito_linear_ft;
+      var areaKey = Object.keys(aa).find(function(k) { return aa[k]; }) || '';
+      document.getElementById('area-select').value = areaKey;
     }
   }
   initEdit();
@@ -556,16 +195,15 @@
     if (!name) { alert('Please enter a service name.'); return null; }
     return {
       name:        name,
-      active:      document.getElementById('is-active').checked,
+      active:      true,
       defaultRate: parseFloat(document.getElementById('default-rate').value) || 0,
-      salesTaxId:  document.getElementById('sales-tax-code').value || null,
-      associatedAreas: {
-        lawn_care:   document.getElementById('area-lawn-care').checked,
-        lawn_insect: document.getElementById('area-lawn-insect').checked,
-        flower_beds: document.getElementById('area-flower-beds').checked,
-        mosquito:           document.getElementById('area-mosquito').checked,
-        mosquito_linear_ft: document.getElementById('area-mosquito-linear').checked,
-      },
+      salesTaxId:   document.getElementById('sales-tax-code').value || null,
+      associatedAreas: (function() {
+        var key = document.getElementById('area-select').value;
+        var obj = { lawn_care: false, lawn_insect: false, flower_beds: false, mosquito: false, mosquito_linear_ft: false, pest_control: false, pest_control_linear_ft: false };
+        if (key) obj[key] = true;
+        return obj;
+      })(),
     };
   }
 
@@ -592,11 +230,7 @@
     var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, sales_tax_id: svc.salesTaxId, user_id: uid });
     if (error) { alert('Error: ' + error.message); return; }
     document.getElementById('service-name').value = '';
-    document.getElementById('invoice-desc').value = '';
     document.getElementById('default-rate').value = '0.00';
-    document.getElementById('estimates-only').checked = false;
-    document.getElementById('track-chemicals').checked = false;
-    document.getElementById('is-active').checked = true;
     document.getElementById('sales-tax-code').value = '';
     document.getElementById('service-name').focus();
     existing = null;

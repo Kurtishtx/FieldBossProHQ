@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Users</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+
+    .page-topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
+    .page-topbar h1 { font-size:20px; font-weight:700; color:#111; }
+    .btn-add { background:#e07820; color:#fff; border:none; padding:9px 20px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; }
+    .btn-add:hover { background:#c96a10; }
+
+    table { width:100%; border-collapse:collapse; }
+    thead th { padding:10px 14px; text-align:left; font-size:12.5px; font-weight:600; color:#555; border-bottom:2px solid #ddd; background:#fafafa; }
+    tbody tr { border-bottom:1px solid #eee; }
+    tbody tr:hover { background:#f9f9f9; }
+    tbody td { padding:10px 14px; color:#333; vertical-align:middle; }
+    .badge-ok  { background:#d4edda; color:#155724; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:600; }
+    .badge-pend { background:#fff3cd; color:#856404; padding:2px 8px; border-radius:10px; font-size:12px; }
+    .row-action { color:#2272c3; cursor:pointer; text-decoration:underline; font-size:12px; margin-right:10px; }
+    .row-del { color:#c0392b; cursor:pointer; text-decoration:underline; font-size:12px; }
+    .empty-msg { padding:40px; text-align:center; color:#888; }
+
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:500; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:6px; padding:28px 32px; width:380px; position:relative; box-shadow:0 8px 40px rgba(0,0,0,.3); }
+    .modal h2 { font-size:18px; font-weight:700; margin-bottom:20px; color:#111; }
+    .modal-close { position:absolute; top:12px; right:14px; background:none; border:1px solid #aaa; width:26px; height:26px; cursor:pointer; font-size:12px; border-radius:2px; }
+    .modal-field { margin-bottom:14px; }
+    .modal-field label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:4px; text-transform:uppercase; letter-spacing:.4px; }
+    .modal-field input { width:100%; border:1px solid #ccc; padding:8px 10px; font-size:13px; font-family:inherit; border-radius:3px; outline:none; }
+    .modal-field input:focus { border-color:#e07820; }
+    .modal-footer { display:flex; gap:10px; align-items:center; margin-top:20px; }
+    .btn-save { background:#e07820; color:#fff; border:none; padding:8px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; }
+    .btn-save:hover { background:#c96a10; }
+    .btn-save:disabled { background:#e8a870; cursor:default; }
+    .btn-cancel-m { color:#555; font-size:13px; cursor:pointer; }
+    .btn-cancel-m:hover { text-decoration:underline; }
+    .err-msg { color:#c0392b; font-size:13px; margin-top:8px; min-height:18px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="page-topbar">
+  <h1>Users</h1>
+  <button class="btn-add" onclick="navigate('usersadd')">+ Add User</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>Created</th>
+      <th>Last Sign In</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="users-tbody"></tbody>
+</table>
+<div class="empty-msg" id="empty-msg" style="display:none;">No users found.</div>
+
+<!-- Add / Reset Password Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    <h2 id="modal-title">Add User</h2>
+    <div class="modal-field" id="email-field">
+      <label>Email Address</label>
+      <input type="email" id="modal-email" autocomplete="off"/>
+    </div>
+    <div class="modal-field">
+      <label id="pwd-label">Password</label>
+      <input type="password" id="modal-password" autocomplete="new-password"/>
+    </div>
+    <div class="err-msg" id="modal-err"></div>
+    <div class="modal-footer">
+      <button class="btn-save" id="modal-save-btn" onclick="saveUser()">Create User</button>
+      <span class="btn-cancel-m" onclick="closeModal()">Cancel</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var users = [];
+  var profiles = {};
+
+  function navigate(page, params) {
+    var url = params ? page + '?' + params : page;
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(url);
+  }
+
+  var ROLE_LABELS = { full_access: '&#128081; Full Access User', office_assistant: '&#128188; Office Assistant', mobile: '&#128241; Mobile User' };
+
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  async function load() {
+    var [authRes, profRes] = await Promise.all([
+      sb.functions.invoke('manage-users', { body: { action: 'list' } }),
+      sb.from('user_profiles').select('*').eq('is_primary_owner', false)
+    ]);
+    var allUsers  = (authRes.data?.users) || [];
+    profiles = {};
+    (profRes.data || []).forEach(function(p) { profiles[p.id] = p; });
+    // Only show users that were created through the Users page (have a profile record)
+    var profileIds = Object.keys(profiles);
+    users = allUsers.filter(function(u) { return profileIds.includes(u.id); });
+    renderTable();
+  }
+
+  function renderTable() {
+    var tbody = document.getElementById('users-tbody');
+    var emptyMsg = document.getElementById('empty-msg');
+    tbody.innerHTML = '';
+    if (!users.length) { emptyMsg.style.display = ''; return; }
+    emptyMsg.style.display = 'none';
+    users.forEach(function(u) {
+      var prof  = profiles[u.id] || {};
+      var role  = prof.role || 'owner';
+      var limited = prof.limited_access ? ' <span style="font-size:11px;color:#e07820;">(Limited)</span>' : '';
+      var tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.innerHTML =
+        '<td style="font-weight:600;">' + u.email + '</td>' +
+        '<td>' + fmtDate(u.created_at) + '</td>' +
+        '<td>' + fmtDate(u.last_sign_in_at) + '</td>' +
+        '<td>' + (ROLE_LABELS[role] || role) + limited + '</td>' +
+        '<td><span class="' + (u.confirmed ? 'badge-ok' : 'badge-pend') + '">' + (u.confirmed ? 'Active' : 'Pending') + '</span></td>' +
+        '<td><span class="row-action" onclick="event.stopPropagation();navigate(\'usersadd\',\'id=' + u.id + '\')">Edit</span></td>';
+      tr.addEventListener('click', function() { navigate('usersadd', 'id=' + u.id); });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openModal() {
+    editUserId = null;
+    document.getElementById('modal-title').textContent   = 'Add User';
+    document.getElementById('modal-save-btn').textContent = 'Create User';
+    document.getElementById('email-field').style.display = '';
+    document.getElementById('pwd-label').textContent     = 'Password';
+    document.getElementById('modal-email').value    = '';
+    document.getElementById('modal-password').value = '';
+    document.getElementById('modal-err').textContent = '';
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('modal-email').focus();
+  }
+
+  function openResetModal(uid, email) {
+    editUserId = uid;
+    document.getElementById('modal-title').textContent   = 'Reset Password — ' + email;
+    document.getElementById('modal-save-btn').textContent = 'Update Password';
+    document.getElementById('email-field').style.display = 'none';
+    document.getElementById('pwd-label').textContent     = 'New Password';
+    document.getElementById('modal-password').value = '';
+    document.getElementById('modal-err').textContent = '';
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('modal-password').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    editUserId = null;
+  }
+
+  async function saveUser() {
+    var btn = document.getElementById('modal-save-btn');
+    var errEl = document.getElementById('modal-err');
+    var email    = document.getElementById('modal-email').value.trim();
+    var password = document.getElementById('modal-password').value;
+
+    if (!editUserId && !email) { errEl.textContent = 'Please enter an email address.'; return; }
+    if (!password) { errEl.textContent = 'Please enter a password (minimum 6 characters).'; return; }
+    if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+
+    btn.disabled = true; btn.textContent = 'Saving…'; errEl.textContent = '';
+
+    var body = editUserId
+      ? { action: 'update_password', user_id: editUserId, password: password }
+      : { action: 'create', email: email, password: password };
+
+    var { data, error } = await sb.functions.invoke('manage-users', { body: body });
+    btn.disabled = false;
+    btn.textContent = editUserId ? 'Update Password' : 'Create User';
+
+    if (error || (data && data.error)) {
+      errEl.textContent = 'Error: ' + (data?.error || error?.message || 'Unknown error');
+      return;
+    }
+
+    closeModal();
+    load();
+  }
+
+  async function deleteUser(uid, email) {
+    if (!confirm('Delete user ' + email + '?\n\nThis cannot be undone — they will lose access immediately.')) return;
+    var { data, error } = await sb.functions.invoke('manage-users', { body: { action: 'delete', user_id: uid } });
+    if (error || (data && data.error)) { alert('Error: ' + (data?.error || error?.message)); return; }
+    load();
+  }
+
+  load();
+</script>
+</body>
+</html>

@@ -741,11 +741,17 @@
 
   var selectedPropertyId = null;
   var invServiceNames = [];
+  var invServiceTaxMap = {};
 
   async function loadServiceNames() {
     if (invServiceNames.length) return;
-    var { data } = await sb.from('Services').select('name').is('property_id', null);
-    invServiceNames = (data || []).map(function(r) { return r.name; }).filter(Boolean).sort();
+    var { data } = await sb.from('Services').select('name, sales_tax_id').is('property_id', null);
+    (data || []).forEach(function(r) {
+      if (!r.name) return;
+      invServiceNames.push(r.name);
+      if (r.sales_tax_id) invServiceTaxMap[r.name] = r.sales_tax_id;
+    });
+    invServiceNames.sort();
   }
 
   function openAddInvoiceModal(prefill) {
@@ -883,6 +889,16 @@
   });
 
   /* ── Line Items ── */
+  function onServiceNameSelect(sel) {
+    recalcLine(sel);
+    var taxId = invServiceTaxMap[sel.value];
+    if (!taxId) return;
+    var taxSel = sel.closest('tr').querySelector('.li-col-tax select');
+    if (!taxSel) return;
+    var match = Array.from(taxSel.options).find(function(o) { return o.dataset.taxId === taxId; });
+    if (match) { taxSel.value = match.value; recalcTotals(); }
+  }
+
   function addLineItem(name, description, date, rate, qty, taxRate) {
     var tbody = document.getElementById('line-items-body');
     var nameOpts = invServiceNames.map(function(n) {
@@ -892,7 +908,7 @@
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td class="li-col-name">' +
-        '<select oninput="recalcLine(this)">' +
+        '<select oninput="onServiceNameSelect(this)">' +
           '<option value=""></option>' + nameOpts +
         '</select>' +
         '<a class="li-class-link">Class:</a>' +
@@ -995,7 +1011,10 @@
     });
     var invTotal = subtotal + taxTotal;
     var invNumEl = document.getElementById('inv-number-hidden');
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
+      user_id:      uid,
       property_id:  selectedPropertyId || null,
       client_name:  clientName,
       address:      document.getElementById('inv-addr-display').textContent.trim() || null,
@@ -1043,20 +1062,23 @@
       groups[key].lines.push({ name: s.service || '', description: s.notes || '', date: s.scheduled_date || '', rate: parseFloat(s.amount) || 0, qty: 1, amount: parseFloat(s.amount) || 0 });
     });
 
+    var { data: genSession } = await sb.auth.getSession();
+    var genUid = genSession && genSession.session ? genSession.session.user.id : null;
     var inserts = Object.values(groups).map(function(g) {
       var total = g.lines.reduce(function(sum, l) { return sum + l.amount; }, 0);
       return {
-        property_id: g.property_id || null,
-        client_name: g.client_name || '',
-        address: g.address || null,
-        date: new Date().toISOString().split('T')[0],
-        inv_num: String(nextNum++),
-        inv_total: total,
-        inv_bal: total,
+        user_id:      genUid,
+        property_id:  g.property_id || null,
+        client_name:  g.client_name || '',
+        address:      g.address || null,
+        date:         new Date().toISOString().split('T')[0],
+        inv_num:      String(nextNum++),
+        inv_total:    total,
+        inv_bal:      total,
         service_lines: g.lines,
-        deleted: false,
-        past_due: false,
-        incomplete: false
+        deleted:      false,
+        past_due:     false,
+        incomplete:   false
       };
     });
 

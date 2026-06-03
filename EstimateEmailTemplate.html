@@ -195,13 +195,16 @@
 
   async function useTemplate(idx) {
     var t = templates[idx];
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var payload = {
+      user_id:    uid,
       key:        'estimate_email',
       subject:    t.subject,
       body:       t.html,
       updated_at: new Date().toISOString(),
     };
-    await sb.from('email_templates').upsert(payload, { onConflict: 'key' });
+    await sb.from('email_templates').upsert(payload, { onConflict: 'user_id,key' });
     if (window.parent && window.parent.loadPage) {
       window.parent.loadPage('estimateemailinfo');
     }
