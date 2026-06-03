@@ -1681,7 +1681,7 @@
       // Expand
       panel.dataset.collapsed = '0';
       panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = ''; });
-      if (mapEl) { mapEl.style.height = '580px'; }
+      if (mapEl) { mapEl.style.height = '500px'; }
       btn.innerHTML = '&#9650;';
       btn.title = 'Collapse';
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
@@ -1690,7 +1690,7 @@
       panel.dataset.collapsed = '1';
       panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = 'none'; });
       panel.querySelector('.measure-hdr-title').style.display = '';
-      if (mapEl) { mapEl.style.height = '700px'; }
+      if (mapEl) { mapEl.style.height = 'calc(100vh - 200px)'; }
       btn.innerHTML = '&#9660;';
       btn.title = 'Expand';
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
@@ -1706,9 +1706,9 @@
       return;
     }
 
-    /* Switch to side-by-side layout */
+    /* Stack panel on top, map below */
     var container = document.getElementById('map-measure-container');
-    container.style.flexDirection = 'row';
+    container.style.flexDirection = 'column';
     container.style.alignItems    = 'stretch';
     container.style.borderRadius  = '4px';
     container.style.overflow      = 'hidden';
@@ -1718,8 +1718,8 @@
     var mapEl = document.getElementById('prop-map');
     mapEl.style.display = 'block';
     mapEl.style.flex    = '1';
-    mapEl.style.width   = 'auto';
-    mapEl.style.height  = '580px';
+    mapEl.style.width   = '100%';
+    mapEl.style.height  = '500px';
     mapEl.style.borderRadius = '0';
     document.getElementById('map-toggle-btn').textContent = 'Hide Map';
 
