@@ -1348,17 +1348,28 @@
       frame.addEventListener('load', function() {
         try {
           var win = frame.contentWindow;
+          var doc = frame.contentDocument;
           var iLastY = 0;
-          win.addEventListener('scroll', function() {
-            var y = win.scrollY || win.pageYOffset || 0;
+          function iOnScroll(y) {
             if (window.innerWidth > 768) return;
             if (y > iLastY && y > 40) {
               mobileBar.classList.add('hidden');
+              if (mainEl) mainEl.style.paddingTop = '0';
             } else {
               mobileBar.classList.remove('hidden');
+              if (mainEl) mainEl.style.paddingTop = '52px';
             }
             iLastY = y;
-          });
+          }
+          // Listen on window scroll
+          win.addEventListener('scroll', function() { iOnScroll(win.scrollY || 0); });
+          // Also listen on any scrollable div inside the page
+          if (doc) {
+            var scrollEls = doc.querySelectorAll('.table-container, .content-area, .scroll-area, body');
+            scrollEls.forEach(function(el) {
+              el.addEventListener('scroll', function() { iOnScroll(el.scrollTop || 0); });
+            });
+          }
         } catch(e) {}
       });
     }
