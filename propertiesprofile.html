@@ -1680,23 +1680,17 @@
     if (collapsed) {
       // Expand
       panel.dataset.collapsed = '0';
-      panel.style.width = '380px';
-      panel.style.overflow = 'auto';
       panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = ''; });
-      panel.querySelector('.measure-hdr-title').style.display = '';
-      if (mapEl) mapEl.style.flex = '1';
-      btn.innerHTML = '&#9664;';
+      if (mapEl) { mapEl.style.height = '580px'; }
+      btn.innerHTML = '&#9650;';
       btn.title = 'Collapse';
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
     } else {
-      // Collapse
+      // Collapse — hide body, map fills space
       panel.dataset.collapsed = '1';
-      panel.style.width = '32px';
-      panel.style.overflow = 'hidden';
       panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = 'none'; });
-      panel.querySelector('.measure-hdr-title').style.display = 'none';
-      if (mapEl) mapEl.style.flex = '1';
-      btn.innerHTML = '&#9654;';
+      if (mapEl) { mapEl.style.height = '700px'; }
+      btn.innerHTML = '&#9660;';
       btn.title = 'Expand';
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
     }
