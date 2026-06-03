@@ -2,6 +2,24 @@
 
 @media (max-width: 768px) {
 
+  #prop-map {
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: 220px !important;
+    box-sizing: border-box;
+  }
+
+  #map-measure-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow: hidden;
+  }
+
+  #measure-panel {
+    width: calc(100% - 96px) !important;
+    max-width: calc(100vw - 96px) !important;
+  }
+
   /* Fix viewport height — iOS Safari cuts off content with address bar */
   body {
     height: 100dvh !important;
