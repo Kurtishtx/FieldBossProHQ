@@ -1672,16 +1672,34 @@
   }
 
   function toggleMeasurePanel() {
-    var body = document.getElementById('measure-panel').querySelector('.measure-body');
-    var drawBtns = document.querySelector('.measure-draw-btns');
-    var hint = document.querySelector('.measure-hdr span[style*="11px"]');
+    var panel = document.getElementById('measure-panel');
+    var mapEl = document.getElementById('prop-map');
     var btn = document.getElementById('measure-collapse-btn');
-    var collapsed = body.style.display === 'none';
-    body.style.display = collapsed ? '' : 'none';
-    if (drawBtns) drawBtns.style.display = collapsed ? '' : 'none';
-    if (hint) hint.style.display = collapsed ? '' : 'none';
-    btn.innerHTML = collapsed ? '&#9650;' : '&#9660;';
-    btn.title = collapsed ? 'Collapse' : 'Expand';
+    var collapsed = panel.dataset.collapsed === '1';
+
+    if (collapsed) {
+      // Expand
+      panel.dataset.collapsed = '0';
+      panel.style.width = '380px';
+      panel.style.overflow = 'auto';
+      panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = ''; });
+      panel.querySelector('.measure-hdr-title').style.display = '';
+      if (mapEl) mapEl.style.flex = '1';
+      btn.innerHTML = '&#9664;';
+      btn.title = 'Collapse';
+      setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
+    } else {
+      // Collapse
+      panel.dataset.collapsed = '1';
+      panel.style.width = '32px';
+      panel.style.overflow = 'hidden';
+      panel.querySelectorAll('.measure-body, .measure-draw-btns, .measure-hdr span').forEach(function(el) { el.style.display = 'none'; });
+      panel.querySelector('.measure-hdr-title').style.display = 'none';
+      if (mapEl) mapEl.style.flex = '1';
+      btn.innerHTML = '&#9654;';
+      btn.title = 'Expand';
+      setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
+    }
   }
 
   function openMeasureMode() {
