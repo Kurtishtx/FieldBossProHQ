@@ -15,32 +15,32 @@
     .login-container {
       background: #fff;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.18);
-      width: 320px;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      width: 440px;
       overflow: hidden;
     }
     .login-container h1 {
       background: #1a2b3c;
       color: #ffffff;
-      font-size: 22px;
+      font-size: 28px;
       font-weight: 800;
       text-align: center;
-      padding: 18px 0 16px;
+      padding: 28px 0 24px;
       letter-spacing: 1px;
     }
     .login-fields {
-      padding: 24px 24px 20px;
+      padding: 36px 36px 30px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
     .login-container input {
       width: 100%;
       border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 9px 11px;
-      font-size: 14px;
+      border-radius: 4px;
+      padding: 13px 14px;
+      font-size: 16px;
       font-family: inherit;
       color: #333;
     }
@@ -54,22 +54,26 @@
       background: #e07820;
       color: #fff;
       border: none;
-      border-radius: 4px;
-      padding: 10px;
-      font-size: 15px;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 17px;
       font-family: inherit;
       font-weight: 700;
       cursor: pointer;
       margin-top: 4px;
     }
     .login-container button:hover { background: #c96a15; }
+    @media (max-width: 768px) {
+      .login-container { width: 92vw; }
+      .login-fields { padding: 28px 24px 24px; }
+    }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
   <div class="login-container">
     <h1>
-      <span style="display:block;font-size:28px;margin-bottom:4px">&#127807;</span>
+      <span style="display:block;font-size:40px;margin-bottom:6px">&#127807;</span>
       SprayBossPro
     </h1>
     <div class="login-fields">
