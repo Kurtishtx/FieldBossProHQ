@@ -32,7 +32,7 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ skipped: "alert disabled or no message" }), { headers: cors });
     }
 
-    // Load Twilio credentials
+    // Load voip.ms credentials
     const { data: twilio } = await supabase
       .from("twilio_settings")
       .select("account_sid, auth_token, phone_number")
@@ -40,7 +40,7 @@ serve(async (req: Request) => {
       .single();
 
     if (!twilio?.account_sid || !twilio?.auth_token || !twilio?.phone_number) {
-      return new Response(JSON.stringify({ error: "Twilio not configured for this account" }), { headers: cors });
+      return new Response(JSON.stringify({ error: "voip.ms not configured for this account" }), { headers: cors });
     }
 
     // Load company info
@@ -154,21 +154,15 @@ serve(async (req: Request) => {
       sub("companywebsite", company?.website || "");
       sub("companyaddress", company?.phys_address || company?.address || "");
 
-      // Send SMS via Twilio
-      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio.account_sid}/Messages.json`;
-      const body = new URLSearchParams({ To: formattedPhone, From: twilio.phone_number, Body: msg });
+      // Send SMS via voip.ms
+      const toClean = formattedPhone.replace(/^\+/, "");
+      const didClean = twilio.phone_number.replace(/\D/g, "");
+      const voipUrl = `https://voip.ms/api/v1/rest.php?api_username=${encodeURIComponent(twilio.account_sid)}&api_password=${encodeURIComponent(twilio.auth_token)}&method=sendSMS&did=${didClean}&dst=${toClean}&message=${encodeURIComponent(msg)}`;
 
-      const twilioRes = await fetch(twilioUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + btoa(`${twilio.account_sid}:${twilio.auth_token}`),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: body.toString(),
-      });
-
-      const twilioJson = await twilioRes.json();
-      results.push({ to: formattedPhone, sid: twilioJson.sid, status: twilioJson.status, error: twilioJson.message });
+      const voipRes = await fetch(voipUrl);
+      const voipJson = await voipRes.json();
+      const success = voipJson.status === "success";
+      results.push({ to: formattedPhone, status: voipJson.status, error: success ? null : voipJson.status });
 
       // Log message to sms_messages table
       await supabase.from("sms_messages").insert({
@@ -178,7 +172,7 @@ serve(async (req: Request) => {
         phone_from: twilio.phone_number,
         body: msg,
         direction: "outbound",
-        twilio_sid: twilioJson.sid || null,
+        twilio_sid: null,
         alert_type,
         sent_at: new Date().toISOString(),
       });

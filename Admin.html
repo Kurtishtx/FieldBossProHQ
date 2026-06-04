@@ -89,7 +89,7 @@
 
 <div class="page-hdr">
   <h1>&#128737; Admin Panel</h1>
-  <p>Manage Twilio credentials per customer account.</p>
+  <p>Manage voip.ms credentials per customer account.</p>
 </div>
 
 <div id="setup-notice" class="notice" style="display:none">
@@ -109,9 +109,9 @@
   <thead>
     <tr>
       <th style="width:22%">Account</th>
-      <th style="width:22%">Twilio Account SID</th>
-      <th style="width:22%">Twilio Auth Token</th>
-      <th style="width:18%">Twilio Phone #</th>
+      <th style="width:22%">voip.ms Username</th>
+      <th style="width:22%">voip.ms API Password</th>
+      <th style="width:18%">DID Number</th>
       <th style="width:16%"></th>
     </tr>
   </thead>
@@ -158,9 +158,9 @@
         '<td>' +
           '<div class="user-email">' + escHtml(u.email) + '</div>' +
         '</td>' +
-        '<td><input class="twilio-input" data-field="account_sid" placeholder="ACxxxxxxxxxxxxxxx" value="' + escHtml(tw.account_sid || '') + '"/></td>' +
-        '<td><input class="twilio-input" data-field="auth_token" placeholder="Auth Token" value="' + escHtml(tw.auth_token || '') + '"/></td>' +
-        '<td><input class="twilio-input" data-field="phone_number" placeholder="+15551234567" value="' + escHtml(tw.phone_number || '') + '"/></td>' +
+        '<td><input class="twilio-input" data-field="account_sid" placeholder="yourname@email.com" value="' + escHtml(tw.account_sid || '') + '"/></td>' +
+        '<td><input class="twilio-input" data-field="auth_token" placeholder="API Password" value="' + escHtml(tw.auth_token || '') + '"/></td>' +
+        '<td><input class="twilio-input" data-field="phone_number" placeholder="15551234567" value="' + escHtml(tw.phone_number || '') + '"/></td>' +
         '<td><button class="save-btn" onclick="saveRow(this, \'' + u.user_id + '\')">Save</button></td>';
       tbody.appendChild(tr);
     });
