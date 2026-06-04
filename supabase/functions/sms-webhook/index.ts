@@ -3,20 +3,19 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      headers: { "Access-Control-Allow-Origin": "*" },
-    });
+    return new Response("ok", { headers: { "Access-Control-Allow-Origin": "*" } });
   }
 
   try {
-    const formData = await req.formData();
-    const from    = formData.get("From")?.toString() || "";
-    const to      = formData.get("To")?.toString() || "";
-    const body    = formData.get("Body")?.toString() || "";
-    const sid     = formData.get("MessageSid")?.toString() || null;
+    const payload = await req.json();
+
+    // voip.ms JSON webhook format
+    const from = (payload.from || payload.From || "").toString();
+    const to   = (payload.to   || payload.To   || "").toString();
+    const body = (payload.message || payload.Body || "").toString();
 
     if (!from || !to || !body) {
-      return twiml();
+      return new Response("ok", { status: 200 });
     }
 
     const supabase = createClient(
@@ -24,20 +23,21 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find which user owns this Twilio number
-    const { data: twilioRow } = await supabase
+    // Find which user owns this DID number
+    const didClean = to.replace(/\D/g, "");
+    const { data: voipRow } = await supabase
       .from("twilio_settings")
       .select("user_id")
-      .eq("phone_number", to)
+      .or(`phone_number.eq.${to},phone_number.eq.${didClean}`)
       .single();
 
-    if (!twilioRow?.user_id) {
-      return twiml();
+    if (!voipRow?.user_id) {
+      return new Response("ok", { status: 200 });
     }
 
-    const userId = twilioRow.user_id;
+    const userId = voipRow.user_id;
 
-    // Try to find a client name by matching phone number
+    // Try to find client name by phone number
     const digitsOnly = from.replace(/\D/g, "");
     const variants = [from, digitsOnly, "+" + digitsOnly];
 
@@ -56,26 +56,21 @@ serve(async (req: Request) => {
     }
 
     await supabase.from("sms_messages").insert({
-      user_id:    userId,
+      user_id:     userId,
       client_name: clientName || from,
-      phone_from: from,
-      phone_to:   to,
+      phone_from:  from,
+      phone_to:    to,
       body,
-      direction:  "inbound",
-      twilio_sid: sid,
-      alert_type: null,
-      sent_at:    new Date().toISOString(),
+      direction:   "inbound",
+      twilio_sid:  null,
+      alert_type:  null,
+      sent_at:     new Date().toISOString(),
     });
 
-    return twiml();
+    return new Response("ok", { status: 200 });
+
   } catch (err) {
     console.error(err);
-    return twiml();
+    return new Response("ok", { status: 200 });
   }
 });
-
-function twiml() {
-  return new Response("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>", {
-    headers: { "Content-Type": "text/xml" },
-  });
-}
