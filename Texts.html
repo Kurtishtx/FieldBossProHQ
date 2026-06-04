@@ -377,12 +377,15 @@
     }
 
     // Reload messages and re-render
+    var savedPhone = activePhone;
     var { data: msgs } = await sb.from('sms_messages').select('*').eq('user_id', uid).order('sent_at', { ascending: true });
     allMessages = msgs || [];
     buildConversations();
+    activePhone = savedPhone;
     renderConvoList();
-    renderThread(activePhone);
-    input.disabled = false;
+    renderThread(savedPhone);
+    var newInput = document.getElementById('send-input');
+    if (newInput) newInput.disabled = false;
   }
 
   function escHtml(s) {
