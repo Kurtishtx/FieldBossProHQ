@@ -20,14 +20,14 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data: voip } = await supabase
+    const { data: voip, error: voipErr } = await supabase
       .from("twilio_settings")
       .select("account_sid, auth_token, phone_number")
       .eq("user_id", user_id)
       .single();
 
     if (!voip?.account_sid || !voip?.auth_token || !voip?.phone_number) {
-      return new Response(JSON.stringify({ error: "voip.ms not configured for this account", user_id_received: user_id }), { status: 400, headers: cors });
+      return new Response(JSON.stringify({ error: "voip.ms not configured for this account", user_id_received: user_id, db_error: voipErr?.message }), { status: 400, headers: cors });
     }
 
     const toClean  = to.replace(/^\+/, "");
