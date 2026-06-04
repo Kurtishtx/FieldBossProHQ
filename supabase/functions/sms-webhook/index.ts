@@ -7,41 +7,34 @@ serve(async (req: Request) => {
   }
 
   try {
-    const method = req.method;
-    const urlObj = new URL(req.url);
-    const contentType = req.headers.get("content-type") || "";
     const rawBody = await req.text();
+    const urlObj  = new URL(req.url);
 
-    console.log("VOIPMS WEBHOOK HIT");
-    console.log("METHOD:", method);
-    console.log("CONTENT-TYPE:", contentType);
-    console.log("RAW BODY:", rawBody);
-    console.log("QUERY PARAMS:", urlObj.search);
-
+    // Parse from all possible sources
     let from = "", to = "", body = "";
 
-    // Try URL params first (GET callback)
-    from = urlObj.searchParams.get("from") || urlObj.searchParams.get("From") || "";
-    to   = urlObj.searchParams.get("to")   || urlObj.searchParams.get("To")   || "";
-    body = urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
+    // 1. Try form-encoded body (most likely voip.ms format)
+    const params = new URLSearchParams(rawBody);
+    from = params.get("from") || params.get("From") || "";
+    to   = params.get("to")   || params.get("To")   || "";
+    body = params.get("message") || params.get("Body") || "";
 
-    // Try JSON body
-    if (!from && rawBody) {
+    // 2. Try JSON body
+    if (!from) {
       try {
         const payload = JSON.parse(rawBody);
-        from = from || (payload.from || payload.From || "").toString();
-        to   = to   || (payload.to   || payload.To   || "").toString();
-        body = body || (payload.message || payload.Body || "").toString();
-      } catch (_) {
-        // Try form-encoded
-        const params = new URLSearchParams(rawBody);
-        from = from || params.get("from") || params.get("From") || "";
-        to   = to   || params.get("to")   || params.get("To")   || "";
-        body = body || params.get("message") || params.get("Body") || "";
-      }
+        from = (payload.from || payload.From || "").toString();
+        to   = (payload.to   || payload.To   || "").toString();
+        body = (payload.message || payload.Body || "").toString();
+      } catch (_) {}
     }
 
-    console.log("PARSED from:", from, "to:", to, "body:", body);
+    // 3. Try URL query params (GET callback)
+    if (!from) {
+      from = urlObj.searchParams.get("from") || urlObj.searchParams.get("From") || "";
+      to   = urlObj.searchParams.get("to")   || urlObj.searchParams.get("To")   || "";
+      body = urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
+    }
 
     if (!from || !body) {
       return new Response("ok", { status: 200 });
@@ -52,7 +45,6 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find which user owns this DID number
     const didClean = to.replace(/\D/g, "");
     const { data: voipRow } = await supabase
       .from("twilio_settings")
@@ -60,17 +52,13 @@ serve(async (req: Request) => {
       .or(`phone_number.eq.${to},phone_number.eq.${didClean}`)
       .single();
 
-    if (!voipRow?.user_id) {
-      console.log("No user found for DID:", to);
-      return new Response("ok", { status: 200 });
-    }
+    if (!voipRow?.user_id) return new Response("ok", { status: 200 });
 
     const userId = voipRow.user_id;
-
-    // Try to find client name by phone number
     const digitsOnly = from.replace(/\D/g, "");
     const variants = [from, digitsOnly, "+" + digitsOnly];
     let clientName = "";
+
     for (const v of variants) {
       const { data: cl } = await supabase
         .from("Clients")
@@ -78,10 +66,7 @@ serve(async (req: Request) => {
         .or(`phone.eq.${v},mobile.eq.${v},cell.eq.${v}`)
         .limit(1)
         .single();
-      if (cl) {
-        clientName = (cl.first_name + " " + cl.last_name).trim();
-        break;
-      }
+      if (cl) { clientName = (cl.first_name + " " + cl.last_name).trim(); break; }
     }
 
     await supabase.from("sms_messages").insert({
@@ -96,7 +81,6 @@ serve(async (req: Request) => {
       sent_at:     new Date().toISOString(),
     });
 
-    console.log("SMS saved successfully");
     return new Response("ok", { status: 200 });
 
   } catch (err) {
