@@ -16,11 +16,33 @@ serve(async (req: Request) => {
       to   = url.searchParams.get("to")   || url.searchParams.get("To")   || "";
       body = url.searchParams.get("message") || url.searchParams.get("Body") || "";
     } else {
-      // Webhook URL (POST JSON) format
-      const payload = await req.json();
-      from = (payload.from || payload.From || "").toString();
-      to   = (payload.to   || payload.To   || "").toString();
-      body = (payload.message || payload.Body || "").toString();
+      const contentType = req.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const payload = await req.json();
+        from = (payload.from || payload.From || "").toString();
+        to   = (payload.to   || payload.To   || "").toString();
+        body = (payload.message || payload.Body || "").toString();
+      } else if (contentType.includes("application/x-www-form-urlencoded")) {
+        const text = await req.text();
+        const params = new URLSearchParams(text);
+        from = params.get("from") || params.get("From") || "";
+        to   = params.get("to")   || params.get("To")   || "";
+        body = params.get("message") || params.get("Body") || "";
+      } else {
+        // Try JSON, fall back to text params
+        const text = await req.text();
+        try {
+          const payload = JSON.parse(text);
+          from = (payload.from || payload.From || "").toString();
+          to   = (payload.to   || payload.To   || "").toString();
+          body = (payload.message || payload.Body || "").toString();
+        } catch {
+          const params = new URLSearchParams(text);
+          from = params.get("from") || params.get("From") || "";
+          to   = params.get("to")   || params.get("To")   || "";
+          body = params.get("message") || params.get("Body") || "";
+        }
+      }
     }
 
     if (!from || !to || !body) {
