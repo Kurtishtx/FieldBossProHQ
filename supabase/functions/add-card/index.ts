@@ -1,52 +1,65 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const STRIPE_SECRET_KEY = "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";
-const SUPABASE_URL      = "https://knjdbgroiyhvqwrpqzcx.supabase.co";
-const SUPABASE_KEY      = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CORS = {
   "Access-Control-Allow-Origin":  "*",
   "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-client-info",
 };
 
-function stripePost(path: string, params: Record<string, string>) {
-  const body = new URLSearchParams(params).toString();
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
+
+function stripePost(secretKey: string, path: string, params: Record<string, string>) {
   return fetch("https://api.stripe.com/v1" + path, {
     method: "POST",
     headers: {
-      Authorization: "Bearer " + STRIPE_SECRET_KEY,
+      Authorization: "Bearer " + secretKey,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body,
+    body: new URLSearchParams(params).toString(),
   }).then((r) => r.json());
 }
 
-function stripeGet(path: string) {
+function stripeGet(secretKey: string, path: string) {
   return fetch("https://api.stripe.com/v1" + path, {
-    headers: { Authorization: "Bearer " + STRIPE_SECRET_KEY },
+    headers: { Authorization: "Bearer " + secretKey },
   }).then((r) => r.json());
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: CORS });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
     const body = await req.json();
 
-    /* ── DELETE: remove card from Stripe (best-effort) ── */
+    // Load company Stripe secret key
+    const { data: co } = await supabase
+      .from("company_info")
+      .select("stripe_secret_key")
+      .limit(1)
+      .single();
+
+    const secretKey = co?.stripe_secret_key;
+    if (!secretKey) {
+      return new Response(
+        JSON.stringify({ error: "Stripe not configured. Add your Stripe secret key in Company Info → Payments." }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
+      );
+    }
+
+    /* ── DELETE: remove card from Stripe ── */
     if (req.method === "DELETE") {
       const { stripeCustomerId } = body;
       if (stripeCustomerId) {
-        const customer = await stripeGet("/customers/" + stripeCustomerId + "?expand[]=sources");
         const pmList = await fetch(
           "https://api.stripe.com/v1/payment_methods?customer=" + stripeCustomerId + "&type=card",
-          { headers: { Authorization: "Bearer " + STRIPE_SECRET_KEY } }
+          { headers: { Authorization: "Bearer " + secretKey } }
         ).then((r) => r.json());
         for (const pm of (pmList.data || [])) {
-          await stripePost("/payment_methods/" + pm.id + "/detach", {});
+          await stripePost(secretKey, "/payment_methods/" + pm.id + "/detach", {});
         }
       }
       return new Response(JSON.stringify({ ok: true }), {
@@ -57,27 +70,23 @@ serve(async (req) => {
     /* ── POST: attach card to Stripe customer ── */
     const { paymentMethodId, stripeCustomerId, name, zip, clientId } = body;
 
-    // Create customer if none exists
     let customerId = stripeCustomerId;
     if (!customerId) {
-      const customer = await stripePost("/customers", { name, "metadata[client_id]": clientId });
+      const customer = await stripePost(secretKey, "/customers", { name, "metadata[client_id]": clientId });
       if (customer.error) throw new Error(customer.error.message);
       customerId = customer.id;
     }
 
-    // Attach payment method
-    const attach = await stripePost("/payment_methods/" + paymentMethodId + "/attach", {
+    const attach = await stripePost(secretKey, "/payment_methods/" + paymentMethodId + "/attach", {
       customer: customerId,
     });
     if (attach.error) throw new Error(attach.error.message);
 
-    // Set as default payment method
-    await stripePost("/customers/" + customerId, {
+    await stripePost(secretKey, "/customers/" + customerId, {
       "invoice_settings[default_payment_method]": paymentMethodId,
     });
 
-    // Get card details
-    const pm = await stripeGet("/payment_methods/" + paymentMethodId);
+    const pm = await stripeGet(secretKey, "/payment_methods/" + paymentMethodId);
     const card = pm.card;
 
     return new Response(
