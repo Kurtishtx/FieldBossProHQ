@@ -24,8 +24,6 @@
     flex: 1 !important;
     min-width: 0 !important;
     height: 300px !important;
-    margin-left: 20px !important;
-    margin-right: 20px !important;
   }
 
   /* Fix viewport height — iOS Safari cuts off content with address bar */
