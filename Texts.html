@@ -271,8 +271,8 @@
     }
     list.innerHTML = '';
     conversations.forEach(function(c) {
-      var lastMsg = c.messages[c.messages.length - 1];
-      var preview = (lastMsg.body || '').substring(0, 50);
+      var lastMsg = c.messages.length ? c.messages[c.messages.length - 1] : null;
+      var preview = lastMsg ? (lastMsg.body || '').substring(0, 50) : '';
       var div = document.createElement('div');
       div.className = 'convo-item' + (c.phone === activePhone ? ' active' : '');
       div.onclick = function() { selectConvo(c.phone); };
