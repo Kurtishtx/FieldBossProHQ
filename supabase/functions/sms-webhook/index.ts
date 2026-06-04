@@ -7,12 +7,21 @@ serve(async (req: Request) => {
   }
 
   try {
-    const payload = await req.json();
+    let from = "", to = "", body = "";
 
-    // voip.ms JSON webhook format
-    const from = (payload.from || payload.From || "").toString();
-    const to   = (payload.to   || payload.To   || "").toString();
-    const body = (payload.message || payload.Body || "").toString();
+    if (req.method === "GET") {
+      // URL Callback (GET) format
+      const url = new URL(req.url);
+      from = url.searchParams.get("from") || url.searchParams.get("From") || "";
+      to   = url.searchParams.get("to")   || url.searchParams.get("To")   || "";
+      body = url.searchParams.get("message") || url.searchParams.get("Body") || "";
+    } else {
+      // Webhook URL (POST JSON) format
+      const payload = await req.json();
+      from = (payload.from || payload.From || "").toString();
+      to   = (payload.to   || payload.To   || "").toString();
+      body = (payload.message || payload.Body || "").toString();
+    }
 
     if (!from || !to || !body) {
       return new Response("ok", { status: 200 });
