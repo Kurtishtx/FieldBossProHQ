@@ -122,6 +122,21 @@
     .msg-thread::-webkit-scrollbar { width: 6px; }
     .msg-thread::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
+    .send-box {
+      display: flex; gap: 8px; padding: 12px 16px;
+      border-top: 1px solid #e0e0e0; background: #fff;
+    }
+    .send-box input {
+      flex: 1; border: 1px solid #ccc; border-radius: 20px;
+      padding: 10px 16px; font-size: 14px; font-family: inherit; outline: none;
+    }
+    .send-box input:focus { border-color: #e07820; }
+    .send-box button {
+      background: #e07820; color: #fff; border: none; border-radius: 20px;
+      padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .send-box button:hover { background: #c96a15; }
+
     .date-sep {
       display: flex; align-items: center; gap: 14px;
       color: #aaa; font-size: 12px; margin: 18px 0 14px;
@@ -194,6 +209,10 @@
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) return;
 
+    var params = new URLSearchParams(window.location.search);
+    var prePhone = params.get('phone');
+    var preName  = params.get('name') || '';
+
     var { data: msgs } = await sb.from('sms_messages')
       .select('*')
       .eq('user_id', uid)
@@ -201,6 +220,17 @@
 
     allMessages = msgs || [];
     buildConversations();
+
+    if (prePhone) {
+      var formatted = prePhone.length === 10 ? '+1' + prePhone : prePhone.startsWith('+') ? prePhone : '+' + prePhone;
+      // Add a new conversation entry if this client has no prior messages
+      var existing = conversations.find(function(c) { return c.phone === formatted || c.phone === prePhone; });
+      if (!existing) {
+        conversations.unshift({ phone: formatted, client_name: preName || formatted, messages: [] });
+      }
+      activePhone = existing ? existing.phone : formatted;
+    }
+
     renderConvoList();
     if (activePhone) renderThread(activePhone);
   }
@@ -276,7 +306,11 @@
           '<div class="thread-phone">' + escHtml(phone) + '</div>' +
         '</div>' +
       '</div>' +
-      '<div class="msg-thread" id="msg-thread"></div>';
+      '<div class="msg-thread" id="msg-thread"></div>' +
+      '<div class="send-box">' +
+        '<input type="text" id="send-input" placeholder="Send a message to ' + escHtml(formatDisplayName(convo.client_name)) + '" onkeydown="if(event.key===\'Enter\')sendManualText()"/>' +
+        '<button onclick="sendManualText()">Send</button>' +
+      '</div>';
 
     var thread = document.getElementById('msg-thread');
     var lastDate = null;
@@ -312,6 +346,48 @@
     });
 
     thread.scrollTop = thread.scrollHeight;
+  }
+
+  async function sendManualText() {
+    var input = document.getElementById('send-input');
+    var msg = (input ? input.value : '').trim();
+    if (!msg || !activePhone) return;
+    input.value = '';
+    input.disabled = true;
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { input.disabled = false; return; }
+
+    var { data: voip } = await sb.from('twilio_settings').select('account_sid, auth_token, phone_number').eq('user_id', uid).single();
+    if (!voip || !voip.account_sid) { alert('voip.ms not configured in Admin panel.'); input.disabled = false; return; }
+
+    var toClean = activePhone.replace(/^\+/, '');
+    var didClean = voip.phone_number.replace(/\D/g, '');
+    var url = 'https://voip.ms/api/v1/rest.php?api_username=' + encodeURIComponent(voip.account_sid) +
+      '&api_password=' + encodeURIComponent(voip.auth_token) +
+      '&method=sendSMS&did=' + didClean + '&dst=' + toClean + '&message=' + encodeURIComponent(msg);
+
+    var res = await fetch(url);
+    var json = await res.json();
+
+    var convo = conversations.find(function(c) { return c.phone === activePhone; });
+    var clientName = convo ? convo.client_name : activePhone;
+
+    await sb.from('sms_messages').insert({
+      user_id: uid, client_name: clientName,
+      phone_to: activePhone, phone_from: voip.phone_number,
+      body: msg, direction: 'outbound', twilio_sid: null,
+      sent_at: new Date().toISOString()
+    });
+
+    // Reload messages and re-render
+    var { data: msgs } = await sb.from('sms_messages').select('*').eq('user_id', uid).order('sent_at', { ascending: true });
+    allMessages = msgs || [];
+    buildConversations();
+    renderConvoList();
+    renderThread(activePhone);
+    input.disabled = false;
   }
 
   function escHtml(s) {

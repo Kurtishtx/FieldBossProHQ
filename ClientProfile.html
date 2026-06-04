@@ -446,6 +446,7 @@
       </div>
       <div class="dropdown-menu" id="more-menu">
         <div class="dd-title">More Options</div>
+        <a href="#" onclick="sendText(event)">Send Text</a>
         <a href="#" onclick="addProperty(event)">Add Property</a>
         <a href="#">Account Statement</a>
         <a href="#">Customer Balance Report</a>
@@ -759,6 +760,17 @@
   function addProperty(e) {
     if (e) e.preventDefault();
     openPropertyModal();
+  }
+
+  function sendText(e) {
+    if (e) e.preventDefault();
+    var phone = (client && (client.cell || client.phone || '')) .replace(/\D/g, '');
+    var dest = 'texts?phone=' + encodeURIComponent(phone) + '&name=' + encodeURIComponent((client.first_name || '') + ' ' + (client.last_name || ''));
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage(dest);
+    } else {
+      window.location.href = 'Texts.html?phone=' + encodeURIComponent(phone) + '&name=' + encodeURIComponent((client.first_name || '') + ' ' + (client.last_name || ''));
+    }
   }
 
   function openPropertyModal(id) {
