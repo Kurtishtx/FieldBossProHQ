@@ -27,7 +27,7 @@ serve(async (req: Request) => {
       .single();
 
     if (!voip?.account_sid || !voip?.auth_token || !voip?.phone_number) {
-      return new Response(JSON.stringify({ error: "voip.ms not configured for this account" }), { status: 400, headers: cors });
+      return new Response(JSON.stringify({ error: "voip.ms not configured for this account", user_id_received: user_id }), { status: 400, headers: cors });
     }
 
     const toClean  = to.replace(/^\+/, "");

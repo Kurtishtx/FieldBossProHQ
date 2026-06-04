@@ -366,7 +366,7 @@
       body: { to: activePhone, message: msg, client_name: clientName, user_id: uid }
     });
 
-    if (res.error) { alert('Failed to send: ' + res.error.message); input.disabled = false; return; }
+    if (res.error || (res.data && res.data.error)) { alert('Failed: ' + (res.error ? res.error.message : JSON.stringify(res.data))); input.disabled = false; return; }
 
     // Reload messages and re-render
     var { data: msgs } = await sb.from('sms_messages').select('*').eq('user_id', uid).order('sent_at', { ascending: true });
