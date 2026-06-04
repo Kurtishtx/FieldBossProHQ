@@ -29,3 +29,33 @@ async function login() {
 
   window.location.href = "dashboard.html";
 }
+
+function showForgot(e) {
+  e.preventDefault();
+  var modal = document.getElementById('forgot-modal');
+  modal.style.display = 'flex';
+  document.getElementById('forgot-email').value = document.getElementById('email').value || '';
+  document.getElementById('forgot-msg').style.display = 'none';
+}
+
+function hideForgot(e) {
+  if (e) e.preventDefault();
+  document.getElementById('forgot-modal').style.display = 'none';
+}
+
+async function sendReset() {
+  var email = document.getElementById('forgot-email').value.trim();
+  if (!email) { alert('Please enter your email.'); return; }
+  var { error } = await client.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/reset-password.html'
+  });
+  var msg = document.getElementById('forgot-msg');
+  msg.style.display = 'block';
+  if (error) {
+    msg.style.color = '#cc2222';
+    msg.textContent = error.message;
+  } else {
+    msg.style.color = '#2a7a2a';
+    msg.textContent = 'Check your email for a reset link!';
+  }
+}
