@@ -359,27 +359,14 @@
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) { input.disabled = false; return; }
 
-    var { data: voip } = await sb.from('twilio_settings').select('account_sid, auth_token, phone_number').eq('user_id', uid).single();
-    if (!voip || !voip.account_sid) { alert('voip.ms not configured in Admin panel.'); input.disabled = false; return; }
-
-    var toClean = activePhone.replace(/^\+/, '');
-    var didClean = voip.phone_number.replace(/\D/g, '');
-    var url = 'https://voip.ms/api/v1/rest.php?api_username=' + encodeURIComponent(voip.account_sid) +
-      '&api_password=' + encodeURIComponent(voip.auth_token) +
-      '&method=sendSMS&did=' + didClean + '&dst=' + toClean + '&message=' + encodeURIComponent(msg);
-
-    var res = await fetch(url);
-    var json = await res.json();
-
     var convo = conversations.find(function(c) { return c.phone === activePhone; });
     var clientName = convo ? convo.client_name : activePhone;
 
-    await sb.from('sms_messages').insert({
-      user_id: uid, client_name: clientName,
-      phone_to: activePhone, phone_from: voip.phone_number,
-      body: msg, direction: 'outbound', twilio_sid: null,
-      sent_at: new Date().toISOString()
+    var res = await sb.functions.invoke('send-manual-sms', {
+      body: { to: activePhone, message: msg, client_name: clientName, user_id: uid }
     });
+
+    if (res.error) { alert('Failed to send: ' + res.error.message); input.disabled = false; return; }
 
     // Reload messages and re-render
     var { data: msgs } = await sb.from('sms_messages').select('*').eq('user_id', uid).order('sent_at', { ascending: true });
