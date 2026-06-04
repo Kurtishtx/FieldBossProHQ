@@ -7,45 +7,43 @@ serve(async (req: Request) => {
   }
 
   try {
+    const method = req.method;
+    const urlObj = new URL(req.url);
+    const contentType = req.headers.get("content-type") || "";
+    const rawBody = await req.text();
+
+    console.log("VOIPMS WEBHOOK HIT");
+    console.log("METHOD:", method);
+    console.log("CONTENT-TYPE:", contentType);
+    console.log("RAW BODY:", rawBody);
+    console.log("QUERY PARAMS:", urlObj.search);
+
     let from = "", to = "", body = "";
 
-    if (req.method === "GET") {
-      // URL Callback (GET) format
-      const url = new URL(req.url);
-      from = url.searchParams.get("from") || url.searchParams.get("From") || "";
-      to   = url.searchParams.get("to")   || url.searchParams.get("To")   || "";
-      body = url.searchParams.get("message") || url.searchParams.get("Body") || "";
-    } else {
-      const contentType = req.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        const payload = await req.json();
-        from = (payload.from || payload.From || "").toString();
-        to   = (payload.to   || payload.To   || "").toString();
-        body = (payload.message || payload.Body || "").toString();
-      } else if (contentType.includes("application/x-www-form-urlencoded")) {
-        const text = await req.text();
-        const params = new URLSearchParams(text);
-        from = params.get("from") || params.get("From") || "";
-        to   = params.get("to")   || params.get("To")   || "";
-        body = params.get("message") || params.get("Body") || "";
-      } else {
-        // Try JSON, fall back to text params
-        const text = await req.text();
-        try {
-          const payload = JSON.parse(text);
-          from = (payload.from || payload.From || "").toString();
-          to   = (payload.to   || payload.To   || "").toString();
-          body = (payload.message || payload.Body || "").toString();
-        } catch {
-          const params = new URLSearchParams(text);
-          from = params.get("from") || params.get("From") || "";
-          to   = params.get("to")   || params.get("To")   || "";
-          body = params.get("message") || params.get("Body") || "";
-        }
+    // Try URL params first (GET callback)
+    from = urlObj.searchParams.get("from") || urlObj.searchParams.get("From") || "";
+    to   = urlObj.searchParams.get("to")   || urlObj.searchParams.get("To")   || "";
+    body = urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
+
+    // Try JSON body
+    if (!from && rawBody) {
+      try {
+        const payload = JSON.parse(rawBody);
+        from = from || (payload.from || payload.From || "").toString();
+        to   = to   || (payload.to   || payload.To   || "").toString();
+        body = body || (payload.message || payload.Body || "").toString();
+      } catch (_) {
+        // Try form-encoded
+        const params = new URLSearchParams(rawBody);
+        from = from || params.get("from") || params.get("From") || "";
+        to   = to   || params.get("to")   || params.get("To")   || "";
+        body = body || params.get("message") || params.get("Body") || "";
       }
     }
 
-    if (!from || !to || !body) {
+    console.log("PARSED from:", from, "to:", to, "body:", body);
+
+    if (!from || !body) {
       return new Response("ok", { status: 200 });
     }
 
@@ -63,6 +61,7 @@ serve(async (req: Request) => {
       .single();
 
     if (!voipRow?.user_id) {
+      console.log("No user found for DID:", to);
       return new Response("ok", { status: 200 });
     }
 
@@ -71,7 +70,6 @@ serve(async (req: Request) => {
     // Try to find client name by phone number
     const digitsOnly = from.replace(/\D/g, "");
     const variants = [from, digitsOnly, "+" + digitsOnly];
-
     let clientName = "";
     for (const v of variants) {
       const { data: cl } = await supabase
@@ -98,10 +96,11 @@ serve(async (req: Request) => {
       sent_at:     new Date().toISOString(),
     });
 
+    console.log("SMS saved successfully");
     return new Response("ok", { status: 200 });
 
   } catch (err) {
-    console.error(err);
+    console.error("ERROR:", String(err));
     return new Response("ok", { status: 200 });
   }
 });
