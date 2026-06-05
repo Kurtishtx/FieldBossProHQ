@@ -39,9 +39,9 @@ serve(async (req) => {
     let toEmail = "";
     let debugInfo = "";
     if (est.customer_id) {
-      const { data: cl, error: clErr } = await supabase.from("Clients").select("email, contact_email").eq("id", est.customer_id).single();
+      const { data: cl, error: clErr } = await supabase.from("Clients").select("email").eq("id", est.customer_id).single();
       debugInfo += " | cl=" + JSON.stringify(cl) + (clErr ? " clErr=" + clErr.message : "");
-      toEmail = cl?.email || cl?.contact_email || "";
+      toEmail = cl?.email || "";
       if (!toEmail) {
         const { data: lead, error: leadErr } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
         debugInfo += " | lead=" + JSON.stringify(lead) + (leadErr ? " leadErr=" + leadErr.message : "");
