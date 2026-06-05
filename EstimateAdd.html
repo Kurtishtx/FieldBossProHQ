@@ -324,7 +324,8 @@
     tr.innerHTML =
       '<td><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
       '<td>' +
-        '<input type="text" class="li-desc" placeholder="Service name" value="' + (desc||'') + '" oninput="calcTotals()"/>' +
+        '<select class="li-catalog" onchange="onCatalogPick(this)" style="width:100%;margin-bottom:4px;border:1px solid #ddd;padding:6px 8px;font-size:13px;font-family:inherit;border-radius:3px;">' + catalogOptions + '</select>' +
+        '<input type="text" class="li-desc" placeholder="Service name (or type custom)" value="' + (desc||'') + '" oninput="calcTotals()"/>' +
         '<input type="text" class="li-details" placeholder="Description shown to client" value="' + (details||'') + '" style="font-size:11px;color:#888;margin-top:3px;border:1px solid #eee;padding:4px 7px;width:100%;font-family:inherit;border-radius:2px;"/>' +
       '</td>' +
       '<td><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;"/></td>' +
