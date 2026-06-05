@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estimate Templates</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #ebebeb; font-size: 13px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; background: #fff; border-bottom: 1px solid #ccc;
+    }
+    .topbar h1 { font-size: 18px; font-weight: 700; color: #111; }
+    .btn-add {
+      background: #e07820; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .btn-add:hover { background: #c96a10; }
+    .page { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .card {
+      background: #fff; border: 1px solid #ccc; border-radius: 4px;
+      margin-bottom: 8px; display: flex; align-items: center;
+      padding: 14px 16px; gap: 16px;
+    }
+    .card-name { font-size: 15px; font-weight: 700; color: #111; flex: 1; }
+    .card-count { font-size: 12px; color: #888; }
+    .btn-edit {
+      background: #fff; border: 1px solid #bbb; border-radius: 3px;
+      padding: 5px 14px; font-size: 12.5px; cursor: pointer; color: #333;
+    }
+    .btn-edit:hover { background: #f5f5f5; }
+    .btn-del {
+      background: #fff; border: 1px solid #e07070; border-radius: 3px;
+      padding: 5px 14px; font-size: 12.5px; cursor: pointer; color: #cc2222;
+    }
+    .btn-del:hover { background: #fff0f0; }
+    .empty { text-align: center; padding: 40px 0; color: #aaa; font-size: 14px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Estimate Templates</h1>
+  <button class="btn-add" onclick="addTemplate()">+ New Template</button>
+</div>
+
+<div class="page">
+  <div id="list-container"><div class="empty">Loading...</div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g'
+  );
+
+  function nav(page) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page + '.html';
+  }
+
+  function addTemplate() { nav('estimatetemplatesadd'); }
+
+  function editTemplate(id) { nav('estimatetemplatesadd?id=' + id); }
+
+  async function deleteTemplate(id, name) {
+    if (!confirm('Delete template "' + name + '"?')) return;
+    var { error } = await sb.from('estimate_templates').delete().eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    load();
+  }
+
+  async function load() {
+    var container = document.getElementById('list-container');
+    var { data, error } = await sb.from('estimate_templates').select('*').order('name');
+    if (error) { container.innerHTML = '<div class="empty">Error: ' + error.message + '</div>'; return; }
+    if (!data || !data.length) {
+      container.innerHTML = '<div class="empty">No templates yet. Click "+ New Template" to create one.</div>';
+      return;
+    }
+    container.innerHTML = data.map(function(t) {
+      var items = Array.isArray(t.items) ? t.items : [];
+      return '<div class="card">' +
+        '<div>' +
+          '<div class="card-name">' + (t.name || 'Untitled') + '</div>' +
+          '<div class="card-count">' + items.length + ' line item' + (items.length === 1 ? '' : 's') + '</div>' +
+        '</div>' +
+        '<button class="btn-edit" onclick="editTemplate(\'' + t.id + '\')">Edit</button>' +
+        '<button class="btn-del" onclick="deleteTemplate(\'' + t.id + '\',\'' + (t.name||'').replace(/'/g,"\\'") + '\')">Delete</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  load();
+</script>
+</body>
+</html>
