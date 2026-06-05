@@ -317,7 +317,8 @@
 
     if (error || !data || !data.client_secret) {
       btn.disabled = false; btn.textContent = 'Continue to Confirm →';
-      document.getElementById('card-errors').textContent = 'Could not connect to payment service. Please try again.';
+      var errMsg = (data && data.error) ? data.error : (error ? error.message : 'Unknown error');
+      document.getElementById('card-errors').textContent = 'Payment error: ' + errMsg;
       return;
     }
 
