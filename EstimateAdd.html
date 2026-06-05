@@ -87,13 +87,22 @@
     <div class="card-hdr">Client & Property</div>
     <div class="card-body">
       <div class="field-row">
-        <label>For</label>
+        <label>Type</label>
+        <select id="source-type" onchange="onSourceTypeChange()" style="max-width:200px;">
+          <option value="">— select type —</option>
+          <option value="lead">Leads</option>
+          <option value="client">Clients</option>
+          <option value="property">Properties</option>
+        </select>
+      </div>
+      <div class="field-row" id="source-row" style="display:none;">
+        <label id="source-label">Select</label>
         <select id="property-select" onchange="onPropertyChange()">
-          <option value="">— select lead, client, or property —</option>
+          <option value="">—</option>
         </select>
       </div>
       <div class="field-row">
-        <label>Client</label>
+        <label>Name</label>
         <input type="text" id="client-name" readonly style="background:#f9f9f9;"/>
       </div>
       <div class="field-row">
@@ -182,70 +191,90 @@
     else window.location.href = 'EstimatesList.html';
   }
 
-  /* ── Combined dropdown: Leads, Clients, Properties ── */
+  /* ── Two-dropdown system ── */
+  var allLeads = [], allClients = [], allPropsData = [];
+
   async function loadProperties() {
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var sel = document.getElementById('property-select');
 
     var [leadsRes, clientsRes, propsRes] = await Promise.all([
       sb.from('Leads').select('id, name, email, cell, phone, address, city, state, zip').eq('user_id', uid).eq('closed', false).order('name'),
-      sb.from('Clients').select('id, name, first_name, last_name, email, phone, mobile, cell, address, city, state, zip').eq('user_id', uid).order('name'),
+      sb.from('Clients').select('id, name, first_name, last_name, email, phone, address, city, state, zip').eq('user_id', uid).order('name'),
       sb.from('Properties').select('id, address, city, state, zip, customer_id, area_treated').eq('user_id', uid).order('address'),
     ]);
 
-    // Build client map for properties
-    var clientIds = [...new Set((propsRes.data||[]).map(function(p){ return p.customer_id; }).filter(Boolean))];
-    var clientMap = {};
+    allLeads   = leadsRes.data   || [];
+    allClients = clientsRes.data || [];
+    allPropsData = propsRes.data || [];
+
+    // Load client names for properties
+    var clientIds = [...new Set(allPropsData.map(function(p){ return p.customer_id; }).filter(Boolean))];
     if (clientIds.length) {
       var { data: cls } = await sb.from('Clients').select('id, name, first_name, last_name, email').in('id', clientIds);
-      (cls||[]).forEach(function(c){ clientMap[c.id] = c; });
+      (cls||[]).forEach(function(c){
+        allPropsData.forEach(function(p){ if (p.customer_id === c.id) p._client = c; });
+      });
     }
 
-    // Leads group
-    var leadGroup = document.createElement('optgroup');
-    leadGroup.label = 'Leads';
-    (leadsRes.data || []).forEach(function(l) {
-      propData['lead_' + l.id] = { _type: 'lead', name: l.name, email: l.email || l.cell || l.phone, address: [l.address, l.city, l.state, l.zip].filter(Boolean).join(', '), lead_id: l.id, area_treated: {} };
-      var opt = document.createElement('option');
-      opt.value = 'lead_' + l.id;
-      opt.textContent = l.name + (l.address ? ' — ' + l.address : '');
-      leadGroup.appendChild(opt);
+    // Store all records in propData keyed by prefixed id
+    allLeads.forEach(function(l) {
+      propData['lead_' + l.id] = { _type:'lead', name: l.name || '', email: l.email || '', address: [l.address, l.city, l.state, l.zip].filter(Boolean).join(', '), lead_id: l.id, area_treated: {} };
     });
-
-    // Clients group
-    var clientGroup = document.createElement('optgroup');
-    clientGroup.label = 'Clients';
-    (clientsRes.data || []).forEach(function(c) {
+    allClients.forEach(function(c) {
       var name = c.name || [c.last_name, c.first_name].filter(Boolean).join(', ');
-      propData['client_' + c.id] = { _type: 'client', name: name, email: c.email, address: [c.address, c.city, c.state, c.zip].filter(Boolean).join(', '), customer_id: c.id, area_treated: {} };
-      var opt = document.createElement('option');
-      opt.value = 'client_' + c.id;
-      opt.textContent = name + (c.address ? ' — ' + c.address : '');
-      clientGroup.appendChild(opt);
+      propData['client_' + c.id] = { _type:'client', name: name, email: c.email || '', address: [c.address, c.city, c.state, c.zip].filter(Boolean).join(', '), customer_id: c.id, area_treated: {} };
     });
-
-    // Properties group
-    var propGroup = document.createElement('optgroup');
-    propGroup.label = 'Properties';
-    (propsRes.data || []).forEach(function(p) {
-      var cl = clientMap[p.customer_id] || {};
-      var clientName = cl.name || [cl.last_name, cl.first_name].filter(Boolean).join(', ') || '';
-      propData['prop_' + p.id] = { _type: 'property', name: clientName, email: cl.email, address: [p.address, p.city, p.state, p.zip].filter(Boolean).join(', '), property_id: p.id, customer_id: p.customer_id, area_treated: p.area_treated || {} };
-      var opt = document.createElement('option');
-      opt.value = 'prop_' + p.id;
-      opt.textContent = (p.address || '') + (clientName ? ' — ' + clientName : '');
-      propGroup.appendChild(opt);
+    allPropsData.forEach(function(p) {
+      var cl = p._client || {};
+      var name = cl.name || [cl.last_name, cl.first_name].filter(Boolean).join(', ') || '';
+      propData['prop_' + p.id] = { _type:'property', name: name, email: cl.email || '', address: [p.address, p.city, p.state, p.zip].filter(Boolean).join(', '), property_id: p.id, customer_id: p.customer_id, area_treated: p.area_treated || {} };
     });
+  }
 
-    if (leadGroup.children.length)   sel.appendChild(leadGroup);
-    if (clientGroup.children.length) sel.appendChild(clientGroup);
-    if (propGroup.children.length)   sel.appendChild(propGroup);
+  function onSourceTypeChange() {
+    var type = document.getElementById('source-type').value;
+    var sel  = document.getElementById('property-select');
+    var row  = document.getElementById('source-row');
+    var lbl  = document.getElementById('source-label');
+
+    document.getElementById('client-name').value = '';
+    document.getElementById('address').value = '';
+    currentAreaTreated = {};
+
+    if (!type) { row.style.display = 'none'; return; }
+    row.style.display = '';
+    sel.innerHTML = '<option value="">— select —</option>';
+
+    var records = type === 'lead' ? allLeads : type === 'client' ? allClients : allPropsData;
+    var labels  = { lead: 'Lead', client: 'Client', property: 'Property' };
+    lbl.textContent = labels[type];
+
+    records.forEach(function(r) {
+      var key, label;
+      if (type === 'lead') {
+        key   = 'lead_' + r.id;
+        label = (r.name || '') + (r.address ? ' — ' + [r.address, r.city, r.state, r.zip].filter(Boolean).join(', ') : '');
+      } else if (type === 'client') {
+        var name = r.name || [r.last_name, r.first_name].filter(Boolean).join(', ');
+        key   = 'client_' + r.id;
+        label = name + (r.address ? ' — ' + [r.address, r.city, r.state, r.zip].filter(Boolean).join(', ') : '');
+      } else {
+        var cl = r._client || {};
+        var cname = cl.name || [cl.last_name, cl.first_name].filter(Boolean).join(', ') || '';
+        key   = 'prop_' + r.id;
+        label = (r.address || '') + (cname ? ' — ' + cname : '');
+      }
+      var opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
   }
 
   function onPropertyChange() {
     var key = document.getElementById('property-select').value;
-    var d = propData[key];
+    var d   = propData[key];
     if (d) {
       document.getElementById('client-name').value = d.name || '';
       document.getElementById('address').value     = d.address || '';
