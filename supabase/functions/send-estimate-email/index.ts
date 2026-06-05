@@ -23,9 +23,10 @@ serve(async (req) => {
     const { data: est, error: estErr } = await supabase.from("estimates").select("*").eq("id", estimate_id).single();
     if (estErr || !est) return new Response(JSON.stringify({ error: "Estimate not found: id=" + estimate_id + (estErr ? " | " + estErr.message : "") }), { status: 404, headers: CORS });
 
-    // Load company info (Resend key, site URL, company name)
-    const { data: co } = await supabase.from("company_info").select("company_name, display_name, resend_api_key, site_url").eq("user_id", est.user_id).single();
-    if (!co?.resend_api_key) return new Response(JSON.stringify({ error: "Resend API key not configured in Company Info → Payments." }), { status: 400, headers: CORS });
+    const RESEND_API_KEY = "re_apd6qCQb_LerK8x5aS84YU4J7jj6WarnM";
+
+    // Load company info (site URL, company name)
+    const { data: co } = await supabase.from("company_info").select("company_name, display_name, site_url").eq("user_id", est.user_id).single();
 
     // Load email template
     const { data: tmpl } = await supabase.from("email_templates").select("*").eq("key", "estimate_email").eq("user_id", est.user_id).single();
@@ -85,7 +86,7 @@ serve(async (req) => {
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + co.resend_api_key,
+        Authorization: "Bearer " + RESEND_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(emailPayload),
