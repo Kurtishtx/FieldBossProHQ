@@ -317,15 +317,11 @@
   /* ── Line items ── */
   function addLine(desc, qty, rate, details) {
     var tbody = document.getElementById('line-tbody');
-    var safeDesc    = (desc    || '').replace(/"/g, '&quot;');
-    var safeDetails = (details || '').replace(/"/g, '&quot;');
+    var safeDesc = (desc || '').replace(/"/g, '&quot;');
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
-      '<td>' +
-        '<input type="text" class="li-desc" placeholder="Service or description..." value="' + safeDesc + '" style="width:100%;"/>' +
-        '<input type="text" class="li-details" placeholder="Additional details (optional)" value="' + safeDetails + '" style="font-size:11px;color:#888;margin-top:3px;border:1px solid #eee;padding:4px 7px;width:100%;font-family:inherit;border-radius:2px;"/>' +
-      '</td>' +
+      '<td><input type="text" class="li-desc" placeholder="Service or description..." value="' + safeDesc + '" style="width:100%;"/></td>' +
       '<td><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;"/></td>' +
       '<td><input type="number" class="li-rate" value="' + (rate||'') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;"/></td>' +
       '<td class="li-total" style="text-align:right;font-weight:600;padding-right:12px;">$0.00</td>';
@@ -400,8 +396,8 @@
   function getLineItems() {
     var items = [];
     document.querySelectorAll('#line-tbody tr').forEach(function(tr) {
-      var desc    = (tr.querySelector('.li-desc')?.value    || '').trim();
-      var details = (tr.querySelector('.li-details')?.value || '').trim();
+      var desc    = (tr.querySelector('.li-desc')?.value || '').trim();
+      var details = '';
       var qty     = parseFloat(tr.querySelector('.li-qty')?.value)  || 0;
       var rate    = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
       items.push({ description: desc, details: details, qty: qty, rate: rate, total: qty * rate });
