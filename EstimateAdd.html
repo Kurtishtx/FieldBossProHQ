@@ -293,19 +293,32 @@
   }
 
   var estimateCatalog = [];
+  var packageCatalog  = [];
 
   async function loadEstimateServicesCatalog() {
-    var { data } = await sb.from('estimate_services').select('id, name, description, default_price, area_treated, price_matrix, package_id').eq('active', true).order('name');
-    estimateCatalog = data || [];
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    var [svcRes, pkgRes] = await Promise.all([
+      sb.from('estimate_services').select('id, name, description, default_price, area_treated, price_matrix, package_id').eq('active', true).order('name'),
+      sb.from('Packages').select('id, name, description, price').eq('user_id', uid).order('name'),
+    ]);
+    estimateCatalog = svcRes.data || [];
+    packageCatalog  = pkgRes.data || [];
   }
 
   /* ── Line items ── */
   function addLine(desc, qty, rate, details) {
     var tbody = document.getElementById('line-tbody');
+    var svcOpts = estimateCatalog.map(function(s) {
+      return '<option value="svc_' + s.id + '" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-price="' + (s.default_price||0) + '" data-desc="' + (s.description||'').replace(/"/g,'&quot;') + '">' + s.name + '</option>';
+    }).join('');
+    var pkgOpts = packageCatalog.map(function(p) {
+      return '<option value="pkg_' + p.id + '" data-name="' + (p.name||'').replace(/"/g,'&quot;') + '" data-price="' + (p.price||0) + '" data-desc="' + (p.description||'').replace(/"/g,'&quot;') + '">' + p.name + '</option>';
+    }).join('');
     var catalogOptions = '<option value="">— pick from catalog or type below —</option>' +
-      estimateCatalog.map(function(s) {
-        return '<option value="' + s.id + '" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-price="' + (s.default_price||0) + '" data-desc="' + (s.description||'').replace(/"/g,'&quot;') + '">' + s.name + '</option>';
-      }).join('');
+      (svcOpts ? '<optgroup label="Services">' + svcOpts + '</optgroup>' : '') +
+      (pkgOpts ? '<optgroup label="Packages">'  + pkgOpts + '</optgroup>' : '');
 
     var tr = document.createElement('tr');
     tr.innerHTML =
@@ -344,7 +357,10 @@
   function onCatalogPick(sel) {
     var opt = sel.options[sel.selectedIndex];
     if (!opt.value) return;
-    var svc = estimateCatalog.find(function(s) { return s.id === opt.value; });
+    var val = opt.value;
+    var svc = val.startsWith('pkg_')
+      ? packageCatalog.find(function(p) { return 'pkg_' + p.id === val; })
+      : estimateCatalog.find(function(s) { return 'svc_' + s.id === val; });
     if (!svc) return;
     var tr = sel.closest('tr');
     tr.querySelector('.li-desc').value    = svc.name        || '';
@@ -361,7 +377,7 @@
       }
     }
 
-    tr.querySelector('.li-rate').value = calculatedPrice !== null ? calculatedPrice.toFixed(2) : (svc.default_price || '0.00');
+    tr.querySelector('.li-rate').value = calculatedPrice !== null ? calculatedPrice.toFixed(2) : (svc.default_price || svc.price || '0.00');
     calcTotals();
   }
 
