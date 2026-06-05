@@ -184,15 +184,31 @@
 
   /* ── Properties dropdown ── */
   async function loadProperties() {
-    var { data } = await sb.from('Properties')
-      .select('id, first_name, last_name, address, city, customer_id, area_treated')
-      .order('last_name');
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    var { data: props } = await sb.from('Properties')
+      .select('id, address, city, customer_id, area_treated')
+      .eq('user_id', uid)
+      .order('address');
+    props = props || [];
+
+    // Load client names in one shot
+    var ids = [...new Set(props.map(function(p){ return p.customer_id; }).filter(Boolean))];
+    var clientMap = {};
+    if (ids.length) {
+      var { data: clients } = await sb.from('Clients').select('id, name, first_name, last_name, phone, mobile, cell, email').in('id', ids);
+      (clients || []).forEach(function(c) { clientMap[c.id] = c; });
+    }
+
     var sel = document.getElementById('property-select');
-    (data || []).forEach(function(p) {
-      propData[p.id] = p;
+    props.forEach(function(p) {
+      var cl = clientMap[p.customer_id] || {};
+      var clientName = cl.name || [cl.last_name, cl.first_name].filter(Boolean).join(', ') || '';
+      propData[p.id] = Object.assign({}, p, { _client: cl, _clientName: clientName });
       var opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = (p.last_name || '') + ', ' + (p.first_name || '') + ' — ' + (p.address || '');
+      opt.textContent = (p.address || '') + (clientName ? ' — ' + clientName : '');
       sel.appendChild(opt);
     });
   }
@@ -201,7 +217,7 @@
     var id = document.getElementById('property-select').value;
     var p = propData[id];
     if (p) {
-      document.getElementById('client-name').value = (p.last_name || '') + ', ' + (p.first_name || '');
+      document.getElementById('client-name').value = p._clientName || '';
       document.getElementById('address').value = (p.address || '') + (p.city ? ', ' + p.city : '');
       currentAreaTreated = p.area_treated || {};
     } else {
@@ -346,7 +362,7 @@
       user_id:      uid,
       property_id:  propId,
       customer_id:  p ? p.customer_id : null,
-      client_name:  p ? ((p.last_name||'') + ', ' + (p.first_name||'')) : '',
+      client_name:  p ? (p._clientName || '') : '',
       address:      document.getElementById('address').value,
       status:       status,
       line_items:   items,
@@ -388,7 +404,7 @@
     if (!items.length) { alert('No line items to convert.'); return; }
     var propId   = document.getElementById('property-select').value;
     var p        = propData[propId];
-    var clientName = p ? ((p.last_name||'') + ', ' + (p.first_name||'')) : '';
+    var clientName = p ? (p._clientName || '') : '';
     var address    = document.getElementById('address').value;
 
     var { data: convertSession } = await sb.auth.getSession();
