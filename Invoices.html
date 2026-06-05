@@ -357,11 +357,33 @@
     loadInvoices();
   }
 
-  function emailSelectedInvoices() {
+  async function emailSelectedInvoices() {
     document.getElementById('actions-dropdown').classList.remove('open');
     var ids = getSelectedInvoiceIds();
-    if (!ids.length) { alert('Check the box next to each invoice to email first.'); return; }
-    alert('Email ' + ids.length + ' invoice(s) — email integration coming soon.');
+    if (!ids.length) { alert('Select at least one invoice to email.'); return; }
+    if (!confirm('Send email for ' + ids.length + ' invoice(s)?')) return;
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var token = sessionData && sessionData.session ? sessionData.session.access_token : '';
+
+    var sent = 0, failed = 0, errors = [];
+    for (var i = 0; i < ids.length; i++) {
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-invoice-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ invoice_id: ids[i] })
+      });
+      var json = await res.json();
+      if (res.ok) { sent++; }
+      else { failed++; errors.push(json.error || 'Unknown error'); }
+    }
+
+    if (failed === 0) {
+      alert(sent + ' invoice email' + (sent !== 1 ? 's' : '') + ' sent successfully!');
+    } else {
+      alert(sent + ' sent, ' + failed + ' failed.\n\nErrors:\n' + errors.join('\n'));
+    }
+    loadInvoices();
   }
 
   function printSelectedInvoices() {
