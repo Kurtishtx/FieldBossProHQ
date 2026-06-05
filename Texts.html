@@ -154,8 +154,8 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
     }
-    .msg-avatar.av-inbound  { background: #5b9bd5; }
-    .msg-avatar.av-outbound { background: #e07820; }
+    .msg-avatar.av-inbound  { background: #e07820; }
+    .msg-avatar.av-outbound { background: #5b9bd5; }
 
     .msg-body-wrap {
       max-width: 68%; display: flex; flex-direction: column;
@@ -173,13 +173,13 @@
       white-space: pre-wrap; word-break: break-word;
     }
     .msg-bubble.inbound {
+      background: #e07820; color: #fff;
+      border-bottom-left-radius: 4px;
+    }
+    .msg-bubble.outbound {
       background: #fff; color: #222;
       border-bottom-left-radius: 4px;
       box-shadow: 0 1px 3px rgba(0,0,0,.08);
-    }
-    .msg-bubble.outbound {
-      background: #e07820; color: #fff;
-      border-bottom-left-radius: 4px;
     }
     .msg-time {
       font-size: 11px; color: #bbb; margin-top: 4px; padding: 0 4px;
