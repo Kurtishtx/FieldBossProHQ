@@ -60,15 +60,18 @@
     /* ── Table ── */
     .table-container { background:#fff; }
     table { width:100%; border-collapse:collapse; font-size:13px; }
-    thead th { background:#fafafa; border-bottom:2px solid #ddd; padding:9px 14px; text-align:left; font-size:12px; font-weight:700; color:#555; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
-    thead th:first-child { width:40px; text-align:center; cursor:default; }
+    thead th { background:#fafafa; border-bottom:2px solid #ddd; padding:11px 20px; text-align:left; font-size:12px; font-weight:700; color:#555; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
+    thead th:first-child { width:40px; text-align:center; cursor:default; padding:11px 14px; }
+    thead th:last-child { padding-right:48px; }
     thead th .sort-icon { color:#bbb; font-size:10px; margin-left:3px; }
     thead th .sort-asc  { color:#e07820; font-size:10px; margin-left:3px; }
     tbody tr { border-bottom:1px solid #eee; }
     tbody tr:hover { background:#f9f9f9; }
-    tbody td { padding:10px 14px; color:#333; vertical-align:middle; }
-    tbody td:first-child { text-align:center; }
+    tbody td { padding:12px 20px; color:#333; vertical-align:middle; }
+    tbody td:first-child { text-align:center; padding:12px 14px; }
+    tbody td:last-child { padding-right:48px; }
     tfoot tr td { padding:8px 10px; font-weight:700; font-size:13px; color:#fff; background:#222; border-top:2px solid #111; }
+    tfoot tr td:last-child { padding-right:48px; }
     .money { text-align:right; }
 
     input[type="checkbox"] {
