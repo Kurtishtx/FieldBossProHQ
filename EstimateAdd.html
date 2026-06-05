@@ -156,7 +156,7 @@
         </thead>
         <tbody id="line-tbody"></tbody>
       </table>
-      <button class="btn-add-line" onclick="openLinePicker(this);event.stopPropagation()">+ Add Line</button>
+      <button class="btn-add-line" onclick="addLine()">+ Add Line</button>
       <button class="btn-add-line" onclick="openTemplateModal()" style="margin-left:8px;border-color:#e07820;color:#e07820;">&#128196; Load Template</button>
 
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
@@ -328,17 +328,43 @@
   }
 
   /* ── Line items ── */
+  function buildLineOpts(selectedDesc) {
+    var opts = '<option value="">— select service / package —</option>';
+    if (estimateCatalog.length) {
+      opts += '<optgroup label="Services">';
+      estimateCatalog.forEach(function(s) {
+        opts += '<option value="' + (s.name||'').replace(/"/g,'&quot;') + '" data-rate="' + (parseFloat(s.amount)||0) + '"' + (selectedDesc === s.name ? ' selected' : '') + '>' + (s.name||'') + '</option>';
+      });
+      opts += '</optgroup>';
+    }
+    if (packageCatalog.length) {
+      opts += '<optgroup label="Packages">';
+      packageCatalog.forEach(function(p) {
+        opts += '<option value="' + (p.name||'').replace(/"/g,'&quot;') + '" data-rate="' + (parseFloat(p.price)||0) + '"' + (selectedDesc === p.name ? ' selected' : '') + '>' + (p.name||'') + '</option>';
+      });
+      opts += '</optgroup>';
+    }
+    return opts;
+  }
+
   function addLine(desc, qty, rate, details) {
     var tbody = document.getElementById('line-tbody');
-    var safeDesc = (desc || '').replace(/"/g, '&quot;');
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
-      '<td><input type="text" class="li-desc" placeholder="Service or description..." value="' + safeDesc + '" style="width:100%;"/></td>' +
+      '<td><select class="li-desc" onchange="onLineDescChange(this)" style="width:100%;">' + buildLineOpts(desc||'') + '</select></td>' +
       '<td><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;"/></td>' +
       '<td><input type="number" class="li-rate" value="' + (rate||'') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;"/></td>' +
       '<td class="li-total" style="text-align:right;font-weight:600;padding-right:12px;">$0.00</td>';
     tbody.appendChild(tr);
+    calcTotals();
+  }
+
+  function onLineDescChange(sel) {
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) return;
+    var tr = sel.closest('tr');
+    tr.querySelector('.li-rate').value = (parseFloat(opt.getAttribute('data-rate')) || 0).toFixed(2);
     calcTotals();
   }
 
@@ -630,61 +656,6 @@
 
   init();
 
-  /* ── Line Item Picker ── */
-  function openLinePicker(btn) {
-    var picker = document.getElementById('line-picker');
-    if (picker.classList.contains('open')) { picker.classList.remove('open'); return; }
-    var rect = btn.getBoundingClientRect();
-    picker.style.top  = (rect.bottom + 4) + 'px';
-    picker.style.left = rect.left + 'px';
-    picker.classList.add('open');
-    document.getElementById('lp-search').value = '';
-    renderLinePicker('');
-    document.getElementById('lp-search').focus();
-  }
-
-  document.addEventListener('click', function() {
-    var p = document.getElementById('line-picker');
-    if (p) p.classList.remove('open');
-  });
-
-  function renderLinePicker(q) {
-    var ql = (q || '').toLowerCase();
-    var svcs = estimateCatalog.filter(function(s) { return !ql || (s.name||'').toLowerCase().indexOf(ql) >= 0; });
-    var pkgs = packageCatalog.filter(function(p) { return !ql || (p.name||'').toLowerCase().indexOf(ql) >= 0; });
-    var html = '<div class="lp-blank" onclick="pickLine(null,0)">+ Custom / Blank Line</div>';
-    if (svcs.length) {
-      html += '<div class="lp-section">Services</div>';
-      svcs.forEach(function(s) {
-        html += '<div class="lp-item" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-rate="' + (parseFloat(s.amount)||0) + '" onclick="pickLine(this)">' +
-          '<div class="lp-name">' + (s.name||'') + '</div>' +
-          (s.amount ? '<div class="lp-price">$' + parseFloat(s.amount).toFixed(2) + '</div>' : '') +
-          '</div>';
-      });
-    }
-    if (pkgs.length) {
-      html += '<div class="lp-section">Packages</div>';
-      pkgs.forEach(function(p) {
-        html += '<div class="lp-item" data-name="' + (p.name||'').replace(/"/g,'&quot;') + '" data-rate="' + (parseFloat(p.price)||0) + '" onclick="pickLine(this)">' +
-          '<div class="lp-name">' + (p.name||'') + '</div>' +
-          (p.price ? '<div class="lp-price">$' + parseFloat(p.price).toFixed(2) + '</div>' : '') +
-          '</div>';
-      });
-    }
-    if (!svcs.length && !pkgs.length) {
-      html += '<div style="padding:16px;color:#aaa;text-align:center;font-size:13px;">' + (q ? 'No matches.' : 'No services found.') + '</div>';
-    }
-    document.getElementById('lp-scroll').innerHTML = html;
-  }
-
-  function pickLine(el, rate) {
-    document.getElementById('line-picker').classList.remove('open');
-    if (!el) { addLine('', 1, 0); return; }
-    var name = el.getAttribute('data-name');
-    var r    = parseFloat(el.getAttribute('data-rate')) || 0;
-    addLine(name, 1, r);
-  }
-
   /* ── Estimate Templates ── */
   function openTemplateModal() {
     var overlay = document.getElementById('tmpl-modal-overlay');
@@ -728,12 +699,6 @@
     closeTemplateModal();
   }
 </script>
-
-<!-- Line item picker dropdown -->
-<div class="lp-wrap" id="line-picker" onclick="event.stopPropagation()">
-  <input class="lp-search" id="lp-search" placeholder="Search services &amp; packages..." oninput="renderLinePicker(this.value)" autocomplete="off"/>
-  <div class="lp-scroll" id="lp-scroll"></div>
-</div>
 
 <!-- Template picker modal -->
 <div id="tmpl-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1200;align-items:center;justify-content:center;" onclick="if(event.target===this)closeTemplateModal()">
