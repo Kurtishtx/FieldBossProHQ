@@ -246,7 +246,8 @@
     e.stopPropagation();
     var dd = document.getElementById('actions-dropdown');
     if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
-    var rect = e.currentTarget.getBoundingClientRect();
+    var group = e.currentTarget.closest('div');
+    var rect  = group.getBoundingClientRect();
     dd.style.top  = (rect.bottom + 4) + 'px';
     dd.style.left = rect.left + 'px';
     dd.classList.add('open');
