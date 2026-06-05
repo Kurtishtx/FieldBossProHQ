@@ -339,13 +339,6 @@
 
     var right = document.getElementById('right-panel');
     right.innerHTML =
-      '<div class="msg-thread-hdr">' +
-        '<div class="thread-avatar">' + initials(convo.client_name) + '</div>' +
-        '<div>' +
-          '<div class="thread-name">' + escHtml(formatDisplayName(convo.client_name)) + '</div>' +
-          '<div class="thread-phone">' + escHtml(phone) + '</div>' +
-        '</div>' +
-      '</div>' +
       '<div class="msg-thread" id="msg-thread"></div>' +
       '<div class="send-box">' +
         '<input type="text" id="send-input" placeholder="Send a message to ' + escHtml(formatDisplayName(convo.client_name)) + '" onkeydown="if(event.key===\'Enter\')sendManualText()"/>' +
