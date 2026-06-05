@@ -250,6 +250,7 @@
     var labels  = { lead: 'Lead', client: 'Client', property: 'Property' };
     lbl.textContent = labels[type];
 
+    var opts = [];
     records.forEach(function(r) {
       var key, label;
       if (type === 'lead') {
@@ -265,9 +266,14 @@
         key   = 'prop_' + r.id;
         label = (cname || r.address || '') + (cname && r.address ? ' — ' + [r.address, r.city, r.state, r.zip].filter(Boolean).join(', ') : '');
       }
+      opts.push({ key: key, label: label });
+    });
+
+    opts.sort(function(a, b) { return a.label.toLowerCase().localeCompare(b.label.toLowerCase()); });
+    opts.forEach(function(o) {
       var opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = label;
+      opt.value = o.key;
+      opt.textContent = o.label;
       sel.appendChild(opt);
     });
   }
