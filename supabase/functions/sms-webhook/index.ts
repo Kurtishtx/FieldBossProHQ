@@ -19,7 +19,10 @@ serve(async (req: Request) => {
     const body = params.get("message") || params.get("Body") || urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
     const sid  = null;
 
+    console.log("RAW:", rawText, "from:", from, "to:", to, "body:", body);
+
     if (!from || !to || !body) {
+      console.log("Missing fields - skipping");
       return new Response("ok", { status: 200 });
     }
 
@@ -35,6 +38,7 @@ serve(async (req: Request) => {
       .single();
 
     if (!twilioRow?.user_id) {
+      console.log("No user found for DID:", to);
       return new Response("ok", { status: 200 });
     }
 
