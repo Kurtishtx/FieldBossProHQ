@@ -217,16 +217,15 @@
     <thead>
       <tr>
         <th style="width:4%;"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th style="width:20%;">Status <span class="sort-icon">&#8597;</span></th>
-        <th style="width:20%;">Date <span class="sort-asc">&#8593;</span></th>
-        <th style="width:24%;">Client <span class="sort-icon">&#8597;</span></th>
-        <th style="width:18%;">Inv Total <span class="sort-icon">&#8597;</span></th>
-        <th style="width:14%;">Status</th>
+        <th style="width:25%;">Date <span class="sort-asc">&#8593;</span></th>
+        <th style="width:33%;">Client <span class="sort-icon">&#8597;</span></th>
+        <th style="width:22%;">Inv Total <span class="sort-icon">&#8597;</span></th>
+        <th style="width:16%;">Status</th>
       </tr>
     </thead>
     <thead>
       <tr style="background:#222;">
-        <td colspan="5" style="background:#222;"></td>
+        <td colspan="4" style="background:#222;"></td>
         <td id="total-invtotal" style="color:#fff;font-weight:700;">$0.00</td>
       </tr>
     </thead>
@@ -325,7 +324,6 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + inv.id + '"/></td>' +
-        '<td><div class="status-pastdue">' + (inv.status_text || '') + '</div></td>' +
         '<td>' + (inv.date || '') + '</td>' +
         '<td>' +
           '<a class="inv-link">' + (inv.client_name || '') + '</a>' +
