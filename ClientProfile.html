@@ -684,6 +684,13 @@
     var { data } = await sb.from('Clients').select('*').eq('id', clientId).single();
     client = data;
     if (!client) return;
+    // Map snake_case DB columns to camelCase used by display functions
+    client.stripeCustomerId  = client.stripeCustomerId  || client.stripe_customer_id  || null;
+    client.stripeCardLast4   = client.stripeCardLast4   || client.stripe_card_last4   || null;
+    client.stripeCardExpiry  = client.stripeCardExpiry  || client.stripe_card_expiry  || null;
+    client.stripeCardBrand   = client.stripeCardBrand   || client.stripe_card_brand   || null;
+    client.stripeCardName    = client.stripeCardName    || client.stripe_card_name    || null;
+    client.stripeCardZip     = client.stripeCardZip     || client.stripe_card_zip     || null;
 
     document.getElementById('client-title').textContent    = client.name || 'Client Profile';
     document.getElementById('display-name').textContent    = client.name || '';
