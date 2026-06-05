@@ -530,7 +530,7 @@
         <button class="btn-caret-outline" onclick="toggleDropdown('send-menu')">&#9660;</button>
       </div>
       <div class="dropdown-menu" id="send-menu">
-        <a href="#">Text</a>
+        <a href="#" onclick="sendText();return false;">Text</a>
         <a href="#">Email</a>
       </div>
     </div>
@@ -1008,6 +1008,18 @@
   document.getElementById('prop-edit-overlay').addEventListener('click', function(e) {
     if (e.target === this) closePropertyModal(false);
   });
+
+  function sendText() {
+    var phone = owner ? (owner.phone || owner.mobile || owner.cell || '') : '';
+    var name  = owner ? (owner.name || '') : '';
+    if (!phone) { alert('No phone number on file for this client.'); return; }
+    var params = 'phone=' + encodeURIComponent(phone) + '&name=' + encodeURIComponent(name);
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('texts?' + params);
+    } else {
+      window.location.href = 'Texts.html?' + params;
+    }
+  }
 
   function goBack(e) {
     e.preventDefault();
