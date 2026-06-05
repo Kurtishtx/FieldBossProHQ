@@ -61,6 +61,19 @@
     .totals-box { background:#f9f9f9; border:1px solid #eee; border-radius:4px; padding:14px 18px; }
     .totals-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; }
     .totals-row.grand { font-size:16px; font-weight:800; border-top:2px solid #ccc; margin-top:6px; padding-top:8px; }
+
+    /* Line item picker */
+    .lp-wrap { display:none; position:fixed; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 20px rgba(0,0,0,.25); z-index:10000; width:300px; max-height:380px; overflow:hidden; flex-direction:column; }
+    .lp-wrap.open { display:flex; }
+    .lp-search { padding:9px 12px; border:none; border-bottom:1px solid #eee; font-size:13px; font-family:inherit; outline:none; width:100%; }
+    .lp-scroll { overflow-y:auto; flex:1; }
+    .lp-section { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; padding:7px 12px 4px; background:#f9f9f9; border-bottom:1px solid #eee; }
+    .lp-item { padding:8px 12px; cursor:pointer; border-bottom:1px solid #f5f5f5; }
+    .lp-item:hover { background:#fff5ec; }
+    .lp-name { font-weight:600; font-size:13px; color:#222; }
+    .lp-price { font-size:12px; color:#e07820; margin-top:1px; }
+    .lp-blank { padding:8px 12px; cursor:pointer; border-bottom:2px solid #eee; color:#888; font-size:13px; }
+    .lp-blank:hover { background:#f5f5f5; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
@@ -143,7 +156,7 @@
         </thead>
         <tbody id="line-tbody"></tbody>
       </table>
-      <button class="btn-add-line" onclick="addLine()">+ Add Line</button>
+      <button class="btn-add-line" onclick="openLinePicker(this);event.stopPropagation()">+ Add Line</button>
       <button class="btn-add-line" onclick="openTemplateModal()" style="margin-left:8px;border-color:#e07820;color:#e07820;">&#128196; Load Template</button>
 
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
@@ -617,6 +630,61 @@
 
   init();
 
+  /* ── Line Item Picker ── */
+  function openLinePicker(btn) {
+    var picker = document.getElementById('line-picker');
+    if (picker.classList.contains('open')) { picker.classList.remove('open'); return; }
+    var rect = btn.getBoundingClientRect();
+    picker.style.top  = (rect.bottom + 4) + 'px';
+    picker.style.left = rect.left + 'px';
+    picker.classList.add('open');
+    document.getElementById('lp-search').value = '';
+    renderLinePicker('');
+    document.getElementById('lp-search').focus();
+  }
+
+  document.addEventListener('click', function() {
+    var p = document.getElementById('line-picker');
+    if (p) p.classList.remove('open');
+  });
+
+  function renderLinePicker(q) {
+    var ql = (q || '').toLowerCase();
+    var svcs = estimateCatalog.filter(function(s) { return !ql || (s.name||'').toLowerCase().indexOf(ql) >= 0; });
+    var pkgs = packageCatalog.filter(function(p) { return !ql || (p.name||'').toLowerCase().indexOf(ql) >= 0; });
+    var html = '<div class="lp-blank" onclick="pickLine(null,0)">+ Custom / Blank Line</div>';
+    if (svcs.length) {
+      html += '<div class="lp-section">Services</div>';
+      svcs.forEach(function(s) {
+        html += '<div class="lp-item" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-rate="' + (parseFloat(s.amount)||0) + '" onclick="pickLine(this)">' +
+          '<div class="lp-name">' + (s.name||'') + '</div>' +
+          (s.amount ? '<div class="lp-price">$' + parseFloat(s.amount).toFixed(2) + '</div>' : '') +
+          '</div>';
+      });
+    }
+    if (pkgs.length) {
+      html += '<div class="lp-section">Packages</div>';
+      pkgs.forEach(function(p) {
+        html += '<div class="lp-item" data-name="' + (p.name||'').replace(/"/g,'&quot;') + '" data-rate="' + (parseFloat(p.price)||0) + '" onclick="pickLine(this)">' +
+          '<div class="lp-name">' + (p.name||'') + '</div>' +
+          (p.price ? '<div class="lp-price">$' + parseFloat(p.price).toFixed(2) + '</div>' : '') +
+          '</div>';
+      });
+    }
+    if (!svcs.length && !pkgs.length) {
+      html += '<div style="padding:16px;color:#aaa;text-align:center;font-size:13px;">' + (q ? 'No matches.' : 'No services found.') + '</div>';
+    }
+    document.getElementById('lp-scroll').innerHTML = html;
+  }
+
+  function pickLine(el, rate) {
+    document.getElementById('line-picker').classList.remove('open');
+    if (!el) { addLine('', 1, 0); return; }
+    var name = el.getAttribute('data-name');
+    var r    = parseFloat(el.getAttribute('data-rate')) || 0;
+    addLine(name, 1, r);
+  }
+
   /* ── Estimate Templates ── */
   function openTemplateModal() {
     var overlay = document.getElementById('tmpl-modal-overlay');
@@ -660,6 +728,12 @@
     closeTemplateModal();
   }
 </script>
+
+<!-- Line item picker dropdown -->
+<div class="lp-wrap" id="line-picker" onclick="event.stopPropagation()">
+  <input class="lp-search" id="lp-search" placeholder="Search services &amp; packages..." oninput="renderLinePicker(this.value)" autocomplete="off"/>
+  <div class="lp-scroll" id="lp-scroll"></div>
+</div>
 
 <!-- Template picker modal -->
 <div id="tmpl-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1200;align-items:center;justify-content:center;" onclick="if(event.target===this)closeTemplateModal()">
