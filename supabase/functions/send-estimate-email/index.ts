@@ -34,13 +34,17 @@ serve(async (req) => {
     const fromName = tmpl?.from_name || co.display_name || co.company_name || "SprayBoss Pro";
     const replyTo  = tmpl?.reply_to || null;
 
-    // Load client email
+    // Load client email — check Clients first, then Leads
     let toEmail = "";
     if (est.customer_id) {
       const { data: cl } = await supabase.from("Clients").select("email, contact_email").eq("id", est.customer_id).single();
       toEmail = cl?.email || cl?.contact_email || "";
+      if (!toEmail) {
+        const { data: lead } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
+        toEmail = lead?.email || "";
+      }
     }
-    if (!toEmail) return new Response(JSON.stringify({ error: "Client has no email address on file." }), { status: 400, headers: CORS });
+    if (!toEmail) return new Response(JSON.stringify({ error: "No email address on file for this lead/client." }), { status: 400, headers: CORS });
 
     // Build estimate link
     const baseUrl    = (co.site_url || "").replace(/\/$/, "");
