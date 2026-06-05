@@ -7,241 +7,69 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
 
     /* ── Page header ── */
-    .page-header {
-      padding: 12px 20px 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .page-header h1 {
-      font-size: 22px;
-      font-weight: 800;
-      color: #111;
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-    .showing-count {
-      font-size: 14px;
-      font-weight: 400;
-      color: #555;
-    }
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; }
+    .showing-count { font-size:13px; color:#666; }
     .btn-orange-filled {
-      background: #e07820;
-      border: 3px solid #111;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 6px;
-      padding: 7px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s, border-color .15s;
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 20px; font-size: 13px; font-weight: 700;
+      border-radius: 4px; cursor: pointer; font-family: inherit;
     }
-    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
+    .btn-orange-filled:hover { background: #c96a10; }
+
+    /* ── Filter pills ── */
+    .tabs-bar {
+      display: flex; gap: 4px; padding: 8px 20px;
+      border-bottom: 1px solid #eee; flex-wrap: wrap; overflow-x: visible;
+    }
+    .tab-btn {
+      padding: 5px 16px; border: 1px solid #bbb; background: #fff;
+      font-size: 13px; cursor: pointer; border-radius: 20px;
+      color: #555; font-family: inherit; font-weight: 400;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: #f0f0f0; }
+    .tab-btn.active { background: #3a3a3a; color: #fff; border-color: #3a3a3a; font-weight: 700; }
 
     /* ── Toolbar ── */
-    .toolbar {
-      background: #3a3a3a;
-      padding: 7px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .toolbar-left { display: flex; align-items: center; gap: 6px; position: relative; }
-
-    .btn-green-main {
-      background: #e8c000;
-      color: #000;
-      border: 2px solid #fff; border-right: none;
-      border-radius: 3px 0 0 3px;
-      padding: 6px 14px;
-      font-size: 13px;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-green-main:hover { background: #d4ae00; }
-    .btn-green-caret {
-      background: #e8c000;
-      color: #000;
-      border: 2px solid #fff;
-      border-left: 1px solid rgba(0,0,0,.15);
-      border-radius: 0 3px 3px 0;
-      padding: 6px 9px;
-      font-size: 11px;
-      cursor: pointer;
-    }
-    .btn-green-caret:hover { background: #d4ae00; }
-
-    .refresh-btn {
-      background: #555;
-      color: #ccc;
-      border: none;
-      border-radius: 3px;
-      padding: 5px 8px;
-      font-size: 15px;
-      cursor: pointer;
-      line-height: 1;
-    }
-    .refresh-btn:hover { background: #666; color: #fff; }
+    .toolbar { background: #3a3a3a; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; }
+    .toolbar-left { display:flex; align-items:center; gap:6px; position:relative; }
+    .btn-green-main { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; border-radius:3px 0 0 3px; padding:5px 14px; font-size:13px; font-family:inherit; font-weight:700; cursor:pointer; }
+    .btn-green-main:hover { background:#d4ae00; }
+    .btn-green-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); border-radius:0 3px 3px 0; padding:5px 9px; font-size:11px; cursor:pointer; }
+    .btn-green-caret:hover { background:#d4ae00; }
+    .refresh-btn { background:#555; color:#ccc; border:none; border-radius:3px; padding:5px 8px; font-size:15px; cursor:pointer; line-height:1; }
+    .refresh-btn:hover { background:#666; color:#fff; }
 
     /* Actions dropdown */
-    .actions-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.18);
-      z-index: 200;
-      min-width: 200px;
-      padding: 4px 0;
-    }
-    .actions-dropdown.open { display: block; }
-    .dropdown-header {
-      font-size: 13px;
-      font-weight: 700;
-      color: #222;
-      padding: 7px 16px 5px;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 3px;
-    }
-    .dropdown-item {
-      display: block;
-      width: 100%;
-      background: none;
-      border: none;
-      text-align: left;
-      padding: 7px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-      cursor: pointer;
-    }
-    .dropdown-item:hover { background: #f5f5f5; }
+    .actions-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.18); z-index:200; min-width:200px; padding:4px 0; }
+    .actions-dropdown.open { display:block; }
+    .dropdown-header { font-size:13px; font-weight:700; color:#222; padding:7px 16px 5px; border-bottom:1px solid #eee; margin-bottom:3px; }
+    .dropdown-item { display:block; width:100%; background:none; border:none; text-align:left; padding:7px 16px; font-size:13px; font-family:inherit; color:#333; cursor:pointer; }
+    .dropdown-item:hover { background:#f5f5f5; }
 
     /* Pagination */
-    .pagination-area {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 13px;
-      color: #ccc;
-    }
-    .pagination-area input {
-      width: 46px;
-      padding: 3px 6px;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 3px;
-      background: rgba(255,255,255,.12);
-      color: #fff;
-      font-size: 13px;
-      text-align: center;
-    }
-    .pg-btn {
-      background: rgba(255,255,255,.12);
-      color: rgba(255,255,255,.7);
-      border: none;
-      padding: 4px 7px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .pg-btn:hover { background: rgba(255,255,255,.2); }
-    .pg-current {
-      background: #f5c800;
-      color: #111;
-      border: none;
-      padding: 4px 9px;
-      border-radius: 3px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    /* ── Tabs ── */
-    .tabs-bar {
-      background: #3a3a3a;
-      padding: 5px 10px 0;
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      flex-shrink: 0;
-      overflow-x: auto;
-      border-top: 1px solid #2a2a2a;
-    }
-    .tabs-bar::-webkit-scrollbar { height: 4px; }
-    .tabs-bar::-webkit-scrollbar-thumb { background: #888888; border-radius: 2px; }
-    .tab-btn {
-      background: #bbb;
-      color: #111;
-      border: none;
-      border-radius: 4px 4px 0 0;
-      padding: 5px 13px;
-      font-size: 12.5px;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      font-weight: 600;
-    }
-    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
-    .tab-btn:hover:not(.active) { background: #aaa; color: #111; }
+    .pagination-area { display:flex; align-items:center; gap:5px; font-size:13px; color:#ccc; }
+    .pagination-area input { width:46px; padding:3px 6px; border:1px solid rgba(255,255,255,.25); border-radius:3px; background:rgba(255,255,255,.12); color:#fff; font-size:13px; text-align:center; }
+    .pg-btn { background:rgba(255,255,255,.12); color:rgba(255,255,255,.7); border:none; padding:4px 7px; border-radius:3px; cursor:pointer; font-size:12px; }
+    .pg-btn:hover { background:rgba(255,255,255,.2); }
+    .pg-current { background:#f5c800; color:#111; border:none; padding:4px 9px; border-radius:3px; font-size:12px; font-weight:700; }
 
     /* ── Table ── */
-    .table-container {
-      flex: 1;
-      overflow-y: auto;
-      background: #fff;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    thead th {
-      background: #fff;
-      border-bottom: 2px solid #ddd;
-      padding: 8px 10px;
-      text-align: left;
-      font-weight: 600;
-      color: #444;
-      white-space: nowrap;
-      cursor: pointer;
-      user-select: none;
-    }
-    thead th:first-child { width: 34px; text-align: center; cursor: default; }
-    thead th .sort-icon { color: #bbb; font-size: 10px; margin-left: 3px; }
-    thead th .sort-asc  { color: #f5c800; font-size: 10px; margin-left: 3px; }
-
-    tbody tr { border-bottom: 1px solid #eee; }
-    tbody tr:hover { background: #fdfbe8; }
-    tbody td { padding: 8px 10px; color: #333; vertical-align: top; }
-    tbody td:first-child { text-align: center; vertical-align: middle; }
-
-    tfoot tr td {
-      padding: 8px 10px;
-      font-weight: 700;
-      font-size: 13px;
-      color: #fff;
-      background: #222;
-      border-top: 2px solid #111;
-    }
-    .money { text-align: right; }
+    .table-container { background:#fff; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead th { background:#fafafa; border-bottom:2px solid #ddd; padding:9px 14px; text-align:left; font-size:12px; font-weight:700; color:#555; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
+    thead th:first-child { width:40px; text-align:center; cursor:default; }
+    thead th .sort-icon { color:#bbb; font-size:10px; margin-left:3px; }
+    thead th .sort-asc  { color:#e07820; font-size:10px; margin-left:3px; }
+    tbody tr { border-bottom:1px solid #eee; }
+    tbody tr:hover { background:#f9f9f9; }
+    tbody td { padding:10px 14px; color:#333; vertical-align:middle; }
+    tbody td:first-child { text-align:center; }
+    tfoot tr td { padding:8px 10px; font-weight:700; font-size:13px; color:#fff; background:#222; border-top:2px solid #111; }
+    .money { text-align:right; }
 
     input[type="checkbox"] {
       width: 14px;
