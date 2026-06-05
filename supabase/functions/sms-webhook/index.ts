@@ -9,11 +9,15 @@ serve(async (req: Request) => {
   }
 
   try {
-    const formData = await req.formData();
-    const from    = formData.get("From")?.toString() || "";
-    const to      = formData.get("To")?.toString() || "";
-    const body    = formData.get("Body")?.toString() || "";
-    const sid     = formData.get("MessageSid")?.toString() || null;
+    const rawText = await req.text();
+    const urlObj  = new URL(req.url);
+    const params  = new URLSearchParams(rawText);
+
+    // voip.ms fields: contact, did, message
+    const from = params.get("contact") || params.get("From") || urlObj.searchParams.get("contact") || urlObj.searchParams.get("From") || "";
+    const to   = params.get("did")     || params.get("To")   || urlObj.searchParams.get("did")     || urlObj.searchParams.get("To")   || "";
+    const body = params.get("message") || params.get("Body") || urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
+    const sid  = null;
 
     if (!from || !to || !body) {
       return new Response("ok", { status: 200 });
