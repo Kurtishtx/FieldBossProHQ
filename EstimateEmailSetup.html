@@ -91,41 +91,16 @@
     var { data: tmpl } = await sb.from('email_templates').select('body').eq('key', 'estimate_email').single();
     var section = document.getElementById('template-section');
 
-    if (tmpl && tmpl.body) {
-      section.innerHTML =
-        '<div class="tpl-selected">' +
-          '<div class="tpl-selected-hdr">' +
-            '<div class="link-name">&#128203; Estimate Email Template</div>' +
-            '<button class="btn-change-tpl" onclick="navigate(\'estimateemailtemplate\')">Change Template</button>' +
-          '</div>' +
-          '<div class="tpl-iframe-wrap" id="iframe-wrap"></div>' +
-        '</div>';
-
-      var wrap   = document.getElementById('iframe-wrap');
-      var iframe = document.createElement('iframe');
-      iframe.srcdoc = tmpl.body;
-      wrap.appendChild(iframe);
-
-      var scale = wrap.offsetWidth / 600 || 0.7;
-      iframe.style.transform = 'scale(' + scale + ')';
-      wrap.style.height = Math.round(700 * scale) + 'px';
-
-      window.addEventListener('load', function() {
-        var s = wrap.offsetWidth / 600;
-        iframe.style.transform = 'scale(' + s + ')';
-        wrap.style.height = Math.round(700 * s) + 'px';
-      });
-    } else {
-      section.innerHTML =
-        '<div class="link-item" onclick="navigate(\'estimateemailtemplate\')">' +
-          '<div class="link-icon">&#128203;</div>' +
-          '<div class="link-text">' +
-            '<div class="link-name">Estimate Email Template</div>' +
-            '<div class="link-desc">Choose from 3 starter templates for your estimate emails.</div>' +
-          '</div>' +
-          '<div class="link-arrow">&#8250;</div>' +
-        '</div>';
-    }
+    var hasTemplate = tmpl && tmpl.body;
+    section.innerHTML =
+      '<div class="link-item" onclick="navigate(\'estimateemailtemplate\')">' +
+        '<div class="link-icon">&#128203;</div>' +
+        '<div class="link-text">' +
+          '<div class="link-name">Estimate Email Template</div>' +
+          '<div class="link-desc">' + (hasTemplate ? 'Template selected. Click to change.' : 'Choose from 3 starter templates for your estimate emails.') + '</div>' +
+        '</div>' +
+        '<div class="link-arrow">' + (hasTemplate ? '&#10003;' : '&#8250;') + '</div>' +
+      '</div>';
   }
 
   load();
