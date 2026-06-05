@@ -217,10 +217,10 @@
     <thead>
       <tr>
         <th style="width:4%;"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th style="width:25%;">Date <span class="sort-asc">&#8593;</span></th>
-        <th style="width:33%;">Client <span class="sort-icon">&#8597;</span></th>
-        <th style="width:22%;">Inv Total <span class="sort-icon">&#8597;</span></th>
+        <th style="width:22%;">Date <span class="sort-asc">&#8593;</span></th>
         <th style="width:16%;">Status</th>
+        <th style="width:33%;">Client <span class="sort-icon">&#8597;</span></th>
+        <th style="width:25%;">Inv Total <span class="sort-icon">&#8597;</span></th>
       </tr>
     </thead>
     <thead>
@@ -325,12 +325,12 @@
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + inv.id + '"/></td>' +
         '<td>' + (inv.date || '') + '</td>' +
+        '<td>' + actionCell(inv) + '</td>' +
         '<td>' +
           '<a class="inv-link">' + (inv.client_name || '') + '</a>' +
           '<div class="client-addr">' + (inv.address || '') + '</div>' +
         '</td>' +
-        '<td class="money">' + fmt(inv.inv_total) + '</td>' +
-        '<td>' + actionCell(inv) + '</td>';
+        '<td class="money">' + fmt(inv.inv_total) + '</td>';
       tbody.appendChild(tr);
     });
   }
