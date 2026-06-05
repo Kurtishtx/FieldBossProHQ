@@ -171,6 +171,12 @@
     </div>
   </div>
 
+  <!-- Bottom save bar -->
+  <div style="position:sticky; bottom:0; background:#fff; border-top:2px solid #eee; padding:12px 20px; display:flex; justify-content:flex-end; gap:8px; z-index:100;">
+    <button class="btn-draft" onclick="save('draft')">Save Draft</button>
+    <button class="btn-send" onclick="save('sent')">Send Estimate</button>
+  </div>
+
 </div><!-- /body-wrap -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
