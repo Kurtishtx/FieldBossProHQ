@@ -206,7 +206,9 @@
     };
     await sb.from('email_templates').upsert(payload, { onConflict: 'user_id,key' });
     if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage('estimateemailinfo');
+      window.parent.loadPage('estimateemailsetup');
+    } else {
+      window.location.href = 'EstimateEmailSetup.html';
     }
   }
 </script>
