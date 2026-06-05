@@ -86,7 +86,6 @@
       <th>Address</th>
       <th>Date</th>
       <th>Expires</th>
-      <th>Amount</th>
       <th>Status</th>
       <th></th>
     </tr>
@@ -173,7 +172,6 @@
         '<td style="font-size:12px;color:#666;">' + esc(e.address || '') + '</td>' +
         '<td>' + date + '</td>' +
         '<td>' + expiry + '</td>' +
-        '<td style="font-weight:700;">' + fmt(e.amount) + '</td>' +
         '<td>' + badgeHtml(e.status) + '</td>' +
         '<td onclick="event.stopPropagation()"><button class="btn-email" onclick="sendEmail(\'' + e.id + '\')">&#9993; Email</button></td>';
       tr.addEventListener('click', function(ev) {
