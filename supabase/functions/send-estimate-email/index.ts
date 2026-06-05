@@ -35,7 +35,7 @@ serve(async (req) => {
     const fromName = tmpl?.from_name || co?.display_name || co?.company_name || "SprayBossPro";
     const replyTo  = tmpl?.reply_to || null;
 
-    // Load client email — check Clients first, then Leads
+    // Load client email — check Clients, then Leads, then via property_id
     let toEmail = "";
     if (est.customer_id) {
       const { data: cl } = await supabase.from("Clients").select("email, contact_email").eq("id", est.customer_id).single();
@@ -43,6 +43,14 @@ serve(async (req) => {
       if (!toEmail) {
         const { data: lead } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
         toEmail = lead?.email || "";
+      }
+    }
+    // Fallback: look up client via property_id
+    if (!toEmail && est.property_id) {
+      const { data: prop } = await supabase.from("Properties").select("customer_id").eq("id", est.property_id).single();
+      if (prop?.customer_id) {
+        const { data: cl } = await supabase.from("Clients").select("email, contact_email").eq("id", prop.customer_id).single();
+        toEmail = cl?.email || cl?.contact_email || "";
       }
     }
     if (!toEmail) return new Response(JSON.stringify({ error: "No email address on file for this lead/client." }), { status: 400, headers: CORS });
