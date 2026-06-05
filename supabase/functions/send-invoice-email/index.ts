@@ -113,7 +113,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: compName + " <Kurtis@spraybosspro.com>",
         to: [toEmail],
-        subject: `Invoice ${invNum} from ${compName}`,
+        subject: `Invoice from ${compName}`,
         html: html,
       }),
     });
