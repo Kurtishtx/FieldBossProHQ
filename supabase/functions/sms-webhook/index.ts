@@ -13,13 +13,24 @@ serve(async (req: Request) => {
     const urlObj  = new URL(req.url);
     const params  = new URLSearchParams(rawText);
 
-    // voip.ms fields: contact, did, message
-    const from = params.get("contact") || params.get("From") || urlObj.searchParams.get("contact") || urlObj.searchParams.get("From") || "";
-    const to   = params.get("did")     || params.get("To")   || urlObj.searchParams.get("did")     || urlObj.searchParams.get("To")   || "";
-    const body = params.get("message") || params.get("Body") || urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
-    const sid  = null;
+    let from = "", to = "", body = "";
 
-    console.log("RAW:", rawText, "from:", from, "to:", to, "body:", body);
+    try {
+      const json = JSON.parse(rawText);
+      // voip.ms webhook format: { data: { payload: { from, to, text } } }
+      const payload = json.data?.payload || json.payload || json;
+      from = payload.from || payload.contact || payload.From || "";
+      to   = payload.to   || payload.did     || payload.To   || "";
+      body = payload.text || payload.message || payload.body || payload.Body || "";
+    } catch (_) {
+      const params = new URLSearchParams(rawText);
+      from = params.get("contact") || params.get("from") || params.get("From") || urlObj.searchParams.get("from") || "";
+      to   = params.get("did")     || params.get("to")   || params.get("To")   || urlObj.searchParams.get("to")   || "";
+      body = params.get("message") || params.get("Body") || urlObj.searchParams.get("message") || "";
+    }
+
+    const sid = null;
+    console.log("from:", from, "to:", to, "body:", body);
 
     if (!from || !to || !body) {
       console.log("Missing fields - skipping");
