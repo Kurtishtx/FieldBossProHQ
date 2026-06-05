@@ -317,26 +317,17 @@
   /* ── Line items ── */
   function addLine(desc, qty, rate, details) {
     var tbody = document.getElementById('line-tbody');
-    var svcOpts = estimateCatalog.map(function(s) {
-      return '<option value="svc_' + s.id + '" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-price="' + (s.amount||0) + '" data-desc="">' + s.name + '</option>';
-    }).join('');
-    var pkgOpts = packageCatalog.map(function(p) {
-      return '<option value="pkg_' + p.id + '" data-name="' + (p.name||'').replace(/"/g,'&quot;') + '" data-price="' + (p.price||0) + '" data-desc="' + (p.description||'').replace(/"/g,'&quot;') + '">' + p.name + '</option>';
-    }).join('');
-    var selectedOpt = desc ? '<option value="custom" selected>' + desc.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</option>' : '';
-    var catalogOptions = '<option value="">— select a service or package —</option>' +
-      (svcOpts ? '<optgroup label="Services">' + svcOpts + '</optgroup>' : '') +
-      (pkgOpts ? '<optgroup label="Packages">'  + pkgOpts + '</optgroup>' : '');
-
+    var safeDesc    = (desc    || '').replace(/"/g, '&quot;');
+    var safeDetails = (details || '').replace(/"/g, '&quot;');
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
       '<td>' +
-        '<select class="li-catalog li-desc" onchange="onCatalogPick(this)" style="width:100%;border:1px solid #ddd;padding:6px 8px;font-size:13px;font-family:inherit;border-radius:3px;margin-bottom:3px;">' + catalogOptions + '</select>' +
-        '<input type="text" class="li-details" placeholder="Description shown to client" value="' + (details||'') + '" style="font-size:11px;color:#888;margin-top:3px;border:1px solid #eee;padding:4px 7px;width:100%;font-family:inherit;border-radius:2px;"/>' +
+        '<input type="text" class="li-desc" placeholder="Service or description..." value="' + safeDesc + '" style="width:100%;"/>' +
+        '<input type="text" class="li-details" placeholder="Additional details (optional)" value="' + safeDetails + '" style="font-size:11px;color:#888;margin-top:3px;border:1px solid #eee;padding:4px 7px;width:100%;font-family:inherit;border-radius:2px;"/>' +
       '</td>' +
       '<td><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;"/></td>' +
-      '<td><input type="number" class="li-rate" value="' + (rate||'0.00') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;"/></td>' +
+      '<td><input type="number" class="li-rate" value="' + (rate||'') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;"/></td>' +
       '<td class="li-total" style="text-align:right;font-weight:600;padding-right:12px;">$0.00</td>';
     tbody.appendChild(tr);
     calcTotals();
@@ -409,9 +400,8 @@
   function getLineItems() {
     var items = [];
     document.querySelectorAll('#line-tbody tr').forEach(function(tr) {
-      var descSel = tr.querySelector('.li-desc');
-      var desc    = descSel ? (descSel.options[descSel.selectedIndex]?.text || '').trim() : '';
-      var details = tr.querySelector('.li-details')?.value.trim() || '';
+      var desc    = (tr.querySelector('.li-desc')?.value    || '').trim();
+      var details = (tr.querySelector('.li-details')?.value || '').trim();
       var qty     = parseFloat(tr.querySelector('.li-qty')?.value)  || 0;
       var rate    = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
       items.push({ description: desc, details: details, qty: qty, rate: rate, total: qty * rate });
