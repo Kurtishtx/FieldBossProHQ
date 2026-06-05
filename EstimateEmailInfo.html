@@ -169,7 +169,10 @@
     } else {
       btn.textContent = 'Saved ✓'; btn.classList.add('saved');
       msg.textContent = 'Estimate email template saved.';
-      setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 3000);
+      setTimeout(function() {
+        if (window.parent && window.parent.loadPage) window.parent.loadPage('estimateemailsetup');
+        else window.location.href = 'EstimateEmailSetup.html';
+      }, 1000);
     }
   }
 
