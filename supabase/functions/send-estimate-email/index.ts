@@ -53,7 +53,7 @@ serve(async (req) => {
         toEmail = cl?.email || cl?.contact_email || "";
       }
     }
-    if (!toEmail) return new Response(JSON.stringify({ error: "No email address on file for this lead/client." }), { status: 400, headers: CORS });
+    if (!toEmail) return new Response(JSON.stringify({ error: "No email: customer_id=" + est.customer_id + " property_id=" + est.property_id }), { status: 400, headers: CORS });
 
     // Build estimate link
     const baseUrl    = "https://my.spraybosspro.com";
