@@ -184,16 +184,9 @@
 
 <!-- Tabs -->
 <div class="tabs-bar">
-  <button class="tab-btn" onclick="setTab(this,'filtered')">Filtered Results</button>
-  <button class="tab-btn" onclick="setTab(this,'pastdue')">Past Due</button>
   <button class="tab-btn active" onclick="setTab(this,'open')">Open Invoices</button>
-  <button class="tab-btn" onclick="setTab(this,'tocharge')">Invoices To Charge</button>
-  <button class="tab-btn" onclick="setTab(this,'toprint')">Invoices To Print</button>
-  <button class="tab-btn" onclick="setTab(this,'toemail')">Invoices To Email</button>
-  <button class="tab-btn" onclick="setTab(this,'failedcharges')">Failed Charges</button>
-  <button class="tab-btn" onclick="setTab(this,'emailerrors')">Email Delivery Errors</button>
-  <button class="tab-btn" onclick="setTab(this,'incomplete')">Incomplete</button>
-  <button class="tab-btn" onclick="setTab(this,'deleted')">Deleted</button>
+  <button class="tab-btn" onclick="setTab(this,'30days')">30 Days</button>
+  <button class="tab-btn" onclick="setTab(this,'60days')">60 Days</button>
 </div>
 
 <!-- Toolbar -->
@@ -286,6 +279,12 @@
     renderTable();
   }
 
+  function daysAgo(n) {
+    var d = new Date();
+    d.setDate(d.getDate() - n);
+    return d.toISOString().split('T')[0];
+  }
+
   /* ── Data ── */
   var invoices = [];
 
@@ -322,15 +321,13 @@
     tbody.innerHTML = '';
 
     var filtered = invoices.filter(function(inv) {
-      if (currentTab === 'pastdue')       return inv.past_due;
-      if (currentTab === 'open')          return !inv.deleted && !inv.incomplete;
-      if (currentTab === 'tocharge')      return inv.to_charge;
-      if (currentTab === 'toprint')       return inv.to_print;
-      if (currentTab === 'toemail')       return inv.to_email;
-      if (currentTab === 'failedcharges') return inv.failed_charge;
-      if (currentTab === 'emailerrors')   return inv.email_error;
-      if (currentTab === 'incomplete')    return inv.incomplete;
-      if (currentTab === 'deleted')       return inv.deleted;
+      if (currentTab === 'open') {
+        // All owed invoices: not deleted, not incomplete, has a balance OR failed charge
+        return !inv.deleted && !inv.incomplete &&
+          ((parseFloat(inv.inv_bal) || 0) > 0 || inv.failed_charge);
+      }
+      if (currentTab === '30days') return inv.date && inv.date >= daysAgo(30);
+      if (currentTab === '60days') return inv.date && inv.date >= daysAgo(60);
       return true;
     });
 
