@@ -171,6 +171,17 @@
     .btn-inv-save:hover, .btn-inv-save-new:hover { background: #c96a15; }
     .btn-inv-cancel { background: none; border: none; font-size: 13.5px; color: #2272c3; cursor: pointer; text-decoration: underline; font-family: inherit; }
     .btn-inv-cancel:hover { color: #1a5ea0; }
+
+    /* Line item picker */
+    .line-picker { display:none; position:fixed; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 20px rgba(0,0,0,.25); z-index:10000; width:280px; max-height:360px; overflow:hidden; flex-direction:column; }
+    .line-picker.open { display:flex; }
+    .line-picker-search { padding:8px 10px; border:none; border-bottom:1px solid #eee; font-size:13px; font-family:inherit; outline:none; width:100%; }
+    .line-picker-scroll { overflow-y:auto; flex:1; }
+    .line-picker-section { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; padding:7px 12px 4px; background:#f9f9f9; border-bottom:1px solid #eee; }
+    .line-picker-item { padding:8px 12px; cursor:pointer; border-bottom:1px solid #f5f5f5; }
+    .line-picker-item:hover { background:#f0f7ff; }
+    .lpi-name { font-weight:600; font-size:13px; color:#222; }
+    .lpi-price { font-size:12px; color:#e07820; margin-top:1px; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
@@ -226,7 +237,7 @@
     <tfoot>
       <tr style="background:#f0f0f0;border-top:2px solid #ddd;">
         <td colspan="4" style="background:#f0f0f0;"></td>
-        <td id="total-invtotal" style="color:#222;font-weight:700;padding:10px 16px;">$0.00</td>
+        <td id="total-invtotal" style="color:#222;font-weight:700;padding:10px 16px;background:#f0f0f0;">$0.00</td>
       </tr>
     </tfoot>
     <tbody id="invoice-tbody"></tbody>
