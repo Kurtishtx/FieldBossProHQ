@@ -649,7 +649,8 @@
     <div class="mobile-page-title" id="mobile-page-title">Dashboard</div>
     <div class="mobile-search-wrap">
       <span class="mobile-search-icon">&#128269;</span>
-      <input type="text" placeholder="Search..." autocomplete="off" oninput="globalSearchInput()" onfocus="globalSearchInput()" id="mobile-search" />
+      <input type="text" placeholder="Search..." autocomplete="off" oninput="mobileSearchInput()" onfocus="mobileSearchInput()" id="mobile-search" />
+      <div class="global-search-dropdown" id="mobile-search-dd" style="left:0;right:0;"></div>
     </div>
     <div class="user-badge" style="flex-shrink:0;">SBP</div>
   </div>
@@ -1174,16 +1175,23 @@
     clearTimeout(_searchTimer);
     var q = document.getElementById('global-search').value.trim();
     if (q.length < 2) { closeSearchDD(); return; }
-    _searchTimer = setTimeout(function() { runGlobalSearch(q); }, 300);
+    _searchTimer = setTimeout(function() { runGlobalSearch(q, 'global-search-dd'); }, 300);
+  }
+  function mobileSearchInput() {
+    clearTimeout(_searchTimer);
+    var q = document.getElementById('mobile-search').value.trim();
+    if (q.length < 2) { closeSearchDD(); return; }
+    _searchTimer = setTimeout(function() { runGlobalSearch(q, 'mobile-search-dd'); }, 300);
   }
   function closeSearchDD() {
     document.getElementById('global-search-dd').classList.remove('open');
+    document.getElementById('mobile-search-dd').classList.remove('open');
   }
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('.global-search-wrap')) closeSearchDD();
+    if (!e.target.closest('.global-search-wrap') && !e.target.closest('.mobile-search-wrap')) closeSearchDD();
   });
-  async function runGlobalSearch(q) {
-    var dd = document.getElementById('global-search-dd');
+  async function runGlobalSearch(q, ddId) {
+    var dd = document.getElementById(ddId);
     dd.innerHTML = '<div class="search-no-results">Searching…</div>';
     dd.classList.add('open');
     var like = '%' + q + '%';
@@ -1204,7 +1212,7 @@
       html += '<div class="search-group-label">&#128101; Clients</div>';
       clients.forEach(function(c) {
         var phone = c.cell || c.phone || '';
-        html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'">' +
+        html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
           '<div><div class="sri-main">' + (c.name||'') + '</div>' +
           '<div class="sri-sub">' + sriSub([c.address, c.email, phone]) + '</div></div></div>';
       });
@@ -1213,7 +1221,7 @@
       html += '<div class="search-group-label">&#127968; Properties</div>';
       props.forEach(function(p) {
         var addr = [p.address, p.city].filter(Boolean).join(', ');
-        html += '<div class="search-result-item" onclick="loadPage(\'propprofile?id=' + p.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'">' +
+        html += '<div class="search-result-item" onclick="loadPage(\'propprofile?id=' + p.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
           '<div><div class="sri-main">' + (addr || '') + '</div>' +
           '<div class="sri-sub">' + (p.name || '') + '</div></div></div>';
       });
@@ -1221,7 +1229,7 @@
     if (leads.length) {
       html += '<div class="search-group-label">&#127919; Leads</div>';
       leads.forEach(function(l) {
-        html += '<div class="search-result-item" onclick="loadPage(\'leadsprofile?id=' + l.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\'">' +
+        html += '<div class="search-result-item" onclick="loadPage(\'leadsprofile?id=' + l.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
           '<div><div class="sri-main">' + (l.name||'') + '</div>' +
           '<div class="sri-sub">' + sriSub([l.address, l.email, l.phone]) + '</div></div></div>';
       });
