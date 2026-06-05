@@ -227,24 +227,15 @@
       <tr>
         <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
         <th>Status <span class="sort-icon">&#8597;</span></th>
-        <th>Action <span class="sort-icon">&#8597;</span></th>
         <th>Date <span class="sort-asc">&#8593;</span></th>
-        <th>Inv # <span class="sort-icon">&#8597;</span></th>
         <th>Client <span class="sort-icon">&#8597;</span></th>
-        <th>Frequency <span class="sort-icon">&#8597;</span></th>
-        <th>Payment <span class="sort-icon">&#8597;</span></th>
-        <th style="text-align:right;">Acct Bal <span class="sort-icon">&#8597;</span></th>
-        <th style="text-align:right;">Prepay <span class="sort-icon">&#8597;</span></th>
-        <th style="text-align:right;">Credits <span class="sort-icon">&#8597;</span></th>
         <th style="text-align:right;">Inv Bal <span class="sort-icon">&#8597;</span></th>
         <th style="text-align:right;">Inv Total <span class="sort-icon">&#8597;</span></th>
       </tr>
     </thead>
     <thead>
       <tr style="background:#222;">
-        <td colspan="9" style="background:#222;"></td>
-        <td class="money" id="total-prepay" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
-        <td class="money" id="total-credits" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
+        <td colspan="4" style="background:#222;"></td>
         <td class="money" id="total-invbal" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
         <td class="money" id="total-invtotal" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
       </tr>
@@ -301,15 +292,11 @@
   }
 
   function updateTotals(rows) {
-    var prepay = 0, credits = 0, invBal = 0, invTotal = 0;
+    var invBal = 0, invTotal = 0;
     rows.forEach(function(inv) {
-      prepay   += inv.prepay    || 0;
-      credits  += inv.credits   || 0;
-      invBal   += inv.inv_bal   || 0;
-      invTotal += inv.inv_total || 0;
+      invBal   += parseFloat(inv.inv_bal)   || 0;
+      invTotal += parseFloat(inv.inv_total) || 0;
     });
-    document.getElementById('total-prepay').textContent   = fmt(prepay);
-    document.getElementById('total-credits').textContent  = fmt(credits);
     document.getElementById('total-invbal').textContent   = fmt(invBal);
     document.getElementById('total-invtotal').textContent = fmt(invTotal);
   }
@@ -347,18 +334,11 @@
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + inv.id + '"/></td>' +
         '<td><div class="status-pastdue">' + (inv.status_text || '') + '</div></td>' +
-        '<td>' + (inv.action || '') + '</td>' +
         '<td>' + (inv.date || '') + '</td>' +
-        '<td><a class="inv-link">' + (inv.inv_num || '') + '</a></td>' +
         '<td>' +
           '<a class="inv-link">' + (inv.client_name || '') + '</a>' +
           '<div class="client-addr">' + (inv.address || '') + '</div>' +
         '</td>' +
-        '<td>' + (inv.frequency || '') + '</td>' +
-        '<td>' + (inv.payment || '') + '</td>' +
-        '<td class="money">' + fmt(inv.acct_bal) + '</td>' +
-        '<td class="money">' + fmt(inv.prepay) + '</td>' +
-        '<td class="money">' + fmt(inv.credits) + '</td>' +
         '<td class="money">' + fmt(inv.inv_bal) + '</td>' +
         '<td class="money">' + fmt(inv.inv_total) + '</td>';
       tbody.appendChild(tr);
