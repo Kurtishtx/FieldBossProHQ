@@ -10,30 +10,29 @@ serve(async (req: Request) => {
     const rawBody = await req.text();
     const urlObj  = new URL(req.url);
 
-    // Parse from all possible sources
     let from = "", to = "", body = "";
 
-    // 1. Try form-encoded body (most likely voip.ms format)
+    // voip.ms sends: did, contact, message (form-encoded or query params)
     const params = new URLSearchParams(rawBody);
-    from = params.get("from") || params.get("From") || "";
-    to   = params.get("to")   || params.get("To")   || "";
+    from = params.get("contact") || params.get("from") || params.get("From") || "";
+    to   = params.get("did")     || params.get("to")   || params.get("To")   || "";
     body = params.get("message") || params.get("Body") || "";
 
-    // 2. Try JSON body
+    // Try URL query params
+    if (!from) {
+      from = urlObj.searchParams.get("contact") || urlObj.searchParams.get("from") || urlObj.searchParams.get("From") || "";
+      to   = urlObj.searchParams.get("did")     || urlObj.searchParams.get("to")   || urlObj.searchParams.get("To")   || "";
+      body = urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
+    }
+
+    // Try JSON
     if (!from) {
       try {
         const payload = JSON.parse(rawBody);
-        from = (payload.from || payload.From || "").toString();
-        to   = (payload.to   || payload.To   || "").toString();
+        from = (payload.contact || payload.from || payload.From || "").toString();
+        to   = (payload.did     || payload.to   || payload.To   || "").toString();
         body = (payload.message || payload.Body || "").toString();
       } catch (_) {}
-    }
-
-    // 3. Try URL query params (GET callback)
-    if (!from) {
-      from = urlObj.searchParams.get("from") || urlObj.searchParams.get("From") || "";
-      to   = urlObj.searchParams.get("to")   || urlObj.searchParams.get("To")   || "";
-      body = urlObj.searchParams.get("message") || urlObj.searchParams.get("Body") || "";
     }
 
     if (!from || !body) {
