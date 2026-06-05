@@ -484,7 +484,7 @@
       workPhoneExt:       document.getElementById('work-phone-ext').value,
       defState:           document.getElementById('def-state').value,
       defCountry:         document.getElementById('def-country').value,
-      distance:           document.querySelector('input[name="distance"]:checked').value,
+      distance:           (document.querySelector('input[name="distance"]:checked') || {}).value || '',
       lastProjNum:        document.getElementById('last-proj-num').value,
       use24hr:            document.getElementById('use-24hr').checked,
       startTime:          document.getElementById('start-time').value,
