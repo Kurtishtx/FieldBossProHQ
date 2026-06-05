@@ -52,7 +52,10 @@
     .svc-table input[type="text"], .svc-table input[type="number"] {
       width:100%; border:1px solid #ddd; padding:5px 7px; font-size:13px; font-family:inherit; border-radius:2px; outline:none;
     }
-    .svc-table input:focus { border-color:#e07820; }
+    .svc-table select { width:100%; border:1px solid #ddd; padding:5px 7px; font-size:13px; font-family:inherit; border-radius:2px; outline:none; background:#fff; }
+    .svc-table input:focus, .svc-table select:focus { border-color:#e07820; }
+    .li-details-input { width:100%; border:1px solid #ddd; padding:4px 7px; font-size:12px; font-family:inherit; border-radius:2px; outline:none; margin-top:4px; color:#555; }
+    .li-details-input:focus { border-color:#e07820; }
     .del-btn { background:none; border:none; color:#c0392b; font-size:16px; cursor:pointer; padding:0 4px; line-height:1; }
     .del-btn:hover { color:#a93226; }
     .btn-add-line { background:none; border:1px dashed #bbb; color:#555; padding:7px 16px; font-size:13px; cursor:pointer; border-radius:3px; margin-top:10px; }
@@ -349,13 +352,17 @@
 
   function addLine(desc, qty, rate, details) {
     var tbody = document.getElementById('line-tbody');
+    var safeDetails = (details || '').replace(/"/g, '&quot;');
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
-      '<td><select class="li-desc" onchange="onLineDescChange(this)" style="width:100%;">' + buildLineOpts(desc||'') + '</select></td>' +
-      '<td><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;"/></td>' +
-      '<td><input type="number" class="li-rate" value="' + (rate||'') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;"/></td>' +
-      '<td class="li-total" style="text-align:right;font-weight:600;padding-right:12px;">$0.00</td>';
+      '<td style="vertical-align:top;padding-top:10px;"><button class="del-btn" onclick="removeLine(this)">&#10005;</button></td>' +
+      '<td>' +
+        '<select class="li-desc" onchange="onLineDescChange(this)" style="width:100%;">' + buildLineOpts(desc||'') + '</select>' +
+        '<input type="text" class="li-details-input li-details" placeholder="Description..." value="' + safeDetails + '"/>' +
+      '</td>' +
+      '<td style="vertical-align:top;"><input type="number" class="li-qty" value="' + (qty||1) + '" min="0" step="1" oninput="calcTotals()" style="text-align:right;margin-top:1px;"/></td>' +
+      '<td style="vertical-align:top;"><input type="number" class="li-rate" value="' + (rate||'') + '" min="0" step="0.01" oninput="calcTotals()" style="text-align:right;margin-top:1px;"/></td>' +
+      '<td class="li-total" style="text-align:right;font-weight:600;padding-right:12px;vertical-align:top;padding-top:10px;">$0.00</td>';
     tbody.appendChild(tr);
     calcTotals();
   }
@@ -436,7 +443,7 @@
     var items = [];
     document.querySelectorAll('#line-tbody tr').forEach(function(tr) {
       var desc    = (tr.querySelector('.li-desc')?.value || '').trim();
-      var details = '';
+      var details = (tr.querySelector('.li-details')?.value || '').trim();
       var qty     = parseFloat(tr.querySelector('.li-qty')?.value)  || 0;
       var rate    = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
       items.push({ description: desc, details: details, qty: qty, rate: rate, total: qty * rate });
