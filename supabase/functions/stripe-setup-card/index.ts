@@ -63,14 +63,14 @@ serve(async (req) => {
       let stripeCustomerId = stripe_customer_id || null;
       let clientData: any = null;
       if (est.customer_id) {
-        const { data: cl } = await supabase.from("Clients").select("id, first_name, last_name, stripe_customer_id").eq("id", est.customer_id).single();
+        const { data: cl } = await supabase.from("Clients").select("id, name, stripe_customer_id").eq("id", est.customer_id).single();
         clientData = cl;
         stripeCustomerId = stripeCustomerId || cl?.stripe_customer_id || null;
       }
 
       // Create Stripe customer if none exists
       if (!stripeCustomerId) {
-        const clientName = clientData ? ((clientData.first_name || "") + " " + (clientData.last_name || "")).trim() : (est.client_name || "");
+        const clientName = clientData?.name || est.client_name || "";
         const customer = await stripePost(secretKey, "/customers", {
           name: clientName,
           ...(est.customer_id ? { "metadata[client_id]": est.customer_id } : {}),
