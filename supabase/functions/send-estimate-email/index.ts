@@ -100,7 +100,7 @@ serve(async (req) => {
     });
 
     const resendData = await resendRes.json();
-    if (resendData.error) throw new Error(resendData.error.message || JSON.stringify(resendData.error));
+    if (!resendRes.ok) throw new Error("Resend " + resendRes.status + ": " + (resendData.message || resendData.error?.message || JSON.stringify(resendData)));
 
     // Mark estimate as sent
     await supabase.from("estimates").update({ status: "sent" }).eq("id", estimate_id);
