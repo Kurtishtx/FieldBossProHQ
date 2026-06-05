@@ -32,7 +32,7 @@ serve(async (req) => {
     const { data: tmpl } = await supabase.from("email_templates").select("*").eq("key", "estimate_email").eq("user_id", est.user_id).single();
     const subject  = tmpl?.subject  || "Your Estimate from [companyname]";
     const bodyTmpl = tmpl?.body     || "Hi [clientname],\n\nPlease review your estimate #[estimatenumber] for [estimatetotal].\n\nView your estimate here:\n[estimatelink]\n\nThis estimate expires on [expirydate].\n\nThank you,\n[companyname]";
-    const fromName = tmpl?.from_name || co.display_name || co.company_name || "SprayBoss Pro";
+    const fromName = tmpl?.from_name || co?.display_name || co?.company_name || "SprayBossPro";
     const replyTo  = tmpl?.reply_to || null;
 
     // Load client email — check Clients first, then Leads
@@ -48,9 +48,9 @@ serve(async (req) => {
     if (!toEmail) return new Response(JSON.stringify({ error: "No email address on file for this lead/client." }), { status: 400, headers: CORS });
 
     // Build estimate link
-    const baseUrl    = (co.site_url || "").replace(/\/$/, "");
-    const estLink    = baseUrl + "/estimate-view.html?id=" + estimate_id;
-    const compName   = co.display_name || co.company_name || "SprayBoss Pro";
+    const baseUrl    = (co?.site_url || "").replace(/\/$/, "");
+    const estLink    = baseUrl ? baseUrl + "/estimate-view.html?id=" + estimate_id : "[estimatelink]";
+    const compName   = co?.display_name || co?.company_name || "SprayBossPro";
     const clientName = est.client_name || "";
     const expiry     = est.expiry_date ? new Date(est.expiry_date + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "N/A";
     const total      = "$" + (parseFloat(est.amount) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
