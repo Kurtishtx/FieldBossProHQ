@@ -281,8 +281,9 @@
     allMessages.forEach(function(m) {
       var phone = m.direction === 'outbound' ? m.phone_to : m.phone_from;
       if (!phone) return;
-      if (!map[phone]) map[phone] = { phone: phone, client_name: m.client_name || phone, messages: [] };
+      if (!map[phone]) map[phone] = { phone: phone, client_name: m.client_name || phone, address: m.address || '', messages: [] };
       if (m.client_name && m.client_name !== phone) map[phone].client_name = m.client_name;
+      if (m.address) map[phone].address = m.address;
       map[phone].messages.push(m);
     });
     conversations = Object.values(map).sort(function(a, b) {
@@ -321,7 +322,7 @@
         '<div class="avatar">' + initials(c.client_name) + '</div>' +
         '<div class="convo-info">' +
           '<div class="convo-name">' + escHtml(formatDisplayName(c.client_name)) + '</div>' +
-          '<div class="convo-sub">client</div>' +
+          '<div class="convo-sub">' + escHtml(c.address || '') + '</div>' +
           '<div class="convo-preview">' + escHtml(preview) + '</div>' +
         '</div>';
       list.appendChild(div);
