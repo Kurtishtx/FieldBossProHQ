@@ -106,7 +106,7 @@
 
   <div class="field-row">
     <label>Email Body</label>
-    <textarea id="email-body" placeholder="Hi [clientname],&#10;&#10;Please review your estimate #[estimatenumber] for [estimatetotal].&#10;&#10;Click the link below to view your estimate and add your card on file:&#10;[estimatelink]&#10;&#10;This estimate expires on [expirydate].&#10;&#10;Thank you,&#10;[companyname]"></textarea>
+    <textarea id="email-body"></textarea>
     <div class="hint">The [estimatelink] variable inserts the button/link where the client clicks to view and accept the estimate.</div>
   </div>
 
@@ -175,15 +175,29 @@
     }
   }
 
+  var DEFAULT_SUBJECT = 'Your Estimate #[estimatenumber] from [companyname]';
+  var DEFAULT_BODY =
+'Hi [clientname],\n\n' +
+'Thank you for the opportunity to earn your business! Please find your estimate #[estimatenumber] in the amount of [estimatetotal] attached for your review.\n\n' +
+'To view your estimate, accept it, and securely add a card on file, simply click the link below:\n\n' +
+'[estimatelink]\n\n' +
+'This estimate is valid through [expirydate]. If you have any questions or would like to make any changes, please don\'t hesitate to reach out — we\'re happy to help.\n\n' +
+'We look forward to working with you!\n\n' +
+'Thank you,\n' +
+'[companyname]';
+
   async function load() {
     var { data } = await sb.from('email_templates').select('*').eq('key', 'estimate_email').single();
     if (data) {
-      document.getElementById('from-name').value    = data.from_name || '';
-      document.getElementById('reply-to').value     = data.reply_to  || '';
-      document.getElementById('email-subject').value = data.subject  || '';
-      document.getElementById('email-body').value   = data.body      || '';
-      updatePreview();
+      document.getElementById('from-name').value     = data.from_name || '';
+      document.getElementById('reply-to').value      = data.reply_to  || '';
+      document.getElementById('email-subject').value = data.subject   || DEFAULT_SUBJECT;
+      document.getElementById('email-body').value    = data.body      || DEFAULT_BODY;
+    } else {
+      document.getElementById('email-subject').value = DEFAULT_SUBJECT;
+      document.getElementById('email-body').value    = DEFAULT_BODY;
     }
+    updatePreview();
   }
 
   load();
