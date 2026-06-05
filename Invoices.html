@@ -59,7 +59,7 @@
 
     /* ── Table ── */
     .table-container { background:#fff; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
     thead th { background:#fafafa; border-bottom:2px solid #ddd; padding:11px 20px; text-align:left; font-size:12px; font-weight:700; color:#555; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
     thead th:first-child { width:40px; text-align:center; cursor:default; padding:11px 14px; }
     thead th:last-child { padding-right:48px; }
@@ -228,17 +228,17 @@
   <table>
     <thead>
       <tr>
-        <th style="width:40px;"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th style="width:200px;">Status <span class="sort-icon">&#8597;</span></th>
-        <th style="width:220px;">Date <span class="sort-asc">&#8593;</span></th>
-        <th>Client <span class="sort-icon">&#8597;</span></th>
-        <th style="width:180px;text-align:right;">Inv Total <span class="sort-icon">&#8597;</span></th>
+        <th style="width:4%;"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th style="width:24%;">Status <span class="sort-icon">&#8597;</span></th>
+        <th style="width:24%;">Date <span class="sort-asc">&#8593;</span></th>
+        <th style="width:24%;">Client <span class="sort-icon">&#8597;</span></th>
+        <th style="width:24%;text-align:right;">Inv Total <span class="sort-icon">&#8597;</span></th>
       </tr>
     </thead>
     <thead>
       <tr style="background:#222;">
         <td colspan="4" style="background:#222;"></td>
-        <td class="money" id="total-invtotal" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
+        <td class="money" id="total-invtotal" style="color:#fff;font-weight:700;padding:6px 20px;text-align:right;">$0.00</td>
       </tr>
     </thead>
     <tbody id="invoice-tbody"></tbody>
