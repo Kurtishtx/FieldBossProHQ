@@ -48,8 +48,8 @@ serve(async (req) => {
     if (!toEmail) return new Response(JSON.stringify({ error: "No email address on file for this lead/client." }), { status: 400, headers: CORS });
 
     // Build estimate link
-    const baseUrl    = (co?.site_url || "").replace(/\/$/, "");
-    const estLink    = baseUrl ? baseUrl + "/estimate-view.html?id=" + estimate_id : "[estimatelink]";
+    const baseUrl    = "https://my.spraybosspro.com";
+    const estLink    = baseUrl + "/estimate-view.html?id=" + estimate_id;
     const compName   = co?.display_name || co?.company_name || "SprayBossPro";
     const clientName = est.client_name || "";
     const expiry     = est.expiry_date ? new Date(est.expiry_date + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "N/A";
