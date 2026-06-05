@@ -122,12 +122,12 @@ serve(async (req) => {
       }
 
       // Save card details to client profile in Supabase
+      const expiry = String(card.exp_month).padStart(2,'0') + '/' + String(card.exp_year).slice(-2);
       await supabase.from("Clients").update({
         stripe_customer_id: stripe_customer_id || pm.customer,
-        card_last4:         card.last4,
-        card_brand:         card.brand,
-        card_exp_month:     String(card.exp_month),
-        card_exp_year:      String(card.exp_year),
+        stripe_card_last4:  card.last4,
+        stripe_card_brand:  card.brand,
+        stripe_card_expiry: expiry,
       }).eq("id", body.customer_id);
 
       return new Response(
