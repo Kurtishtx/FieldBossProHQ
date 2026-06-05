@@ -234,9 +234,40 @@
     allMessages = fresh;
     var savedPhone = activePhone;
     buildConversations();
+    await enrichAddresses(pollUid);
     activePhone = savedPhone;
     renderConvoList();
     if (fresh.length !== prevCount && activePhone) renderThread(activePhone);
+  }
+
+  async function enrichAddresses(uid) {
+    if (!conversations.length || !uid) return;
+
+    // Build address maps from Clients and Properties
+    var [clientRes, propRes] = await Promise.all([
+      sb.from('Clients').select('name, first_name, last_name, address, city, state').eq('user_id', uid).limit(500),
+      sb.from('Properties').select('first_name, last_name, address, city, state').eq('user_id', uid).limit(500),
+    ]);
+
+    var addrMap = {};
+    (clientRes.data || []).forEach(function(c) {
+      var addr = [c.address, c.city, c.state].filter(Boolean).join(', ');
+      if (!addr) return;
+      var n = (c.name || ((c.first_name || '') + ' ' + (c.last_name || '')).trim()).toLowerCase();
+      if (n) addrMap[n] = addr;
+    });
+    (propRes.data || []).forEach(function(p) {
+      var addr = [p.address, p.city, p.state].filter(Boolean).join(', ');
+      if (!addr) return;
+      var n = ((p.first_name || '') + ' ' + (p.last_name || '')).trim().toLowerCase();
+      if (n && !addrMap[n]) addrMap[n] = addr;
+    });
+
+    conversations.forEach(function(c) {
+      if (c.address) return;
+      var key = (c.client_name || '').toLowerCase();
+      if (addrMap[key]) c.address = addrMap[key];
+    });
   }
 
   async function init() {
@@ -259,6 +290,7 @@
 
     allMessages = msgs || [];
     buildConversations();
+    await enrichAddresses(uid);
 
     if (prePhone) {
       var formatted = prePhone.length === 10 ? '+1' + prePhone : prePhone.startsWith('+') ? prePhone : '+' + prePhone;
