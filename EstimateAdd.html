@@ -300,7 +300,7 @@
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
 
     var [svcRes, pkgRes] = await Promise.all([
-      sb.from('estimate_services').select('id, name, description, default_price, area_treated, price_matrix, package_id').eq('active', true).order('name'),
+      sb.from('Services').select('id, name, amount').is('property_id', null).eq('active', true).order('name'),
       sb.from('Packages').select('id, name, description, price').eq('user_id', uid).order('name'),
     ]);
     estimateCatalog = svcRes.data || [];
@@ -311,7 +311,7 @@
   function addLine(desc, qty, rate, details) {
     var tbody = document.getElementById('line-tbody');
     var svcOpts = estimateCatalog.map(function(s) {
-      return '<option value="svc_' + s.id + '" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-price="' + (s.default_price||0) + '" data-desc="' + (s.description||'').replace(/"/g,'&quot;') + '">' + s.name + '</option>';
+      return '<option value="svc_' + s.id + '" data-name="' + (s.name||'').replace(/"/g,'&quot;') + '" data-price="' + (s.amount||0) + '" data-desc="">' + s.name + '</option>';
     }).join('');
     var pkgOpts = packageCatalog.map(function(p) {
       return '<option value="pkg_' + p.id + '" data-name="' + (p.name||'').replace(/"/g,'&quot;') + '" data-price="' + (p.price||0) + '" data-desc="' + (p.description||'').replace(/"/g,'&quot;') + '">' + p.name + '</option>';
@@ -376,7 +376,7 @@
       }
     }
 
-    tr.querySelector('.li-rate').value = calculatedPrice !== null ? calculatedPrice.toFixed(2) : (svc.default_price || svc.price || '0.00');
+    tr.querySelector('.li-rate').value = calculatedPrice !== null ? calculatedPrice.toFixed(2) : (svc.amount || svc.price || svc.default_price || '0.00');
     calcTotals();
   }
 
