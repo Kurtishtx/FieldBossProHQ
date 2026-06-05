@@ -340,6 +340,7 @@
           payment_method_id: result.setupIntent.payment_method,
           stripe_customer_id: stripeCustomerId,
           customer_id: estimateData.customer_id,
+          user_id: estimateData.user_id,
         }
       });
     }
@@ -385,14 +386,12 @@
     var id = params.get('id');
     if (!id) { showError('Invalid estimate link.'); return; }
 
-    var [estRes, coRes] = await Promise.all([
-      sb.from('estimates').select('*').eq('id', id).single(),
-      sb.from('company_info').select('company_name, display_name, stripe_publishable_key').limit(1).single()
-    ]);
-
+    var estRes = await sb.from('estimates').select('*').eq('id', id).single();
     if (estRes.error || !estRes.data) { showError('Estimate not found.'); return; }
     estimateData = estRes.data;
-    companyData  = coRes.data || {};
+
+    var coRes = await sb.from('company_info').select('company_name, display_name, stripe_publishable_key').eq('user_id', estimateData.user_id).single();
+    companyData = coRes.data || {};
 
     if (estimateData.customer_id) {
       var { data: cl } = await sb.from('Clients').select('id, stripe_customer_id, card_last4, card_brand, card_exp_month, card_exp_year').eq('id', estimateData.customer_id).single();

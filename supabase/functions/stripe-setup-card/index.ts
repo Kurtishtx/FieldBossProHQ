@@ -36,28 +36,28 @@ serve(async (req) => {
     const body = await req.json();
     const { action, estimate_id, payment_method_id, stripe_customer_id } = body;
 
-    // Load company Stripe secret key
-    const { data: co } = await supabase
-      .from("company_info")
-      .select("stripe_secret_key")
-      .limit(1)
-      .single();
-
-    const secretKey = co?.stripe_secret_key;
-    if (!secretKey) {
-      return new Response(
-        JSON.stringify({ error: "Stripe not configured. Add your Stripe secret key in Company Info → Payments." }),
-        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
-    }
-
     /* ── ACTION: create_setup_intent ── */
     if (!action || action === "create_setup_intent") {
       if (!estimate_id) return new Response(JSON.stringify({ error: "Missing estimate_id" }), { status: 400, headers: CORS });
 
-      // Load estimate to get customer info
+      // Load estimate to get customer info and user_id
       const { data: est } = await supabase.from("estimates").select("*").eq("id", estimate_id).single();
       if (!est) return new Response(JSON.stringify({ error: "Estimate not found" }), { status: 404, headers: CORS });
+
+      // Load company Stripe secret key for this user
+      const { data: co } = await supabase
+        .from("company_info")
+        .select("stripe_secret_key")
+        .eq("user_id", est.user_id)
+        .single();
+
+      const secretKey = co?.stripe_secret_key;
+      if (!secretKey) {
+        return new Response(
+          JSON.stringify({ error: "Stripe not configured. Add your Stripe secret key in Company Info → Payments." }),
+          { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
+        );
+      }
 
       // Load client to check for existing Stripe customer
       let stripeCustomerId = stripe_customer_id || null;
@@ -103,6 +103,11 @@ serve(async (req) => {
       if (!payment_method_id || !body.customer_id) {
         return new Response(JSON.stringify({ error: "Missing payment_method_id or customer_id" }), { status: 400, headers: CORS });
       }
+
+      // Load Stripe key for this user
+      const { data: co2 } = await supabase.from("company_info").select("stripe_secret_key").eq("user_id", body.user_id).single();
+      const secretKey = co2?.stripe_secret_key;
+      if (!secretKey) return new Response(JSON.stringify({ error: "Stripe not configured." }), { status: 400, headers: CORS });
 
       // Get card details from Stripe
       const pm = await stripeGet(secretKey, "/payment_methods/" + payment_method_id);
