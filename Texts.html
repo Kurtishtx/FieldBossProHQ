@@ -251,13 +251,13 @@
 
     var addrMap = {};
     (clientRes.data || []).forEach(function(c) {
-      var addr = [c.address, c.city, c.state].filter(Boolean).join(', ');
+      var addr = c.address || '';
       if (!addr) return;
       var n = (c.name || ((c.first_name || '') + ' ' + (c.last_name || '')).trim()).toLowerCase();
       if (n) addrMap[n] = addr;
     });
     (propRes.data || []).forEach(function(p) {
-      var addr = [p.address, p.city, p.state].filter(Boolean).join(', ');
+      var addr = p.address || '';
       if (!addr) return;
       var n = ((p.first_name || '') + ' ' + (p.last_name || '')).trim().toLowerCase();
       if (n && !addrMap[n]) addrMap[n] = addr;
@@ -355,7 +355,6 @@
         '<div class="convo-info">' +
           '<div class="convo-name">' + escHtml(formatDisplayName(c.client_name)) + '</div>' +
           '<div class="convo-sub">' + escHtml(c.address || '') + '</div>' +
-          '<div class="convo-preview">' + escHtml(preview) + '</div>' +
         '</div>';
       list.appendChild(div);
     });
