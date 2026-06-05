@@ -37,26 +37,22 @@ serve(async (req) => {
 
     // Load client email — check Clients, then Leads, then via property_id
     let toEmail = "";
-    let debugInfo = "";
     if (est.customer_id) {
-      const { data: cl, error: clErr } = await supabase.from("Clients").select("email").eq("id", est.customer_id).single();
-      debugInfo += " | cl=" + JSON.stringify(cl) + (clErr ? " clErr=" + clErr.message : "");
+      const { data: cl } = await supabase.from("Clients").select("email").eq("id", est.customer_id).single();
       toEmail = cl?.email || "";
       if (!toEmail) {
-        const { data: lead, error: leadErr } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
-        debugInfo += " | lead=" + JSON.stringify(lead) + (leadErr ? " leadErr=" + leadErr.message : "");
+        const { data: lead } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
         toEmail = lead?.email || "";
       }
     }
-    // Fallback: look up client via property_id
     if (!toEmail && est.property_id) {
       const { data: prop } = await supabase.from("Properties").select("customer_id").eq("id", est.property_id).single();
       if (prop?.customer_id) {
-        const { data: cl } = await supabase.from("Clients").select("email, contact_email").eq("id", prop.customer_id).single();
-        toEmail = cl?.email || cl?.contact_email || "";
+        const { data: cl } = await supabase.from("Clients").select("email").eq("id", prop.customer_id).single();
+        toEmail = cl?.email || "";
       }
     }
-    if (!toEmail) return new Response(JSON.stringify({ error: "No email: customer_id=" + est.customer_id + debugInfo }), { status: 400, headers: CORS });
+    if (!toEmail) return new Response(JSON.stringify({ error: "No email address on file for this lead/client." }), { status: 400, headers: CORS });
 
     // Build estimate link
     const baseUrl    = "https://my.spraybosspro.com";
