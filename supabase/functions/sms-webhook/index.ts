@@ -19,8 +19,12 @@ serve(async (req: Request) => {
       const json = JSON.parse(rawText);
       // voip.ms webhook format: { data: { payload: { from, to, text } } }
       const payload = json.data?.payload || json.payload || json;
-      from = payload.from || payload.contact || payload.From || "";
-      to   = payload.to   || payload.did     || payload.To   || "";
+      // from is an object { phone_number: "..." }
+      const fromObj = payload.from || payload.contact || payload.From || "";
+      from = (typeof fromObj === "object" ? fromObj.phone_number : fromObj) || "";
+      // to is an array [{ phone_number: "..." }]
+      const toObj = payload.to || payload.did || payload.To || "";
+      to = Array.isArray(toObj) ? (toObj[0]?.phone_number || "") : (typeof toObj === "object" ? toObj.phone_number : toObj) || "";
       body = payload.text || payload.message || payload.body || payload.Body || "";
     } catch (_) {
       const params = new URLSearchParams(rawText);
@@ -42,10 +46,11 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const toClean = to.replace(/\D/g, "");
     const { data: twilioRow } = await supabase
       .from("twilio_settings")
       .select("user_id")
-      .eq("phone_number", to)
+      .or(`phone_number.eq.${to},phone_number.eq.${toClean}`)
       .single();
 
     if (!twilioRow?.user_id) {
