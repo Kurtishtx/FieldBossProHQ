@@ -118,6 +118,7 @@
     <tbody id="items-tbody"></tbody>
   </table>
   <button class="btn-add-line" onclick="addRow()">+ Add Item</button>
+  <button class="btn-add-line" onclick="saveTemplate()" style="margin-left:8px;border-color:#e07820;color:#e07820;">Save Template</button>
 
   <div class="totals-wrap">
     <div class="totals-box">
@@ -153,7 +154,6 @@
     var { data: svcs } = await sb.from('estimate_services').select('id, name, price').order('name');
     catalog = svcs || [];
     if (editId) await loadTemplate();
-    else addRow();
   }
 
   function catalogOptions(selectedName) {
@@ -167,30 +167,18 @@
 
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  function addRow(desc, qty, rate, details) {
+  function addRow(desc, qty, rate) {
     var tbody = document.getElementById('items-tbody');
+    var safeDesc = (desc || '').replace(/"/g, '&quot;');
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td>' +
-        '<select onchange="onCatalogPick(this)" style="margin-bottom:4px;">' + catalogOptions(desc) + '</select>' +
-        '<input type="text" class="li-desc" placeholder="Description" value="' + esc(desc || '') + '"/>' +
-        '<input type="text" class="li-details" placeholder="Details (optional)" value="' + esc(details || '') + '" style="margin-top:3px;font-size:11.5px;color:#777;"/>' +
-      '</td>' +
+      '<td><input type="text" class="li-desc" placeholder="Service or description..." value="' + safeDesc + '" style="width:100%;"/></td>' +
       '<td><input type="number" class="li-qty" min="0" step="1" value="' + (qty || 1) + '" oninput="recalcRow(this)"/></td>' +
       '<td><input type="number" class="li-rate" min="0" step="0.01" value="' + (rate || '') + '" oninput="recalcRow(this)"/></td>' +
       '<td class="row-total">$' + ((parseFloat(qty) || 0) * (parseFloat(rate) || 0)).toFixed(2) + '</td>' +
       '<td style="text-align:center;"><button class="btn-del-row" onclick="deleteRow(this)">&#10006;</button></td>';
     tbody.appendChild(tr);
     updateTotal();
-  }
-
-  function onCatalogPick(sel) {
-    var tr = sel.closest('tr');
-    var opt = sel.options[sel.selectedIndex];
-    if (!opt || !opt.value) return;
-    tr.querySelector('.li-desc').value  = opt.dataset.name || opt.text;
-    tr.querySelector('.li-rate').value  = opt.dataset.price || '';
-    recalcRow(tr.querySelector('.li-rate'));
   }
 
   function recalcRow(input) {
@@ -219,11 +207,10 @@
   function getItems() {
     var items = [];
     document.querySelectorAll('#items-tbody tr').forEach(function(tr) {
-      var desc    = tr.querySelector('.li-desc')?.value.trim()    || '';
-      var details = tr.querySelector('.li-details')?.value.trim() || '';
-      var qty     = parseFloat(tr.querySelector('.li-qty')?.value)  || 1;
-      var rate    = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
-      if (desc) items.push({ description: desc, details: details, qty: qty, rate: rate });
+      var desc = (tr.querySelector('.li-desc')?.value || '').trim();
+      var qty  = parseFloat(tr.querySelector('.li-qty')?.value)  || 1;
+      var rate = parseFloat(tr.querySelector('.li-rate')?.value) || 0;
+      if (desc) items.push({ description: desc, qty: qty, rate: rate });
     });
     return items;
   }
@@ -233,11 +220,7 @@
     if (!data) return;
     document.getElementById('tmpl-name').value = data.name || '';
     var items = Array.isArray(data.items) ? data.items : [];
-    if (items.length) {
-      items.forEach(function(it) { addRow(it.description, it.qty, it.rate, it.details); });
-    } else {
-      addRow();
-    }
+    items.forEach(function(it) { addRow(it.description, it.qty, it.rate); });
   }
 
   async function saveTemplate() {
