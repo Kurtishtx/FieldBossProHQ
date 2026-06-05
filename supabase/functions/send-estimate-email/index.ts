@@ -21,7 +21,7 @@ serve(async (req) => {
 
     // Load estimate
     const { data: est, error: estErr } = await supabase.from("estimates").select("*").eq("id", estimate_id).single();
-    if (estErr || !est) return new Response(JSON.stringify({ error: "Estimate not found" }), { status: 404, headers: CORS });
+    if (estErr || !est) return new Response(JSON.stringify({ error: "Estimate not found: id=" + estimate_id + (estErr ? " | " + estErr.message : "") }), { status: 404, headers: CORS });
 
     // Load company info (Resend key, site URL, company name)
     const { data: co } = await supabase.from("company_info").select("company_name, display_name, resend_api_key, site_url").eq("user_id", est.user_id).single();
