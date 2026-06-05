@@ -24,7 +24,7 @@ serve(async (req) => {
     if (estErr || !est) return new Response(JSON.stringify({ error: "Estimate not found" }), { status: 404, headers: CORS });
 
     // Load company info (Resend key, site URL, company name)
-    const { data: co } = await supabase.from("company_info").select("company_name, display_name, resend_api_key, site_url").limit(1).single();
+    const { data: co } = await supabase.from("company_info").select("company_name, display_name, resend_api_key, site_url").eq("user_id", est.user_id).single();
     if (!co?.resend_api_key) return new Response(JSON.stringify({ error: "Resend API key not configured in Company Info → Payments." }), { status: 400, headers: CORS });
 
     // Load email template
@@ -71,7 +71,7 @@ serve(async (req) => {
 
     // Send via Resend
     const emailPayload: any = {
-      from:    fromName + " <onboarding@resend.dev>",
+      from:    fromName + " <Kurtis@SprayBossPro.com>",
       to:      [toEmail],
       subject: finalSubject,
       html:    htmlBody,
