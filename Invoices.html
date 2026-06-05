@@ -225,18 +225,16 @@
   <table>
     <thead>
       <tr>
-        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th>Status <span class="sort-icon">&#8597;</span></th>
-        <th>Date <span class="sort-asc">&#8593;</span></th>
+        <th style="width:40px;"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th style="width:110px;">Status <span class="sort-icon">&#8597;</span></th>
+        <th style="width:110px;">Date <span class="sort-asc">&#8593;</span></th>
         <th>Client <span class="sort-icon">&#8597;</span></th>
-        <th style="text-align:right;">Inv Bal <span class="sort-icon">&#8597;</span></th>
-        <th style="text-align:right;">Inv Total <span class="sort-icon">&#8597;</span></th>
+        <th style="width:130px;text-align:right;">Inv Total <span class="sort-icon">&#8597;</span></th>
       </tr>
     </thead>
     <thead>
       <tr style="background:#222;">
         <td colspan="4" style="background:#222;"></td>
-        <td class="money" id="total-invbal" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
         <td class="money" id="total-invtotal" style="color:#fff;font-weight:700;padding:6px 8px;">$0.00</td>
       </tr>
     </thead>
@@ -292,12 +290,8 @@
   }
 
   function updateTotals(rows) {
-    var invBal = 0, invTotal = 0;
-    rows.forEach(function(inv) {
-      invBal   += parseFloat(inv.inv_bal)   || 0;
-      invTotal += parseFloat(inv.inv_total) || 0;
-    });
-    document.getElementById('total-invbal').textContent   = fmt(invBal);
+    var invTotal = 0;
+    rows.forEach(function(inv) { invTotal += parseFloat(inv.inv_total) || 0; });
     document.getElementById('total-invtotal').textContent = fmt(invTotal);
   }
 
@@ -339,7 +333,6 @@
           '<a class="inv-link">' + (inv.client_name || '') + '</a>' +
           '<div class="client-addr">' + (inv.address || '') + '</div>' +
         '</td>' +
-        '<td class="money">' + fmt(inv.inv_bal) + '</td>' +
         '<td class="money">' + fmt(inv.inv_total) + '</td>';
       tbody.appendChild(tr);
     });
