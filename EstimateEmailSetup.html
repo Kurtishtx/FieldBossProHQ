@@ -32,6 +32,24 @@
     .link-text .link-desc { font-size: 12.5px; color: #777; line-height: 1.4; }
 
     .link-arrow { margin-left: auto; color: #2272c3; font-size: 18px; }
+
+    .tpl-selected {
+      padding: 18px 24px; border-bottom: 1px solid #eee;
+    }
+    .tpl-selected-hdr {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    }
+    .tpl-selected-hdr .link-name { font-size: 15px; font-weight: 700; color: #111; }
+    .btn-change-tpl {
+      background: #e07820; color: #fff; border: none; border-radius: 4px;
+      padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-change-tpl:hover { background: #c96a10; }
+    .tpl-iframe-wrap {
+      width: 100%; max-width: 420px; overflow: hidden; border: 1px solid #ddd;
+      border-radius: 4px; position: relative;
+    }
+    .tpl-iframe-wrap iframe { width: 600px; height: 700px; border: none; transform-origin: top left; pointer-events: none; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
@@ -44,13 +62,8 @@
 
 <hr class="divider"/>
 
-<div class="link-item" onclick="navigate('estimateemailtemplate')">
-  <div class="link-icon">&#128203;</div>
-  <div class="link-text">
-    <div class="link-name">Estimate Email Template</div>
-    <div class="link-desc">Choose from 3 starter templates for your estimate emails.</div>
-  </div>
-  <div class="link-arrow">&#8250;</div>
+<div id="template-section">
+  <!-- Filled by JS -->
 </div>
 
 <div class="link-item" onclick="navigate('estimateemailinfo')">
@@ -62,12 +75,60 @@
   <div class="link-arrow">&#8250;</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
   function navigate(page) {
-    if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage(page);
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page + '.html';
+  }
+
+  async function load() {
+    var { data: tmpl } = await sb.from('email_templates').select('body').eq('key', 'estimate_email').single();
+    var section = document.getElementById('template-section');
+
+    if (tmpl && tmpl.body) {
+      section.innerHTML =
+        '<div class="tpl-selected">' +
+          '<div class="tpl-selected-hdr">' +
+            '<div class="link-name">&#128203; Estimate Email Template</div>' +
+            '<button class="btn-change-tpl" onclick="navigate(\'estimateemailtemplate\')">Change Template</button>' +
+          '</div>' +
+          '<div class="tpl-iframe-wrap" id="iframe-wrap"></div>' +
+        '</div>';
+
+      var wrap   = document.getElementById('iframe-wrap');
+      var iframe = document.createElement('iframe');
+      iframe.srcdoc = tmpl.body;
+      wrap.appendChild(iframe);
+
+      var scale = wrap.offsetWidth / 600 || 0.7;
+      iframe.style.transform = 'scale(' + scale + ')';
+      wrap.style.height = Math.round(700 * scale) + 'px';
+
+      window.addEventListener('load', function() {
+        var s = wrap.offsetWidth / 600;
+        iframe.style.transform = 'scale(' + s + ')';
+        wrap.style.height = Math.round(700 * s) + 'px';
+      });
+    } else {
+      section.innerHTML =
+        '<div class="link-item" onclick="navigate(\'estimateemailtemplate\')">' +
+          '<div class="link-icon">&#128203;</div>' +
+          '<div class="link-text">' +
+            '<div class="link-name">Estimate Email Template</div>' +
+            '<div class="link-desc">Choose from 3 starter templates for your estimate emails.</div>' +
+          '</div>' +
+          '<div class="link-arrow">&#8250;</div>' +
+        '</div>';
     }
   }
+
+  load();
 </script>
 </body>
 </html>
