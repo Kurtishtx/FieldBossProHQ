@@ -263,7 +263,7 @@
         var cl = r._client || {};
         var cname = cl.name || [cl.last_name, cl.first_name].filter(Boolean).join(', ') || '';
         key   = 'prop_' + r.id;
-        label = (r.address || '') + (cname ? ' — ' + cname : '');
+        label = (cname || r.address || '') + (cname && r.address ? ' — ' + [r.address, r.city, r.state, r.zip].filter(Boolean).join(', ') : '');
       }
       var opt = document.createElement('option');
       opt.value = key;
