@@ -470,12 +470,15 @@
     if (error) { alert('Error: ' + error.message); return; }
 
     if (statusOverride === 'sent' && savedData) {
-      var { data: emailRes, error: emailErr } = await sb.functions.invoke('send-estimate-email', {
-        body: { estimate_id: savedData.id }
+      var token = sessionData && sessionData.session ? sessionData.session.access_token : '';
+      var emailFetch = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-estimate-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ estimate_id: savedData.id })
       });
-      if (emailErr || (emailRes && emailRes.error)) {
-        var errMsg = (emailRes && emailRes.error) ? emailRes.error : (emailErr ? emailErr.message : 'Unknown error');
-        alert('Estimate saved but email failed: ' + errMsg);
+      var emailJson = await emailFetch.json();
+      if (!emailFetch.ok) {
+        alert('Estimate saved but email failed: ' + (emailJson.error || 'Unknown error'));
       } else {
         alert('Estimate sent! The client will receive an email with a link to view and accept.');
       }
@@ -573,7 +576,9 @@
     // Pre-select property if coming from property profile
     var pid = params.get('property_id');
     if (pid) {
-      document.getElementById('property-select').value = pid;
+      document.getElementById('source-type').value = 'property';
+      onSourceTypeChange();
+      document.getElementById('property-select').value = 'prop_' + pid;
       onPropertyChange();
     }
 
@@ -585,10 +590,29 @@
       var { data, error } = await sb.from('estimates').select('*').eq('id', editId).single();
       if (error || !data) { alert('Estimate not found.'); goBack(); return; }
 
-      document.getElementById('property-select').value = data.property_id || '';
-      onPropertyChange();
-      document.getElementById('expiry-date').value  = data.expiry_date || '';
-      document.getElementById('notes').value        = data.notes || '';
+      // Restore source type and record dropdown
+      var restoredKey = '';
+      if (data.property_id) {
+        restoredKey = 'prop_' + data.property_id;
+        document.getElementById('source-type').value = 'property';
+      } else if (data.customer_id) {
+        var isLead = allLeads.some(function(l) { return l.id === data.customer_id; });
+        if (isLead) {
+          restoredKey = 'lead_' + data.customer_id;
+          document.getElementById('source-type').value = 'lead';
+        } else {
+          restoredKey = 'client_' + data.customer_id;
+          document.getElementById('source-type').value = 'client';
+        }
+      }
+      if (restoredKey) {
+        onSourceTypeChange();
+        document.getElementById('property-select').value = restoredKey;
+        onPropertyChange();
+      }
+
+      document.getElementById('expiry-date').value   = data.expiry_date || '';
+      document.getElementById('notes').value         = data.notes || '';
       document.getElementById('status-select').value = data.status || 'draft';
       updateStatusBadge(data.status || 'draft');
       if (data.status === 'accepted') document.getElementById('btn-convert').style.display = '';
@@ -597,6 +621,10 @@
         addLine(item.description, item.qty, item.rate, item.details);
       });
     } else {
+      // Default expiry date to 30 days from today
+      var exp = new Date();
+      exp.setDate(exp.getDate() + 30);
+      document.getElementById('expiry-date').value = exp.toISOString().split('T')[0];
       addLine();
     }
   }

@@ -28,7 +28,7 @@ serve(async (req) => {
     if (!co?.resend_api_key) return new Response(JSON.stringify({ error: "Resend API key not configured in Company Info → Payments." }), { status: 400, headers: CORS });
 
     // Load email template
-    const { data: tmpl } = await supabase.from("email_templates").select("*").eq("key", "estimate_email").single();
+    const { data: tmpl } = await supabase.from("email_templates").select("*").eq("key", "estimate_email").eq("user_id", est.user_id).single();
     const subject  = tmpl?.subject  || "Your Estimate from [companyname]";
     const bodyTmpl = tmpl?.body     || "Hi [clientname],\n\nPlease review your estimate #[estimatenumber] for [estimatetotal].\n\nView your estimate here:\n[estimatelink]\n\nThis estimate expires on [expirydate].\n\nThank you,\n[companyname]";
     const fromName = tmpl?.from_name || co.display_name || co.company_name || "SprayBoss Pro";
