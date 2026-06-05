@@ -44,7 +44,7 @@
     .refresh-btn:hover { background:#666; color:#fff; }
 
     /* Actions dropdown */
-    .actions-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.18); z-index:9999; min-width:200px; padding:4px 0; }
+    .actions-dropdown { display:none; position:fixed; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.3); z-index:9999; min-width:200px; padding:4px 0; }
     .actions-dropdown.open { display:block; }
     .dropdown-header { font-size:13px; font-weight:700; color:#222; padding:7px 16px 5px; border-bottom:1px solid #eee; margin-bottom:3px; }
     .dropdown-item { display:block; width:100%; background:none; border:none; text-align:left; padding:7px 16px; font-size:13px; font-family:inherit; color:#333; cursor:pointer; }
@@ -196,15 +196,6 @@
     <button class="btn-green-main">Actions</button>
     <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
 
-    <div class="actions-dropdown" id="actions-dropdown">
-      <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="openAddInvoiceModal()">Add Invoice</button>
-      <button class="dropdown-item" onclick="markInvoicesSent()">Mark as Sent</button>
-      <button class="dropdown-item" onclick="emailSelectedInvoices()">Email Selected</button>
-      <button class="dropdown-item" onclick="printSelectedInvoices()">Print Selected</button>
-      <button class="dropdown-item" onclick="deleteSelectedInvoices()">Delete</button>
-      <button class="dropdown-item" onclick="exportInvoices()">Export</button>
-    </div>
     </div>
 
     <button class="refresh-btn" title="Refresh">&#8635;</button>
@@ -253,7 +244,12 @@
   /* ── Dropdown ── */
   function toggleDropdown(e) {
     e.stopPropagation();
-    document.getElementById('actions-dropdown').classList.toggle('open');
+    var dd = document.getElementById('actions-dropdown');
+    if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
+    var rect = e.currentTarget.getBoundingClientRect();
+    dd.style.top  = (rect.bottom + 4) + 'px';
+    dd.style.left = rect.left + 'px';
+    dd.classList.add('open');
   }
   document.addEventListener('click', function() {
     document.getElementById('actions-dropdown').classList.remove('open');
@@ -907,6 +903,17 @@
     else { loadInvoices(); }
   }
 </script>
+
+<!-- Actions dropdown rendered at body level to avoid clipping -->
+<div class="actions-dropdown" id="actions-dropdown" onclick="event.stopPropagation()">
+  <div class="dropdown-header">Actions</div>
+  <button class="dropdown-item" onclick="openAddInvoiceModal()">Add Invoice</button>
+  <button class="dropdown-item" onclick="markInvoicesSent()">Mark as Sent</button>
+  <button class="dropdown-item" onclick="emailSelectedInvoices()">Email Selected</button>
+  <button class="dropdown-item" onclick="printSelectedInvoices()">Print Selected</button>
+  <button class="dropdown-item" onclick="deleteSelectedInvoices()">Delete</button>
+  <button class="dropdown-item" onclick="exportInvoices()">Export</button>
+</div>
 </body>
 </html>
 
