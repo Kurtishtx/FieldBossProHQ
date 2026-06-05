@@ -759,9 +759,10 @@
       <div class="sec">
         <div class="sec-hdr">
           <span>Open Estimates</span>
-          <span class="hdr-links" style="font-weight:400;font-size:12px;">(0) <a href="#">All</a></span>
+          <span class="hdr-links" style="font-weight:400;font-size:12px;" id="est-count-hdr">(0) <a href="#" onclick="showAllPropertyEstimates(event)">All</a></span>
         </div>
         <div class="add-btn-wrap"><button class="add-btn" onclick="addEstimate()">&#10010; Add an Estimate</button></div>
+        <div id="property-estimates-list" style="padding:4px 8px 4px;"></div>
       </div>
     </div>
   </div>
@@ -985,6 +986,7 @@
     loadAreaTreated();
     loadPackageCards();
     loadPropertyInvoices();
+    loadPropertyEstimates();
     loadTotalOwed();
   }
   initProperty();
@@ -1635,6 +1637,78 @@
       window.parent.loadPage('estimateadd?property_id=' + propId);
     } else {
       window.location.href = 'EstimateAdd.html?property_id=' + propId;
+    }
+  }
+
+  async function loadPropertyEstimates() {
+    var container = document.getElementById('property-estimates-list');
+    var hdrSpan   = document.getElementById('est-count-hdr');
+    if (!container) return;
+
+    var { data, error } = await sb.from('estimates')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      container.innerHTML = '<div style="padding:6px 4px;color:#cc2222;font-size:12.5px;">Error: ' + error.message + '</div>';
+      return;
+    }
+
+    var custId = prop && prop.customer_id ? prop.customer_id : null;
+    var all = (data || []).filter(function(e) {
+      if (propId && e.property_id === propId) return true;
+      if (custId && e.customer_id === custId) return true;
+      return false;
+    });
+
+    var open = all.filter(function(e) { return e.status !== 'closed' && e.status !== 'declined'; });
+
+    if (hdrSpan) {
+      hdrSpan.innerHTML = '(' + open.length + ') <a href="#" onclick="showAllPropertyEstimates(event)">All</a>';
+    }
+
+    if (!all.length) {
+      container.innerHTML = '<div style="padding:6px 4px;color:#aaa;font-size:12.5px;font-style:italic;">No estimates yet.</div>';
+      return;
+    }
+
+    var statusMap = {
+      draft:    { label: 'Draft',    color: '#888' },
+      sent:     { label: 'Sent',     color: '#2272c3' },
+      viewed:   { label: 'Viewed',   color: '#8e44ad' },
+      accepted: { label: 'Accepted', color: '#27a567' },
+      declined: { label: 'Declined', color: '#cc2222' },
+      closed:   { label: 'Closed',   color: '#555' },
+    };
+
+    container.innerHTML = all.map(function(est) {
+      var s   = statusMap[est.status] || { label: est.status || 'Draft', color: '#888' };
+      var amt = '$' + parseFloat(est.amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      var num = est.estimate_number ? '#' + est.estimate_number : 'Est';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid #f0f0f0;font-size:12.5px;cursor:pointer;" onclick="openEstimate(\'' + est.id + '\')">' +
+        '<span style="font-weight:700;color:#2272c3;">' + escHtml(num) + '</span>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="color:' + s.color + ';font-weight:600;font-size:11.5px;">' + s.label + '</span>' +
+          '<span style="font-weight:700;">' + amt + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openEstimate(id) {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateadd?id=' + id);
+    } else {
+      window.location.href = 'EstimateAdd.html?id=' + id;
+    }
+  }
+
+  function showAllPropertyEstimates(e) {
+    e.preventDefault();
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateslist');
+    } else {
+      window.location.href = 'EstimatesList.html';
     }
   }
 
