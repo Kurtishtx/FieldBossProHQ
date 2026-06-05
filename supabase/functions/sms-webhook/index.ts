@@ -11,7 +11,6 @@ serve(async (req: Request) => {
   try {
     const rawText = await req.text();
     const urlObj  = new URL(req.url);
-    const params  = new URLSearchParams(rawText);
 
     let from = "", to = "", body = "";
 
@@ -47,10 +46,11 @@ serve(async (req: Request) => {
     );
 
     const toClean = to.replace(/\D/g, "");
+    const toLast10 = toClean.slice(-10);
     const { data: twilioRow } = await supabase
       .from("twilio_settings")
       .select("user_id")
-      .or(`phone_number.eq.${to},phone_number.eq.${toClean}`)
+      .or(`phone_number.eq.${to},phone_number.eq.${toClean},phone_number.eq.${toLast10}`)
       .single();
 
     if (!twilioRow?.user_id) {

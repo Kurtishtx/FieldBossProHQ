@@ -203,11 +203,29 @@
   var allMessages = [];
   var conversations = [];
   var activePhone = null;
+  var pollUid = null;
+
+  async function pollMessages() {
+    if (!pollUid) return;
+    var { data: msgs } = await sb.from('sms_messages')
+      .select('*')
+      .eq('user_id', pollUid)
+      .order('sent_at', { ascending: true });
+    var fresh = msgs || [];
+    var prevCount = allMessages.length;
+    allMessages = fresh;
+    var savedPhone = activePhone;
+    buildConversations();
+    activePhone = savedPhone;
+    renderConvoList();
+    if (fresh.length !== prevCount && activePhone) renderThread(activePhone);
+  }
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) return;
+    pollUid = uid;
 
     var params = new URLSearchParams(window.location.search);
     var prePhone = params.get('phone');
@@ -234,6 +252,8 @@
     renderConvoList();
     if (activePhone) renderThread(activePhone);
   }
+
+  setInterval(pollMessages, 5000);
 
   function buildConversations() {
     var map = {};
