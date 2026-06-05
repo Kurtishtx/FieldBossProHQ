@@ -37,11 +37,14 @@ serve(async (req) => {
 
     // Load client email — check Clients, then Leads, then via property_id
     let toEmail = "";
+    let debugInfo = "";
     if (est.customer_id) {
-      const { data: cl } = await supabase.from("Clients").select("email, contact_email").eq("id", est.customer_id).single();
+      const { data: cl, error: clErr } = await supabase.from("Clients").select("email, contact_email").eq("id", est.customer_id).single();
+      debugInfo += " | cl=" + JSON.stringify(cl) + (clErr ? " clErr=" + clErr.message : "");
       toEmail = cl?.email || cl?.contact_email || "";
       if (!toEmail) {
-        const { data: lead } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
+        const { data: lead, error: leadErr } = await supabase.from("Leads").select("email").eq("id", est.customer_id).single();
+        debugInfo += " | lead=" + JSON.stringify(lead) + (leadErr ? " leadErr=" + leadErr.message : "");
         toEmail = lead?.email || "";
       }
     }
@@ -53,7 +56,7 @@ serve(async (req) => {
         toEmail = cl?.email || cl?.contact_email || "";
       }
     }
-    if (!toEmail) return new Response(JSON.stringify({ error: "No email: customer_id=" + est.customer_id + " property_id=" + est.property_id }), { status: 400, headers: CORS });
+    if (!toEmail) return new Response(JSON.stringify({ error: "No email: customer_id=" + est.customer_id + debugInfo }), { status: 400, headers: CORS });
 
     // Build estimate link
     const baseUrl    = "https://my.spraybosspro.com";
