@@ -1473,7 +1473,9 @@
     /* package cards */
     Object.keys(groups).forEach(function(pid) {
       var g = groups[pid];
-      var total = g.svcs.reduce(function(s, r) { return s + (parseFloat(r.amount) || 0); }, 0);
+      var amounts = g.svcs.map(function(r) { return parseFloat(r.amount) || 0; });
+      var allSame = amounts.every(function(a) { return a === amounts[0]; });
+      var rateDisplay = allSame ? '$' + amounts[0].toFixed(2) : 'Varies';
       var start = g.svcs.map(function(r) { return r.start_date; }).filter(Boolean).sort()[0] || '';
       var startDisplay = start ? new Date(start + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
       var svcIds = g.svcs.map(function(r) { return r.id; }).join(',');
@@ -1484,7 +1486,7 @@
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ✎</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
             '<span style="font-weight:700;color:#222;">' + g.name + ' (' + g.svcs.length + ')</span>' +
-            '<span><strong>Rate:</strong> $' + total.toFixed(2) + '</span>' +
+            '<span><strong>Rate:</strong> ' + rateDisplay + '</span>' +
             (startDisplay ? '<span><strong>Start:</strong> ' + startDisplay + '</span>' : '') +
           '</div>' +
         '</div>';
