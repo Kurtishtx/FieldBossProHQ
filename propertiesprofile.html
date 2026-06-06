@@ -1374,7 +1374,7 @@
         customer_id: prop.customer_id || null,
         client_name: clientName,
         address: prop.address || '',
-        service: r.service_name || '',
+        service: r.name || r.service_name || '',
         amount: rate,
         min_days: r.min_days || 0,
         package_service_id: r.id,
