@@ -395,8 +395,10 @@
         body: JSON.stringify({ invoice_id: ids[i] })
       });
       var json = await res.json();
-      if (res.ok) { sent++; }
-      else { failed++; errors.push(json.error || 'Unknown error'); }
+      if (res.ok) {
+        sent++;
+        await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).eq('id', ids[i]);
+      } else { failed++; errors.push(json.error || 'Unknown error'); }
     }
 
     if (failed === 0) {
