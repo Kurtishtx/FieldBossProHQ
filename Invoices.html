@@ -228,15 +228,16 @@
     <thead>
       <tr>
         <th style="width:4%;"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th style="width:22%;">Date <span class="sort-asc">&#8593;</span></th>
-        <th style="width:16%;">Status</th>
-        <th style="width:33%;">Client <span class="sort-icon">&#8597;</span></th>
-        <th style="width:25%;">Inv Total <span class="sort-icon">&#8597;</span></th>
+        <th style="width:16%;">Date <span class="sort-asc">&#8593;</span></th>
+        <th style="width:16%;">Charge Status</th>
+        <th style="width:13%;">Status</th>
+        <th style="width:29%;">Client <span class="sort-icon">&#8597;</span></th>
+        <th style="width:22%;">Inv Total <span class="sort-icon">&#8597;</span></th>
       </tr>
     </thead>
     <thead>
       <tr style="background:#222;">
-        <td colspan="4" style="background:#222;padding:10px 16px;"></td>
+        <td colspan="5" style="background:#222;padding:10px 16px;"></td>
         <td id="total-invtotal" style="color:#fff;font-weight:700;padding:10px 16px;background:#222;">$0.00</td>
       </tr>
     </thead>
@@ -336,7 +337,8 @@
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + inv.id + '"/></td>' +
         '<td>' + (inv.date || '') + '</td>' +
-        '<td>' + actionCell(inv) + '</td>' +
+        '<td>' + chargeStatusCell(inv) + '</td>' +
+        '<td>' + sentStatusCell(inv) + '</td>' +
         '<td>' +
           '<a class="inv-link">' + (inv.client_name || '') + '</a>' +
           '<div class="client-addr">' + (inv.address || '') + '</div>' +
@@ -346,16 +348,21 @@
     });
   }
 
-  function actionCell(inv) {
+  function chargeStatusCell(inv) {
     if (inv.failed_charge) {
       var reason = inv.action || '';
       return '<div style="color:#c0392b;font-weight:600;font-size:12.5px;">Declined</div>' +
              (reason ? '<div style="color:#c0392b;font-size:11.5px;line-height:1.3;">' + reason + '</div>' : '');
     }
-    var sent = (inv.status_text || '').toLowerCase() === 'sent';
-    if (sent) {
-      return '<span style="color:#27a567;font-weight:600;font-size:13px;">Sent</span>';
+    if ((parseFloat(inv.inv_bal) || 0) <= 0 && !inv.incomplete) {
+      return '<span style="color:#27a567;font-weight:600;font-size:13px;">Paid</span>';
     }
+    return '<span style="color:#e07820;font-weight:600;font-size:13px;">Pending Charge</span>';
+  }
+
+  function sentStatusCell(inv) {
+    var sent = (inv.status_text || '').toLowerCase() === 'sent';
+    if (sent) return '<span style="color:#27a567;font-weight:600;font-size:13px;">Sent</span>';
     return '<span style="color:#888;font-size:13px;">Not Sent</span>';
   }
 
