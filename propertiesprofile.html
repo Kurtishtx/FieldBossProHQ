@@ -457,8 +457,9 @@
       <button onclick="closeDiscountModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer; line-height:1;">&#10005;</button>
     </div>
     <div style="padding:20px 22px;">
-      <div style="margin-bottom:14px; font-size:13px; color:#555;">
-        Current Discount: <span id="disc-current-display" style="font-weight:700;">—</span>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Base Rate ($)</label>
+        <input type="number" id="disc-base-rate" step="0.01" min="0" placeholder="0.00" oninput="updateDiscountPreview()" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
       </div>
       <div style="margin-bottom:14px;">
         <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Discount Type</label>
@@ -467,10 +468,10 @@
         </select>
       </div>
       <div style="margin-bottom:14px;">
-        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Rate</label>
-        <input type="number" id="disc-rate-input" step="0.01" min="0" placeholder="0.00" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
-        <div id="disc-preview" style="margin-top:5px; font-size:12px; color:#555;"></div>
+        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Discount Amount</label>
+        <input type="number" id="disc-rate-input" step="0.01" min="0" placeholder="0.00" oninput="updateDiscountPreview()" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
       </div>
+      <div id="disc-preview" style="margin-bottom:14px; font-size:13px; color:#27a567; font-weight:700; min-height:20px;"></div>
       <div style="margin-bottom:6px;">
         <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Discount Expiration</label>
         <input type="date" id="disc-expiry-input" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
@@ -1480,14 +1481,14 @@
     var sel = document.getElementById('disc-type-select');
     sel.innerHTML = '<option value="">Please Select</option>' +
       discountList.map(function(d) {
-        return '<option value="' + d.id + '" data-type="' + (d.type || '') + '" data-value="' + (d.value || 0) + '">' +
+        return '<option value="' + d.id + '" data-disc-type="' + (d.type || '') + '" data-disc-val="' + (d.value || 0) + '">' +
           d.name + ' (' + (d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2)) + ')' +
           '</option>';
       }).join('');
-    /* show current rate */
+    /* pre-fill base rate from current row rate input */
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
     var currentRate = rateInputs[rowIndex] ? parseFloat(rateInputs[rowIndex].value) || 0 : 0;
-    document.getElementById('disc-current-display').textContent = '$' + currentRate.toFixed(2) + ' (no discount)';
+    document.getElementById('disc-base-rate').value = currentRate > 0 ? currentRate.toFixed(2) : '';
     document.getElementById('disc-rate-input').value = '';
     document.getElementById('disc-preview').textContent = '';
     document.getElementById('disc-expiry-input').value = '';
@@ -1498,8 +1499,7 @@
     var sel = document.getElementById('disc-type-select');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) { document.getElementById('disc-rate-input').value = ''; document.getElementById('disc-preview').textContent = ''; return; }
-    var discType  = opt.dataset.type;
-    var discValue = parseFloat(opt.dataset.value) || 0;
+    var discValue = parseFloat(opt.getAttribute('data-disc-val')) || 0;
     document.getElementById('disc-rate-input').value = discValue;
     updateDiscountPreview();
   }
@@ -1508,32 +1508,36 @@
     var sel = document.getElementById('disc-type-select');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) { document.getElementById('disc-preview').textContent = ''; return; }
-    var discType  = opt.dataset.type;
+    var discType  = opt.getAttribute('data-disc-type');
     var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
-    var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
-    var currentRate = rateInputs[discountTargetRow] ? parseFloat(rateInputs[discountTargetRow].value) || 0 : 0;
+    var baseRate  = parseFloat(document.getElementById('disc-base-rate').value) || 0;
     var newRate = discType === 'Percent'
-      ? currentRate - (currentRate * discValue / 100)
-      : currentRate - discValue;
+      ? baseRate - (baseRate * discValue / 100)
+      : baseRate - discValue;
     if (newRate < 0) newRate = 0;
-    document.getElementById('disc-preview').textContent = 'New rate: $' + newRate.toFixed(2) + ' (' + (discType === 'Percent' ? discValue + '% off' : '$' + discValue.toFixed(2) + ' off') + ')';
+    document.getElementById('disc-preview').textContent = 'Final rate: $' + newRate.toFixed(2) + ' (' + (discType === 'Percent' ? discValue + '% off $' + baseRate.toFixed(2) : '$' + discValue.toFixed(2) + ' off') + ')';
   }
 
   function applyDiscountModal() {
+    var baseRate  = parseFloat(document.getElementById('disc-base-rate').value);
+    if (isNaN(baseRate) || baseRate < 0) { alert('Please enter a base rate.'); document.getElementById('disc-base-rate').focus(); return; }
     var sel = document.getElementById('disc-type-select');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) { alert('Please select a discount type.'); return; }
-    var discType  = opt.dataset.type;
+    var discType  = opt.getAttribute('data-disc-type');
     var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
+    var newRate = discType === 'Percent'
+      ? baseRate - (baseRate * discValue / 100)
+      : baseRate - discValue;
+    if (newRate < 0) newRate = 0;
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
     var inp = rateInputs[discountTargetRow];
     if (!inp) { closeDiscountModal(); return; }
-    var currentRate = parseFloat(inp.value) || 0;
-    var newRate = discType === 'Percent'
-      ? currentRate - (currentRate * discValue / 100)
-      : currentRate - discValue;
-    if (newRate < 0) newRate = 0;
     inp.value = newRate.toFixed(2);
+    /* flash the updated input green */
+    inp.style.transition = 'background .2s';
+    inp.style.background = '#d4edda';
+    setTimeout(function() { inp.style.background = ''; }, 1000);
     closeDiscountModal();
   }
 
@@ -1541,8 +1545,6 @@
     document.getElementById('disc-modal-overlay').style.display = 'none';
     discountTargetRow = -1;
   }
-
-  document.getElementById('disc-rate-input').addEventListener('input', updateDiscountPreview);
 
   function fillRateBelow(rowIndex) {
     var inputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
