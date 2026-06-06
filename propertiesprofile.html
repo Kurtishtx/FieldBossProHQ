@@ -1393,6 +1393,7 @@
     document.getElementById('pkg-modal-preview').style.display = 'none';
     document.getElementById('pkg-modal-rows').innerHTML = '';
     pkgServiceRows = [];
+    rowDiscountData = {};
   }
 
   document.getElementById('pkg-modal-select').addEventListener('change', async function() {
@@ -1467,6 +1468,7 @@
   /* ── Discount modal ── */
   var discountList = [];
   var discountTargetRow = -1;
+  var rowDiscountData = {}; /* saved discount info per row index */
 
   async function openDiscountModal(rowIndex) {
     discountTargetRow = rowIndex;
@@ -1488,13 +1490,24 @@
     /* store row index on the modal element itself — no global variable risk */
     var overlay = document.getElementById('disc-modal-overlay');
     overlay.setAttribute('data-target-row', rowIndex);
-    /* pre-fill base rate from current row rate input */
+    /* restore previously saved discount for this row, or pre-fill from rate input */
+    var saved = rowDiscountData[rowIndex];
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
     var currentRate = rateInputs[rowIndex] ? parseFloat(rateInputs[rowIndex].value) || 0 : 0;
-    document.getElementById('disc-base-rate').value = currentRate > 0 ? currentRate.toFixed(2) : '';
-    document.getElementById('disc-rate-input').value = '';
-    document.getElementById('disc-preview').textContent = '';
-    document.getElementById('disc-expiry-input').value = '';
+    if (saved) {
+      document.getElementById('disc-base-rate').value = saved.baseRate;
+      document.getElementById('disc-rate-input').value = saved.discountAmount;
+      document.getElementById('disc-expiry-input').value = saved.expiry || '';
+      /* restore dropdown selection */
+      var sel = document.getElementById('disc-type-select');
+      sel.value = saved.discountId || '';
+      updateDiscountPreview();
+    } else {
+      document.getElementById('disc-base-rate').value = currentRate > 0 ? currentRate.toFixed(2) : '';
+      document.getElementById('disc-rate-input').value = '';
+      document.getElementById('disc-preview').textContent = '';
+      document.getElementById('disc-expiry-input').value = '';
+    }
     overlay.style.display = 'flex';
   }
 
@@ -1538,6 +1551,13 @@
     var inp = rateInputs[targetRow];
     if (!inp) { closeDiscountModal(); return; }
     inp.value = newRate.toFixed(2);
+    /* save discount info so reopening the modal restores it */
+    rowDiscountData[targetRow] = {
+      discountId:     opt.value,
+      baseRate:       baseRate.toFixed(2),
+      discountAmount: discValue,
+      expiry:         document.getElementById('disc-expiry-input').value
+    };
     /* flash the updated input green */
     inp.style.transition = 'background .3s';
     inp.style.background = '#d4edda';
