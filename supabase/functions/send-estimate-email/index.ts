@@ -83,7 +83,7 @@ serve(async (req) => {
 
     // Send via Resend
     const emailPayload: any = {
-      from:    fromName + " <Kurtis@spraybosspro.com>",
+      from:    fromName + " <Mail@spraybosspro.com>",
       to:      [toEmail],
       subject: finalSubject,
       html:    htmlBody,
