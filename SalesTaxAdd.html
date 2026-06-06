@@ -88,6 +88,7 @@
   <div class="dialog-footer">
     <button class="btn-save" onclick="saveTax(false)">Save</button>
     <button class="btn-save-new" onclick="saveTax(true)">Save &amp; New</button>
+    <button class="btn-save" onclick="applyToAllClients()" style="background:#2272c3;" title="Set this tax on all existing clients and make it the default for new clients">Apply to All Clients</button>
     <span class="btn-cancel" onclick="cancel()">Cancel</span>
   </div>
 </div>
@@ -162,6 +163,34 @@
     } else {
       navigate('salestaxlist');
     }
+  }
+
+  async function applyToAllClients() {
+    var name = document.getElementById('tax-name').value.trim();
+    if (!name) { alert('Please enter a tax name first.'); document.getElementById('tax-name').focus(); return; }
+    if (!confirm('Set "' + name + '" as the sales tax for ALL existing clients and as the default for new clients? This will overwrite any tax currently set on each client.')) return;
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    /* save the tax record first if it hasn't been saved yet */
+    await saveTax(false);
+
+    /* bulk-update all clients for this account */
+    var { error, count } = await sb.from('Clients')
+      .update({ sales_tax: name })
+      .eq('user_id', uid)
+      .select('id', { count: 'exact', head: true });
+
+    if (error) { alert('Error updating clients: ' + error.message); return; }
+
+    /* save as default so new clients get it pre-selected */
+    await sb.from('app_preferences').upsert(
+      { pref_key: 'default_sales_tax', pref_value: name },
+      { onConflict: 'pref_key' }
+    );
+
+    alert('Done! All clients updated with "' + name + '" and it will be the default for new clients.');
   }
 
   function cancel() {

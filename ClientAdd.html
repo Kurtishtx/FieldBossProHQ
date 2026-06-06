@@ -335,6 +335,13 @@
   async function loadSalesTaxOptions(selectedValue) {
     var sel = document.getElementById('sales-tax');
     var { data } = await sbClient.from('sales_taxes').select('id,name,tax_rate').eq('active', true).order('name');
+
+    /* for new clients, fall back to the account default if no value supplied */
+    if (!selectedValue && !editId) {
+      var { data: pref } = await sbClient.from('app_preferences').select('pref_value').eq('pref_key', 'default_sales_tax').single();
+      if (pref && pref.pref_value) selectedValue = pref.pref_value;
+    }
+
     sel.innerHTML = '<option value="">-- Select Sales Tax --</option>';
     (data || []).forEach(function(t) {
       var pct = t.tax_rate != null ? ' (' + (parseFloat(t.tax_rate) * 100).toFixed(4).replace(/\.?0+$/, '') + '%)' : '';
