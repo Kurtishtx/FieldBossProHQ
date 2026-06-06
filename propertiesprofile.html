@@ -466,12 +466,14 @@
         <div id="pkg-modal-scroll" style="max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:3px;">
           <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
             <thead><tr style="background:#f0f0f0;">
+              <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:40px;">Inc</th>
               <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:36px;">#</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Name on Invoice</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Service</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Start</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">End</th>
               <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Min Days</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Missed</th>
               <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Rate</th>
             </tr></thead>
             <tbody id="pkg-modal-rows"></tbody>
@@ -1367,18 +1369,26 @@
     pkgServiceRows = data || [];
     var tbody = document.getElementById('pkg-modal-rows');
     if (!pkgServiceRows.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="padding:10px; color:#aaa; font-style:italic;">No services in this package.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="padding:10px; color:#aaa; font-style:italic;">No services in this package.</td></tr>';
     } else {
+      var today = new Date(); today.setHours(0,0,0,0);
       function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
       tbody.innerHTML = pkgServiceRows.map(function(r, i) {
-        var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
-        return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + ';">' +
+        var isPast = r.end_date && new Date(r.end_date + 'T00:00:00') < today;
+        var checked = isPast ? '' : 'checked';
+        var rowBg = isPast ? '#fff8f0' : (i % 2 === 0 ? '#ffffff' : '#f5f7fa');
+        var missedCell = isPast
+          ? '<button class="pkg-schedule-btn" data-row="' + i + '" onclick="pkgToggleMissed(this,' + i + ')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;">Schedule</button>'
+          : '';
+        return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; opacity:' + (isPast ? '0.75' : '1') + ';" class="pkg-modal-row" data-row="' + i + '">' +
+          '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="checkbox" class="pkg-inc-cb" data-row="' + i + '" ' + checked + ' style="width:16px;height:16px;cursor:pointer;accent-color:#e07820;"/></td>' +
           '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + (r.name || '—') + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + (r.service_name || '—') + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + fmtDate(r.start_date) + '</td>' +
-          '<td style="padding:7px 10px; white-space:nowrap;">' + fmtDate(r.end_date) + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap; color:' + (isPast ? '#c0392b' : 'inherit') + '; font-weight:' + (isPast ? '700' : 'normal') + ';">' + fmtDate(r.end_date) + '</td>' +
           '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' + (r.min_days || 0) + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;" class="pkg-missed-cell-' + i + '">' + missedCell + '</td>' +
           '<td style="padding:7px 10px; text-align:right; white-space:nowrap;">' +
             '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:right; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
             ' <button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;">&#8595;</button>' +
@@ -1392,6 +1402,18 @@
     if (scrollEl) scrollEl.scrollTop = 0;
   });
 
+  function pkgToggleMissed(btn, rowIndex) {
+    /* When user clicks Schedule on a past service, check its checkbox and mark Added */
+    var cb = document.querySelector('.pkg-inc-cb[data-row="' + rowIndex + '"]');
+    if (cb) cb.checked = true;
+    var tr = btn.closest('tr');
+    if (tr) { tr.style.opacity = '1'; tr.style.background = '#f0fff4'; }
+    btn.textContent = 'Added';
+    btn.style.background = '#27a567';
+    btn.onclick = null;
+    btn.style.cursor = 'default';
+  }
+
   function fillRateBelow(rowIndex) {
     var inputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
     var val = inputs[rowIndex] ? inputs[rowIndex].value : '';
@@ -1404,10 +1426,14 @@
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var clientName = (owner && (owner.name || ((owner.first_name || '') + ' ' + (owner.last_name || '')).trim())) || ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim() || prop.company_name || '';
-    var rateInputs = document.querySelectorAll('#pkg-modal-rows input[type="number"]');
-    var inserts = pkgServiceRows.map(function(r, i) {
+    var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var checkboxes = document.querySelectorAll('#pkg-modal-rows .pkg-inc-cb');
+    var inserts = [];
+    pkgServiceRows.forEach(function(r, i) {
+      var cb = checkboxes[i];
+      if (cb && !cb.checked) return; /* skip unchecked (past/excluded) rows */
       var rate = rateInputs[i] ? parseFloat(rateInputs[i].value) || 0 : (r.default_rate || 0);
-      return {
+      inserts.push({
         user_id: uid,
         property_id: propId,
         customer_id: prop.customer_id || null,
@@ -1421,8 +1447,9 @@
         end_date: r.end_date || null,
         dispatched: false,
         status: 'pending'
-      };
+      });
     });
+    if (!inserts.length) { alert('No services selected. Check at least one service to add.'); return; }
     var { error } = await sb.from('Services').insert(inserts);
     if (error) { alert('Error adding services: ' + error.message); return; }
     closePkgModal();
