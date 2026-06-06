@@ -1419,8 +1419,11 @@
     var { error } = await sb.from('Services').insert(inserts);
     if (error) { alert('Error adding services: ' + error.message); return; }
     closePkgModal();
-    loadServices('upcoming');
-    loadPackageCards();
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('propprofile?id=' + propId);
+    } else {
+      window.location.href = 'propertiesprofile.html?id=' + propId;
+    }
   }
 
   /* ── Waiting list cards (packages + individual services) ── */
