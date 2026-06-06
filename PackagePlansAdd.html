@@ -375,7 +375,7 @@
       if (rowErr) { alert('Service rows failed to save: ' + rowErr.message); return; }
     }
     if (oldIds.length) await sb.from('package_services').delete().in('id', oldIds);
-    history.back();
+    if (window.parent && window.parent.loadPage) { window.parent.loadPage('PackagePlans'); } else { window.location.href = 'PackagePlans.html'; }
   }
 
   function toggleSvcAll(cb) {
