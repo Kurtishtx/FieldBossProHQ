@@ -409,14 +409,15 @@
       } else { failed++; errors.push(json.error || 'Unknown error'); }
     }
 
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (sentIds.length && uid) {
+      await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', sentIds).eq('user_id', uid);
+    }
     if (failed === 0) {
       alert(sent + ' invoice email' + (sent !== 1 ? 's' : '') + ' sent successfully!');
     } else {
       alert(sent + ' sent, ' + failed + ' failed.\n\nErrors:\n' + errors.join('\n'));
     }
-    var { data: msSess } = await sb.auth.getSession();
-    var msUid = msSess && msSess.session ? msSess.session.user.id : null;
-    await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', ids).eq('user_id', msUid);
     loadInvoices();
   }
 
