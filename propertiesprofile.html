@@ -1435,7 +1435,7 @@
     pkgEditStore = {};
 
     var { data: svcRows } = await sb.from('Services')
-      .select('id, service, amount, start_date, package_service_id')
+      .select('id, service, amount, start_date, end_date, min_days, package_service_id')
       .eq('property_id', propId)
       .neq('dispatched', true);
 
