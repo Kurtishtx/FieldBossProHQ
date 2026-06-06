@@ -1364,13 +1364,14 @@
     } else {
       function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
       tbody.innerHTML = pkgServiceRows.map(function(r, i) {
-        return '<tr style="border-bottom:1px solid #f0f0f0;">' +
-          '<td style="padding:5px 8px;">' + (r.name || '—') + '</td>' +
-          '<td style="padding:5px 8px;">' + (r.service_name || '—') + '</td>' +
-          '<td style="padding:5px 8px;">' + fmtDate(r.start_date) + '</td>' +
-          '<td style="padding:5px 8px;">' + fmtDate(r.end_date) + '</td>' +
-          '<td style="padding:5px 8px; text-align:center;">' + (r.min_days || 0) + '</td>' +
-          '<td style="padding:5px 8px; text-align:right; white-space:nowrap;">' +
+        var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
+        return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + ';">' +
+          '<td style="padding:7px 8px;">' + (r.name || '—') + '</td>' +
+          '<td style="padding:7px 8px;">' + (r.service_name || '—') + '</td>' +
+          '<td style="padding:7px 8px;">' + fmtDate(r.start_date) + '</td>' +
+          '<td style="padding:7px 8px;">' + fmtDate(r.end_date) + '</td>' +
+          '<td style="padding:7px 8px; text-align:center;">' + (r.min_days || 0) + '</td>' +
+          '<td style="padding:7px 8px; text-align:right; white-space:nowrap;">' +
             '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:right; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
             ' <button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;">&#8595;</button>' +
             ' <button title="Apply discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
