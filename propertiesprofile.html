@@ -463,9 +463,10 @@
       </select>
       <div id="pkg-modal-preview" style="margin-top:14px; display:none;">
         <div style="font-size:12px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">Services in this package</div>
-        <div style="max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:3px;">
+        <div id="pkg-modal-scroll" style="max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:3px;">
           <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
             <thead><tr style="background:#f0f0f0;">
+              <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:36px;">#</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Name</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Service</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Start</th>
@@ -1369,6 +1370,7 @@
       tbody.innerHTML = pkgServiceRows.map(function(r, i) {
         var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
         return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + ';">' +
+          '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + (r.name || '—') + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + (r.service_name || '—') + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + fmtDate(r.start_date) + '</td>' +
@@ -1383,6 +1385,8 @@
       }).join('');
     }
     document.getElementById('pkg-modal-preview').style.display = 'block';
+    var scrollEl = document.getElementById('pkg-modal-scroll');
+    if (scrollEl) scrollEl.scrollTop = 0;
   });
 
   function fillRateBelow(rowIndex) {
