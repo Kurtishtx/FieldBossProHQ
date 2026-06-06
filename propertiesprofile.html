@@ -1428,7 +1428,7 @@
             '<div style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Rate</div>' +
             '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:right; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
             ' <button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;">&#8595;</button>' +
-            ' <button title="Apply discount" onclick="openDiscountModal(' + i + ')" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
+            ' <button class="pkg-disc-btn" title="Apply discount" onclick="openDiscountModal(' + i + ')" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
           '</td>' +
         '</tr>';
       }).join('');
@@ -1485,6 +1485,9 @@
           d.name + ' (' + (d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2)) + ')' +
           '</option>';
       }).join('');
+    /* store row index on the modal element itself — no global variable risk */
+    var overlay = document.getElementById('disc-modal-overlay');
+    overlay.setAttribute('data-target-row', rowIndex);
     /* pre-fill base rate from current row rate input */
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
     var currentRate = rateInputs[rowIndex] ? parseFloat(rateInputs[rowIndex].value) || 0 : 0;
@@ -1492,7 +1495,7 @@
     document.getElementById('disc-rate-input').value = '';
     document.getElementById('disc-preview').textContent = '';
     document.getElementById('disc-expiry-input').value = '';
-    document.getElementById('disc-modal-overlay').style.display = 'flex';
+    overlay.style.display = 'flex';
   }
 
   function onDiscountTypeChange() {
@@ -1519,8 +1522,7 @@
   }
 
   function applyDiscountModal() {
-    var baseRate  = parseFloat(document.getElementById('disc-base-rate').value);
-    if (isNaN(baseRate) || baseRate < 0) { alert('Please enter a base rate.'); document.getElementById('disc-base-rate').focus(); return; }
+    var baseRate = parseFloat(document.getElementById('disc-base-rate').value) || 0;
     var sel = document.getElementById('disc-type-select');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) { alert('Please select a discount type.'); return; }
@@ -1530,14 +1532,24 @@
       ? baseRate - (baseRate * discValue / 100)
       : baseRate - discValue;
     if (newRate < 0) newRate = 0;
+    /* read target row from the modal's own data attribute */
+    var targetRow = parseInt(document.getElementById('disc-modal-overlay').getAttribute('data-target-row'));
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
-    var inp = rateInputs[discountTargetRow];
+    var inp = rateInputs[targetRow];
     if (!inp) { closeDiscountModal(); return; }
     inp.value = newRate.toFixed(2);
     /* flash the updated input green */
-    inp.style.transition = 'background .2s';
+    inp.style.transition = 'background .3s';
     inp.style.background = '#d4edda';
-    setTimeout(function() { inp.style.background = ''; }, 1000);
+    setTimeout(function() { inp.style.background = ''; }, 1200);
+    /* mark the % button dark to show a discount is active */
+    var discBtns = document.querySelectorAll('#pkg-modal-rows .pkg-disc-btn');
+    if (discBtns[targetRow]) {
+      discBtns[targetRow].style.background = '#555';
+      discBtns[targetRow].style.color = '#fff';
+      discBtns[targetRow].style.borderColor = '#555';
+      discBtns[targetRow].title = 'Discount applied — click to change';
+    }
     closeDiscountModal();
   }
 
