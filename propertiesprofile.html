@@ -1348,6 +1348,9 @@
 
   function closePkgModal() {
     document.getElementById('pkg-modal-overlay').style.display = 'none';
+    document.getElementById('pkg-modal-select').value = '';
+    document.getElementById('pkg-modal-preview').style.display = 'none';
+    document.getElementById('pkg-modal-rows').innerHTML = '';
     pkgServiceRows = [];
   }
 
@@ -1418,7 +1421,6 @@
     closePkgModal();
     loadServices('upcoming');
     loadPackageCards();
-    alert(pkgServiceRows.length + ' service(s) added from package.');
   }
 
   /* ── Waiting list cards (packages + individual services) ── */
