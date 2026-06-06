@@ -161,7 +161,7 @@
     <div class="svc-section">
       <div class="svc-toolbar">
         <button class="tool-btn-icon" title="Download">&#8595;</button>
-        <button class="tool-btn">Delete</button>
+        <button class="tool-btn" onclick="deleteCheckedRows()">Delete</button>
       </div>
       <div class="svc-table-wrap">
         <table class="svc-table">
@@ -492,6 +492,14 @@
         }
       }
     }
+  }
+
+  function deleteCheckedRows() {
+    var rows = document.querySelectorAll('#svc-tbody tr');
+    rows.forEach(function(tr) {
+      var cb = tr.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked) tr.remove();
+    });
   }
 </script>
 </body>
