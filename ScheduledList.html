@@ -1618,8 +1618,43 @@
     });
     await Promise.all(updates);
     sendAlert('reschedule', ids);
+    await autoCreateNextServices(ids, schedSelDate);
     closeSchedModal();
     loadServices();
+  }
+
+  async function autoCreateNextServices(ids, scheduledDate) {
+    var { data: svcs } = await sb.from('Services').select('*').in('id', ids);
+    if (!svcs || !svcs.length) return;
+    var toCreate = svcs.filter(function(s) { return s.min_days && s.min_days > 0; });
+    if (!toCreate.length) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var inserts = [];
+    toCreate.forEach(function(s) {
+      var base = new Date(scheduledDate);
+      base.setDate(base.getDate() + s.min_days);
+      var nextDate = base.toISOString().split('T')[0];
+      if (s.start_date && nextDate < s.start_date) nextDate = s.start_date;
+      if (s.end_date && nextDate > s.end_date) return;
+      inserts.push({
+        user_id:            uid || s.user_id,
+        property_id:        s.property_id || null,
+        customer_id:        s.customer_id || null,
+        client_name:        s.client_name || '',
+        address:            s.address || '',
+        service:            s.service || '',
+        amount:             s.amount || 0,
+        min_days:           s.min_days,
+        package_service_id: s.package_service_id || null,
+        start_date:         s.start_date || null,
+        end_date:           s.end_date || null,
+        scheduled_date:     nextDate,
+        dispatched:         false,
+        status:             'pending'
+      });
+    });
+    if (inserts.length) await sb.from('Services').insert(inserts);
   }
 
   async function cancelSelected(e) {
