@@ -410,29 +410,14 @@
       } else { failed++; errors.push(json.error || 'Unknown error'); }
     }
 
-    // Update local array first for instant feedback
-    if (sentIds.length) {
-      invoices.forEach(function(inv) {
-        if (sentIds.indexOf(String(inv.id)) >= 0) { inv.status_text = 'Sent'; inv.to_email = false; }
-      });
-    }
-
     if (failed === 0) {
       alert(sent + ' invoice email' + (sent !== 1 ? 's' : '') + ' sent successfully!');
     } else {
       alert(sent + ' sent, ' + failed + ' failed.\n\nErrors:\n' + errors.join('\n'));
     }
 
-    // Render with local changes immediately
-    renderTable();
-
-    // Persist to DB in background using token already fetched
-    if (sentIds.length && token) {
-      var uid2 = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (uid2) {
-        sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', sentIds).eq('user_id', uid2);
-      }
-    }
+    // Edge function already updated status_text via service_role — just reload from DB
+    await loadInvoices();
   }
 
   function printSelectedInvoices() {
