@@ -414,7 +414,8 @@
         if (sentIds.indexOf(String(inv.id)) >= 0) { inv.status_text = 'Sent'; inv.to_email = false; }
       });
       // Persist to DB
-      await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', sentIds);
+      var { error: updateErr } = await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', sentIds);
+      if (updateErr) { alert('Status save failed: ' + updateErr.message); }
     }
 
     if (failed === 0) {
