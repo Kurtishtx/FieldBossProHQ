@@ -381,9 +381,14 @@
     var ids = getSelectedInvoiceIds();
     if (!ids.length) { alert('Check the box next to each invoice to mark as sent first.'); return; }
     var { data: msSess } = await sb.auth.getSession();
-    var msUid = msSess && msSess.session ? msSess.session.user.id : null;
-    var { error } = await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', ids).eq('user_id', msUid);
-    if (error) { alert('Update failed: ' + error.message); return; }
+    var msToken = msSess && msSess.session ? msSess.session.access_token : '';
+    var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-invoice-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + msToken },
+      body: JSON.stringify({ mark_only: true, invoice_ids: ids })
+    });
+    var resText = await res.text();
+    alert('IDs: ' + JSON.stringify(ids) + '\nStatus: ' + res.status + '\nResponse: ' + resText);
     loadInvoices();
   }
 
@@ -409,10 +414,6 @@
       } else { failed++; errors.push(json.error || 'Unknown error'); }
     }
 
-    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    if (sentIds.length && uid) {
-      await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', sentIds).eq('user_id', uid);
-    }
     if (failed === 0) {
       alert(sent + ' invoice email' + (sent !== 1 ? 's' : '') + ' sent successfully!');
     } else {

@@ -18,7 +18,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
-    const { invoice_id } = await req.json();
+    const body = await req.json();
+    const { invoice_id, mark_only, invoice_ids } = body;
+
+    // mark_only mode: just set status_text = 'Sent' for an array of IDs, no email
+    if (mark_only && invoice_ids && invoice_ids.length) {
+      await supabase.from("Invoices").update({ status_text: "Sent" }).in("id", invoice_ids);
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...CORS, "Content-Type": "application/json" } });
+    }
+
     if (!invoice_id) return new Response(JSON.stringify({ error: "Missing invoice_id" }), { status: 400, headers: CORS });
 
     // Load invoice
