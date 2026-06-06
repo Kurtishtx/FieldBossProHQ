@@ -71,14 +71,12 @@
     /* Actions dropdown */
     .actions-dropdown {
       display: none;
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
+      position: fixed;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 4px;
       box-shadow: 0 4px 16px rgba(0,0,0,.18);
-      z-index: 200;
+      z-index: 9999;
       min-width: 180px;
       padding: 4px 0;
     }
@@ -300,7 +298,12 @@
   /* ── Dropdown ── */
   function toggleDropdown(e) {
     e.stopPropagation();
-    document.getElementById('actions-dropdown').classList.toggle('open');
+    var dd = document.getElementById('actions-dropdown');
+    if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
+    var rect = e.currentTarget.closest('.actions-split').getBoundingClientRect();
+    dd.style.top  = (rect.bottom + 4) + 'px';
+    dd.style.left = rect.left + 'px';
+    dd.classList.add('open');
   }
   document.addEventListener('click', function() {
     document.getElementById('actions-dropdown').classList.remove('open');
