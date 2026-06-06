@@ -23,8 +23,10 @@ serve(async (req) => {
 
     // mark_only mode: just set status_text = 'Sent' for an array of IDs, no email
     if (mark_only && invoice_ids && invoice_ids.length) {
-      await supabase.from("Invoices").update({ status_text: "Sent" }).in("id", invoice_ids);
-      return new Response(JSON.stringify({ ok: true }), { headers: { ...CORS, "Content-Type": "application/json" } });
+      const { data: updData, error: updErr } = await supabase.from("Invoices").update({ status_text: "Sent" }).in("id", invoice_ids).select("id, status_text");
+      console.log("mark_only update ids:", invoice_ids, "result:", updData, "error:", updErr);
+      if (updErr) return new Response(JSON.stringify({ error: updErr.message }), { status: 500, headers: { ...CORS, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ ok: true, updated: updData }), { headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
     if (!invoice_id) return new Response(JSON.stringify({ error: "Missing invoice_id" }), { status: 400, headers: CORS });
