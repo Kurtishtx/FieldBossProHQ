@@ -28,21 +28,20 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      overflow: hidden;
-      box-shadow: 3px 0 12px rgba(0,0,0,.3);
-      flex-shrink: 0;
-    }
-    .sidebar-scroll {
-      flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
+      box-shadow: 3px 0 12px rgba(0,0,0,.3);
+      flex-shrink: 0;
     }
 
 
     .sidebar-brand {
       padding: 16px 18px 16px;
       border-bottom: 1px solid rgba(255,255,255,.1);
-      position: relative;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #1a2b3c;
       flex-shrink: 0;
     }
     .sidebar-brand .brand-icon {
@@ -550,7 +549,6 @@
     <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">&#9664;</button>
   </div>
 
-  <div class="sidebar-scroll">
   <div class="nav-section">
     <button class="nav-btn" onclick="goHome()">
       <span class="icon">&#127968;</span> Dashboard
@@ -624,11 +622,7 @@
     </div>
   </div>
 
-  <div class="sidebar-spacer"></div>
-
   <button class="nav-btn" id="admin-nav-btn" data-page="admin" onclick="loadPage('admin', this)" style="display:none;margin:16px 10px 8px;">&#128737; Admin</button>
-
-  </div><!-- end sidebar-scroll -->
 
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">
