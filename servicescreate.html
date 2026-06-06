@@ -219,7 +219,7 @@
       var { error } = await sb.from('Services').insert(record);
     }
     if (error) { alert('Error: ' + error.message); return; }
-    history.back();
+    if (window.parent && window.parent.loadPage) { window.parent.loadPage('services'); } else { window.location.href = 'services.html'; }
   }
 
   async function saveAndNew() {
