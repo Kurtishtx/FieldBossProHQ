@@ -379,18 +379,9 @@
   async function markInvoicesSent() {
     document.getElementById('actions-dropdown').classList.remove('open');
     var ids = getSelectedInvoiceIds();
-    console.log('markInvoicesSent ids:', ids);
-    if (!ids.length) { console.log('NO IDS SELECTED'); return; }
-    var { data: msSess } = await sb.auth.getSession();
-    var msToken = msSess && msSess.session ? msSess.session.access_token : '';
-    console.log('token:', msToken ? 'yes' : 'EMPTY');
-    var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-invoice-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + msToken },
-      body: JSON.stringify({ mark_only: true, invoice_ids: ids })
-    });
-    var resText = await res.text();
-    console.log('markInvoicesSent result:', res.status, resText);
+    if (!ids.length) { alert('Check the box next to each invoice to mark as sent first.'); return; }
+    var { error } = await sb.rpc('mark_invoices_sent', { invoice_ids: ids });
+    if (error) { alert('Failed: ' + error.message); return; }
     loadInvoices();
   }
 
