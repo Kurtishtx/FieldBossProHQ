@@ -1468,9 +1468,11 @@
       var total = g.svcs.reduce(function(s, r) { return s + (parseFloat(r.amount) || 0); }, 0);
       var start = g.svcs.map(function(r) { return r.start_date; }).filter(Boolean).sort()[0] || '';
       var startDisplay = start ? new Date(start + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+      var svcIds = g.svcs.map(function(r) { return r.id; }).join(',');
       pkgEditStore[pid] = { name: g.name, svcs: g.svcs };
       html +=
-        '<div data-pkedit="' + pid + '" style="border-left:5px solid #3a9a3a;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;" onmouseover="this.style.background=\'#f9fdf9\'" onmouseout="this.style.background=\'#fff\'">' +
+        '<div data-pkedit="' + pid + '" style="position:relative;border-left:5px solid #3a9a3a;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;" onmouseover="this.style.background=\'#f9fdf9\'" onmouseout="this.style.background=\'#fff\'">' +
+          '<button onclick="event.stopPropagation();deletePkgServices(\'' + svcIds + '\',\'' + g.name + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete package services">&#10005;</button>' +
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ✎</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
             '<span style="font-weight:700;color:#222;">' + g.name + ' (' + g.svcs.length + ')</span>' +
@@ -1485,7 +1487,8 @@
       var amount = parseFloat(r.amount) || 0;
       var start = r.start_date ? new Date(r.start_date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
       html +=
-        '<div style="border-left:5px solid #5588cc;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);">' +
+        '<div style="position:relative;border-left:5px solid #5588cc;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);">' +
+          '<button onclick="deleteOneService(' + r.id + ',\'' + (r.service || '').replace(/'/g,'\\\'') + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete service">&#10005;</button>' +
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Service</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
             '<span style="font-weight:700;color:#222;">' + (r.service || '—') + '</span>' +
@@ -1539,6 +1542,22 @@
     });
     await Promise.all(updates);
     closePkgEditModal();
+    loadPackageCards();
+  }
+
+  async function deletePkgServices(svcIdsStr, pkgName) {
+    if (!confirm('Delete all ' + pkgName + ' package services from this property? This cannot be undone.')) return;
+    var ids = svcIdsStr.split(',').map(function(id) { return id.trim(); }).filter(Boolean);
+    if (!ids.length) return;
+    var { error } = await sb.from('Services').delete().in('id', ids);
+    if (error) { alert('Error deleting: ' + error.message); return; }
+    loadPackageCards();
+  }
+
+  async function deleteOneService(svcId, svcName) {
+    if (!confirm('Delete "' + svcName + '" from this property? This cannot be undone.')) return;
+    var { error } = await sb.from('Services').delete().eq('id', svcId);
+    if (error) { alert('Error deleting: ' + error.message); return; }
     loadPackageCards();
   }
 
