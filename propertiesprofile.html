@@ -1381,7 +1381,7 @@
           ? '<button class="pkg-schedule-btn" data-row="' + i + '" onclick="pkgToggleMissed(this,' + i + ')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;">Schedule</button>'
           : '';
         return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; opacity:' + (isPast ? '0.75' : '1') + ';" class="pkg-modal-row" data-row="' + i + '">' +
-          '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="checkbox" class="pkg-inc-cb" data-row="' + i + '" ' + checked + ' style="width:16px;height:16px;cursor:pointer;accent-color:#e07820;"/></td>' +
+          '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="checkbox" class="pkg-inc-cb" data-row="' + i + '" ' + checked + (isPast ? ' data-past="1"' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:#e07820;"/></td>' +
           '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + (r.name || '—') + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + (r.service_name || '—') + '</td>' +
@@ -1390,6 +1390,7 @@
           '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' + (r.min_days || 0) + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;" class="pkg-missed-cell-' + i + '">' + missedCell + '</td>' +
           '<td style="padding:7px 10px; text-align:right; white-space:nowrap;">' +
+            '<div style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Rate</div>' +
             '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:right; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
             ' <button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;">&#8595;</button>' +
             ' <button title="Apply discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
@@ -1397,6 +1398,20 @@
         '</tr>';
       }).join('');
     }
+    /* revert Schedule button if user unchecks a past row */
+    document.querySelectorAll('#pkg-modal-rows .pkg-inc-cb').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        if (!this.checked && this.dataset.past === '1') {
+          var idx = parseInt(this.dataset.row);
+          var cell = document.querySelector('.pkg-missed-cell-' + idx);
+          if (cell) {
+            cell.innerHTML = '<button class="pkg-schedule-btn" data-row="' + idx + '" onclick="pkgToggleMissed(this,' + idx + ')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;">Schedule</button>';
+          }
+          var tr = this.closest('tr');
+          if (tr) { tr.style.opacity = '0.75'; tr.style.background = '#fff8f0'; }
+        }
+      });
+    });
     document.getElementById('pkg-modal-preview').style.display = 'block';
     var scrollEl = document.getElementById('pkg-modal-scroll');
     if (scrollEl) scrollEl.scrollTop = 0;
