@@ -380,7 +380,9 @@
     document.getElementById('actions-dropdown').classList.remove('open');
     var ids = getSelectedInvoiceIds();
     if (!ids.length) { alert('Check the box next to each invoice to mark as sent first.'); return; }
-    var { error } = await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', ids);
+    var { data: msSess } = await sb.auth.getSession();
+    var msUid = msSess && msSess.session ? msSess.session.user.id : null;
+    var { error } = await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', ids).eq('user_id', msUid);
     if (error) { alert('Update failed: ' + error.message); return; }
     loadInvoices();
   }
@@ -408,8 +410,13 @@
       } else { failed++; errors.push(json.error || 'Unknown error'); }
     }
 
-    // Update local array for immediate feedback
+    // Update DB with user_id filter to satisfy RLS, then update local array
     if (sentIds.length) {
+      var { data: sessionData2 } = await sb.auth.getSession();
+      var uid2 = sessionData2 && sessionData2.session ? sessionData2.session.user.id : null;
+      if (uid2) {
+        await sb.from('Invoices').update({ status_text: 'Sent', to_email: false }).in('id', sentIds).eq('user_id', uid2);
+      }
       invoices.forEach(function(inv) {
         if (sentIds.indexOf(String(inv.id)) >= 0) { inv.status_text = 'Sent'; inv.to_email = false; }
       });
@@ -420,8 +427,6 @@
     } else {
       alert(sent + ' sent, ' + failed + ' failed.\n\nErrors:\n' + errors.join('\n'));
     }
-    renderTable();
-    // Reload from DB — the edge function already saved status_text via service_role
     await loadInvoices();
   }
 
