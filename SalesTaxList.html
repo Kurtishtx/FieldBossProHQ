@@ -109,7 +109,6 @@
     <tr>
       <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
       <th>Name</th>
-      <th>Description</th>
       <th>Tax Rate</th>
       <th>Status</th>
       <th>Modified</th>
@@ -202,7 +201,6 @@
       tr.innerHTML =
         '<td><input type="checkbox" data-id="' + t.id + '" onclick="event.stopPropagation()"/></td>' +
         '<td><span class="name-link">' + esc(t.name) + '</span></td>' +
-        '<td>' + esc(t.description || '') + '</td>' +
         '<td>' + rate + '</td>' +
         '<td>' + (t.active !== false ? 'Active' : 'Inactive') + '</td>' +
         '<td>' + modified + '</td>';

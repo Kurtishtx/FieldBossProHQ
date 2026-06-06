@@ -62,24 +62,10 @@
     </div>
 
     <div class="field-row">
-      <label for="tax-description">Description</label>
-      <div style="flex:1;">
-        <textarea id="tax-description" placeholder="Optional description"></textarea>
-      </div>
-    </div>
-
-    <div class="field-row">
       <label for="tax-rate">Tax Rate</label>
       <div style="flex:1;">
         <input type="number" id="tax-rate" step="0.000001" min="0" max="1" placeholder=".0825"/>
         <div class="field-hint">Enter as a decimal — e.g. 0.0825 for 8.25%</div>
-      </div>
-    </div>
-
-    <div class="field-row">
-      <label for="tax-vendor">Vendor</label>
-      <div style="flex:1;">
-        <input type="text" id="tax-vendor" autocomplete="off" placeholder="Optional vendor name"/>
       </div>
     </div>
 
@@ -118,9 +104,7 @@
         existingTax = data;
         document.getElementById('page-title').textContent = 'Edit Sales Tax';
         document.getElementById('tax-name').value = data.name || '';
-        document.getElementById('tax-description').value = data.description || '';
         document.getElementById('tax-rate').value = data.tax_rate != null ? data.tax_rate : '';
-        document.getElementById('tax-vendor').value = data.vendor || '';
       }
     }
     document.getElementById('tax-name').focus();
@@ -129,23 +113,21 @@
   async function saveTax(andNew) {
     var name = document.getElementById('tax-name').value.trim();
     if (!name) { alert('Please enter a name.'); document.getElementById('tax-name').focus(); return; }
-    var description = document.getElementById('tax-description').value.trim();
     var rateRaw = document.getElementById('tax-rate').value.trim();
     var tax_rate = rateRaw !== '' ? parseFloat(rateRaw) : 0;
-    var vendor = document.getElementById('tax-vendor').value.trim();
 
     var now = new Date().toISOString();
 
     if (existingTax) {
       var { error } = await sb.from('sales_taxes').update({
-        name: name, description: description, tax_rate: tax_rate, vendor: vendor, updated_at: now
+        name: name, tax_rate: tax_rate, updated_at: now
       }).eq('id', existingTax.id);
       if (error) { alert('Error: ' + error.message); return; }
     } else {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
       var { error } = await sb.from('sales_taxes').insert({
-        name: name, description: description, tax_rate: tax_rate, vendor: vendor,
+        name: name, tax_rate: tax_rate,
         active: true, user_id: uid
       });
       if (error) { alert('Error: ' + error.message); return; }
@@ -153,9 +135,7 @@
 
     if (andNew) {
       document.getElementById('tax-name').value = '';
-      document.getElementById('tax-description').value = '';
       document.getElementById('tax-rate').value = '';
-      document.getElementById('tax-vendor').value = '';
       document.getElementById('tax-name').focus();
       existingTax = null;
       taxId = null;
