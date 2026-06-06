@@ -80,14 +80,6 @@
       <div style="flex:1;"><input type="text" id="service-name" autocomplete="off"/></div>
     </div>
 
-    <div class="field-row">
-      <label for="sales-tax-code">Sales Tax</label>
-      <div style="flex:1;">
-        <select class="std-select" id="sales-tax-code">
-          <option value="">Flat Rate (No Tax)</option>
-        </select>
-      </div>
-    </div>
 
     <div class="field-row">
       <label for="default-rate">Default Rate</label>
@@ -188,25 +180,13 @@
   async function initEdit() {
     await loadMixes();
 
-    // Load sales taxes
-    var { data: taxes } = await sb.from('sales_taxes').select('id, name, tax_rate').order('name');
-    var taxSel = document.getElementById('sales-tax-code');
-    taxSel.innerHTML = '<option value="">Flat Rate (No Tax)</option>';
-    (taxes || []).forEach(function(t) {
-      var o = document.createElement('option');
-      o.value = t.id;
-      o.textContent = t.name + ' (' + (parseFloat(t.tax_rate) * 100).toFixed(2) + '%)';
-      taxSel.appendChild(o);
-    });
-
     if (!serviceId) return;
     var { data } = await sb.from('Services').select('*').eq('id', serviceId).single();
     if (data) {
       existing = data;
       document.getElementById('service-name').value  = data.name || '';
       document.getElementById('default-rate').value  = data.default_rate || '0.00';
-      if (data.sales_tax_id) taxSel.value = data.sales_tax_id;
-      var aa = data.associated_areas || {};
+var aa = data.associated_areas || {};
       var areaKey = Object.keys(aa).find(function(k) { return aa[k]; }) || '';
       document.getElementById('area-select').value = areaKey;
       (data.service_mixes || []).forEach(function(m) { addPmRow(m.mix_id, m.start_date, m.end_date); });
@@ -271,7 +251,6 @@
       name:        name,
       active:      true,
       defaultRate: parseFloat(document.getElementById('default-rate').value) || 0,
-      salesTaxId:   document.getElementById('sales-tax-code').value || null,
       associatedAreas: (function() {
         var key = document.getElementById('area-select').value;
         var obj = { lawn_care: false, lawn_insect: false, flower_beds: false, mosquito: false, mosquito_linear_ft: false, pest_control: false, pest_control_linear_ft: false };
@@ -286,7 +265,7 @@
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, sales_tax_id: svc.salesTaxId, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid };
+    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid };
     if (existing) {
       var { error } = await sb.from('Services').update(record).eq('id', existing.id);
     } else {
@@ -301,11 +280,10 @@
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, sales_tax_id: svc.salesTaxId, user_id: uid });
+    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, user_id: uid });
     if (error) { alert('Error: ' + error.message); return; }
     document.getElementById('service-name').value = '';
     document.getElementById('default-rate').value = '0.00';
-    document.getElementById('sales-tax-code').value = '';
     document.getElementById('service-name').focus();
     existing = null;
   }
