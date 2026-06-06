@@ -646,14 +646,14 @@
   async function loadServices() {
     document.getElementById('jobs-total').textContent = 'Loading…';
     var { data, error } = await sb.from('Services')
-      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, Properties(lat, lng)')
+      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, Properties(lat, lng)')
       .not('property_id', 'is', null)
       .eq('dispatched', false);
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     await loadCfValues(propIds);
-    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services)]);
+    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services)]);
     renderTable();
   }
 
@@ -676,21 +676,36 @@
   }
 
   var lastDispatchMap = {};
+  var packageServiceMeta = {}; /* { package_service_id: { package_id } } */
+
+  async function loadPackageServiceMeta(svcs) {
+    packageServiceMeta = {};
+    var psIds = [];
+    svcs.forEach(function(s) { if (s.package_service_id && psIds.indexOf(s.package_service_id) < 0) psIds.push(s.package_service_id); });
+    if (!psIds.length) return;
+    var { data } = await sb.from('package_services').select('id, package_id').in('id', psIds);
+    (data || []).forEach(function(r) { packageServiceMeta[r.id] = { package_id: r.package_id }; });
+  }
+
   async function loadLastDispatches(svcs) {
     lastDispatchMap = {};
     if (!svcs.length) return;
     var propIds = [...new Set(svcs.map(function(s) { return s.property_id; }).filter(Boolean))];
     if (!propIds.length) return;
     var { data } = await sb.from('Services')
-      .select('property_id, service, scheduled_date')
+      .select('property_id, service, scheduled_date, completed_date, updated_at')
       .eq('dispatched', true)
       .in('property_id', propIds)
-      .not('scheduled_date', 'is', null)
-      .order('scheduled_date', { ascending: false });
+      .order('updated_at', { ascending: false });
     (data || []).forEach(function(d) {
-      if (!d.service || !d.scheduled_date) return;
+      if (!d.service) return;
       var key = String(d.property_id) + '_' + d.service;
-      if (!lastDispatchMap[key]) lastDispatchMap[key] = d.scheduled_date;
+      if (!lastDispatchMap[key]) {
+        var dateStr = (d.completed_date ? d.completed_date.substring(0, 10) : null)
+          || d.scheduled_date
+          || (d.updated_at ? d.updated_at.substring(0, 10) : null);
+        if (dateStr) lastDispatchMap[key] = dateStr;
+      }
     });
   }
 
@@ -731,13 +746,14 @@
       });
     }
 
-    /* start_date filter — hide services not yet started as of the selected date */
+    /* start_date / scheduled_date filter — hide services not yet due as of the selected date */
     var refDate = drpStart ? new Date(drpStart) : new Date();
     refDate.setHours(0,0,0,0);
     var pad = function(n) { return String(n).padStart(2,'0'); };
     var refDateStr = refDate.getFullYear() + '-' + pad(refDate.getMonth()+1) + '-' + pad(refDate.getDate());
     filtered = filtered.filter(function(s) {
       if (s.start_date && s.start_date > refDateStr) return false;
+      if (s.scheduled_date && s.scheduled_date > refDateStr) return false;
       return true;
     });
 
@@ -751,6 +767,32 @@
         if (!lastDate) return true;
         var daysSince = (refDate - new Date(lastDate + 'T00:00:00')) / (1000 * 60 * 60 * 24);
         return daysSince >= minDays;
+      });
+
+      /* Package sequential filter — for package services, only show the earliest
+         undispatched step per property+package so only 1 service from each package
+         appears on the waiting list at a time.
+         Falls back to grouping by property when package_services rows are stale
+         (they get deleted/recreated when the package is edited in PackagePlansAdd). */
+      var pkgGroupMin = {};
+      filtered.forEach(function(s) {
+        if (!s.package_service_id) return;
+        var meta = packageServiceMeta[s.package_service_id];
+        /* Use package_id when available; fall back to property-level grouping for stale refs */
+        var gKey = meta
+          ? String(s.property_id) + '_pkg_' + meta.package_id
+          : String(s.property_id) + '_pkgfallback';
+        if (pkgGroupMin[gKey] === undefined || s.package_service_id < pkgGroupMin[gKey]) {
+          pkgGroupMin[gKey] = s.package_service_id;
+        }
+      });
+      filtered = filtered.filter(function(s) {
+        if (!s.package_service_id) return true;
+        var meta = packageServiceMeta[s.package_service_id];
+        var gKey = meta
+          ? String(s.property_id) + '_pkg_' + meta.package_id
+          : String(s.property_id) + '_pkgfallback';
+        return s.package_service_id === pkgGroupMin[gKey];
       });
     }
 
@@ -1603,8 +1645,43 @@
     });
     await Promise.all(updates);
     sendAlert('scheduled', ids);
+    await autoCreateNextServices(ids, schedSelDate);
     closeSchedModal();
     loadServices();
+  }
+
+  async function autoCreateNextServices(ids, scheduledDate) {
+    var { data: svcs } = await sb.from('Services').select('*').in('id', ids);
+    if (!svcs || !svcs.length) return;
+    var toCreate = svcs.filter(function(s) { return s.min_days && s.min_days > 0; });
+    if (!toCreate.length) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var inserts = [];
+    toCreate.forEach(function(s) {
+      var base = new Date(scheduledDate + 'T00:00:00');
+      base.setDate(base.getDate() + s.min_days);
+      var nextDate = base.toISOString().split('T')[0];
+      if (s.start_date && nextDate < s.start_date) nextDate = s.start_date;
+      if (s.end_date && nextDate > s.end_date) return;
+      inserts.push({
+        user_id:            uid || s.user_id,
+        property_id:        s.property_id || null,
+        customer_id:        s.customer_id || null,
+        client_name:        s.client_name || '',
+        address:            s.address || '',
+        service:            s.service || '',
+        amount:             s.amount || 0,
+        min_days:           s.min_days,
+        package_service_id: s.package_service_id || null,
+        start_date:         s.start_date || null,
+        end_date:           s.end_date || null,
+        scheduled_date:     nextDate,
+        dispatched:         false,
+        status:             'pending'
+      });
+    });
+    if (inserts.length) await sb.from('Services').insert(inserts);
   }
 
   /* ── Cancel / Skip ── */

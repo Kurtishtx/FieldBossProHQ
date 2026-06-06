@@ -236,7 +236,10 @@
 
   async function loadPackages() {
     var { data, error } = await sb.from('Packages').select('*').order('name', { ascending: true });
-    if (error) { console.error(error); return; }
+    if (error) {
+      document.getElementById('empty-msg').textContent = 'Error loading packages: ' + error.message;
+      return;
+    }
     packages = data || [];
     renderTable();
   }
@@ -248,8 +251,8 @@
     tbody.innerHTML = '';
 
     var filtered = packages.filter(function(p) {
-      if (currentTab === 'active')   return p.active;
-      if (currentTab === 'inactive') return !p.active;
+      if (currentTab === 'active')   return p.active !== false;
+      if (currentTab === 'inactive') return p.active === false;
       return true;
     });
 

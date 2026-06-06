@@ -344,13 +344,16 @@
     }
     if (error) { alert('Error saving package: ' + error.message); return; }
 
-    /* save service rows — insert first, delete old only on success */
+    /* save service rows — UPDATE existing rows in place to preserve IDs (so Services
+       with package_service_id pointing to these rows stay valid), then INSERT extras
+       or DELETE removed rows. */
     var rows = [];
     document.querySelectorAll('#svc-tbody tr').forEach(function(tr) {
       var cells = tr.querySelectorAll('td');
       if (cells.length < 7) return;
       var rowName = cells[1].querySelector('input') ? cells[1].querySelector('input').value.trim() : '';
       var sel = cells[2].querySelector('select');
+      var svcId = sel && sel.selectedIndex > 0 ? sel.value : null;
       var svcName = sel && sel.selectedIndex > 0 ? sel.options[sel.selectedIndex].text : '';
       var startInput = cells[3].querySelector('input[type="text"]');
       var endInput = cells[4].querySelector('input[type="text"]');
@@ -361,6 +364,7 @@
         user_id:      uid,
         package_id:   savedPkgId,
         name:         rowName || null,
+        service_id:   svcId || null,
         service_name: svcName || null,
         start_date:   parseDateToISO(startInput ? startInput.value : ''),
         end_date:     parseDateToISO(endInput ? endInput.value : ''),
@@ -368,13 +372,24 @@
         default_rate: defR
       });
     });
-    var { data: oldRows } = await sb.from('package_services').select('id').eq('package_id', savedPkgId);
+    var { data: oldRows } = await sb.from('package_services').select('id').eq('package_id', savedPkgId).order('id');
     var oldIds = (oldRows || []).map(function(r) { return r.id; });
-    if (rows.length) {
-      var { error: rowErr } = await sb.from('package_services').insert(rows);
-      if (rowErr) { alert('Service rows failed to save: ' + rowErr.message); return; }
-    }
-    if (oldIds.length) await sb.from('package_services').delete().in('id', oldIds);
+    var ops = [];
+    rows.forEach(function(row, i) {
+      if (i < oldIds.length) {
+        /* UPDATE existing row — preserves its ID so Services.package_service_id stays valid */
+        ops.push(sb.from('package_services').update(row).eq('id', oldIds[i]));
+      } else {
+        /* INSERT new row (added more steps than before) */
+        ops.push(sb.from('package_services').insert(row));
+      }
+    });
+    /* DELETE rows that were removed (fewer steps than before) */
+    var idsToDelete = oldIds.slice(rows.length);
+    if (idsToDelete.length) ops.push(sb.from('package_services').delete().in('id', idsToDelete));
+    var results = await Promise.all(ops);
+    var saveErr = results.map(function(r) { return r.error; }).find(Boolean);
+    if (saveErr) { alert('Service rows failed to save: ' + saveErr.message); return; }
     if (window.parent && window.parent.loadPage) { window.parent.loadPage('PackagePlans'); } else { window.location.href = 'PackagePlans.html'; }
   }
 
@@ -467,7 +482,7 @@
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
       '<td style="white-space:nowrap;"><input type="number" class="input-sm rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:65px;"/>' +
-        ' <button title="Apply discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
+        ' <button class="fill-below-btn" title="Apply discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
       '</td>' +
       '<td><button class="doc-btn">&#128196;</button></td>';
     tbody.appendChild(tr);
@@ -484,11 +499,15 @@
         if (mdInp && !mdInp.value) mdInp.value = minDaysVal;
       });
     });
-    if (data && data.service_name) {
+    if (data && (data.service_id || data.service_name)) {
       var sel = tr.querySelector('.svc-select');
       if (sel) {
-        for (var i = 0; i < sel.options.length; i++) {
-          if (sel.options[i].text === data.service_name) { sel.selectedIndex = i; break; }
+        if (data.service_id) {
+          sel.value = String(data.service_id);
+        } else {
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].text === data.service_name) { sel.selectedIndex = i; break; }
+          }
         }
       }
     }
