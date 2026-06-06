@@ -1518,16 +1518,26 @@
     });
   }
 
-  function openPkgEditModal(svcs, name) {
+  async function openPkgEditModal(svcs, name) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
+    /* fetch package_services template rows to fill in missing min_days/end_date */
+    var psIds = svcs.map(function(s) { return s.package_service_id; }).filter(Boolean);
+    var psData = {};
+    if (psIds.length) {
+      var { data: psRows } = await sb.from('package_services').select('id, min_days, end_date').in('id', psIds);
+      (psRows || []).forEach(function(r) { psData[r.id] = r; });
+    }
     var tbody = document.getElementById('pkg-edit-rows');
     tbody.innerHTML = svcs.map(function(s) {
+      var tmpl = psData[s.package_service_id] || {};
+      var minDays  = s.min_days  || tmpl.min_days  || '';
+      var endDate  = s.end_date  || tmpl.end_date  || '';
       return '<tr style="border-bottom:1px solid #f0f0f0;" data-svcid="' + s.id + '">' +
         '<td style="padding:6px 8px;">' + (s.service || '—') + '</td>' +
         '<td style="padding:6px 8px; text-align:right;"><input type="number" class="pke-rate" step="0.01" value="' + (s.amount || 0) + '" style="width:70px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:right;font-family:inherit;"/></td>' +
-        '<td style="padding:6px 8px; text-align:center;"><input type="number" class="pke-mindays" value="' + (s.min_days || '') + '" placeholder="0" style="width:55px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:center;font-family:inherit;"/></td>' +
+        '<td style="padding:6px 8px; text-align:center;"><input type="number" class="pke-mindays" value="' + minDays + '" placeholder="0" style="width:55px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:center;font-family:inherit;"/></td>' +
         '<td style="padding:6px 8px; text-align:center;"><input type="date" class="pke-start" value="' + (s.start_date || '') + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
-        '<td style="padding:6px 8px; text-align:center;"><input type="date" class="pke-end" value="' + (s.end_date || '') + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
+        '<td style="padding:6px 8px; text-align:center;"><input type="date" class="pke-end" value="' + endDate + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
       '</tr>';
     }).join('');
     var ov = document.getElementById('pkg-edit-overlay');
