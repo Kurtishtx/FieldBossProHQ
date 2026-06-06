@@ -391,7 +391,6 @@
     document.getElementById('actions-dropdown').classList.remove('open');
     var ids = getSelectedInvoiceIds();
     if (!ids.length) { alert('Select at least one invoice to email.'); return; }
-    if (!confirm('Send email for ' + ids.length + ' invoice(s)?')) return;
 
     var { data: sessionData } = await sb.auth.getSession();
     var token = sessionData && sessionData.session ? sessionData.session.access_token : '';
