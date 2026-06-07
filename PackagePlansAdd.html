@@ -620,13 +620,11 @@
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.start_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td style="text-align:center;"><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
-      '<td style="white-space:nowrap;text-align:right;padding:4px 8px;">' +
+      '<td style="padding:6px 8px; text-align:right; white-space:nowrap;">' +
         '<div style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">RATE</div>' +
-        '<div style="display:flex;align-items:center;justify-content:flex-end;gap:3px;">' +
-          '<input type="number" class="input-sm rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:65px;"/>' +
-          '<button class="fill-below-btn" title="Fill rate below">&#8595;</button>' +
-          '<button class="pct-btn" title="Apply % discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;">%</button>' +
-        '</div>' +
+        '<input type="number" class="rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:75px;text-align:right;border:1px solid #ccc;border-radius:3px;padding:3px 5px;font-size:12.5px;font-family:inherit;-moz-appearance:textfield;appearance:textfield;"/>' +
+        ' <button style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;margin-left:4px;" class="fill-below-btn" title="Fill rate below">&#8595;</button>' +
+        ' <button class="pct-btn" title="Apply % discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:3px;">%</button>' +
       '</td>';
     tbody.appendChild(tr);
     tr.querySelector('.fill-below-btn').addEventListener('click', function() {
