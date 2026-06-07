@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Custom Fields</title>
+  <title>Custom Columns</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -227,7 +227,7 @@
     <span class="showing-count" id="results-count"></span>
     <div class="item-count" id="item-count">0 items</div>
   </div>
-  <button class="btn-orange-filled" onclick="window.location.href='CustomFieldsAdd.html'">Add Custom Field</button>
+  <button class="btn-orange-filled" onclick="window.location.href='CustomFieldsAdd.html'">Add Custom Column</button>
 </div>
 
 <!-- Toolbar -->
@@ -237,7 +237,7 @@
     <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
     <div class="actions-dropdown" id="actions-dropdown">
       <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="window.location.href='CustomFieldsAdd.html'">Add Custom Field</button>
+      <button class="dropdown-item" onclick="window.location.href='CustomFieldsAdd.html'">Add Custom Column</button>
       <button class="dropdown-item" onclick="bulkSetActive(true)">Make Active</button>
       <button class="dropdown-item" onclick="bulkSetActive(false)">Make Inactive</button>
       <button class="dropdown-item" onclick="bulkDelete()">Delete</button>
@@ -269,7 +269,7 @@
     </thead>
     <tbody id="fields-tbody"></tbody>
   </table>
-  <div class="empty-msg" id="empty-msg">No custom fields found.</div>
+  <div class="empty-msg" id="empty-msg">No custom columns found.</div>
 </div>
 <div style="height:28px;background:#3a3a3a;"></div>
 

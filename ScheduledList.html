@@ -504,10 +504,11 @@
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-truck"   checked onchange="toggleCoreCol('truck',this.checked)"/>   Truck</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"     checked onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   checked onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   checked onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
-      <div class="col-section-label">Custom Field Columns</div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
+      <div class="col-section-label">Custom Columns</div>
       <div id="custom-col-options"></div>
     </div>
   </div>
@@ -519,10 +520,10 @@
     <thead>
       <tr id="thead-row">
         <th class="cb-cell"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th onclick="sortBy('order')">Order <span class="sort-arrow">&#9650;</span></th>
-        <th onclick="sortBy('client')">Client <span class="sort-arrow">&#9650;</span></th>
-        <th onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
-        <th onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
+        <th id="th-order" onclick="sortBy('order')">Order <span class="sort-arrow">&#9650;</span></th>
+        <th id="th-client" onclick="sortBy('client')">Client <span class="sort-arrow">&#9650;</span></th>
+        <th id="th-service" onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
+        <th id="th-lastsvc" onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
         <th id="th-arealawn"     style="display:none;">Lawn Sq Ft</th>
         <th id="th-areainsect"   style="display:none;">Lawn Insect Sq Ft</th>
         <th id="th-areaflower"   style="display:none;">Flower Bed(s) Sq Ft</th>
@@ -623,9 +624,9 @@
 
   var CORE_COLS = ['order','client','service','lastsvc','amount','truck'];
   var activeCoreColumns = CORE_COLS.slice();
-  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito','areapest'];
+  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
   var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
-  var activeAreaCols = AREA_COL_KEYS.slice();
+  var activeAreaCols = [];
   var activeCustomCols = [];
 
   async function loadColPrefs() {
@@ -666,7 +667,7 @@
     var container = document.getElementById('custom-col-options');
     container.innerHTML = '';
     if (customFieldDefs.length === 0) {
-      container.innerHTML = '<div class="col-panel-empty">No custom fields defined.</div>';
+      container.innerHTML = '<div class="col-panel-empty">No custom columns defined.</div>';
       return;
     }
     customFieldDefs.forEach(function(def) {
@@ -686,32 +687,42 @@
 
   function buildTableHeader() {
     var tr = document.getElementById('thead-row');
-    tr.querySelectorAll('.custom-col-th').forEach(function(th) { th.remove(); });
-    var amtTh = document.getElementById('amt-th');
+    var areaLabels = {arealawn:'Lawn Sq Ft', areainsect:'Lawn Insect Sq Ft', areaflower:'Flower Bed(s) Sq Ft', areamosquito:'Mosquito Sq Ft'};
+    var cells = ['<th class="cb-cell"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>'];
+    if (activeCoreColumns.indexOf('order')   >= 0) cells.push('<th id="th-order"   onclick="sortBy(\'order\')">Order <span class="sort-arrow">&#9650;</span></th>');
+    if (activeCoreColumns.indexOf('client')  >= 0) cells.push('<th id="th-client"  onclick="sortBy(\'client\')">Client <span class="sort-arrow">&#9650;</span></th>');
+    if (activeCoreColumns.indexOf('service') >= 0) cells.push('<th id="th-service" onclick="sortBy(\'service\')">Service <span class="sort-arrow">&#9650;</span></th>');
+    if (activeCoreColumns.indexOf('lastsvc') >= 0) cells.push('<th id="th-lastsvc" onclick="sortBy(\'lastsvc\')">Last Svc <span class="sort-arrow">&#9650;</span></th>');
+    AREA_COL_KEYS.forEach(function(k) {
+      if (activeAreaCols.indexOf(k) >= 0) cells.push('<th id="th-' + k + '">' + areaLabels[k] + '</th>');
+    });
+    if (activeCoreColumns.indexOf('truck')  >= 0) cells.push('<th id="th-truck">Truck</th>');
+    activeCustomCols.forEach(function(key) {
+      var def = customFieldDefs.find(function(d) { return d.key === key; });
+      if (def) cells.push('<th class="custom-col-th">' + def.label + '</th>');
+    });
+    if (activeCoreColumns.indexOf('amount') >= 0) cells.push('<th id="amt-th" onclick="sortBy(\'amount\')">Amt <span class="sort-arrow">&#9650;</span></th>');
+    tr.innerHTML = cells.join('');
+
+    var colspanCount = 1;
+    ['order','client','service','lastsvc'].forEach(function(col) {
+      if (activeCoreColumns.indexOf(col) >= 0) colspanCount++;
+    });
+    var totalsFirstTd = document.querySelector('#totals-row td:first-child');
+    if (totalsFirstTd) totalsFirstTd.colSpan = colspanCount;
+    AREA_COL_KEYS.forEach(function(k) {
+      var td = document.getElementById('total-' + k);
+      if (td) td.style.display = activeAreaCols.indexOf(k) >= 0 ? '' : 'none';
+    });
+    var truckTd = document.getElementById('total-truck');
+    if (truckTd) truckTd.style.display = activeCoreColumns.indexOf('truck') >= 0 ? '' : 'none';
+    var totalAmtTd = document.getElementById('total-amt');
+    if (totalAmtTd) totalAmtTd.style.display = activeCoreColumns.indexOf('amount') >= 0 ? '' : 'none';
+    var totalsRow = document.getElementById('totals-row');
+    totalsRow.querySelectorAll('.custom-total-td').forEach(function(td) { td.remove(); });
     activeCustomCols.forEach(function(key) {
       var def = customFieldDefs.find(function(d) { return d.key === key; });
       if (!def) return;
-      var th = document.createElement('th');
-      th.className = 'custom-col-th';
-      th.textContent = def.label;
-      tr.insertBefore(th, amtTh);
-    });
-    AREA_COL_KEYS.forEach(function(k) {
-      var th = document.getElementById('th-' + k);
-      var td = document.getElementById('total-' + k);
-      var show = activeAreaCols.indexOf(k) >= 0;
-      if (th) th.style.display = show ? '' : 'none';
-      if (td) td.style.display = show ? '' : 'none';
-    });
-    var showTruck = activeCoreColumns.indexOf('truck') >= 0;
-    var truckTh = document.getElementById('th-truck');
-    var truckTd = document.getElementById('total-truck');
-    if (truckTh) truckTh.style.display = showTruck ? '' : 'none';
-    if (truckTd) truckTd.style.display = showTruck ? '' : 'none';
-    var totalsRow = document.getElementById('totals-row');
-    totalsRow.querySelectorAll('.custom-total-td').forEach(function(td) { td.remove(); });
-    var totalAmtTd = document.getElementById('total-amt');
-    activeCustomCols.forEach(function() {
       var td = document.createElement('td');
       td.className = 'custom-total-td';
       totalsRow.insertBefore(td, totalAmtTd);
@@ -853,7 +864,8 @@
 
       var customCells = activeCustomCols.map(function(key) {
         var def = customFieldDefs.find(function(d) { return d.key === key; });
-        return '<td>' + (def ? getCfValue(svc.property_id, def) : '') + '</td>';
+        if (!def) return '';
+        return '<td>' + getCfValue(svc.property_id, def) + '</td>';
       }).join('');
 
       var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });
@@ -872,7 +884,7 @@
       tr.innerHTML =
         '<td class="cb-cell"><input type="checkbox" class="row-cb" data-id="' + svc.id + '" data-prop-id="' + svc.property_id + '" onchange="loadMarkers()"/></td>' +
         orderCell + clientCell + serviceCell + lastSvcCell +
-        areaCells + customCells + truckCell + amtCell;
+        areaCells + truckCell + customCells + amtCell;
       tbody.insertBefore(tr, emptyRow);
     });
 
@@ -1843,7 +1855,7 @@
       }
       if (s.area_cols) {
         activeAreaCols = s.area_cols;
-        ['arealawn','areainsect','areaflower'].forEach(function(k) {
+        ['arealawn','areainsect','areaflower','areamosquito'].forEach(function(k) {
           var cb = document.getElementById('area-cb-' + k);
           if (cb) cb.checked = activeAreaCols.indexOf(k) >= 0;
         });

@@ -425,10 +425,11 @@
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-service" checked onchange="toggleCoreCol('service',this.checked)"/> Service</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"     checked onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   checked onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   checked onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
-      <div class="col-section-label">Custom Field Columns</div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
+      <div class="col-section-label">Custom Columns</div>
       <div id="custom-col-options"></div>
     </div>
   </div>
@@ -549,9 +550,9 @@
   /* ── Column management ── */
   var CORE_COLS = ['order','client','service','lastsvc','amount'];
   var activeCoreColumns = CORE_COLS.slice();
-  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito','areapest'];
+  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
   var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
-  var activeAreaCols = AREA_COL_KEYS.slice();
+  var activeAreaCols = [];
   var activeCustomCols = [];
 
   async function loadColPrefs() {
@@ -588,7 +589,7 @@
     var container = document.getElementById('custom-col-options');
     container.innerHTML = '';
     if (customFieldDefs.length === 0) {
-      container.innerHTML = '<div class="col-panel-empty">No custom fields defined.</div>';
+      container.innerHTML = '<div class="col-panel-empty">No custom columns defined.</div>';
       return;
     }
     customFieldDefs.forEach(function(def) {
@@ -628,7 +629,9 @@
     var totalsRow = document.getElementById('totals-row');
     totalsRow.querySelectorAll('.custom-total-td').forEach(function(td) { td.remove(); });
     var totalAmtTd = document.getElementById('total-amt');
-    activeCustomCols.forEach(function() {
+    activeCustomCols.forEach(function(key) {
+      var def = customFieldDefs.find(function(d) { return d.key === key; });
+      if (!def) return;
       var td = document.createElement('td');
       td.className = 'custom-total-td';
       totalsRow.insertBefore(td, totalAmtTd);
@@ -882,7 +885,8 @@
 
       var customCells = activeCustomCols.map(function(key) {
         var def = customFieldDefs.find(function(d) { return d.key === key; });
-        return '<td>' + (def ? getCfValue(svc.property_id, def) : '') + '</td>';
+        if (!def) return '';
+        return '<td>' + getCfValue(svc.property_id, def) + '</td>';
       }).join('');
 
       var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });

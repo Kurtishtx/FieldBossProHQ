@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Custom Field</title>
+  <title>Add Custom Column</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
@@ -45,7 +45,7 @@
 
 <div class="dialog">
   <div class="dialog-header">
-    <h1 id="page-title">Add Custom Field</h1>
+    <h1 id="page-title">Add Custom Column</h1>
     <button class="close-btn" onclick="cancel()">&#10007;</button>
   </div>
 
@@ -95,7 +95,7 @@
 
   async function init() {
     if (!editId) return;
-    document.getElementById('page-title').textContent = 'Edit Custom Field';
+    document.getElementById('page-title').textContent = 'Edit Custom Column';
     var { data } = await sb.from('custom_fields').select('*').eq('id', editId).single();
     if (!data) return;
     document.getElementById('field-name').value  = data.name || '';
@@ -131,7 +131,7 @@
 
     if (andNew) {
       editId = null;
-      document.getElementById('page-title').textContent = 'Add Custom Field';
+      document.getElementById('page-title').textContent = 'Add Custom Column';
       document.getElementById('field-name').value    = '';
       document.getElementById('field-desc').value    = '';
       document.getElementById('field-assoc').value   = 'Customer';
