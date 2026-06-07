@@ -11,16 +11,31 @@ function addYears(dateStr: string, years: number): string {
   return d.toISOString().split('T')[0]
 }
 
-Deno.serve(async () => {
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   const today = new Date()
   const currentYear = today.getFullYear()
 
   // Get all active packages that have a renewal date configured
-  const { data: packages } = await sb
+  const { data: packages, error: pkgErr } = await sb
     .from('Packages')
     .select('id, user_id, name, renewal_date, last_renewed_year')
     .not('renewal_date', 'is', null)
     .eq('active', true)
+
+  if (pkgErr) {
+    return new Response(JSON.stringify({ error: pkgErr.message }), {
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
 
   if (!packages || !packages.length) {
     return new Response(JSON.stringify({ renewed: 0, message: 'No packages with renewal dates' }), {
