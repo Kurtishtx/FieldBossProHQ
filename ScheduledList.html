@@ -725,6 +725,8 @@
       if (!def) return;
       var td = document.createElement('td');
       td.className = 'custom-total-td';
+      td.id = 'custom-total-' + key;
+      td.style.textAlign = 'right';
       totalsRow.insertBefore(td, totalAmtTd);
     });
   }
@@ -836,6 +838,7 @@
 
     var totalAmt = 0;
     var areaTotals = {};
+    var customColTotals = {};
     var seenPropForArea = {};
     filtered.forEach(function(svc) {
       var amt = parseFloat(svc.amount) || 0;
@@ -865,7 +868,10 @@
       var customCells = activeCustomCols.map(function(key) {
         var def = customFieldDefs.find(function(d) { return d.key === key; });
         if (!def) return '';
-        return '<td>' + getCfValue(svc.property_id, def) + '</td>';
+        var val = getCfValue(svc.property_id, def);
+        var num = parseFloat(val);
+        if (!isNaN(num)) customColTotals[key] = (customColTotals[key] || 0) + num;
+        return '<td style="text-align:right;">' + (val !== '' ? val : '') + '</td>';
       }).join('');
 
       var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });
@@ -891,6 +897,10 @@
     AREA_COL_KEYS.forEach(function(k) {
       var td = document.getElementById('total-' + k);
       if (td) td.textContent = areaTotals[k] ? Number(areaTotals[k]).toLocaleString() : '';
+    });
+    activeCustomCols.forEach(function(key) {
+      var td = document.getElementById('custom-total-' + key);
+      if (td) td.textContent = customColTotals[key] ? Number(customColTotals[key]).toLocaleString() : '';
     });
     document.getElementById('total-amt').textContent = '$' + totalAmt.toFixed(2);
     emptyRow.style.display = filtered.length ? 'none' : '';
