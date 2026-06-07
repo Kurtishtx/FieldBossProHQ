@@ -489,7 +489,7 @@
     var results = await Promise.all(ops);
     var saveErr = results.map(function(r) { return r.error; }).find(Boolean);
     if (saveErr) { alert('Service rows failed to save: ' + saveErr.message); return; }
-    if (window.parent && window.parent.loadPage) { window.parent.loadPage('PackagePlans'); } else { window.location.href = 'PackagePlans.html'; }
+    if (window.parent && window.parent.loadPage) { window.parent.loadPage('packageplans'); } else { window.location.href = 'PackagePlans.html'; }
   }
 
   function toggleSvcAll(cb) {
