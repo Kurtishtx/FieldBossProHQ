@@ -244,6 +244,20 @@
     <button class="btn-save" onclick="savePackage()">Save Changes</button>
     <span class="btn-cancel" onclick="history.back()">Cancel</span>
   </div>
+
+  <!-- Subscribers section (only shown when editing existing package) -->
+  <div id="subscribers-section" style="display:none; margin:0 24px 24px; border:1px solid #ddd; border-radius:4px; overflow:hidden;">
+    <div style="background:#3a3a3a;color:#fff;padding:10px 14px;font-size:13px;font-weight:700;">Subscribers</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="background:#f5f5f5;border-bottom:2px solid #ddd;">
+        <th style="padding:8px 14px;text-align:left;font-weight:600;color:#555;">Client</th>
+        <th style="padding:8px 14px;text-align:left;font-weight:600;color:#555;">Address</th>
+        <th style="padding:8px 14px;text-align:center;font-weight:600;color:#555;">Services</th>
+      </tr></thead>
+      <tbody id="subscribers-tbody"></tbody>
+    </table>
+    <div id="subscribers-empty" style="display:none;padding:16px;color:#aaa;text-align:center;font-style:italic;">No subscribers yet.</div>
+  </div>
 </div>
 
 <!-- Calendar Popup -->
@@ -289,9 +303,36 @@
         document.getElementById('svc-tbody').innerHTML = '';
         pkgRows.forEach(function(row) { addSvcRow(row); });
       }
+      loadSubscribers(pkgId, pkgRows || []);
     }
   }
   init();
+
+  async function loadSubscribers(packageId, psRows) {
+    var psIds = psRows.map(function(r) { return r.id; });
+    if (!psIds.length) return;
+    var { data: svcRows } = await sb.from('Services')
+      .select('property_id, client_name, address')
+      .in('package_service_id', psIds)
+      .not('property_id', 'is', null);
+    var seen = {}, rows = [], svcCountMap = {};
+    (svcRows || []).forEach(function(r) {
+      svcCountMap[r.property_id] = (svcCountMap[r.property_id] || 0) + 1;
+      if (!seen[r.property_id]) { seen[r.property_id] = true; rows.push(r); }
+    });
+    var section = document.getElementById('subscribers-section');
+    var tbody = document.getElementById('subscribers-tbody');
+    var empty = document.getElementById('subscribers-empty');
+    section.style.display = '';
+    if (!rows.length) { empty.style.display = ''; return; }
+    tbody.innerHTML = rows.map(function(r) {
+      return '<tr style="border-bottom:1px solid #eee;">' +
+        '<td style="padding:8px 14px;">' + (r.client_name || '—') + '</td>' +
+        '<td style="padding:8px 14px;">' + (r.address || '—') + '</td>' +
+        '<td style="padding:8px 14px;text-align:center;">' + (svcCountMap[r.property_id] || 0) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
 
   function parseDateToISO(v) {
     if (!v) return null;
