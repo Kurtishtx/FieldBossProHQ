@@ -1648,6 +1648,14 @@
         var { data: pkgRows } = await sb.from('Packages').select('id, name').in('id', pkgIds);
         (pkgRows || []).forEach(function(p) { pkgMap[p.id] = p.name; });
       }
+      /* fetch total service count per package from template */
+      var pkgTotalCount = {};
+      if (pkgIds.length) {
+        var { data: allPsRows } = await sb.from('package_services').select('id, package_id').in('package_id', pkgIds);
+        (allPsRows || []).forEach(function(r) {
+          pkgTotalCount[r.package_id] = (pkgTotalCount[r.package_id] || 0) + 1;
+        });
+      }
     }
 
     /* group package services by package; individual services stay separate */
@@ -1679,7 +1687,7 @@
           '<button onclick="event.stopPropagation();deletePkgServices(\'' + svcIds + '\',\'' + g.name + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete package services">&#10005;</button>' +
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ✎</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
-            '<span style="font-weight:700;color:#222;">' + g.name + ' (' + g.svcs.length + ')</span>' +
+            '<span style="font-weight:700;color:#222;">' + g.name + ' (' + (pkgTotalCount[pid] || g.svcs.length) + ')</span>' +
             '<span><strong>Rate:</strong> ' + rateDisplay + '</span>' +
             (startDisplay ? '<span><strong>Start:</strong> ' + startDisplay + '</span>' : '') +
           '</div>' +
