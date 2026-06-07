@@ -1714,22 +1714,29 @@
 
   async function openPkgEditModal(svcs, name, pkgId) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
-
-    /* sort by start_date */
-    var sorted = svcs.slice().sort(function(a, b) {
-      return (a.start_date || '') < (b.start_date || '') ? -1 : 1;
-    });
-
-    /* fetch package_services template to fill missing min_days/end_date */
-    var psIds = sorted.map(function(s) { return s.package_service_id; }).filter(Boolean);
+    /* fetch ALL package_services IDs for this package */
+    if (pkgId) {
+      var { data: allPsRows } = await sb.from('package_services').select('id').eq('package_id', pkgId);
+      var allPsIds = (allPsRows || []).map(function(r) { return r.id; });
+      /* re-fetch ALL Services for this property in this package, including dispatched */
+      if (allPsIds.length) {
+        var { data: allSvcs } = await sb.from('Services')
+          .select('id, service, amount, start_date, end_date, min_days, package_service_id')
+          .eq('property_id', propId)
+          .in('package_service_id', allPsIds)
+          .order('start_date', { ascending: true });
+        if (allSvcs && allSvcs.length) svcs = allSvcs;
+      }
+    }
+    /* fetch template to fill missing min_days/end_date */
+    var psIds = svcs.map(function(s) { return s.package_service_id; }).filter(Boolean);
     var psData = {};
     if (psIds.length) {
       var { data: psRows } = await sb.from('package_services').select('id, min_days, end_date').in('id', psIds);
       (psRows || []).forEach(function(r) { psData[r.id] = r; });
     }
-
     var tbody = document.getElementById('pkg-edit-rows');
-    tbody.innerHTML = sorted.map(function(s, i) {
+    tbody.innerHTML = svcs.map(function(s, i) {
       var tmpl = psData[s.package_service_id] || {};
       var minDays = s.min_days != null ? s.min_days : (tmpl.min_days || '');
       var endDate = s.end_date || tmpl.end_date || '';
