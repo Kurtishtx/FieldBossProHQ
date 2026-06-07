@@ -1714,41 +1714,51 @@
 
   async function openPkgEditModal(svcs, name, pkgId) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
-    /* fetch ALL package_services for this package to get all service IDs */
-    var allPsIds = [];
+
+    /* fetch ALL template rows for this package */
+    var tmplRows = [];
     if (pkgId) {
-      var { data: allPsRows } = await sb.from('package_services').select('id, min_days, end_date').eq('package_id', pkgId);
-      allPsIds = (allPsRows || []).map(function(r) { return r.id; });
-      /* fetch ALL services for this property in this package (including dispatched/past) */
-      if (allPsIds.length) {
-        var { data: allSvcs } = await sb.from('Services')
-          .select('id, service, amount, start_date, end_date, min_days, package_service_id, dispatched')
-          .eq('property_id', propId)
-          .in('package_service_id', allPsIds)
-          .order('start_date', { ascending: true });
-        if (allSvcs && allSvcs.length) svcs = allSvcs;
-      }
+      var { data: tr } = await sb.from('package_services')
+        .select('id, service_name, min_days, start_date, end_date, default_rate')
+        .eq('package_id', pkgId)
+        .order('id', { ascending: true });
+      tmplRows = tr || [];
     }
-    /* fetch package_services template rows to fill in missing min_days/end_date */
-    var psIds = svcs.map(function(s) { return s.package_service_id; }).filter(Boolean);
-    var psData = {};
-    if (psIds.length) {
-      var { data: psRows } = await sb.from('package_services').select('id, min_days, end_date').in('id', psIds);
-      (psRows || []).forEach(function(r) { psData[r.id] = r; });
+
+    /* fetch ALL actual Service records for this property in this package (including dispatched) */
+    var svcMap = {};
+    if (tmplRows.length) {
+      var allPsIds = tmplRows.map(function(r) { return r.id; });
+      var { data: allSvcs } = await sb.from('Services')
+        .select('id, service, amount, start_date, end_date, min_days, package_service_id')
+        .eq('property_id', propId)
+        .in('package_service_id', allPsIds);
+      (allSvcs || []).forEach(function(s) { svcMap[s.package_service_id] = s; });
     }
+
+    /* merge template + actual, show all template rows */
+    var rows = tmplRows.length ? tmplRows : svcs.map(function(s) {
+      return { id: s.package_service_id, service_name: s.service, min_days: s.min_days, start_date: s.start_date, end_date: s.end_date, default_rate: s.amount };
+    });
+
     var tbody = document.getElementById('pkg-edit-rows');
-    tbody.innerHTML = svcs.map(function(s, i) {
-      var tmpl = psData[s.package_service_id] || {};
-      var minDays = s.min_days || tmpl.min_days || '';
-      var endDate = s.end_date || tmpl.end_date || '';
+    tbody.innerHTML = rows.map(function(tmpl, i) {
+      var svc = svcMap[tmpl.id] || {};
+      var hasSvc = !!svc.id;
+      var minDays = svc.min_days || tmpl.min_days || '';
+      var startDate = svc.start_date || tmpl.start_date || '';
+      var endDate = svc.end_date || tmpl.end_date || '';
+      var rate = svc.amount || tmpl.default_rate || 0;
+      var svcName = svc.service || tmpl.service_name || '—';
       var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
-      return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + ';" data-svcid="' + s.id + '">' +
+      var dimStyle = hasSvc ? '' : 'opacity:0.5;';
+      return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; ' + dimStyle + '" ' + (hasSvc ? 'data-svcid="' + svc.id + '"' : '') + '>' +
         '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
-        '<td style="padding:7px 10px; white-space:nowrap;">' + (s.service || '—') + '</td>' +
-        '<td style="padding:7px 10px; text-align:right; white-space:nowrap;"><input type="number" class="pke-rate" step="0.01" value="' + (s.amount || 0) + '" style="width:80px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:right;font-family:inherit;"/></td>' +
-        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="number" class="pke-mindays" value="' + minDays + '" placeholder="0" style="width:60px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:center;font-family:inherit;"/></td>' +
-        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-start" value="' + (s.start_date || '') + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
-        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-end" value="' + endDate + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; white-space:nowrap;">' + svcName + (hasSvc ? '' : ' <span style="font-size:11px;color:#aaa;">(not added)</span>') + '</td>' +
+        '<td style="padding:7px 10px; text-align:right; white-space:nowrap;"><input type="number" class="pke-rate" step="0.01" value="' + rate + '" ' + (hasSvc ? '' : 'disabled') + ' style="width:80px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:right;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="number" class="pke-mindays" value="' + minDays + '" placeholder="0" ' + (hasSvc ? '' : 'disabled') + ' style="width:60px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:center;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-start" value="' + startDate + '" ' + (hasSvc ? '' : 'disabled') + ' style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-end" value="' + endDate + '" ' + (hasSvc ? '' : 'disabled') + ' style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
       '</tr>';
     }).join('');
     var ov = document.getElementById('pkg-edit-overlay');
