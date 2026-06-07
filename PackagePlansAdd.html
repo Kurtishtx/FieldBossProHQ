@@ -156,40 +156,17 @@
         <table class="svc-table">
           <thead>
             <tr>
-              <th><input type="checkbox" onchange="toggleSvcAll(this)"/></th>
+              <th style="width:30px;"><input type="checkbox" onchange="toggleSvcAll(this)"/></th>
+              <th style="width:30px;text-align:center;color:#888;">#</th>
               <th>Name on Invoice</th>
               <th>Service</th>
               <th>Start</th>
               <th>End</th>
-              <th>Min. Days</th>
-              <th>Default Rate</th>
-              <th></th>
+              <th>Min Days</th>
+              <th style="text-align:right;">Rate</th>
             </tr>
           </thead>
           <tbody id="svc-tbody">
-            <tr>
-              <td><input type="checkbox"/></td>
-              <td><input type="text" style="width:130px;"/></td>
-              <td>
-                <select class="svc-select" style="width:200px;">
-                  <option value="">Select Service...</option>
-                </select>
-              </td>
-              <td>
-                <div style="display:flex;align-items:center;gap:4px;">
-                  <input type="text" placeholder="mm/dd/yyyy" style="width:100px;"/>
-                  <button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button>
-                </div>
-              </td>
-              <td>
-                <div style="display:flex;align-items:center;gap:4px;">
-                  <input type="text" placeholder="mm/dd/yyyy" style="width:100px;"/>
-                  <button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button>
-                </div>
-              </td>
-              <td><input type="number" class="input-sm" placeholder="0"/></td>
-              <td><input type="number" class="input-sm" placeholder="0.00" step="0.01"/></td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -260,6 +237,18 @@
   </div>
 </div>
 
+<!-- Discount Picker Modal -->
+<div id="disc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:6px;width:420px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.3);">
+    <div style="background:#3a3a3a;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:6px 6px 0 0;">
+      <span style="font-weight:700;font-size:14px;">Select Discount</span>
+      <button onclick="closeDiscModal()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;line-height:1;">&#10005;</button>
+    </div>
+    <div id="disc-modal-list" style="overflow-y:auto;flex:1;padding:8px 0;"></div>
+    <div style="padding:10px 16px;border-top:1px solid #eee;font-size:12px;color:#888;">Click a discount to apply it to the rate.</div>
+  </div>
+</div>
+
 <!-- Calendar Popup -->
 <div id="cal-popup">
   <div class="cpop-hdr">
@@ -283,8 +272,56 @@
   var pkgId = new URLSearchParams(window.location.search).get('id');
   var existing = null;
   var serviceOptions = '<option value="">Select Service...</option>';
+  var allDiscounts = [];
+  var _discTarget = null;
+
+  async function loadDiscounts() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { data } = await sb.from('discounts').select('id, name, type, value').eq('user_id', uid).order('name');
+    allDiscounts = data || [];
+  }
+
+  function openDiscModal(rateInput) {
+    _discTarget = rateInput;
+    var list = document.getElementById('disc-modal-list');
+    if (!allDiscounts.length) {
+      list.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center;">No discounts found.</div>';
+    } else {
+      list.innerHTML = allDiscounts.map(function(d) {
+        var label = d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2);
+        return '<div onclick="applyDiscount(\'' + d.id + '\')" style="padding:10px 16px;cursor:pointer;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span style="font-weight:600;">' + d.name + '</span>' +
+          '<span style="color:#e07820;font-weight:700;">' + label + '</span>' +
+        '</div>';
+      }).join('');
+    }
+    var modal = document.getElementById('disc-modal');
+    modal.style.display = 'flex';
+  }
+
+  function applyDiscount(discId) {
+    var disc = allDiscounts.find(function(d) { return d.id === discId; });
+    if (!disc || !_discTarget) { closeDiscModal(); return; }
+    var currentRate = parseFloat(_discTarget.value) || 0;
+    var newRate;
+    if (disc.type === 'Percent') {
+      newRate = currentRate - (currentRate * (parseFloat(disc.value) / 100));
+    } else {
+      newRate = currentRate - parseFloat(disc.value);
+    }
+    if (newRate < 0) newRate = 0;
+    _discTarget.value = newRate.toFixed(2);
+    closeDiscModal();
+  }
+
+  function closeDiscModal() {
+    document.getElementById('disc-modal').style.display = 'none';
+    _discTarget = null;
+  }
 
   async function init() {
+    await loadDiscounts();
     var { data: svcs } = await sb.from('Services').select('id, name').is('property_id', null).order('name');
     if (svcs) {
       serviceOptions = '<option value="">Select Service...</option>' +
@@ -497,20 +534,27 @@
 
   function addSvcRow(data) {
     var tbody = document.getElementById('svc-tbody');
+    var rowNum = tbody.querySelectorAll('tr').length + 1;
     var tr = document.createElement('tr');
     var q = function(v) { return v ? String(v).replace(/"/g, '&quot;') : ''; };
     tr.innerHTML =
-      '<td><input type="checkbox"/></td>' +
+      '<td style="text-align:center;"><input type="checkbox"/></td>' +
+      '<td style="text-align:center;color:#888;font-size:12px;">' + rowNum + '</td>' +
       '<td><input type="text" style="width:130px;" value="' + q(data && data.name) + '"/></td>' +
       '<td><select class="svc-select" style="width:200px;">' + serviceOptions + '</select></td>' +
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.start_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
-      '<td><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
-      '<td style="white-space:nowrap;"><input type="number" class="input-sm rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:65px;"/>' +
-        ' <button class="fill-below-btn" title="Fill rate below">&#8595;</button>' +
-        ' <button class="pct-btn" title="Apply % discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:2px;">%</button>' +
-      '</td>' +
-      '';
+      '<td style="text-align:center;"><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
+      '<td style="white-space:nowrap;text-align:right;">' +
+        '<div style="display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px;">' +
+          '<span style="font-size:9px;font-weight:700;color:#aaa;letter-spacing:.5px;">RATE</span>' +
+          '<div style="display:flex;align-items:center;gap:3px;">' +
+            '<input type="number" class="input-sm rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:65px;"/>' +
+            '<button class="fill-below-btn" title="Fill rate below">&#8595;</button>' +
+            '<button class="pct-btn" title="Apply % discount" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;">%</button>' +
+          '</div>' +
+        '</div>' +
+      '</td>';
     tbody.appendChild(tr);
     tr.querySelector('.fill-below-btn').addEventListener('click', function() {
       var allRows = document.querySelectorAll('#svc-tbody tr');
@@ -524,6 +568,9 @@
         var mdInp = r.querySelector('.mindays-input');
         if (mdInp && !mdInp.value) mdInp.value = minDaysVal;
       });
+    });
+    tr.querySelector('.pct-btn').addEventListener('click', function() {
+      openDiscModal(tr.querySelector('.rate-input'));
     });
     if (data && (data.service_id || data.service_name)) {
       var sel = tr.querySelector('.svc-select');
