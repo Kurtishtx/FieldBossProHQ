@@ -4,6 +4,16 @@ const client = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
 );
 
+// Auto-redirect if already logged in and stay-logged-in was checked
+(async function() {
+  if (localStorage.getItem('sbp_stay_logged_in') !== '1') return;
+  var { data } = await client.auth.getSession();
+  if (data && data.session) {
+    sessionStorage.setItem('sbp_session_active', '1');
+    window.location.href = 'dashboard.html';
+  }
+})();
+
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
