@@ -573,32 +573,16 @@
       sched_notes:    document.getElementById('sched-notes').value.trim(),
     };
 
-    var error, newServiceId = null;
+    var error;
     if (editId) {
       var res = await sb.from('Services').update(record).eq('id', editId);
       error = res.error;
     } else {
-      var res = await sb.from('Services').insert(record).select('id').single();
+      var res = await sb.from('Services').insert(record);
       error = res.error;
-      if (!error && res.data) newServiceId = res.data.id;
     }
 
     if (error) { alert('Error saving: ' + error.message); return; }
-
-    if (newServiceId) {
-      var { data: sessionData } = await sb.auth.getSession();
-      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (uid) {
-        fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g'
-          },
-          body: JSON.stringify({ alert_type: 'scheduled', service_ids: [newServiceId], user_id: uid })
-        }).catch(function(e) { console.error('SMS alert error:', e); });
-      }
-    }
 
     if (window.parent !== window) {
       window.parent.closeServiceModal(true);
