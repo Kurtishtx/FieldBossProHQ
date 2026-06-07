@@ -509,7 +509,7 @@
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">End</th>
               <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Min Days</th>
               <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Missed</th>
-              <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Rate</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Rate</th>
               <th style="padding:5px 4px; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:58px;"></th>
             </tr></thead>
             <tbody id="pkg-modal-rows"></tbody>
@@ -1434,8 +1434,8 @@
           '<td style="padding:7px 10px; white-space:nowrap; color:' + (isPast ? '#c0392b' : 'inherit') + '; font-weight:' + (isPast ? '700' : 'normal') + ';">' + fmtDate(r.end_date) + '</td>' +
           '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' + (r.min_days || 0) + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;" class="pkg-missed-cell-' + i + '">' + missedCell + '</td>' +
-          '<td style="padding:7px 8px; text-align:right; white-space:nowrap;">' +
-            '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:right; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
+          '<td style="padding:7px 8px; text-align:left; white-space:nowrap;">' +
+            '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:left; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
           '</td>' +
           '<td style="padding:7px 4px; text-align:center; white-space:nowrap;">' +
             '<button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;">&#8595;</button>' +
