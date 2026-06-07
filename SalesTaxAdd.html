@@ -160,8 +160,6 @@
   }
 
   async function applyToAllClients(name) {
-    if (!confirm('Set "' + name + '" as the sales tax for ALL existing clients and as the default for new clients? This will overwrite any tax currently set on each client.')) return;
-
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
 
