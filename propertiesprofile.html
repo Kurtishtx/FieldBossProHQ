@@ -1719,6 +1719,10 @@
     var svcMap = {};
     svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
 
+    /* derive the common rate from existing services to use as fallback for not-added rows */
+    var commonRate = 0;
+    svcs.forEach(function(s) { if (s.amount) commonRate = parseFloat(s.amount) || 0; });
+
     /* fetch ALL template rows for this package */
     var tmplRows = [];
     if (pkgId) {
@@ -1741,7 +1745,7 @@
       var minDays   = hasSvc ? (svc.min_days != null ? svc.min_days : tmpl.min_days || '') : (tmpl.min_days || '');
       var startDate = hasSvc ? (svc.start_date || tmpl.start_date || '') : (tmpl.start_date || '');
       var endDate   = hasSvc ? (svc.end_date   || tmpl.end_date   || '') : (tmpl.end_date   || '');
-      var rate      = hasSvc ? (svc.amount != null ? svc.amount : tmpl.default_rate || 0) : (tmpl.default_rate || 0);
+      var rate      = hasSvc ? (svc.amount != null ? svc.amount : tmpl.default_rate || commonRate) : (tmpl.default_rate || commonRate);
       var svcName   = hasSvc ? (svc.service || tmpl.name || tmpl.service_name || '—') : (tmpl.name || tmpl.service_name || '—');
       var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
       var dimStyle = hasSvc ? '' : 'opacity:0.5;';
