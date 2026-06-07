@@ -1265,6 +1265,14 @@
     tbody.innerHTML = '';
     if (!recs.length) { empty.style.display = ''; return; }
 
+    /* batch-fetch service_name from package_services for package rows */
+    var pkgSvcNameMap = {};
+    var pkgSvcIds = recs.map(function(r) { return r.package_service_id; }).filter(Boolean);
+    if (pkgSvcIds.length) {
+      var { data: pkgSvcRows } = await sb.from('package_services').select('id, service_name').in('id', pkgSvcIds);
+      (pkgSvcRows || []).forEach(function(r) { pkgSvcNameMap[r.id] = r.service_name; });
+    }
+
     var auditIcon    = '<span style="font-size:17px;color:#666;cursor:pointer;" title="Audit">&#128100;</span>';
     var waitingIcon  = '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#2272c3;border-radius:50%;color:#fff;font-size:12px;font-weight:900;line-height:1;" title="Waiting List">W</span>';
     var scheduledIcon= '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#e07820;border-radius:50%;border:2px solid #000;color:#000;font-size:12px;font-weight:900;line-height:1;" title="Scheduled">S</span>';
@@ -1301,7 +1309,7 @@
         tr.innerHTML =
           '<td ' + tdc + '>' + rowIcon + '</td>' +
           '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
-          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml((j.package_service_id && pkgSvcNameMap[j.package_service_id]) ? pkgSvcNameMap[j.package_service_id] : (j.service || j.name || '—')) + '</td>' +
           '<td ' + td + '>' + periodStr + '</td>' +
           '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
           '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +

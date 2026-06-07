@@ -434,17 +434,19 @@
           if (startInp && existingSvc.start_date) startInp.value = existingSvc.start_date;
           if (endInp   && existingSvc.end_date)   endInp.value   = existingSvc.end_date;
           if (rateInp  && existingSvc.amount != null) rateInp.value = parseFloat(existingSvc.amount).toFixed(2);
-          /* match service name to dropdown; if not in catalog, show name in the blank option */
-          if (svcSel && existingSvc.service) {
+          /* match catalog service name via package_services.service_name */
+          if (svcSel && existingSvc.package_service_id) {
+            var { data: pkgSvcData } = await sb.from('package_services').select('service_name').eq('id', existingSvc.package_service_id).single();
+            var svcNameToMatch = pkgSvcData && pkgSvcData.service_name ? pkgSvcData.service_name : existingSvc.service;
             var matched = false;
             Array.from(svcSel.options).forEach(function(opt) {
-              if (opt.textContent.trim().toLowerCase() === existingSvc.service.trim().toLowerCase()) {
+              if (opt.textContent.trim().toLowerCase() === svcNameToMatch.trim().toLowerCase()) {
                 svcSel.value = opt.value;
                 matched = true;
               }
             });
             if (!matched && svcSel.options.length > 0) {
-              svcSel.options[0].textContent = existingSvc.service;
+              svcSel.options[0].textContent = svcNameToMatch;
               svcSel.value = '';
             }
           }
