@@ -1,44 +1,34 @@
 /* Reset */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Page background */
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #ebebeb;
+  background: linear-gradient(135deg, #03000a 0%, #080010 50%, #0d0318 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
 
-/* Login box */
 .login-container {
   background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 4px 18px rgba(0,0,0,.18);
+  border: 2px solid #c050f0;
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px #c050f0, 0 0 20px 6px rgba(192,80,240,.8), 0 0 50px 14px rgba(192,80,240,.4), 0 0 80px 20px rgba(192,80,240,.2);
   width: 320px;
   overflow: hidden;
 }
 
-/* Header */
 .login-container h1 {
-  background: #1a2b3c;
+  background: linear-gradient(135deg, #1a0820 0%, #4a1060 100%);
   color: #ffffff;
   font-size: 22px;
   font-weight: 800;
   text-align: center;
-  padding: 18px 0 16px;
+  padding: 22px 0 20px;
   letter-spacing: 1px;
 }
 
-/* Fields wrapper */
 .login-fields {
   padding: 24px 24px 20px;
   display: flex;
@@ -46,37 +36,36 @@ body {
   gap: 12px;
 }
 
-/* Inputs */
 .login-container input {
   width: 100%;
+  background: #fff;
   border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 9px 11px;
-  font-size: 14px;
+  border-radius: 6px;
+  padding: 11px 13px;
+  font-size: 15px;
   font-family: inherit;
   color: #333;
 }
 
+.login-container input::placeholder { color: #aaa; }
+
 .login-container input:focus {
   outline: none;
-  border-color: #f5c800;
-  box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+  border-color: #6b2080;
+  box-shadow: 0 0 0 2px rgba(107,32,128,.2);
 }
 
-/* Button */
 .login-container button {
   width: 100%;
   background: #e07820;
   color: #fff;
   border: none;
-  border-radius: 4px;
-  padding: 10px;
+  border-radius: 6px;
+  padding: 12px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   margin-top: 4px;
 }
 
-.login-container button:hover {
-  background: #c96a15;
-}
+.login-container button:hover { background: #c96a15; }

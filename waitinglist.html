@@ -6,7 +6,7 @@
   <title>Waiting List</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; font-size: 13px; background: #ebebeb; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #d4cfe0; }
 
     .page-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#fff; border-bottom:1px solid #ddd; }
     .page-header h1 { font-size:22px; font-weight:700; color:#111; }
@@ -18,7 +18,7 @@
     .filter-bar strong { font-size:13px; color:#333; }
     .filter-tab { padding:3px 12px; border:1px solid #bbb; background:#fff; font-size:13px; cursor:pointer; border-radius:2px; color:#333; }
     .filter-tab:hover { background:#e8e8e8; }
-    .filter-tab.active { background:#3a3a3a; color:#fff; border:2px solid #fff; font-weight:700; }
+    .filter-tab.active { background:#130520; color:#fff; border:2px solid #fff; font-weight:700; }
 
     .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#f0f0f0; border-bottom:1px solid #ddd; }
     .subfilter-bar.visible { display:flex; }
@@ -46,7 +46,7 @@
     .drp-close-btn { background:#27a567; color:#fff; border:none; padding:4px 16px; cursor:pointer; font-size:12px; font-weight:700; border-radius:2px; }
     .drp-months { display:flex; gap:12px; width:100%; }
     .drp-months > div { flex:1; min-width:0; }
-    .drp-cal-hdr { display:flex; align-items:center; justify-content:space-between; background:#222; color:#fff; padding:5px 8px; font-size:13px; font-weight:600; }
+    .drp-cal-hdr { display:flex; align-items:center; justify-content:space-between; background:#1a0828; color:#fff; padding:5px 8px; font-size:13px; font-weight:600; }
     .drp-nav { background:none; border:none; color:#fff; cursor:pointer; font-size:15px; line-height:1; padding:0 4px; }
     .drp-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
     .drp-dn { font-size:11px; color:#888; text-align:center; padding:4px 0; }
@@ -75,11 +75,11 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn-orange-outline:hover { background: #222; }
+    .btn-orange-outline:hover { background: #1a0828; }
     .btn-print { background:#e07820; color:#fff; border:3px solid #111; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
     .btn-print:hover { background:#c96a15; border-color:#111; }
     .btn-map-toggle { background:#111; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
-    .btn-map-toggle:hover { background:#222; }
+    .btn-map-toggle:hover { background:#1a0828; }
     @media print {
       .filter-bar, .subfilter-bar, .toolbar, .map-section, .bottom-bar, .page-header,
       .sv-overlay, #sched-modal-overlay { display:none !important; }
@@ -120,7 +120,7 @@
     .sv-modal-save { background:#e07820; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; }
     .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; }
 
-    .jobs-total { padding:5px 10px; font-size:13px; color:#fff; background:#3a3a3a; border-bottom:2px solid #fff; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .jobs-total { padding:5px 10px; font-size:13px; color:#fff; background:#130520; border-bottom:2px solid #fff; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#f3f3f3; border:1px solid #ddd; border-radius:12px; padding:4px 9px; font-size:12px; color:#222; font-weight:700; }
     .jt-pill-count { background:#e07820; color:#fff; font-weight:700; border-radius:10px; padding:0 6px; font-size:11px; }
 
@@ -130,7 +130,7 @@
     .map-toggle button.active { background:#f0f0f0; font-weight:700; }
 
     .stop-panel { display:block; position:absolute; top:10px; left:10px; width:260px; background:#fff; border:1px solid #bbb; box-shadow:0 2px 8px rgba(0,0,0,.25); z-index:20; font-size:12.5px; }
-    .stop-panel-hdr { background:#3a3a3a; color:#fff; padding:6px 10px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+    .stop-panel-hdr { background:#130520; color:#fff; padding:6px 10px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
     .stop-panel-hdr button { background:none; border:none; color:#fff; cursor:pointer; font-size:15px; line-height:1; }
     .stop-body { padding:8px 10px; }
     .sp-section { font-weight:700; font-size:12px; color:#333; margin:6px 0 3px; }
@@ -144,13 +144,13 @@
     .map-tool-btn:hover { background:#f0f0f0; }
     .map-tool-btn.active { background:#e8f0fe; border-color:#4a90d9; }
 
-    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#3a3a3a; border-top:2px solid #fff; border-bottom:1px solid #222; position:relative; }
+    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#130520; border-top:2px solid #fff; border-bottom:1px solid #222; position:relative; }
     .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px 0 0 3px; }
     .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); padding:5px 8px; font-size:12px; cursor:pointer; border-radius:0 3px 3px 0; }
     .day-tabs { display:flex; gap:2px; margin-left:4px; }
     .day-tab { border:1px solid #bbb; background:#fff; padding:3px 10px; font-size:12px; cursor:pointer; text-align:center; line-height:1.4; border-radius:2px; }
     .day-tab:hover { background:#f0f0f0; }
-    .day-tab.active { background:#3a3a3a; border:2px solid #fff; font-weight:700; color:#fff; }
+    .day-tab.active { background:#130520; border:2px solid #fff; font-weight:700; color:#fff; }
     .day-tab .day-letter { font-weight:700; display:block; }
     .day-tab .day-num { display:block; }
     .bar-btn { border:1px solid #bbb; background:#fff; padding:5px 12px; font-size:12.5px; cursor:pointer; border-radius:2px; color:#333; }
@@ -160,7 +160,7 @@
 
     .col-panel { display:none; position:fixed; right:10px; bottom:52px; background:#fff; border:1px solid #bbb; z-index:1000; width:360px; border-radius:4px; overflow:hidden; box-shadow:0 6px 24px rgba(0,0,0,.3); }
     .col-panel.show { display:block; }
-    .col-panel-hdr { background:#3a3a3a; color:#fff; padding:12px 14px; font-size:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+    .col-panel-hdr { background:#130520; color:#fff; padding:12px 14px; font-size:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
     .col-panel-hdr button { background:none; border:none; color:#fff; cursor:pointer; font-size:18px; line-height:1; opacity:.8; }
     .col-panel-hdr button:hover { opacity:1; }
     .col-panel-body { max-height:420px; overflow-y:auto; padding-bottom:10px; }
@@ -174,10 +174,10 @@
 
     .table-wrap { overflow-x:auto; background:#fff; }
     table.data-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:auto; }
-    .data-table thead th { background:#d6d6d6; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
-    .data-table thead th:hover { background:#c8c8c8; }
+    .data-table thead th { background:#e8e4f0; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
+    .data-table thead th:hover { background:#ddd8ec; }
     .data-table thead th .sort-arrow { font-size:10px; margin-left:3px; }
-    .data-table .totals-row td { background:#3a3a3a; color:#fff; padding:5px 8px; font-weight:600; border-right:1px solid #555; }
+    .data-table .totals-row td { background:#130520; color:#fff; padding:5px 8px; font-weight:600; border-right:1px solid #555; }
     .data-table tbody tr { border-bottom:1px solid #e8e8e8; }
     .data-table tbody tr:hover { background:#fdfbe8; }
     .data-table tbody td { padding:5px 8px; border-right:1px solid #eee; white-space:nowrap; }
@@ -296,7 +296,7 @@
     <button class="orange-btn" onclick="showRouteOrder()">Show Route Order</button>
     <button class="orange-btn" onclick="startRouteOrder()">Set Route Order</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
-      <select id="marker-mode" onchange="loadMarkers()" style="width:100%; padding:7px 28px 7px 10px; background:#d6d6d6; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
+      <select id="marker-mode" onchange="loadMarkers()" style="width:100%; padding:7px 28px 7px 10px; background:#e8e4f0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
         <option value="selected">Show Only Selected</option>
         <option value="all">Show All Markers</option>
       </select>
@@ -466,7 +466,7 @@
     </tbody>
   </table>
 </div>
-<div style="height:28px; background:#3a3a3a;"></div>
+<div style="height:28px; background:#130520;"></div>
 
 <!-- Save View Modal -->
 <div class="sv-overlay" id="sv-overlay" onclick="closeSaveViewModal()">

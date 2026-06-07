@@ -9,7 +9,7 @@
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
+      background: #d4cfe0;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -45,7 +45,7 @@
 
     /* ── Toolbar ── */
     .toolbar {
-      background: #3a3a3a;
+      background: #130520;
       padding: 7px 14px;
       display: flex;
       align-items: center;
@@ -99,13 +99,13 @@
 
     /* ── Tabs ── */
     .tabs-bar {
-      background: #3a3a3a;
+      background: #130520;
       padding: 0 10px 0;
       display: flex;
       align-items: flex-end;
       gap: 3px;
       flex-shrink: 0;
-      border-top: 1px solid #2a2a2a;
+      border-top: 1px solid #0d0318;
     }
     .tab-btn {
       background: #bbb;
@@ -195,7 +195,7 @@
   </div>
 </div>
 
-<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#3a3a3a;color:#fff;font-size:13px;">
+<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#130520;color:#fff;font-size:13px;">
   <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> mix(es)? This cannot be undone.</span>
   <button onclick="confirmDelete()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
   <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #aaa;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
@@ -224,7 +224,7 @@
   </table>
   <div class="empty-msg" id="empty-msg">No product mixes found.</div>
 </div>
-<div style="height:28px;background:#3a3a3a;"></div>
+<div style="height:28px;background:#130520;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
