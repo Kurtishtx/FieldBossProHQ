@@ -616,8 +616,8 @@
     tr.innerHTML =
       '<td style="text-align:center;"><input type="checkbox"/></td>' +
       '<td style="text-align:center;color:#888;font-size:12px;">' + rowNum + '</td>' +
-      '<td><input type="text" style="width:130px;" value="' + q(data && data.name) + '"/></td>' +
-      '<td><select class="svc-select" style="width:170px;">' + serviceOptions + '</select></td>' +
+      '<td><input type="text" style="width:160px;" value="' + q(data && data.name) + '"/></td>' +
+      '<td><select class="svc-select" style="width:210px;">' + serviceOptions + '</select></td>' +
       '<td><div style="display:flex;align-items:center;gap:2px;"><input type="text" placeholder="mm/dd/yyyy" style="width:90px;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.start_date)) + '"/><button class="cal-btn" style="padding:3px 5px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td><div style="display:flex;align-items:center;gap:2px;"><input type="text" placeholder="mm/dd/yyyy" style="width:90px;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 5px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td style="text-align:center;"><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
