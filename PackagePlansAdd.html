@@ -144,17 +144,6 @@
       </div>
     </div>
 
-    <div class="section-label">Status</div>
-
-    <div class="toggle-row">
-      <label class="lbl">Active</label>
-      <label class="toggle">
-        <input type="checkbox" id="pkg-active" checked/>
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-label" id="active-label">Active</span>
-    </div>
-
     <div class="section-label">Services</div>
 
     <!-- Service table -->
@@ -276,9 +265,6 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
   );
 
-  document.getElementById('pkg-active').addEventListener('change', function() {
-    document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
-  });
 
   var pkgId = new URLSearchParams(window.location.search).get('id');
   var existing = null;
@@ -297,8 +283,6 @@
         existing = data;
         document.getElementById('pkg-name').value = data.name || '';
         document.getElementById('pkg-description').value = data.description || '';
-        document.getElementById('pkg-active').checked = data.active !== false;
-        document.getElementById('active-label').textContent = data.active !== false ? 'Active' : 'Inactive';
       }
       var { data: pkgRows } = await sb.from('package_services').select('*').eq('package_id', pkgId).order('id');
       if (pkgRows && pkgRows.length) {
@@ -330,7 +314,7 @@
     var payload = {
       name: name,
       description: document.getElementById('pkg-description').value.trim(),
-      active: document.getElementById('pkg-active').checked
+      active: true
     };
     var savedPkgId, error;
     if (existing) {
