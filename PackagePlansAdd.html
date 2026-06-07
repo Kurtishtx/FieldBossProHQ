@@ -444,15 +444,15 @@
     var rows = [];
     document.querySelectorAll('#svc-tbody tr').forEach(function(tr) {
       var cells = tr.querySelectorAll('td');
-      if (cells.length < 7) return;
-      var rowName = cells[1].querySelector('input') ? cells[1].querySelector('input').value.trim() : '';
-      var sel = cells[2].querySelector('select');
+      if (cells.length < 8) return;
+      var rowName = cells[2].querySelector('input') ? cells[2].querySelector('input').value.trim() : '';
+      var sel = cells[3].querySelector('select');
       var svcId = sel && sel.selectedIndex > 0 ? sel.value : null;
       var svcName = sel && sel.selectedIndex > 0 ? sel.options[sel.selectedIndex].text : '';
-      var startInput = cells[3].querySelector('input[type="text"]');
-      var endInput = cells[4].querySelector('input[type="text"]');
-      var minD = parseInt((cells[5].querySelector('input') || {}).value) || 0;
-      var defR = parseFloat((cells[6].querySelector('input') || {}).value) || 0;
+      var startInput = cells[4].querySelector('input[type="text"]');
+      var endInput = cells[5].querySelector('input[type="text"]');
+      var minD = parseInt((cells[6].querySelector('input') || {}).value) || 0;
+      var defR = parseFloat((cells[7].querySelector('input') || {}).value) || 0;
       if (!rowName && !svcName) return;
       var tr = cells[0].closest('tr');
       var baseRateAttr = tr ? parseFloat(tr.getAttribute('data-base-rate')) || null : null;
