@@ -55,7 +55,7 @@
     .svc-table thead th { background: #e8e8e8; border-bottom: 1px solid #ccc; border-right: 1px solid #ddd; padding: 7px 10px; text-align: left; font-weight: 600; color: #444; white-space: nowrap; }
     .svc-table thead th:first-child { width: 30px; text-align: center; }
     .svc-table tbody tr { border-bottom: 1px solid #eee; }
-    .svc-table tbody td { padding: 6px 8px; vertical-align: middle; border-right: 1px solid #f0f0f0; }
+    .svc-table tbody td { padding: 8px 8px; vertical-align: middle; border-right: 1px solid #f0f0f0; }
     .svc-table tbody td:first-child { text-align: center; }
     .svc-table input[type="text"], .svc-table input[type="number"] {
       border: 1px solid #ccc; border-radius: 2px; padding: 5px 8px; font-size: 12.5px; font-family: inherit; outline: none;
@@ -620,8 +620,8 @@
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.start_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:100px;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 6px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td style="text-align:center;"><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
-      '<td style="white-space:nowrap;text-align:right;position:relative;padding-top:18px;">' +
-        '<span style="position:absolute;top:4px;right:8px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.5px;">RATE</span>' +
+      '<td style="white-space:nowrap;text-align:right;padding:4px 8px;">' +
+        '<div style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">RATE</div>' +
         '<div style="display:flex;align-items:center;justify-content:flex-end;gap:3px;">' +
           '<input type="number" class="input-sm rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:65px;"/>' +
           '<button class="fill-below-btn" title="Fill rate below">&#8595;</button>' +
