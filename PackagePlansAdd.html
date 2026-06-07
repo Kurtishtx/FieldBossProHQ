@@ -356,7 +356,12 @@
     var newRate = discType === 'Percent' ? baseRate - (baseRate * discValue / 100) : baseRate - discValue;
     if (newRate < 0) newRate = 0;
     if (_discTarget) {
+      var tr = _discTarget.closest('tr');
       _discTarget.value = newRate.toFixed(2);
+      if (tr) {
+        tr.setAttribute('data-base-rate', baseRate.toFixed(2));
+        tr.setAttribute('data-discount-expires-at', document.getElementById('disc-expiry-input').value || '');
+      }
       _discTarget.style.transition = 'background .3s';
       _discTarget.style.background = '#d4edda';
       setTimeout(function() { if (_discTarget) _discTarget.style.background = ''; }, 1200);
@@ -389,7 +394,7 @@
         document.getElementById('pkg-name').value = data.name || '';
         document.getElementById('pkg-description').value = data.description || '';
       }
-      var { data: pkgRows } = await sb.from('package_services').select('*').eq('package_id', pkgId).order('id');
+      var { data: pkgRows } = await sb.from('package_services').select('id,package_id,name,service_id,service_name,start_date,end_date,min_days,default_rate,base_rate,discount_expires_at').eq('package_id', pkgId).order('id');
       if (pkgRows && pkgRows.length) {
         document.getElementById('svc-tbody').innerHTML = '';
         pkgRows.forEach(function(row) { addSvcRow(row); });
@@ -476,16 +481,21 @@
       var minD = parseInt((cells[5].querySelector('input') || {}).value) || 0;
       var defR = parseFloat((cells[6].querySelector('input') || {}).value) || 0;
       if (!rowName && !svcName) return;
+      var tr = cells[0].closest('tr');
+      var baseRateAttr = tr ? parseFloat(tr.getAttribute('data-base-rate')) || null : null;
+      var discExpiryAttr = tr ? (tr.getAttribute('data-discount-expires-at') || null) : null;
       rows.push({
-        user_id:      uid,
-        package_id:   savedPkgId,
-        name:         rowName || null,
-        service_id:   svcId || null,
-        service_name: svcName || null,
-        start_date:   parseDateToISO(startInput ? startInput.value : ''),
-        end_date:     parseDateToISO(endInput ? endInput.value : ''),
-        min_days:     minD,
-        default_rate: defR
+        user_id:               uid,
+        package_id:            savedPkgId,
+        name:                  rowName || null,
+        service_id:            svcId || null,
+        service_name:          svcName || null,
+        start_date:            parseDateToISO(startInput ? startInput.value : ''),
+        end_date:              parseDateToISO(endInput ? endInput.value : ''),
+        min_days:              minD,
+        default_rate:          defR,
+        base_rate:             baseRateAttr,
+        discount_expires_at:   discExpiryAttr || null
       });
     });
     var { data: oldRows } = await sb.from('package_services').select('id').eq('package_id', savedPkgId).order('id');
@@ -589,7 +599,18 @@
   function addSvcRow(data) {
     var tbody = document.getElementById('svc-tbody');
     var rowNum = tbody.querySelectorAll('tr').length + 1;
+    /* if a discount has expired, revert to base_rate */
+    if (data && data.discount_expires_at && data.base_rate != null) {
+      var today = new Date(); today.setHours(0,0,0,0);
+      if (new Date(data.discount_expires_at) < today) {
+        data.default_rate = data.base_rate;
+        data.base_rate = null;
+        data.discount_expires_at = null;
+      }
+    }
     var tr = document.createElement('tr');
+    if (data && data.base_rate != null) tr.setAttribute('data-base-rate', data.base_rate);
+    if (data && data.discount_expires_at) tr.setAttribute('data-discount-expires-at', data.discount_expires_at);
     var q = function(v) { return v ? String(v).replace(/"/g, '&quot;') : ''; };
     tr.innerHTML =
       '<td style="text-align:center;"><input type="checkbox"/></td>' +

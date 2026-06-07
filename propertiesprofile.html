@@ -1605,7 +1605,8 @@
       var cb = checkboxes[i];
       if (cb && !cb.checked) return; /* skip unchecked (past/excluded) rows */
       var rate = rateInputs[i] ? parseFloat(rateInputs[i].value) || 0 : (r.default_rate || 0);
-      inserts.push({
+      var disc = rowDiscountData[i] || null;
+      var rec = {
         user_id: uid,
         property_id: propId,
         customer_id: prop.customer_id || null,
@@ -1619,7 +1620,10 @@
         end_date: r.end_date || null,
         dispatched: false,
         status: 'pending'
-      });
+      };
+      if (disc && disc.baseRate) rec.base_rate = parseFloat(disc.baseRate);
+      if (disc && disc.expiry)   rec.discount_expires_at = disc.expiry;
+      inserts.push(rec);
     });
     if (!inserts.length) { alert('No services selected. Check at least one service to add.'); return; }
     var { error } = await sb.from('Services').insert(inserts);
@@ -1637,9 +1641,21 @@
     pkgEditStore = {};
 
     var { data: svcRows } = await sb.from('Services')
-      .select('id, service, amount, start_date, end_date, min_days, package_service_id')
+      .select('id, service, amount, base_rate, discount_expires_at, start_date, end_date, min_days, package_service_id')
       .eq('property_id', propId)
       .neq('dispatched', true);
+
+    /* revert any expired discounts */
+    var today = new Date(); today.setHours(0,0,0,0);
+    var expiredIds = (svcRows || []).filter(function(r) {
+      return r.discount_expires_at && r.base_rate != null && new Date(r.discount_expires_at) < today;
+    });
+    if (expiredIds.length) {
+      await Promise.all(expiredIds.map(function(r) {
+        return sb.from('Services').update({ amount: r.base_rate, discount_expires_at: null, base_rate: null }).eq('id', r.id);
+      }));
+      expiredIds.forEach(function(r) { r.amount = r.base_rate; r.discount_expires_at = null; r.base_rate = null; });
+    }
 
     if (!svcRows || !svcRows.length) { container.innerHTML = ''; return; }
 
