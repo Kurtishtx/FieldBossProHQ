@@ -178,7 +178,8 @@
         <tr>
           <th style="width:22px;"></th>
           <th style="min-width:200px;">Service</th>
-          <th style="width:140px;">Start Date</th>
+          <th style="width:130px;">Start Date</th>
+          <th style="width:130px;">End Date</th>
           <th style="width:70px;">Qty</th>
           <th style="width:100px;">Rate</th>
           <th style="width:150px;">Discount</th>
@@ -404,13 +405,15 @@
             addServiceRow();
             var rows = document.querySelectorAll('#svc-rows tr');
             var tr = rows[rows.length - 1];
-            var svcSel  = tr.querySelector('.svc-sel');
-            var dateInp = tr.querySelector('input[type="date"]');
-            var qtyInp  = tr.querySelector('.qty-inp');
-            var rateInp = tr.querySelector('.rate-inp');
-            var discSel = tr.querySelector('.disc-sel');
-            if (svcSel  && line.service_id)  svcSel.value  = line.service_id;
-            if (dateInp && line.start_date)   dateInp.value = line.start_date;
+            var svcSel   = tr.querySelector('.svc-sel');
+            var startInp = tr.querySelector('.start-date-inp');
+            var endInp   = tr.querySelector('.end-date-inp');
+            var qtyInp   = tr.querySelector('.qty-inp');
+            var rateInp  = tr.querySelector('.rate-inp');
+            var discSel  = tr.querySelector('.disc-sel');
+            if (svcSel   && line.service_id)  svcSel.value   = line.service_id;
+            if (startInp && line.start_date)   startInp.value = line.start_date;
+            if (endInp   && line.end_date)     endInp.value   = line.end_date;
             if (qtyInp  && line.qty != null)  qtyInp.value  = line.qty;
             if (rateInp && line.rate != null)  rateInp.value = parseFloat(line.rate).toFixed(2);
             if (discSel && line.discount_pct) {
@@ -420,14 +423,25 @@
             }
           });
         } else {
-          /* package service — single row using start_date and amount */
+          /* package service — single row using start_date, end_date and amount */
           addServiceRow();
           var rows = document.querySelectorAll('#svc-rows tr');
           var tr = rows[rows.length - 1];
-          var dateInp = tr.querySelector('input[type="date"]');
-          var rateInp = tr.querySelector('.rate-inp');
-          if (dateInp && existingSvc.start_date) dateInp.value = existingSvc.start_date;
-          if (rateInp && existingSvc.amount != null) rateInp.value = parseFloat(existingSvc.amount).toFixed(2);
+          var svcSel      = tr.querySelector('.svc-sel');
+          var startInp    = tr.querySelector('.start-date-inp');
+          var endInp      = tr.querySelector('.end-date-inp');
+          var rateInp     = tr.querySelector('.rate-inp');
+          if (startInp && existingSvc.start_date) startInp.value = existingSvc.start_date;
+          if (endInp   && existingSvc.end_date)   endInp.value   = existingSvc.end_date;
+          if (rateInp  && existingSvc.amount != null) rateInp.value = parseFloat(existingSvc.amount).toFixed(2);
+          /* match service name to dropdown */
+          if (svcSel && existingSvc.service) {
+            Array.from(svcSel.options).forEach(function(opt) {
+              if (opt.textContent.trim().toLowerCase() === existingSvc.service.trim().toLowerCase()) {
+                svcSel.value = opt.value;
+              }
+            });
+          }
         }
         calcTotals();
       } else {
@@ -456,7 +470,8 @@
     tr.innerHTML =
       '<td><button class="del-btn" onclick="removeRow(' + idx + ')">&#10005;</button></td>' +
       '<td><select class="svc-sel" onchange="calcTotals()" style="width:100%;">' + serviceOptions + '</select></td>' +
-      '<td><input type="date" value="' + today + '" style="width:100%;"/></td>' +
+      '<td><input type="date" class="start-date-inp" value="' + today + '" style="width:100%;"/></td>' +
+      '<td><input type="date" class="end-date-inp" style="width:100%;"/></td>' +
       '<td><input type="number" class="qty-inp" value="1" step="1" min="0" oninput="calcTotals(this)" style="width:100%; text-align:right;"/></td>' +
       '<td><input type="text" class="rate-inp" value="0.00" oninput="calcTotals(this)" style="width:100%; text-align:right;"/></td>' +
       '<td><select class="disc-sel" onchange="calcTotals(this)" style="width:100%;">' + discountOptions + '</select></td>' +
@@ -497,20 +512,24 @@
     var totalAmount = 0;
     var firstSvcName = '';
     var firstStartDate = '';
+    var firstEndDate = '';
     document.querySelectorAll('#svc-rows tr').forEach(function(tr, i) {
-      var svcSel  = tr.querySelector('.svc-sel');
-      var dateInp = tr.querySelector('input[type="date"]');
-      var qtyInp  = tr.querySelector('.qty-inp');
-      var rateInp = tr.querySelector('.rate-inp');
-      var discSel = tr.querySelector('.disc-sel');
-      var qty     = parseFloat(qtyInp  ? qtyInp.value  : 0) || 0;
-      var rate    = parseFloat(rateInp ? rateInp.value : 0) || 0;
-      var pct     = discSel ? (parseFloat(discSel.options[discSel.selectedIndex].dataset.pct) || 0) : 0;
+      var svcSel    = tr.querySelector('.svc-sel');
+      var startInp  = tr.querySelector('.start-date-inp');
+      var endInp    = tr.querySelector('.end-date-inp');
+      var qtyInp    = tr.querySelector('.qty-inp');
+      var rateInp   = tr.querySelector('.rate-inp');
+      var discSel   = tr.querySelector('.disc-sel');
+      var qty       = parseFloat(qtyInp  ? qtyInp.value  : 0) || 0;
+      var rate      = parseFloat(rateInp ? rateInp.value : 0) || 0;
+      var pct       = discSel ? (parseFloat(discSel.options[discSel.selectedIndex].dataset.pct) || 0) : 0;
       var lineTotal = qty * rate * (1 - pct / 100);
       totalAmount += lineTotal;
-      var svcName = svcSel ? svcSel.options[svcSel.selectedIndex].textContent : '';
-      if (i === 0) { firstSvcName = svcName; firstStartDate = dateInp ? dateInp.value : ''; }
-      rows.push({ service_name: svcName, service_id: svcSel ? svcSel.value : '', start_date: dateInp ? dateInp.value : '', qty: qty, rate: rate, discount_pct: pct, total: lineTotal });
+      var svcName   = svcSel ? svcSel.options[svcSel.selectedIndex].textContent : '';
+      var startDate = startInp ? startInp.value : '';
+      var endDate   = endInp   ? endInp.value   : '';
+      if (i === 0) { firstSvcName = svcName; firstStartDate = startDate; firstEndDate = endDate; }
+      rows.push({ service_name: svcName, service_id: svcSel ? svcSel.value : '', start_date: startDate, end_date: endDate, qty: qty, rate: rate, discount_pct: pct, total: lineTotal });
     });
 
     var { data: sessionData } = await sb.auth.getSession();
@@ -526,6 +545,8 @@
       job_type:       'one_time',
       service:        firstSvcName,
       scheduled_date: firstStartDate || null,
+      start_date:     firstStartDate || null,
+      end_date:       firstEndDate   || null,
       amount:         totalAmount,
       dispatched:     false,
       status:         'pending',
