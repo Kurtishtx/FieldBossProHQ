@@ -144,6 +144,17 @@
       </div>
     </div>
 
+    <div class="field-row">
+      <label for="pkg-renewal">Renewal Date</label>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="text" id="pkg-renewal" placeholder="MM/DD" style="width:90px;" maxlength="5" autocomplete="off"/>
+          <button class="cal-btn" onclick="openRenewalCal(this)" style="padding:4px 8px;font-size:13px;">&#128197;</button>
+          <span style="font-size:12px;color:#888;font-style:italic;">Renews automatically every year on this date</span>
+        </div>
+      </div>
+    </div>
+
     <div class="section-label">Services</div>
 
     <!-- Service table -->
@@ -353,6 +364,7 @@
         existing = data;
         document.getElementById('pkg-name').value = data.name || '';
         document.getElementById('pkg-description').value = data.description || '';
+        document.getElementById('pkg-renewal').value = data.renewal_date || '';
       }
       var { data: pkgRows } = await sb.from('package_services').select('id,package_id,name,service_id,service_name,start_date,end_date,min_days,default_rate,base_rate,discount_expires_at').eq('package_id', pkgId).order('id');
       if (pkgRows && pkgRows.length) {
@@ -411,6 +423,7 @@
     var payload = {
       name: name,
       description: document.getElementById('pkg-description').value.trim(),
+      renewal_date: document.getElementById('pkg-renewal').value.trim() || null,
       active: true
     };
     var savedPkgId, error;
@@ -488,7 +501,35 @@
   var _calTarget = null, _calYear, _calMonth;
   var _calMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+  function openRenewalCal(btn) {
+    /* reuse the calendar popup but write only MM/DD (no year) to #pkg-renewal */
+    _calTarget = document.getElementById('pkg-renewal');
+    _calIsRenewal = true;
+    var today = new Date();
+    var val = _calTarget.value;
+    if (val && /^\d{1,2}\/\d{1,2}$/.test(val)) {
+      var p = val.split('/');
+      today = new Date(today.getFullYear(), parseInt(p[0])-1, parseInt(p[1]));
+    }
+    _calYear = today.getFullYear();
+    _calMonth = today.getMonth();
+    renderCal();
+    var pop = document.getElementById('cal-popup');
+    pop.style.display = 'block';
+    var r = btn.getBoundingClientRect();
+    var popH = pop.offsetHeight || 280;
+    var top = r.bottom + 4;
+    if (top + popH > window.innerHeight) top = r.top - popH - 4;
+    pop.style.top = top + 'px';
+    var left = r.left;
+    if (left + 230 > window.innerWidth) left = window.innerWidth - 238;
+    pop.style.left = left + 'px';
+  }
+
+  var _calIsRenewal = false;
+
   function openCal(btn) {
+    _calIsRenewal = false;
     _calTarget = btn.previousElementSibling;
     var today = new Date();
     var val = _calTarget ? _calTarget.value : '';
@@ -542,7 +583,14 @@
   }
 
   function selectCalDay(d) {
-    if (_calTarget) _calTarget.value = String(_calMonth+1).padStart(2,'0') + '/' + String(d).padStart(2,'0') + '/' + _calYear;
+    if (_calTarget) {
+      if (_calIsRenewal) {
+        _calTarget.value = String(_calMonth+1).padStart(2,'0') + '/' + String(d).padStart(2,'0');
+      } else {
+        _calTarget.value = String(_calMonth+1).padStart(2,'0') + '/' + String(d).padStart(2,'0') + '/' + _calYear;
+      }
+    }
+    _calIsRenewal = false;
     closeCal();
   }
 
