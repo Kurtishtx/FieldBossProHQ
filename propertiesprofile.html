@@ -1715,6 +1715,10 @@
   async function openPkgEditModal(svcs, name, pkgId) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
 
+    /* build a map of existing services by package_service_id */
+    var svcMap = {};
+    svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
+
     /* fetch ALL template rows for this package */
     var tmplRows = [];
     if (pkgId) {
@@ -1725,31 +1729,22 @@
       tmplRows = tr || [];
     }
 
-    /* fetch ALL actual Service records for this property in this package (including dispatched) */
-    var svcMap = {};
-    if (tmplRows.length) {
-      var allPsIds = tmplRows.map(function(r) { return r.id; });
-      var { data: allSvcs } = await sb.from('Services')
-        .select('id, service, amount, start_date, end_date, min_days, package_service_id')
-        .eq('property_id', propId)
-        .in('package_service_id', allPsIds);
-      (allSvcs || []).forEach(function(s) { svcMap[s.package_service_id] = s; });
+    /* fall back to svcs if no template rows found */
+    if (!tmplRows.length) {
+      tmplRows = svcs.map(function(s) {
+        return { id: s.package_service_id, service_name: s.service, min_days: s.min_days, start_date: s.start_date, end_date: s.end_date, default_rate: s.amount };
+      });
     }
 
-    /* merge template + actual, show all template rows */
-    var rows = tmplRows.length ? tmplRows : svcs.map(function(s) {
-      return { id: s.package_service_id, service_name: s.service, min_days: s.min_days, start_date: s.start_date, end_date: s.end_date, default_rate: s.amount };
-    });
-
     var tbody = document.getElementById('pkg-edit-rows');
-    tbody.innerHTML = rows.map(function(tmpl, i) {
+    tbody.innerHTML = tmplRows.map(function(tmpl, i) {
       var svc = svcMap[tmpl.id] || {};
       var hasSvc = !!svc.id;
-      var minDays = svc.min_days || tmpl.min_days || '';
-      var startDate = svc.start_date || tmpl.start_date || '';
-      var endDate = svc.end_date || tmpl.end_date || '';
-      var rate = svc.amount || tmpl.default_rate || 0;
-      var svcName = svc.service || tmpl.service_name || '—';
+      var minDays = hasSvc ? (svc.min_days != null ? svc.min_days : tmpl.min_days || '') : (tmpl.min_days || '');
+      var startDate = hasSvc ? (svc.start_date || tmpl.start_date || '') : (tmpl.start_date || '');
+      var endDate = hasSvc ? (svc.end_date || tmpl.end_date || '') : (tmpl.end_date || '');
+      var rate = hasSvc ? (svc.amount != null ? svc.amount : tmpl.default_rate || 0) : (tmpl.default_rate || 0);
+      var svcName = hasSvc ? (svc.service || tmpl.service_name || '—') : (tmpl.service_name || '—');
       var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
       var dimStyle = hasSvc ? '' : 'opacity:0.5;';
       return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; ' + dimStyle + '" ' + (hasSvc ? 'data-svcid="' + svc.id + '"' : '') + '>' +
