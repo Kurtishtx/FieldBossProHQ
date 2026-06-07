@@ -434,13 +434,22 @@
           if (startInp && existingSvc.start_date) startInp.value = existingSvc.start_date;
           if (endInp   && existingSvc.end_date)   endInp.value   = existingSvc.end_date;
           if (rateInp  && existingSvc.amount != null) rateInp.value = parseFloat(existingSvc.amount).toFixed(2);
-          /* match service name to dropdown */
+          /* match service name to dropdown; inject as option if not found in catalog */
           if (svcSel && existingSvc.service) {
+            var matched = false;
             Array.from(svcSel.options).forEach(function(opt) {
               if (opt.textContent.trim().toLowerCase() === existingSvc.service.trim().toLowerCase()) {
                 svcSel.value = opt.value;
+                matched = true;
               }
             });
+            if (!matched) {
+              var tempOpt = document.createElement('option');
+              tempOpt.value = '__pkg__';
+              tempOpt.textContent = existingSvc.service;
+              svcSel.appendChild(tempOpt);
+              svcSel.value = '__pkg__';
+            }
           }
         }
         calcTotals();
