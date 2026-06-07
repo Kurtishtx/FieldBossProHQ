@@ -1,4 +1,4 @@
-﻿<html>
+<html>
 <head>
   <title>SprayBossPro Login</title>
 <link rel="stylesheet" href="login.css">
@@ -13,10 +13,10 @@
       min-height: 100vh;
     }
     .login-container {
-      background: #fff;
+      background: #2d0f35;
       border: 1px solid #6b2080;
-      border-radius: 8px;
-      box-shadow: 0 8px 40px rgba(74,16,96,.45);
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.5);
       width: 440px;
       overflow: hidden;
     }
@@ -37,17 +37,19 @@
     }
     .login-container input {
       width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      background: #3d1445;
+      border: 1px solid #6b2080;
+      border-radius: 6px;
       padding: 13px 14px;
       font-size: 16px;
       font-family: inherit;
-      color: #333;
+      color: #fff;
     }
+    .login-container input::placeholder { color: #b08ec0; }
     .login-container input:focus {
       outline: none;
-      border-color: #f5c800;
-      box-shadow: 0 0 0 2px rgba(245,200,0,.2);
+      border-color: #e07820;
+      box-shadow: 0 0 0 2px rgba(224,120,32,.25);
     }
     .login-container button {
       width: 100%;
@@ -87,15 +89,15 @@
   </div>
 
   <!-- Forgot Password Modal -->
-  <div id="forgot-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; display:none; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:8px; box-shadow:0 8px 32px rgba(0,0,0,.25); width:400px; max-width:92vw; overflow:hidden;">
+  <div id="forgot-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000; display:none; align-items:center; justify-content:center;">
+    <div style="background:#2d0f35; border:1px solid #6b2080; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,.5); width:400px; max-width:92vw; overflow:hidden;">
       <div style="background:linear-gradient(135deg,#1a0820,#4a1060); color:#fff; padding:18px 24px; font-size:18px; font-weight:700;">Reset Password</div>
       <div style="padding:28px 28px 24px; display:flex; flex-direction:column; gap:14px;">
-        <p style="color:#555; font-size:14px;">Enter your email and we'll send you a link to reset your password.</p>
-        <input id="forgot-email" type="email" placeholder="Email" style="width:100%; border:1px solid #ccc; border-radius:4px; padding:12px 14px; font-size:15px; font-family:inherit;">
+        <p style="color:#c9a8d8; font-size:14px;">Enter your email and we'll send you a link to reset your password.</p>
+        <input id="forgot-email" type="email" placeholder="Email" style="width:100%; background:#3d1445; border:1px solid #6b2080; border-radius:6px; padding:12px 14px; font-size:15px; font-family:inherit; color:#fff;">
         <button onclick="sendReset()" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:16px; font-weight:700; cursor:pointer;">Send Reset Link</button>
-        <div style="text-align:center;"><a href="#" onclick="hideForgot(event)" style="color:#888; font-size:13px;">Cancel</a></div>
-        <div id="forgot-msg" style="display:none; text-align:center; font-size:14px; color:#2a7a2a; font-weight:600;"></div>
+        <div style="text-align:center;"><a href="#" onclick="hideForgot(event)" style="color:#b08ec0; font-size:13px;">Cancel</a></div>
+        <div id="forgot-msg" style="display:none; text-align:center; font-size:14px; color:#7dcc7d; font-weight:600;"></div>
       </div>
     </div>
   </div>
