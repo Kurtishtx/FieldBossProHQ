@@ -149,6 +149,7 @@
 <div class="dialog">
 <div class="page-header">
   <h1 id="page-title">New One Time Service</h1>
+  <button id="delete-btn" onclick="deleteJob()" style="display:none; visibility:hidden; pointer-events:none; background:#cc2222; color:#fff; border:none; padding:8px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer;">&#10005; Delete Service</button>
 </div>
 
 <div class="tabs">
@@ -324,7 +325,7 @@
 
   if (editId) {
     document.getElementById('page-title').textContent = 'Edit One Time Service';
-    document.getElementById('delete-btn').style.display = 'inline-block';
+    /* delete button hidden */
   }
 
   var today = new Date().toISOString().split('T')[0];
