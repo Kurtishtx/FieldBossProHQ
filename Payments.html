@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
 
     /* ── Page header ── */
     .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; }
@@ -22,19 +22,19 @@
     /* ── Filter pills ── */
     .tabs-bar {
       display: flex; gap: 4px; padding: 8px 20px;
-      border-bottom: 1px solid #eee; flex-wrap: wrap;
+      border-bottom: 1px solid #c5bfd8; flex-wrap: wrap;
     }
     .tab-btn {
-      padding: 5px 16px; border: 1px solid #bbb; background: #fff;
+      padding: 5px 16px; border: 1px solid #b0a8c8; background: #e8e4f0;
       font-size: 13px; cursor: pointer; border-radius: 20px;
-      color: #555; font-family: inherit; font-weight: 400;
+      color: #444; font-family: inherit; font-weight: 400;
       white-space: nowrap;
     }
-    .tab-btn:hover { background: #f0f0f0; }
-    .tab-btn.active { background: #3a3a3a; color: #fff; border-color: #3a3a3a; font-weight: 700; }
+    .tab-btn:hover { background: #ddd8ec; }
+    .tab-btn.active { background: #130520; color: #fff; border-color: #130520; font-weight: 700; }
 
     /* ── Toolbar ── */
-    .toolbar { background: #3a3a3a; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; }
+    .toolbar { background: linear-gradient(90deg, #080010, #130520); display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; }
     .toolbar-left { display:flex; align-items:center; gap:6px; position:relative; overflow:visible; }
     .btn-green-main { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; border-radius:3px 0 0 3px; padding:5px 14px; font-size:13px; font-family:inherit; font-weight:700; cursor:pointer; }
     .btn-green-main:hover { background:#d4ae00; }
@@ -60,12 +60,12 @@
     /* ── Table ── */
     .table-container { background:#fff; }
     table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
-    thead th { background:#fafafa; border-bottom:2px solid #ddd; padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#555; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
+    thead th { background:#e8e4f0; border-bottom:2px solid #c5bfd8; padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#3a2a55; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
     thead th:first-child { text-align:center; cursor:default; }
     thead th .sort-icon { color:#bbb; font-size:10px; margin-left:3px; }
     thead th .sort-asc  { color:#e07820; font-size:10px; margin-left:3px; }
     tbody tr { border-bottom:1px solid #eee; }
-    tbody tr:hover { background:#f9f9f9; }
+    tbody tr:hover { background:#f5f3fa; }
     tbody td { padding:12px 16px; color:#333; vertical-align:middle; }
     tbody td:first-child { text-align:center; }
 
@@ -128,12 +128,12 @@
       </tr>
     </thead>
     <thead>
-      <tr style="background:#222;">
-        <td colspan="3" style="background:#222;padding:10px 16px;"></td>
-        <td id="total-amount"    style="color:#fff;font-weight:700;padding:10px 16px;background:#222;text-align:right;">$0.00</td>
-        <td id="total-unused"   style="color:#fff;font-weight:700;padding:10px 16px;background:#222;text-align:right;">$0.00</td>
-        <td id="total-refunded" style="color:#fff;font-weight:700;padding:10px 16px;background:#222;text-align:right;">$0.00</td>
-        <td colspan="2" style="background:#222;padding:10px 16px;"></td>
+      <tr style="background:#1a0828;">
+        <td colspan="3" style="background:#1a0828;padding:10px 16px;"></td>
+        <td id="total-amount"    style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;text-align:right;">$0.00</td>
+        <td id="total-unused"   style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;text-align:right;">$0.00</td>
+        <td id="total-refunded" style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;text-align:right;">$0.00</td>
+        <td colspan="2" style="background:#1a0828;padding:10px 16px;"></td>
       </tr>
     </thead>
     <tbody id="payment-tbody"></tbody>
