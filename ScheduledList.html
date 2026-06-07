@@ -1946,6 +1946,64 @@
       return sb.from('Services').update({ status: 'completed', completed_date: completedAt }).eq('id', id);
     }));
 
+    /* fetch completed services with discount info to create invoices */
+    var { data: completedSvcs } = await sb.from('Services')
+      .select('id, property_id, client_name, address, service, amount, notes, scheduled_date, discount_type, discount_value, discount_expires_at')
+      .in('id', ids);
+
+    if (completedSvcs && completedSvcs.length) {
+      var today = new Date(); today.setHours(0,0,0,0);
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+      /* get next invoice number */
+      var { data: lastInv } = await sb.from('Invoices').select('inv_num').eq('user_id', uid).order('inv_num', { ascending: false }).limit(1);
+      var nextNum = 1;
+      if (lastInv && lastInv.length) { var parsed = parseInt(lastInv[0].inv_num); if (!isNaN(parsed)) nextNum = parsed + 1; }
+
+      /* group by property */
+      var groups = {};
+      completedSvcs.forEach(function(s) {
+        var key = s.property_id || ('no-prop-' + s.id);
+        if (!groups[key]) groups[key] = { property_id: s.property_id, client_name: s.client_name, address: s.address, lines: [] };
+        var baseAmt = parseFloat(s.amount) || 0;
+        /* apply discount if active and not expired */
+        var finalAmt = baseAmt;
+        if (s.discount_type && s.discount_value) {
+          var notExpired = !s.discount_expires_at || new Date(s.discount_expires_at) >= today;
+          if (notExpired) {
+            finalAmt = s.discount_type === 'Percent'
+              ? baseAmt - (baseAmt * parseFloat(s.discount_value) / 100)
+              : baseAmt - parseFloat(s.discount_value);
+            if (finalAmt < 0) finalAmt = 0;
+          }
+        }
+        groups[key].lines.push({ name: s.service || '', description: s.notes || '', date: s.scheduled_date || '', rate: finalAmt, qty: 1, amount: finalAmt });
+      });
+
+      var invInserts = Object.values(groups).map(function(g) {
+        var total = g.lines.reduce(function(sum, l) { return sum + l.amount; }, 0);
+        return {
+          user_id: uid,
+          property_id: g.property_id || null,
+          client_name: g.client_name || '',
+          address: g.address || null,
+          date: new Date().toISOString().split('T')[0],
+          inv_num: String(nextNum++),
+          inv_total: total,
+          inv_bal: total,
+          service_lines: g.lines,
+          deleted: false,
+          past_due: false,
+          incomplete: false
+        };
+      });
+
+      if (invInserts.length) {
+        await sb.from('Invoices').insert(invInserts);
+      }
+    }
+
     sendAlert('completed', ids);
     loadServices();
     showToast('Marked complete — invoices generated', 'success');
