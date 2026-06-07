@@ -645,7 +645,7 @@
         var rateInp = r.querySelector('.rate-input');
         if (rateInp) rateInp.value = rateVal;
         var mdInp = r.querySelector('.mindays-input');
-        if (mdInp && !mdInp.value) mdInp.value = minDaysVal;
+        if (mdInp) mdInp.value = minDaysVal;
       });
     });
     tr.querySelector('.pct-btn').addEventListener('click', function() {
