@@ -52,10 +52,10 @@
 
     .svc-table-wrap { overflow-x: auto; }
     .svc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    .svc-table thead th { background: #e8e8e8; border-bottom: 1px solid #ccc; border-right: 1px solid #ddd; padding: 6px 6px; text-align: left; font-weight: 600; color: #444; white-space: nowrap; }
-    .svc-table thead th:first-child { width: 30px; text-align: center; }
+    .svc-table thead th { background: #e8e8e8; border-bottom: 1px solid #ccc; border-right: 1px solid #ddd; padding: 6px 4px; text-align: left; font-weight: 600; color: #444; white-space: nowrap; }
+    .svc-table thead th:first-child { width: 26px; text-align: center; }
     .svc-table tbody tr { border-bottom: 1px solid #eee; }
-    .svc-table tbody td { padding: 6px 6px; vertical-align: middle; border-right: 1px solid #f0f0f0; }
+    .svc-table tbody td { padding: 5px 3px; vertical-align: middle; border-right: 1px solid #f0f0f0; }
     .svc-table tbody td:first-child { text-align: center; }
     .svc-table input[type="text"], .svc-table input[type="number"] {
       border: 1px solid #ccc; border-radius: 2px; padding: 5px 8px; font-size: 12.5px; font-family: inherit; outline: none;
@@ -73,7 +73,7 @@
     .btn-add-svc { background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; color: #333; cursor: pointer; margin: 10px; }
     .btn-add-svc:hover { background: #e4e4e4; }
     .fill-below-btn { background: #1a6fc4; border: 2px solid #1a6fc4; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: #fff; font-size: 13px; padding: 0; vertical-align: middle; line-height: 1; margin-left: 4px; }
-    .input-sm { width: 44px; text-align: right; }
+    .input-sm { width: 52px; text-align: right; }
     .rate-input::-webkit-outer-spin-button, .rate-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .rate-input { -moz-appearance: textfield; appearance: textfield; }
 
@@ -616,13 +616,13 @@
     tr.innerHTML =
       '<td style="text-align:center;"><input type="checkbox"/></td>' +
       '<td style="text-align:center;color:#888;font-size:12px;">' + rowNum + '</td>' +
-      '<td><input type="text" style="width:100px;" value="' + q(data && data.name) + '"/></td>' +
-      '<td><select class="svc-select" style="width:140px;">' + serviceOptions + '</select></td>' +
-      '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:80px;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:12px;" value="' + q(data && isoToDisplay(data.start_date)) + '"/><button class="cal-btn" style="padding:3px 5px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
-      '<td><div style="display:flex;align-items:center;gap:4px;"><input type="text" placeholder="mm/dd/yyyy" style="width:80px;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:12px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 5px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
+      '<td><input type="text" style="width:130px;" value="' + q(data && data.name) + '"/></td>' +
+      '<td><select class="svc-select" style="width:170px;">' + serviceOptions + '</select></td>' +
+      '<td><div style="display:flex;align-items:center;gap:2px;"><input type="text" placeholder="mm/dd/yyyy" style="width:90px;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.start_date)) + '"/><button class="cal-btn" style="padding:3px 5px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
+      '<td><div style="display:flex;align-items:center;gap:2px;"><input type="text" placeholder="mm/dd/yyyy" style="width:90px;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:12.5px;" value="' + q(data && isoToDisplay(data.end_date)) + '"/><button class="cal-btn" style="padding:3px 5px;font-size:11px;" onclick="openCal(this)">&#128197;</button></div></td>' +
       '<td style="text-align:center;"><input type="number" class="input-sm mindays-input" placeholder="0" value="' + (data && data.min_days ? data.min_days : '') + '"/></td>' +
       '<td style="padding:6px 8px; text-align:right;">' +
-        '<input type="number" class="rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:60px;text-align:right;border:1px solid #ccc;border-radius:3px;padding:3px 4px;font-size:12px;font-family:inherit;-moz-appearance:textfield;appearance:textfield;"/>' +
+        '<input type="number" class="rate-input" placeholder="0.00" step="0.01" value="' + (data && data.default_rate ? data.default_rate : '') + '" style="width:70px;text-align:right;border:1px solid #ccc;border-radius:3px;padding:3px 5px;font-size:12.5px;font-family:inherit;-moz-appearance:textfield;appearance:textfield;"/>' +
       '</td>' +
       '<td style="padding:6px 6px; text-align:center; white-space:nowrap;">' +
         '<button class="fill-below-btn" title="Fill rate below">&#8595;</button>' +
