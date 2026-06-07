@@ -27,6 +27,10 @@ async function login() {
     return;
   }
 
+  var stayLoggedIn = document.getElementById('stay-logged-in').checked;
+  localStorage.setItem('sbp_stay_logged_in', stayLoggedIn ? '1' : '0');
+  sessionStorage.setItem('sbp_session_active', '1');
+
   window.location.href = "dashboard.html";
 }
 

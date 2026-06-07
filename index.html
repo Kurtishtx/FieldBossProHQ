@@ -81,6 +81,10 @@
     <div class="login-fields">
       <input id="email" type="email" placeholder="Email">
       <input id="password" type="password" placeholder="Password">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="stay-logged-in" style="width:16px;height:16px;accent-color:#6b2080;cursor:pointer;flex-shrink:0;"/>
+        <label for="stay-logged-in" style="font-size:13px;color:#555;cursor:pointer;user-select:none;">Stay logged in on this device</label>
+      </div>
       <button onclick="login()">Log In</button>
       <div style="text-align:center; margin-top:4px;">
         <a href="#" onclick="showForgot(event)" style="color:#e07820; font-size:14px; text-decoration:none;">Forgot Password?</a>
