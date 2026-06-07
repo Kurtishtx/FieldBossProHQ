@@ -390,7 +390,52 @@
       });
     }
 
-    addServiceRow();
+    if (editId) {
+      var { data: existingSvc } = await sb.from('Services').select('*').eq('id', editId).single();
+      if (existingSvc) {
+        /* populate client if not locked to a property */
+        if (!propertyId && existingSvc.customer_id) {
+          document.getElementById('client-select').value = existingSvc.customer_id;
+        }
+        var lines = existingSvc.service_lines;
+        if (lines && lines.length) {
+          /* one-time service with line items */
+          lines.forEach(function(line) {
+            addServiceRow();
+            var rows = document.querySelectorAll('#svc-rows tr');
+            var tr = rows[rows.length - 1];
+            var svcSel  = tr.querySelector('.svc-sel');
+            var dateInp = tr.querySelector('input[type="date"]');
+            var qtyInp  = tr.querySelector('.qty-inp');
+            var rateInp = tr.querySelector('.rate-inp');
+            var discSel = tr.querySelector('.disc-sel');
+            if (svcSel  && line.service_id)  svcSel.value  = line.service_id;
+            if (dateInp && line.start_date)   dateInp.value = line.start_date;
+            if (qtyInp  && line.qty != null)  qtyInp.value  = line.qty;
+            if (rateInp && line.rate != null)  rateInp.value = parseFloat(line.rate).toFixed(2);
+            if (discSel && line.discount_pct) {
+              Array.from(discSel.options).forEach(function(opt) {
+                if (parseFloat(opt.dataset.pct) === parseFloat(line.discount_pct)) discSel.value = opt.value;
+              });
+            }
+          });
+        } else {
+          /* package service — single row using start_date and amount */
+          addServiceRow();
+          var rows = document.querySelectorAll('#svc-rows tr');
+          var tr = rows[rows.length - 1];
+          var dateInp = tr.querySelector('input[type="date"]');
+          var rateInp = tr.querySelector('.rate-inp');
+          if (dateInp && existingSvc.start_date) dateInp.value = existingSvc.start_date;
+          if (rateInp && existingSvc.amount != null) rateInp.value = parseFloat(existingSvc.amount).toFixed(2);
+        }
+        calcTotals();
+      } else {
+        addServiceRow();
+      }
+    } else {
+      addServiceRow();
+    }
   })();
 
   /* ── Tab switching ── */
