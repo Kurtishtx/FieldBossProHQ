@@ -1545,30 +1545,24 @@
   }
 
   function applyDiscountModal() {
-    var baseRate = parseFloat(document.getElementById('disc-base-rate').value) || 0;
     var sel = document.getElementById('disc-type-select');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) { alert('Please select a discount type.'); return; }
     var discType  = opt.getAttribute('data-disc-type');
     var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
-    var newRate = discType === 'Percent'
-      ? baseRate - (baseRate * discValue / 100)
-      : baseRate - discValue;
-    if (newRate < 0) newRate = 0;
-    /* read target row from the modal's own data attribute */
+    var expiry    = document.getElementById('disc-expiry-input').value || '';
     var targetRow = parseInt(document.getElementById('disc-modal-overlay').getAttribute('data-target-row'));
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
     var inp = rateInputs[targetRow];
     if (!inp) { closeDiscountModal(); return; }
-    inp.value = newRate.toFixed(2);
-    /* save discount info so reopening the modal restores it */
+    /* save discount info — rate input stays as original price */
     rowDiscountData[targetRow] = {
-      discountId:     opt.value,
-      baseRate:       baseRate.toFixed(2),
-      discountAmount: discValue,
-      expiry:         document.getElementById('disc-expiry-input').value
+      discountId:    opt.value,
+      discountType:  discType,
+      discountValue: discValue,
+      expiry:        expiry
     };
-    /* flash the updated input green */
+    /* flash green to confirm */
     inp.style.transition = 'background .3s';
     inp.style.background = '#d4edda';
     setTimeout(function() { inp.style.background = ''; }, 1200);
@@ -1623,8 +1617,9 @@
         dispatched: false,
         status: 'pending'
       };
-      if (disc && disc.baseRate) rec.base_rate = parseFloat(disc.baseRate);
-      if (disc && disc.expiry)   rec.discount_expires_at = disc.expiry;
+      if (disc && disc.discountType)  rec.discount_type = disc.discountType;
+      if (disc && disc.discountValue) rec.discount_value = disc.discountValue;
+      if (disc && disc.expiry)        rec.discount_expires_at = disc.expiry;
       inserts.push(rec);
     });
     if (!inserts.length) { alert('No services selected. Check at least one service to add.'); return; }

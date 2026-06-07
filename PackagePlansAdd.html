@@ -318,20 +318,18 @@
   }
 
   function applyDiscountModal() {
-    var baseRate = parseFloat(document.getElementById('disc-base-rate').value) || 0;
     var sel = document.getElementById('disc-type-select');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) { alert('Please select a discount type.'); return; }
     var discType  = opt.getAttribute('data-disc-type');
     var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
-    var newRate = discType === 'Percent' ? baseRate - (baseRate * discValue / 100) : baseRate - discValue;
-    if (newRate < 0) newRate = 0;
+    var expiry    = document.getElementById('disc-expiry-input').value || '';
     if (_discTarget) {
       var tr = _discTarget.closest('tr');
-      _discTarget.value = newRate.toFixed(2);
       if (tr) {
-        tr.setAttribute('data-base-rate', baseRate.toFixed(2));
-        tr.setAttribute('data-discount-expires-at', document.getElementById('disc-expiry-input').value || '');
+        tr.setAttribute('data-discount-type', discType || '');
+        tr.setAttribute('data-discount-value', discValue);
+        tr.setAttribute('data-discount-expires-at', expiry);
       }
       _discTarget.style.transition = 'background .3s';
       _discTarget.style.background = '#d4edda';
@@ -340,6 +338,7 @@
     if (_discTargetBtn) {
       _discTargetBtn.style.background = '#555';
       _discTargetBtn.style.color = '#fff';
+      _discTargetBtn.title = 'Discount active — click to change';
     }
     closeDiscountModal();
   }
@@ -454,8 +453,9 @@
       var defR = parseFloat((cells[7].querySelector('input') || {}).value) || 0;
       if (!rowName && !svcName) return;
       var tr = cells[0].closest('tr');
-      var baseRateAttr = tr ? parseFloat(tr.getAttribute('data-base-rate')) || null : null;
-      var discExpiryAttr = tr ? (tr.getAttribute('data-discount-expires-at') || null) : null;
+      var discType   = tr ? (tr.getAttribute('data-discount-type') || null) : null;
+      var discVal    = tr ? (parseFloat(tr.getAttribute('data-discount-value')) || null) : null;
+      var discExpiry = tr ? (tr.getAttribute('data-discount-expires-at') || null) : null;
       rows.push({
         user_id:               uid,
         package_id:            savedPkgId,
@@ -466,8 +466,9 @@
         end_date:              parseDateToISO(endInput ? endInput.value : ''),
         min_days:              minD,
         default_rate:          defR,
-        base_rate:             baseRateAttr,
-        discount_expires_at:   discExpiryAttr || null
+        discount_type:         discType,
+        discount_value:        discVal,
+        discount_expires_at:   discExpiry
       });
     });
     var { data: oldRows } = await sb.from('package_services').select('id').eq('package_id', savedPkgId).order('id');
@@ -616,8 +617,10 @@
       }
     }
     var tr = document.createElement('tr');
-    if (data && data.base_rate != null) tr.setAttribute('data-base-rate', data.base_rate);
+    if (data && data.discount_type) tr.setAttribute('data-discount-type', data.discount_type);
+    if (data && data.discount_value != null) tr.setAttribute('data-discount-value', data.discount_value);
     if (data && data.discount_expires_at) tr.setAttribute('data-discount-expires-at', data.discount_expires_at);
+    var hasDiscount = data && data.discount_type && (!data.discount_expires_at || new Date(data.discount_expires_at) >= new Date());
     var q = function(v) { return v ? String(v).replace(/"/g, '&quot;') : ''; };
     tr.innerHTML =
       '<td style="text-align:center;"><input type="checkbox"/></td>' +
@@ -648,9 +651,15 @@
         if (mdInp) mdInp.value = minDaysVal;
       });
     });
-    tr.querySelector('.pct-btn').addEventListener('click', function() {
+    var pctBtn = tr.querySelector('.pct-btn');
+    pctBtn.addEventListener('click', function() {
       openDiscountModal(tr.querySelector('.rate-input'), this);
     });
+    if (hasDiscount) {
+      pctBtn.style.background = '#555';
+      pctBtn.style.color = '#fff';
+      pctBtn.title = 'Discount active — click to change';
+    }
     if (data && (data.service_id || data.service_name)) {
       var sel = tr.querySelector('.svc-select');
       if (sel) {
