@@ -30,48 +30,6 @@
     .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
     .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
 
-    .category-wrap { display: flex; align-items: center; gap: 8px; flex: 1; }
-    .category-wrap select {
-      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
-      font-size: 13px; font-family: inherit; outline: none;
-      border-radius: 2px; background: #fff; cursor: pointer;
-    }
-    .category-wrap select:focus { border-color: #e07820; }
-    .add-new-link {
-      color: #e07820; font-size: 13px; font-weight: 700;
-      cursor: pointer; white-space: nowrap; text-decoration: underline;
-    }
-    .add-new-link:hover { color: #c96a10; }
-
-    .new-cat-row {
-      display: none; align-items: center; gap: 8px;
-      margin-top: -4px; margin-bottom: 14px; padding-left: 174px;
-    }
-    .new-cat-row.show { display: flex; }
-    .new-cat-row input {
-      flex: 1; border: 1px solid #ccc; padding: 7px 10px;
-      font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
-    }
-    .new-cat-row input:focus { border-color: #e07820; }
-    .btn-cat-save {
-      background: #e07820; color: #fff; border: none;
-      padding: 7px 14px; font-size: 12.5px; font-weight: 700;
-      border-radius: 3px; cursor: pointer;
-    }
-    .btn-cat-save:hover { background: #c96a10; }
-    .btn-cat-cancel {
-      background: none; border: none; color: #888; cursor: pointer; font-size: 12.5px;
-    }
-
-    .toggle-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
-    .toggle-row label.lbl { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; }
-    .toggle { position: relative; width: 42px; height: 22px; cursor: pointer; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; transition: .2s; }
-    .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
-    .toggle input:checked + .toggle-slider { background: #e07820; }
-    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .toggle-label { font-size: 13px; color: #555; }
 
     .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
     .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
@@ -100,30 +58,6 @@
       </div>
     </div>
 
-    <div class="field-row">
-      <label>Category</label>
-      <div class="category-wrap">
-        <select id="tag-category">
-          <option value="">Select Category</option>
-        </select>
-        <span class="add-new-link" onclick="showNewCat()">Add New</span>
-      </div>
-    </div>
-
-    <div class="new-cat-row" id="new-cat-row">
-      <input type="text" id="new-cat-name" placeholder="New category name"/>
-      <button class="btn-cat-save" onclick="saveNewCat()">Save</button>
-      <button class="btn-cat-cancel" onclick="hideNewCat()">Cancel</button>
-    </div>
-
-    <div class="toggle-row">
-      <label class="lbl">Automation Tag</label>
-      <label class="toggle">
-        <input type="checkbox" id="automation-tag"/>
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-label">Enable for automation</span>
-    </div>
 
   </div>
 
@@ -142,71 +76,30 @@
 
   var tagId = new URLSearchParams(window.location.search).get('id');
   var existingTag = null;
-  var cats = [];
-
-  function loadCategoryDropdown(selected) {
-    var sel = document.getElementById('tag-category');
-    sel.innerHTML = '<option value="">Select Category</option>';
-    cats.forEach(function(c) {
-      var opt = document.createElement('option');
-      opt.value = c.name;
-      opt.textContent = c.name;
-      if (selected && c.name === selected) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  }
 
   async function init() {
-    var { data: catData } = await sb.from('tag_categories').select('*').order('created_at', { ascending: false });
-    cats = catData || [];
-    loadCategoryDropdown();
     if (tagId) {
       var { data } = await sb.from('tags').select('*').eq('id', tagId).single();
       if (data) {
         existingTag = data;
         document.getElementById('page-title').textContent = 'Edit Tag';
         document.getElementById('tag-name').value = data.name || '';
-        loadCategoryDropdown(data.color);
       }
     }
     document.getElementById('tag-name').focus();
   }
 
-  function showNewCat() {
-    document.getElementById('new-cat-row').classList.add('show');
-    document.getElementById('new-cat-name').focus();
-  }
-
-  function hideNewCat() {
-    document.getElementById('new-cat-row').classList.remove('show');
-    document.getElementById('new-cat-name').value = '';
-  }
-
-  async function saveNewCat() {
-    var name = document.getElementById('new-cat-name').value.trim();
-    if (!name) return;
-    var { data: sessionData } = await sb.auth.getSession();
-    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var { error } = await sb.from('tag_categories').insert({ name: name, active: true, user_id: uid });
-    if (error) { alert('Error: ' + error.message); return; }
-    var { data: catData } = await sb.from('tag_categories').select('*').order('created_at', { ascending: false });
-    cats = catData || [];
-    loadCategoryDropdown(name);
-    hideNewCat();
-  }
-
   async function saveTag() {
     var name = document.getElementById('tag-name').value.trim();
     if (!name) { alert('Please enter a tag name.'); document.getElementById('tag-name').focus(); return; }
-    var category = document.getElementById('tag-category').value;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
 
     if (existingTag) {
-      var { error } = await sb.from('tags').update({ name: name, color: category }).eq('id', existingTag.id);
+      var { error } = await sb.from('tags').update({ name: name }).eq('id', existingTag.id);
       if (error) { alert('Error: ' + error.message); return; }
     } else {
-      var { error } = await sb.from('tags').insert({ name: name, color: category, active: true, user_id: uid });
+      var { error } = await sb.from('tags').insert({ name: name, active: true, user_id: uid });
       if (error) { alert('Error: ' + error.message); return; }
     }
 
@@ -216,11 +109,6 @@
   function cancel() {
     window.location.href = 'Tags.html';
   }
-
-  document.getElementById('new-cat-name').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') saveNewCat();
-    if (e.key === 'Escape') hideNewCat();
-  });
 
   init();
 </script>

@@ -126,8 +126,6 @@
       <tr>
         <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
         <th>Tag</th>
-        <th>Category</th>
-        <th class="col-auto">Automation Tag</th>
         <th class="col-mod">Modified</th>
       </tr>
     </thead>
@@ -269,8 +267,6 @@
       tr.innerHTML =
         '<td><input type="checkbox" data-id="' + t.id + '" onclick="event.stopPropagation()"/></td>' +
         '<td><span class="tag-link">' + esc(t.name) + '</span></td>' +
-        '<td>' + esc(t.color || '') + '</td>' +
-        '<td class="col-auto"></td>' +
         '<td>' + modified + '</td>';
       tr.addEventListener('click', function(e){
         if (e.target.type === 'checkbox') return;
