@@ -6,7 +6,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebebeb;
+      background: linear-gradient(135deg, #1a0820 0%, #2d0f35 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -14,14 +14,14 @@
     }
     .login-container {
       background: #fff;
-      border: 1px solid #ccc;
+      border: 1px solid #6b2080;
       border-radius: 8px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      box-shadow: 0 8px 40px rgba(74,16,96,.45);
       width: 440px;
       overflow: hidden;
     }
     .login-container h1 {
-      background: #1a2b3c;
+      background: linear-gradient(135deg, #1a0820 0%, #4a1060 100%);
       color: #ffffff;
       font-size: 28px;
       font-weight: 800;
@@ -89,7 +89,7 @@
   <!-- Forgot Password Modal -->
   <div id="forgot-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; display:none; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:8px; box-shadow:0 8px 32px rgba(0,0,0,.25); width:400px; max-width:92vw; overflow:hidden;">
-      <div style="background:#1a2b3c; color:#fff; padding:18px 24px; font-size:18px; font-weight:700;">Reset Password</div>
+      <div style="background:linear-gradient(135deg,#1a0820,#4a1060); color:#fff; padding:18px 24px; font-size:18px; font-weight:700;">Reset Password</div>
       <div style="padding:28px 28px 24px; display:flex; flex-direction:column; gap:14px;">
         <p style="color:#555; font-size:14px;">Enter your email and we'll send you a link to reset your password.</p>
         <input id="forgot-email" type="email" placeholder="Email" style="width:100%; border:1px solid #ccc; border-radius:4px; padding:12px 14px; font-size:15px; font-family:inherit;">
