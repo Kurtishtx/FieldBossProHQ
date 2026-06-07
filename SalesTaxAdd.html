@@ -127,23 +127,26 @@
 
     var now = new Date().toISOString();
 
+    var savedTaxId = null;
     if (existingTax) {
       var { error } = await sb.from('sales_taxes').update({
         name: name, tax_rate: tax_rate, updated_at: now
       }).eq('id', existingTax.id);
       if (error) { alert('Error: ' + error.message); return; }
+      savedTaxId = existingTax.id;
     } else {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      var { error } = await sb.from('sales_taxes').insert({
+      var { data: insertData, error } = await sb.from('sales_taxes').insert({
         name: name, tax_rate: tax_rate,
         active: true, user_id: uid
-      });
+      }).select('id').single();
       if (error) { alert('Error: ' + error.message); return; }
+      savedTaxId = insertData ? insertData.id : null;
     }
 
     if (document.getElementById('apply-all').checked) {
-      await applyToAllClients(name);
+      await applyToAllClients(name, savedTaxId);
       return;
     }
 
@@ -160,25 +163,30 @@
     }
   }
 
-  async function applyToAllClients(name) {
+  async function applyToAllClients(name, taxId) {
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
 
-    /* bulk-update all clients for this account */
-    var { error, count } = await sb.from('Clients')
+    /* update all clients with the tax name */
+    var { error: clientErr } = await sb.from('Clients')
       .update({ sales_tax: name })
-      .eq('user_id', uid)
-      .select('id', { count: 'exact', head: true });
+      .eq('user_id', uid);
+    if (clientErr) { alert('Error updating clients: ' + clientErr.message); return; }
 
-    if (error) { alert('Error updating clients: ' + error.message); return; }
+    /* update all properties with the tax ID */
+    if (taxId) {
+      var { error: propErr } = await sb.from('Properties')
+        .update({ sales_tax_id: taxId })
+        .eq('user_id', uid);
+      if (propErr) { alert('Error updating properties: ' + propErr.message); return; }
+    }
 
-    /* save as default so new clients get it pre-selected */
+    /* save as default so new clients/properties get it pre-selected */
     await sb.from('app_preferences').upsert(
       { pref_key: 'default_sales_tax', pref_value: name },
       { onConflict: 'pref_key' }
     );
 
-    alert('Done! All clients updated with "' + name + '" and it will be the default for new clients.');
     navigate('salestaxlist');
   }
 
