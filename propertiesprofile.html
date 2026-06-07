@@ -1673,7 +1673,7 @@
       var start = g.svcs.map(function(r) { return r.start_date; }).filter(Boolean).sort()[0] || '';
       var startDisplay = start ? new Date(start + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
       var svcIds = g.svcs.map(function(r) { return r.id; }).join(',');
-      pkgEditStore[pid] = { name: g.name, svcs: g.svcs };
+      pkgEditStore[pid] = { name: g.name, svcs: g.svcs, pkgId: pid };
       html +=
         '<div data-pkedit="' + pid + '" style="position:relative;border-left:5px solid #3a9a3a;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;" onmouseover="this.style.background=\'#f9fdf9\'" onmouseout="this.style.background=\'#fff\'">' +
           '<button onclick="event.stopPropagation();deletePkgServices(\'' + svcIds + '\',\'' + g.name + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete package services">&#10005;</button>' +
@@ -1707,13 +1707,28 @@
       el.addEventListener('click', function() {
         var pid = el.getAttribute('data-pkedit');
         var entry = pkgEditStore[pid];
-        if (entry) openPkgEditModal(entry.svcs, entry.name);
+        if (entry) openPkgEditModal(entry.svcs, entry.name, entry.pkgId);
       });
     });
   }
 
-  async function openPkgEditModal(svcs, name) {
+  async function openPkgEditModal(svcs, name, pkgId) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
+    /* fetch ALL package_services for this package to get all service IDs */
+    var allPsIds = [];
+    if (pkgId) {
+      var { data: allPsRows } = await sb.from('package_services').select('id, min_days, end_date').eq('package_id', pkgId);
+      allPsIds = (allPsRows || []).map(function(r) { return r.id; });
+      /* fetch ALL services for this property in this package (including dispatched/past) */
+      if (allPsIds.length) {
+        var { data: allSvcs } = await sb.from('Services')
+          .select('id, service, amount, start_date, end_date, min_days, package_service_id, dispatched')
+          .eq('property_id', propId)
+          .in('package_service_id', allPsIds)
+          .order('start_date', { ascending: true });
+        if (allSvcs && allSvcs.length) svcs = allSvcs;
+      }
+    }
     /* fetch package_services template rows to fill in missing min_days/end_date */
     var psIds = svcs.map(function(s) { return s.package_service_id; }).filter(Boolean);
     var psData = {};
