@@ -858,10 +858,30 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
   );
 
+  /* single auth call shared by all dashboard init functions */
+  var _dashAuthPromise = sbMain.auth.getSession().then(function(res) {
+    var session = res.data && res.data.session;
+    if (!session) {
+      window.location.href = 'index.html';
+      return null;
+    }
+    return session.user;
+  }).catch(function() {
+    window.location.href = 'index.html';
+    return null;
+  });
+
+  /* sign out and redirect if refresh token becomes invalid */
+  sbMain.auth.onAuthStateChange(function(event) {
+    if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+      if (event === 'SIGNED_OUT') window.location.href = 'index.html';
+    }
+  });
+
   (async function loadStats() {
-    var { data: authData } = await sbMain.auth.getUser();
-    if (!authData || !authData.user) return;
-    var uid = authData.user.id;
+    var user = await _dashAuthPromise;
+    if (!user) return;
+    var uid = user.id;
 
     var now        = new Date();
     var todayStr   = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -921,13 +941,13 @@
   })();
 
   (async function loadTimezone() {
-    var { data: authData } = await sbMain.auth.getUser();
-    if (!authData || !authData.user) return;
-    if (authData.user.email === 'hamannlandscape@gmail.com') {
+    var user = await _dashAuthPromise;
+    if (!user) return;
+    if (user.email === 'hamannlandscape@gmail.com') {
       var adminBtn = document.getElementById('admin-nav-btn');
       if (adminBtn) adminBtn.style.display = 'flex';
     }
-    var { data } = await sbMain.from('company_info').select('phys_timezone').eq('user_id', authData.user.id).single();
+    var { data } = await sbMain.from('company_info').select('phys_timezone').eq('user_id', user.id).single();
     if (data && data.phys_timezone && tzMap[data.phys_timezone]) {
       clockTz = tzMap[data.phys_timezone];
       updateClock();
@@ -935,8 +955,8 @@
   })();
 
   window.loadDashboardSettings = async function loadDashboardSettings() {
-    var { data: authData } = await sbMain.auth.getUser();
-    var uid = authData && authData.user ? authData.user.id : null;
+    var user = await _dashAuthPromise;
+    var uid = user ? user.id : null;
     var data = null;
     if (uid) {
       var { data: settingsData } = await sbMain.from('dashboard_settings').select('*').eq('user_id', uid).single();
@@ -1034,9 +1054,9 @@
   }
   window._userRole = 'full_access'; // default until loaded
   (async function loadUserRole() {
-    var { data: authData } = await sbMain.auth.getUser();
-    if (!authData || !authData.user) return;
-    var { data: prof } = await sbMain.from('user_profiles').select('role').eq('id', authData.user.id).single();
+    var user = await _dashAuthPromise;
+    if (!user) return;
+    var { data: prof } = await sbMain.from('user_profiles').select('role').eq('id', user.id).single();
     if (prof && prof.role) window._userRole = prof.role;
   })();
 

@@ -236,8 +236,8 @@
     }
 
     // Get current user's tenant_id (or their own uid if they are the primary owner)
-    var { data: authData } = await sb.auth.getUser();
-    var currentUid = authData && authData.user ? authData.user.id : null;
+    var { data: sessionData } = await sb.auth.getSession();
+    var currentUid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var { data: currentProf } = await sb.from('user_profiles').select('tenant_id').eq('id', currentUid).single();
     var tenantId = (currentProf && currentProf.tenant_id) || currentUid;
 
