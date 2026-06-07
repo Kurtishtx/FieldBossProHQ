@@ -871,6 +871,22 @@
     return null;
   });
 
+  /* fire package renewal check once per day in the background */
+  _dashAuthPromise.then(function(user) {
+    if (!user) return;
+    var lastCheck = localStorage.getItem('renewal_check_date');
+    var today = new Date().toISOString().slice(0,10);
+    if (lastCheck === today) return;
+    localStorage.setItem('renewal_check_date', today);
+    fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/check-renewals', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+        'Content-Type': 'application/json'
+      }
+    }).catch(function() {}); /* silent — runs in background */
+  });
+
   /* sign out and redirect if refresh token becomes invalid */
   sbMain.auth.onAuthStateChange(function(event) {
     if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
