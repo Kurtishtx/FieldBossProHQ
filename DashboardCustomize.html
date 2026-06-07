@@ -206,7 +206,7 @@
 <script>
   var SUPABASE_URL      = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
-  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: false, detectSessionInUrl: false } });
 
   var STAT_KEYS = ['customers','properties','leads','revenue_today','revenue_week','revenue_month','revenue_year','owed','services_week','services_month','services_year','props_serviced_week','props_serviced_month','props_serviced_year'];
   var QA_KEYS   = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking','employeelist','employeehours'];
