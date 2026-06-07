@@ -1715,9 +1715,27 @@
   async function openPkgEditModal(svcs, name, pkgId) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
 
-    /* build a map of existing services by package_service_id */
+    /* fetch all services for this property in this package including dispatched status */
     var svcMap = {};
-    svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
+    var dispatchedPsIds = new Set();
+    if (pkgId && propId) {
+      var psIdsForProp = svcs.map(function(s) { return s.package_service_id; }).filter(Boolean);
+      if (psIdsForProp.length) {
+        var { data: allForProp } = await sb.from('Services')
+          .select('id, service, amount, start_date, end_date, min_days, package_service_id, dispatched')
+          .eq('property_id', propId)
+          .in('package_service_id', psIdsForProp);
+        (allForProp || []).forEach(function(s) {
+          if (s.dispatched) {
+            dispatchedPsIds.add(s.package_service_id);
+          } else {
+            svcMap[s.package_service_id] = s;
+          }
+        });
+      }
+    } else {
+      svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
+    }
 
     /* fetch ALL template rows for this package */
     var tmplRows = [];
@@ -1736,8 +1754,12 @@
       });
     }
 
+    var rowNum = 0;
     var tbody = document.getElementById('pkg-edit-rows');
-    tbody.innerHTML = tmplRows.map(function(tmpl, i) {
+    tbody.innerHTML = tmplRows.map(function(tmpl) {
+      if (dispatchedPsIds.has(tmpl.id)) return ''; /* hide completed rows */
+      rowNum++;
+      var i = rowNum - 1;
       var svc = svcMap[tmpl.id] || {};
       var hasSvc = !!svc.id;
       var minDays = hasSvc ? (svc.min_days != null ? svc.min_days : tmpl.min_days || '') : (tmpl.min_days || '');
