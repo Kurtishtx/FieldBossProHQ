@@ -1715,50 +1715,32 @@
   async function openPkgEditModal(svcs, name, pkgId) {
     document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
 
-    /* use already-loaded svcs (non-dispatched only) to build the map — these have correct rates */
-    var svcMap = {};
-    svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
-    var dispatchedPsIds = new Set();
+    /* sort by start_date */
+    var sorted = svcs.slice().sort(function(a, b) {
+      return (a.start_date || '') < (b.start_date || '') ? -1 : 1;
+    });
 
-    /* fetch ALL template rows for this package */
-    var tmplRows = [];
-    if (pkgId) {
-      var { data: tr } = await sb.from('package_services')
-        .select('id, service_name, min_days, start_date, end_date, default_rate')
-        .eq('package_id', pkgId)
-        .order('id', { ascending: true });
-      tmplRows = tr || [];
+    /* fetch package_services template to fill missing min_days/end_date */
+    var psIds = sorted.map(function(s) { return s.package_service_id; }).filter(Boolean);
+    var psData = {};
+    if (psIds.length) {
+      var { data: psRows } = await sb.from('package_services').select('id, min_days, end_date').in('id', psIds);
+      (psRows || []).forEach(function(r) { psData[r.id] = r; });
     }
 
-    /* fall back to svcs if no template rows found */
-    if (!tmplRows.length) {
-      tmplRows = svcs.map(function(s) {
-        return { id: s.package_service_id, service_name: s.service, min_days: s.min_days, start_date: s.start_date, end_date: s.end_date, default_rate: s.amount };
-      });
-    }
-
-    var rowNum = 0;
     var tbody = document.getElementById('pkg-edit-rows');
-    tbody.innerHTML = tmplRows.map(function(tmpl) {
-      if (dispatchedPsIds.has(tmpl.id)) return ''; /* hide completed rows */
-      rowNum++;
-      var i = rowNum - 1;
-      var svc = svcMap[tmpl.id] || {};
-      var hasSvc = !!svc.id;
-      var minDays = hasSvc ? (svc.min_days != null ? svc.min_days : tmpl.min_days || '') : (tmpl.min_days || '');
-      var startDate = hasSvc ? (svc.start_date || tmpl.start_date || '') : (tmpl.start_date || '');
-      var endDate = hasSvc ? (svc.end_date || tmpl.end_date || '') : (tmpl.end_date || '');
-      var rate = hasSvc ? (svc.amount != null ? svc.amount : tmpl.default_rate || 0) : (tmpl.default_rate || 0);
-      var svcName = hasSvc ? (svc.service || tmpl.service_name || '—') : (tmpl.service_name || '—');
+    tbody.innerHTML = sorted.map(function(s, i) {
+      var tmpl = psData[s.package_service_id] || {};
+      var minDays = s.min_days != null ? s.min_days : (tmpl.min_days || '');
+      var endDate = s.end_date || tmpl.end_date || '';
       var rowBg = i % 2 === 0 ? '#ffffff' : '#f5f7fa';
-      var dimStyle = hasSvc ? '' : 'opacity:0.5;';
-      return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; ' + dimStyle + '" ' + (hasSvc ? 'data-svcid="' + svc.id + '"' : '') + '>' +
+      return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + ';" data-svcid="' + s.id + '">' +
         '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
-        '<td style="padding:7px 10px; white-space:nowrap;">' + svcName + (hasSvc ? '' : ' <span style="font-size:11px;color:#aaa;">(not added)</span>') + '</td>' +
-        '<td style="padding:7px 10px; text-align:right; white-space:nowrap;"><input type="number" class="pke-rate" step="0.01" value="' + rate + '" ' + (hasSvc ? '' : 'disabled') + ' style="width:80px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:right;font-family:inherit;"/></td>' +
-        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="number" class="pke-mindays" value="' + minDays + '" placeholder="0" ' + (hasSvc ? '' : 'disabled') + ' style="width:60px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:center;font-family:inherit;"/></td>' +
-        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-start" value="' + startDate + '" ' + (hasSvc ? '' : 'disabled') + ' style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
-        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-end" value="' + endDate + '" ' + (hasSvc ? '' : 'disabled') + ' style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; white-space:nowrap;">' + (s.service || '—') + '</td>' +
+        '<td style="padding:7px 10px; text-align:right; white-space:nowrap;"><input type="number" class="pke-rate" step="0.01" value="' + (s.amount != null ? s.amount : 0) + '" style="width:80px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:right;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="number" class="pke-mindays" value="' + minDays + '" placeholder="0" style="width:60px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;text-align:center;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-start" value="' + (s.start_date || '') + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="date" class="pke-end" value="' + endDate + '" style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-size:12.5px;font-family:inherit;"/></td>' +
       '</tr>';
     }).join('');
     var ov = document.getElementById('pkg-edit-overlay');
