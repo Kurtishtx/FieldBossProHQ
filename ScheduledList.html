@@ -508,7 +508,7 @@
       <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
-      <div class="col-section-label">Custom Columns</div>
+      <div class="col-section-label">Custom Field Columns</div>
       <div id="custom-col-options"></div>
     </div>
   </div>
@@ -667,7 +667,7 @@
     var container = document.getElementById('custom-col-options');
     container.innerHTML = '';
     if (customFieldDefs.length === 0) {
-      container.innerHTML = '<div class="col-panel-empty">No custom columns defined.</div>';
+      container.innerHTML = '<div class="col-panel-empty">No custom fields defined.</div>';
       return;
     }
     customFieldDefs.forEach(function(def) {
@@ -838,7 +838,6 @@
 
     var totalAmt = 0;
     var areaTotals = {};
-    var customColTotals = {};
     var seenPropForArea = {};
     filtered.forEach(function(svc) {
       var amt = parseFloat(svc.amount) || 0;
@@ -868,10 +867,7 @@
       var customCells = activeCustomCols.map(function(key) {
         var def = customFieldDefs.find(function(d) { return d.key === key; });
         if (!def) return '';
-        var val = getCfValue(svc.property_id, def);
-        var num = parseFloat(val);
-        if (!isNaN(num)) customColTotals[key] = (customColTotals[key] || 0) + num;
-        return '<td style="text-align:right;">' + (val !== '' ? val : '') + '</td>';
+        return '<td>' + getCfValue(svc.property_id, def) + '</td>';
       }).join('');
 
       var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });
@@ -897,10 +893,6 @@
     AREA_COL_KEYS.forEach(function(k) {
       var td = document.getElementById('total-' + k);
       if (td) td.textContent = areaTotals[k] ? Number(areaTotals[k]).toLocaleString() : '';
-    });
-    activeCustomCols.forEach(function(key) {
-      var td = document.getElementById('custom-total-' + key);
-      if (td) td.textContent = customColTotals[key] ? Number(customColTotals[key]).toLocaleString() : '';
     });
     document.getElementById('total-amt').textContent = '$' + totalAmt.toFixed(2);
     emptyRow.style.display = filtered.length ? 'none' : '';

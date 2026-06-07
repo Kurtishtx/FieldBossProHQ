@@ -429,7 +429,7 @@
       <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
-      <div class="col-section-label">Custom Columns</div>
+      <div class="col-section-label">Custom Field Columns</div>
       <div id="custom-col-options"></div>
     </div>
   </div>
@@ -589,7 +589,7 @@
     var container = document.getElementById('custom-col-options');
     container.innerHTML = '';
     if (customFieldDefs.length === 0) {
-      container.innerHTML = '<div class="col-panel-empty">No custom columns defined.</div>';
+      container.innerHTML = '<div class="col-panel-empty">No custom fields defined.</div>';
       return;
     }
     customFieldDefs.forEach(function(def) {
