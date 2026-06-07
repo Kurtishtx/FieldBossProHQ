@@ -434,7 +434,7 @@
           if (startInp && existingSvc.start_date) startInp.value = existingSvc.start_date;
           if (endInp   && existingSvc.end_date)   endInp.value   = existingSvc.end_date;
           if (rateInp  && existingSvc.amount != null) rateInp.value = parseFloat(existingSvc.amount).toFixed(2);
-          /* match service name to dropdown; inject as option if not found in catalog */
+          /* match service name to dropdown; if not in catalog, show name in the blank option */
           if (svcSel && existingSvc.service) {
             var matched = false;
             Array.from(svcSel.options).forEach(function(opt) {
@@ -443,12 +443,9 @@
                 matched = true;
               }
             });
-            if (!matched) {
-              var tempOpt = document.createElement('option');
-              tempOpt.value = '__pkg__';
-              tempOpt.textContent = existingSvc.service;
-              svcSel.appendChild(tempOpt);
-              svcSel.value = '__pkg__';
+            if (!matched && svcSel.options.length > 0) {
+              svcSel.options[0].textContent = existingSvc.service;
+              svcSel.value = '';
             }
           }
         }
