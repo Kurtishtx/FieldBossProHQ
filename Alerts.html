@@ -11,32 +11,37 @@
     .page-hdr { padding: 20px 24px 14px; }
     .page-hdr p { font-size: 13px; color: #777; margin-top: 4px; }
 
-    .list { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 0 24px; }
 
     .link-item {
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 18px 20px;
-      background: #5b2d8e;
-      border-radius: 10px;
+      padding: 18px 24px;
+      border-bottom: 1px solid #eee;
       cursor: pointer;
-      transition: background .2s, transform .15s;
-      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      transition: background .15s;
     }
-    .link-item:hover { background: #e07820; transform: translateX(4px); }
+    .link-item:hover { background: #fdf3e8; }
+    .link-item:hover .link-name { color: #e07820; }
+    .link-item:hover .link-arrow { color: #e07820; }
 
     .link-icon {
       width: 42px; height: 42px; min-width: 42px;
-      background: rgba(255,255,255,.15);
+      background: #ede0ff;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 20px;
     }
 
-    .link-name { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-    .link-desc { font-size: 12.5px; color: rgba(255,255,255,.8); line-height: 1.4; }
-    .link-arrow { margin-left: auto; color: rgba(255,255,255,.7); font-size: 20px; }
+    .link-name {
+      font-size: 15px; font-weight: 700;
+      color: #5b2d8e;
+      margin-bottom: 3px;
+      transition: color .15s;
+    }
+    .link-desc { font-size: 12.5px; color: #777; line-height: 1.4; }
+    .link-arrow { margin-left: auto; color: #5b2d8e; font-size: 20px; transition: color .15s; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
@@ -46,42 +51,42 @@
   <p>Configure automated alerts sent to clients for scheduling events.</p>
 </div>
 
-<div class="list">
-  <div class="link-item" onclick="navigate('scheduledalert')">
-    <div class="link-icon">&#128197;</div>
-    <div class="link-text">
-      <div class="link-name">Scheduled Alert</div>
-      <div class="link-desc">Set up automated alerts sent to clients when a service is scheduled.</div>
-    </div>
-    <div class="link-arrow">&#8250;</div>
-  </div>
+<hr class="divider"/>
 
-  <div class="link-item" onclick="navigate('reschedulealert')">
-    <div class="link-icon">&#128260;</div>
-    <div class="link-text">
-      <div class="link-name">Reschedule Alert</div>
-      <div class="link-desc">Set up automated alerts sent to clients when a service is rescheduled.</div>
-    </div>
-    <div class="link-arrow">&#8250;</div>
+<div class="link-item" onclick="navigate('scheduledalert')">
+  <div class="link-icon">&#128197;</div>
+  <div class="link-text">
+    <div class="link-name">Scheduled Alert</div>
+    <div class="link-desc">Set up automated alerts sent to clients when a service is scheduled.</div>
   </div>
+  <div class="link-arrow">&#8250;</div>
+</div>
 
-  <div class="link-item" onclick="navigate('canceledalert')">
-    <div class="link-icon">&#10060;</div>
-    <div class="link-text">
-      <div class="link-name">Canceled Alert</div>
-      <div class="link-desc">Set up automated alerts sent to clients when a service is canceled.</div>
-    </div>
-    <div class="link-arrow">&#8250;</div>
+<div class="link-item" onclick="navigate('reschedulealert')">
+  <div class="link-icon">&#128260;</div>
+  <div class="link-text">
+    <div class="link-name">Reschedule Alert</div>
+    <div class="link-desc">Set up automated alerts sent to clients when a service is rescheduled.</div>
   </div>
+  <div class="link-arrow">&#8250;</div>
+</div>
 
-  <div class="link-item" onclick="navigate('completedalert')">
-    <div class="link-icon">&#9989;</div>
-    <div class="link-text">
-      <div class="link-name">Completed Alert</div>
-      <div class="link-desc">Set up automated alerts sent to clients when a service is completed.</div>
-    </div>
-    <div class="link-arrow">&#8250;</div>
+<div class="link-item" onclick="navigate('canceledalert')">
+  <div class="link-icon">&#10060;</div>
+  <div class="link-text">
+    <div class="link-name">Canceled Alert</div>
+    <div class="link-desc">Set up automated alerts sent to clients when a service is canceled.</div>
   </div>
+  <div class="link-arrow">&#8250;</div>
+</div>
+
+<div class="link-item" onclick="navigate('completedalert')">
+  <div class="link-icon">&#9989;</div>
+  <div class="link-text">
+    <div class="link-name">Completed Alert</div>
+    <div class="link-desc">Set up automated alerts sent to clients when a service is completed.</div>
+  </div>
+  <div class="link-arrow">&#8250;</div>
 </div>
 
 <script>
