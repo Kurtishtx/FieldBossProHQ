@@ -192,6 +192,7 @@
     btn.disabled = true; btn.textContent = 'Saving…';
     statusEl.textContent = ''; statusEl.className = 'status-msg';
 
+    await sb.auth.refreshSession();
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) {
@@ -199,15 +200,15 @@
       statusEl.textContent = 'Not logged in.'; statusEl.className = 'status-msg err'; return;
     }
 
-    var { error } = await sb.from('alert_settings').upsert(
+    var { data: saved, error } = await sb.from('alert_settings').upsert(
       { user_id: uid, alert_type: ALERT_TYPE, enabled: document.getElementById('enabled-toggle').checked, message: document.getElementById('msg-area').value, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,alert_type' }
-    );
+    ).select();
 
     btn.disabled = false;
-    if (error) {
+    if (error || !saved || !saved.length) {
       btn.textContent = 'Save';
-      statusEl.textContent = 'Error: ' + error.message; statusEl.className = 'status-msg err';
+      statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete — try logging out and back in.'); statusEl.className = 'status-msg err';
     } else {
       btn.textContent = 'Saved ✓'; btn.classList.add('saved');
       statusEl.textContent = 'Alert saved successfully.'; statusEl.className = 'status-msg ok';
