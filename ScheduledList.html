@@ -483,6 +483,7 @@
       <a href="#" onclick="markComplete(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Mark as Complete</a>
       <a href="#" onclick="cancelSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Cancel Service</a>
       <a href="#" onclick="skipSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Skip Service</a>
+      <a href="#" onclick="event.stopPropagation();moveToWaitingList(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Waiting List</a>
       <a href="#" onclick="event.stopPropagation();deleteSelectedServices(event)" style="display:block; padding:8px 14px; color:#444; text-decoration:none; font-size:13px;">Delete Service</a>
     </div>
   </div>
@@ -1766,6 +1767,19 @@
     if (!ids.length) { alert('Select at least one service.'); return; }
     if (!confirm('Skip ' + ids.length + ' service(s)?')) return;
     await Promise.all(ids.map(function(id) { return sb.from('Services').update({ status:'skipped' }).eq('id', id); }));
+    loadServices();
+  }
+
+  async function moveToWaitingList(e) {
+    if (e) e.preventDefault();
+    document.getElementById('actions-dd').style.display = 'none';
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (!ids.length) { alert('Select at least one service.'); return; }
+    if (!confirm('Move ' + ids.length + ' service(s) to the Waiting List?')) return;
+    await Promise.all(ids.map(function(id) {
+      return sb.from('Services').update({ status: 'pending', dispatched: false, scheduled_date: null }).eq('id', id);
+    }));
     loadServices();
   }
 
