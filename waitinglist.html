@@ -827,7 +827,7 @@
         if (!seenPropForSvc[key]) {
           seenPropForSvc[key] = true;
           var areaMap = areaTreatedByProperty[s.property_id] || {};
-          var areaKeys = aa ? Object.keys(aa).filter(function(k) { return aa[k]; }) : [];
+          var areaKeys = aa ? Object.keys(aa).filter(function(k) { return aa[k]; }) : Object.keys(areaMap);
           areaKeys.forEach(function(k) {
             if (areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
           });
