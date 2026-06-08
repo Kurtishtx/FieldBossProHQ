@@ -1803,12 +1803,13 @@
     try {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (!uid) return;
+      var accessToken = sessionData && sessionData.session ? sessionData.session.access_token : null;
+      if (!uid || !accessToken) return;
       fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g'
+          'Authorization': 'Bearer ' + accessToken
         },
         body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid })
       }).catch(function(e) { console.error('SMS alert error:', e); });
