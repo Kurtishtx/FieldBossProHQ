@@ -1809,6 +1809,9 @@
       });
       var json = await res.json();
       console.log('[sendAlert] response:', JSON.stringify(json));
+      if (json.error) showToast('Alert error: ' + json.error, 'error');
+      else if (json.skipped) showToast('Alert skipped: ' + json.skipped, 'error');
+      else if (json.results) showToast('Alert sent (' + json.results.length + ')', 'success');
     } catch(e) { console.error('[sendAlert] error:', e); }
   }
 
