@@ -525,8 +525,26 @@
   }
 
   async function loadServiceCatalog() {
-    var { data } = await sb.from('Services').select('name, associated_areas').is('property_id', null);
+    var { data } = await sb.from('Services').select('id, name, associated_areas').is('property_id', null);
     serviceCatalog = data || [];
+  }
+
+  /* Returns:
+     - {object} with some true keys → service has an assigned area, use only those keys
+     - null                         → service found in catalog but no area assigned → show nothing
+     - undefined                    → service not found in catalog → fallback: show all property areas */
+  function getCatalogAreas(svcName, svcLines) {
+    var nameLower = (svcName || '').trim().toLowerCase();
+    var ce = serviceCatalog.find(function(c) { return (c.name || '').trim().toLowerCase() === nameLower; });
+    // fallback: try matching by service_id from first service line
+    if (!ce && svcLines && svcLines.length) {
+      var svcId = svcLines[0].service_id;
+      if (svcId) ce = serviceCatalog.find(function(c) { return c.id === svcId; });
+    }
+    if (ce === undefined) return undefined;
+    if (!ce.associated_areas) return null;
+    var hasArea = Object.keys(ce.associated_areas).some(function(k) { return ce.associated_areas[k]; });
+    return hasArea ? ce.associated_areas : null;
   }
 
   async function loadCfValues(propertyIds) {
@@ -820,14 +838,15 @@
     filtered.forEach(function(s) {
       var name = s.service || 'Unknown';
       svcCounts[name] = (svcCounts[name] || 0) + 1;
-      var ce = serviceCatalog.find(function(c) { return c.name === s.service; });
-      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var aa = getCatalogAreas(s.service, s.service_lines);
       if (s.property_id) {
         var key = s.property_id + '_' + name;
         if (!seenPropForSvc[key]) {
           seenPropForSvc[key] = true;
           var areaMap = areaTreatedByProperty[s.property_id] || {};
-          var areaKeys = aa ? Object.keys(aa).filter(function(k) { return aa[k]; }) : Object.keys(areaMap);
+          var areaKeys = aa === undefined ? Object.keys(areaMap)
+                       : aa === null     ? []
+                       : Object.keys(aa).filter(function(k) { return aa[k]; });
           areaKeys.forEach(function(k) {
             if (areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
           });
@@ -857,11 +876,11 @@
       var addr = svc.address || prop.address || '';
       var amt = parseFloat(svc.amount) || 0;
       totalAmt += amt;
-      var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
-      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var aa = getCatalogAreas(svc.service, svc.service_lines);
       AREA_COL_KEYS.forEach(function(k) {
         var areaDataKey = AREA_DATA_KEYS[k];
-        if (!aa || !aa[areaDataKey]) return;
+        if (aa === null) return; // in catalog, no area → skip
+        if (aa !== undefined && !aa[areaDataKey]) return; // has areas but not this one → skip
         var propAreaKey = svc.property_id + '_' + k;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
@@ -888,14 +907,15 @@
         return '<td>' + getCfValue(svc.property_id, def) + '</td>';
       }).join('');
 
-      var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });
-      var assocAreas = (catalogEntry && catalogEntry.associated_areas) ? catalogEntry.associated_areas : null;
+      var assocAreas = getCatalogAreas(svc.service, svc.service_lines);
       var areaCells = AREA_COL_KEYS.map(function(k) {
         if (activeAreaCols.indexOf(k) < 0) return '';
         var areaDataKey = AREA_DATA_KEYS[k];
         var areaMap = areaTreatedByProperty[svc.property_id] || {};
         var val = areaMap[areaDataKey];
-        var relevant = !!assocAreas && !!assocAreas[areaDataKey];
+        var relevant = assocAreas === undefined ? !!val
+                     : assocAreas === null      ? false
+                     : !!assocAreas[areaDataKey];
         return '<td style="text-align:right;">' + (relevant && val ? Number(val).toLocaleString() : '') + '</td>';
       }).join('');
 
@@ -1387,12 +1407,11 @@
     var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
     var seenPropForArea = {};
     selected.forEach(function(svc) {
-      var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
-      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var aa = getCatalogAreas(svc.service, svc.service_lines);
       var areaMap = areaTreatedByProperty[svc.property_id] || {};
-      var hasAnyArea = aa && Object.keys(aa).some(function(k) { return aa[k]; });
       Object.keys(areaLabels).forEach(function(k) {
-        if (hasAnyArea && !aa[k]) return;
+        if (aa === null) return;
+        if (aa !== undefined && !aa[k]) return;
         var propAreaKey = svc.property_id + '_' + k;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
