@@ -488,7 +488,7 @@
   const sb = supabase.createClient(
     'https://knjdbgroiyhvqwrpqzcx.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
-  { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
   );
 
   /* ── Clock ── */
@@ -1799,13 +1799,26 @@
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
       if (!uid) { console.error('[sendAlert] No session — alert not sent'); return; }
+
+      // Read alert settings client-side to bypass edge function's unreliable DB lookup
+      var { data: alertRow } = await sb.from('alert_settings')
+        .select('enabled, message')
+        .eq('user_id', uid)
+        .eq('alert_type', alertType)
+        .single();
+      console.log('[sendAlert] alert_settings:', JSON.stringify(alertRow));
+      if (!alertRow || !alertRow.enabled || !alertRow.message) {
+        console.log('[sendAlert] Alert not configured — skipping');
+        return;
+      }
+
       var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
         },
-        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid })
+        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid, alert_message: alertRow.message })
       });
       var json = await res.json();
       console.log('[sendAlert] response:', JSON.stringify(json));

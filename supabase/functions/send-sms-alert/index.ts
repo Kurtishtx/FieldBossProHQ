@@ -10,7 +10,7 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    const { alert_type, service_ids, user_id } = await req.json();
+    const { alert_type, service_ids, user_id, alert_message } = await req.json();
     if (!alert_type || !service_ids?.length || !user_id) {
       return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: cors });
     }
@@ -20,17 +20,19 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Load alert template
-    const { data: alertRows, error: alertErr } = await supabase
-      .from("alert_settings")
-      .select("enabled, message")
-      .eq("user_id", user_id)
-      .eq("alert_type", alert_type)
-      .limit(1);
-
-    console.log("alert_settings query:", { user_id, alert_type, rows: alertRows, error: alertErr });
-
-    const alertSettings = alertRows && alertRows.length > 0 ? alertRows[0] : null;
+    // Use client-provided message if sent, otherwise fall back to DB lookup
+    let alertSettings: any = null;
+    if (alert_message) {
+      alertSettings = { enabled: true, message: alert_message };
+    } else {
+      const { data: alertRows } = await supabase
+        .from("alert_settings")
+        .select("enabled, message")
+        .eq("user_id", user_id)
+        .eq("alert_type", alert_type)
+        .limit(1);
+      alertSettings = alertRows && alertRows.length > 0 ? alertRows[0] : null;
+    }
 
     if (!alertSettings?.enabled || !alertSettings?.message) {
       return new Response(JSON.stringify({ skipped: "alert disabled or no message", found: alertSettings }), { headers: cors });
