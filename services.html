@@ -141,6 +141,35 @@
       font-weight: 700;
     }
 
+    /* ── Category bar ── */
+    .category-bar {
+      background: #fff;
+      padding: 10px 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      border-bottom: 2px solid #eee;
+    }
+    .cat-btn {
+      background: #f0f0f0;
+      color: #444;
+      border: 2px solid transparent;
+      border-radius: 6px 6px 0 0;
+      padding: 8px 20px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 700;
+      margin-bottom: -2px;
+    }
+    .cat-btn.active {
+      background: #130520;
+      color: #fff;
+      border-color: #130520;
+    }
+    .cat-btn:hover:not(.active) { background: #ddd; }
+
     /* ── Tabs ── */
     .tabs-bar {
       background: #130520;
@@ -231,7 +260,7 @@
 <!-- Page header -->
 <div class="page-header">
     <span class="showing-count" id="results-count"></span>
-  <button class="btn-orange-filled" onclick="window.location.href='servicescreate.html'">Add Service</button>
+  <button class="btn-orange-filled" id="add-svc-btn" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
 </div>
 
 
@@ -250,7 +279,7 @@
     <!-- Actions dropdown -->
     <div class="actions-dropdown" id="actions-dropdown">
       <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="window.location.href='servicescreate.html'">Add Service</button>
+      <button class="dropdown-item" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
       <button class="dropdown-item" onclick="makeServicesActive(true)">Make Active</button>
       <button class="dropdown-item" onclick="makeServicesActive(false)">Make Inactive</button>
       <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
@@ -260,6 +289,12 @@
   </div>
 
   </div>
+
+<!-- Category buttons -->
+<div class="category-bar">
+  <button class="cat-btn active" id="cat-package" onclick="setCategory('package')">Services Scheduled for Packages</button>
+  <button class="cat-btn" id="cat-one_time" onclick="setCategory('one_time')">One Time Service</button>
+</div>
 
 <!-- Tabs -->
 <div class="tabs-bar">
@@ -310,6 +345,15 @@
     document.getElementById('actions-dropdown').classList.remove('open');
   });
 
+  /* ── Category ── */
+  var currentCategory = 'package';
+  function setCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('cat-' + cat).classList.add('active');
+    renderTable();
+  }
+
   /* ── Tabs ── */
   var currentTab = 'active';
   function setTab(btn, tab) {
@@ -339,6 +383,11 @@
     tbody.innerHTML = '';
 
     var filtered = services.filter(function(s) {
+      // Category filter: package = null/undefined/'package', one_time = 'one_time'
+      var isOneTime = s.svc_mode === 'one_time';
+      if (currentCategory === 'one_time' && !isOneTime) return false;
+      if (currentCategory === 'package' && isOneTime) return false;
+      // Active/inactive filter
       if (currentTab === 'active')   return s.active;
       if (currentTab === 'inactive') return !s.active;
       return true;
