@@ -223,15 +223,34 @@
       padding: 60px 20px;
       font-size: 14px;
     }
+
+    /* ── Mobile landscape ── */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .landing-view {
+        padding: 12px 20px 20px !important;
+        justify-content: flex-start !important;
+        overflow-y: auto;
+        height: 100vh;
+      }
+      .landing-view h2 { font-size: 16px !important; margin-bottom: 12px !important; margin-top: 8px; }
+      .landing-view .card-wrap { gap: 12px !important; }
+      .landing-view [onclick] {
+        padding: 16px 16px !important;
+        border-radius: 8px !important;
+      }
+      .landing-view [onclick] > div:first-child { font-size: 22px !important; margin-bottom: 6px !important; }
+      .landing-view [onclick] > div:nth-child(2) { font-size: 14px !important; margin-bottom: 4px !important; }
+      .landing-view [onclick] > div:nth-child(3) { font-size: 11px !important; }
+    }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
 <!-- ── Landing: two category cards ── -->
-<div id="landing-view" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px 32px;padding-bottom:154px;">
+<div id="landing-view" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px 32px;padding-bottom:154px;" class="landing-view">
   <h2 style="font-size:20px;font-weight:800;color:#111;margin-bottom:28px;">Services</h2>
-  <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+  <div class="card-wrap" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
     <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#e07820';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
       <div style="font-size:32px;margin-bottom:12px;">📦</div>
       <div style="font-size:17px;font-weight:800;margin-bottom:6px;">Package Services</div>
