@@ -524,10 +524,20 @@
     customFieldDefs = (data || []).map(function(f) { return { id: f.id, key: f.key, label: f.name }; });
   }
 
-  async function loadServiceCatalog() {
-    var { data, error } = await sb.from('Services').select('id, name, associated_areas').is('property_id', null);
-    serviceCatalog = data || [];
-    console.log('[catalog] loaded', serviceCatalog.length, 'entries', serviceCatalog.map(function(c){return c.name;}), error);
+  async function loadServiceCatalog(svcIds, svcNames) {
+    var results = [];
+    if (svcIds && svcIds.length) {
+      var { data: byId } = await sb.from('Services').select('id, name, associated_areas').in('id', svcIds);
+      if (byId) results = results.concat(byId);
+    }
+    if (svcNames && svcNames.length) {
+      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', svcNames);
+      if (byName) byName.forEach(function(s) {
+        if (!results.find(function(r) { return r.id === s.id; })) results.push(s);
+      });
+    }
+    serviceCatalog = results.filter(function(s) { return !s.property_id; });
+    console.log('[catalog] loaded', serviceCatalog.length, 'entries:', serviceCatalog.map(function(c){return c.name;}));
   }
 
   /* Returns the associated_areas object if the service has an area assigned, otherwise null.
@@ -670,8 +680,15 @@
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
+    var svcIds = [], svcNames = [];
+    services.forEach(function(s) {
+      if (s.service && svcNames.indexOf(s.service) < 0) svcNames.push(s.service);
+      if (s.service_lines) s.service_lines.forEach(function(line) {
+        if (line.service_id && svcIds.indexOf(line.service_id) < 0) svcIds.push(line.service_id);
+      });
+    });
     await loadCfValues(propIds);
-    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services)]);
+    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadServiceCatalog(svcIds, svcNames)]);
     renderTable();
   }
 
@@ -1998,7 +2015,7 @@
 
   (async function() {
     await loadSavedViews();
-    await Promise.all([loadCustomFields(), loadServiceCatalog(), loadColPrefs()]);
+    await Promise.all([loadCustomFields(), loadColPrefs()]);
     buildTableHeader();
     await loadDefaultView();
     activeStatusFilter = ['pending'];
