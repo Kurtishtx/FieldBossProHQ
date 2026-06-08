@@ -809,14 +809,13 @@
       svcCounts[name] = (svcCounts[name] || 0) + 1;
       var ce = serviceCatalog.find(function(c) { return c.name === s.service; });
       var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
-      if (s.property_id) {
+      if (aa && s.property_id) {
         var key = s.property_id + '_' + name;
         if (!seenPropForSvc[key]) {
           seenPropForSvc[key] = true;
           var areaMap = areaTreatedByProperty[s.property_id] || {};
-          var keys = aa ? Object.keys(aa).filter(function(k) { return aa[k]; }) : Object.keys(areaMap);
-          keys.forEach(function(k) {
-            if (areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+          Object.keys(aa).forEach(function(k) {
+            if (aa[k] && areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
           });
         }
       }
