@@ -562,7 +562,7 @@
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
       return hasArea ? direct : null;
     }
-    var svcName = svc.service, svcLines = svc.service_lines;
+    var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
     var nameLower = (svcName || '').trim().toLowerCase();
     var ce = serviceCatalog.find(function(c) { return (c.name || '').trim().toLowerCase() === nameLower; });
@@ -703,7 +703,7 @@
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     await loadCfValues(propIds);
     await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadInvoiceNameMap(services)]);
-    var catalogIds = [];
+    var catalogIds = [], svcNames = [];
     services.forEach(function(s) {
       if (s.service_lines) s.service_lines.forEach(function(line) {
         if (line.service_id && catalogIds.indexOf(line.service_id) < 0) catalogIds.push(line.service_id);
@@ -712,8 +712,10 @@
         var sid = packageServiceMeta[s.package_service_id].service_id;
         if (catalogIds.indexOf(sid) < 0) catalogIds.push(sid);
       }
+      var rn = resolvedServiceName(s);
+      if (rn && svcNames.indexOf(rn) < 0) svcNames.push(rn);
     });
-    await loadServiceCatalog(catalogIds);
+    await loadServiceCatalog(catalogIds, svcNames);
     renderTable();
   }
 
