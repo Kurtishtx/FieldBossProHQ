@@ -582,6 +582,13 @@
   updateClock();
   setInterval(updateClock, 1000);
 
+  function resolvedServiceName(svc) {
+    var sn = (svc.package_services && svc.package_services.service_name)
+      ? svc.package_services.service_name
+      : (svc.package_service_id ? packageServiceMeta['name_' + svc.package_service_id] : null);
+    return sn || svc.service || svc.name || '';
+  }
+
   var services = [];
   var customFieldDefs = [];
   var cfValuesByProperty = {};
@@ -771,7 +778,7 @@
   async function loadServices() {
     document.getElementById('jobs-total').textContent = 'Loading…';
     var { data, error } = await sb.from('Services')
-      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, package_service_id, Properties(lat, lng), trucks(name)')
+      .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, package_service_id, Properties(lat, lng), trucks(name)')
       .not('property_id', 'is', null)
       .eq('dispatched', true);
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
@@ -788,7 +795,10 @@
     packageServiceMeta = {};
     if (psIds.length) {
       var { data: psData } = await sb.from('package_services').select('id, service_name').in('id', psIds);
-      (psData || []).forEach(function(r) { packageServiceMeta[r.id] = { service_name: r.service_name }; });
+      (psData || []).forEach(function(r) {
+        packageServiceMeta[r.id] = { service_name: r.service_name };
+        packageServiceMeta['name_' + r.id] = r.service_name;
+      });
     }
     await loadCfValues(propIds);
     await Promise.all([loadPropertyData(propIds), loadServiceCatalog(catalogIds, svcNames)]);
@@ -849,7 +859,7 @@
 
     var svcCounts = {}, svcSqFt = {}, seenPropForSvc = {};
     filtered.forEach(function(s) {
-      var name = s.service || 'Unknown';
+      var name = resolvedServiceName(s) || 'Unknown';
       svcCounts[name] = (svcCounts[name] || 0) + 1;
       var aa = getCatalogAreas(s);
       if (aa && s.property_id) {
@@ -900,7 +910,7 @@
 
       var orderCell = activeCoreColumns.indexOf('order') >= 0 ? '<td style="text-align:center;font-weight:700;color:#e07820;">' + (svc.route_order || '') + '</td>' : '';
       var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span></td>' : '';
-      var displaySvc = (svc.package_service_id && packageServiceMeta[svc.package_service_id] && packageServiceMeta[svc.package_service_id].service_name) ? packageServiceMeta[svc.package_service_id].service_name : (svc.service || '');
+      var displaySvc = resolvedServiceName(svc);
       var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
       var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';
       var truckCell = activeCoreColumns.indexOf('truck') >= 0 ? '<td>' + (svc.trucks ? svc.trucks.name : '') + '</td>' : '';

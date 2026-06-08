@@ -506,6 +506,20 @@
   setInterval(updateClock, 1000);
 
   /* ── Data ── */
+  var invoiceNameToServiceName = {};
+
+  function resolvedServiceName(svc) {
+    /* 1. package_service_id lookup (future records) */
+    if (svc.package_service_id) {
+      var sn = packageServiceMeta['name_' + svc.package_service_id];
+      if (sn) return sn;
+    }
+    /* 2. invoice name reverse-lookup (existing records with null package_service_id) */
+    var stored = svc.service || svc.name || '';
+    if (stored && invoiceNameToServiceName[stored]) return invoiceNameToServiceName[stored];
+    return stored;
+  }
+
   var services = [];
   var customFieldDefs = [];
   var cfValuesByProperty = {};
@@ -681,14 +695,15 @@
   async function loadServices() {
     document.getElementById('jobs-total').textContent = 'Loading…';
     var { data, error } = await sb.from('Services')
-      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, associated_areas, Properties(lat, lng)')
+      .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, associated_areas, Properties(lat, lng)')
       .not('property_id', 'is', null)
       .eq('dispatched', false);
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
+    console.log('[services] rows:', services.map(function(s){ return {id:s.id, service:s.service, name:s.name, pkg_id:s.package_service_id}; }));
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     await loadCfValues(propIds);
-    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services)]);
+    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadInvoiceNameMap(services)]);
     var catalogIds = [];
     services.forEach(function(s) {
       if (s.service_lines) s.service_lines.forEach(function(line) {
@@ -724,13 +739,32 @@
   var lastDispatchMap = {};
   var packageServiceMeta = {}; /* { package_service_id: { package_id } } */
 
+  async function loadInvoiceNameMap(svcs) {
+    invoiceNameToServiceName = {};
+    var names = [];
+    svcs.forEach(function(s) {
+      if (!s.package_service_id && s.service && names.indexOf(s.service) < 0) names.push(s.service);
+    });
+    console.log('[invoiceMap] looking up invoice names:', names);
+    if (!names.length) return;
+    var { data, error } = await sb.from('package_services').select('name, service_name').in('name', names);
+    console.log('[invoiceMap] package_services rows:', data, 'error:', error);
+    (data || []).forEach(function(r) {
+      if (r.service_name && r.service_name !== r.name) invoiceNameToServiceName[r.name] = r.service_name;
+    });
+    console.log('[invoiceMap] result map:', invoiceNameToServiceName);
+  }
+
   async function loadPackageServiceMeta(svcs) {
     packageServiceMeta = {};
     var psIds = [];
     svcs.forEach(function(s) { if (s.package_service_id && psIds.indexOf(s.package_service_id) < 0) psIds.push(s.package_service_id); });
     if (!psIds.length) return;
     var { data } = await sb.from('package_services').select('id, package_id, service_id, service_name').in('id', psIds);
-    (data || []).forEach(function(r) { packageServiceMeta[r.id] = { package_id: r.package_id, service_id: r.service_id, service_name: r.service_name }; });
+    (data || []).forEach(function(r) {
+      packageServiceMeta[r.id] = { package_id: r.package_id, service_id: r.service_id, service_name: r.service_name };
+      packageServiceMeta['name_' + r.id] = r.service_name;
+    });
   }
 
   async function loadLastDispatches(svcs) {
@@ -862,7 +896,7 @@
 
     var svcCounts = {}, svcSqFt = {}, seenPropForSvc = {};
     filtered.forEach(function(s) {
-      var name = s.service || 'Unknown';
+      var name = resolvedServiceName(s) || 'Unknown';
       svcCounts[name] = (svcCounts[name] || 0) + 1;
       var aa = getCatalogAreas(s);
       if (s.property_id) {
@@ -922,7 +956,7 @@
 
       var orderCell = activeCoreColumns.indexOf('order') >= 0 ? '<td style="text-align:center;font-weight:700;color:#e07820;">' + (svc.route_order || '') + '</td>' : '';
       var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span></td>' : '';
-      var displaySvc = (svc.package_service_id && packageServiceMeta[svc.package_service_id] && packageServiceMeta[svc.package_service_id].service_name) ? packageServiceMeta[svc.package_service_id].service_name : (svc.service || '');
+      var displaySvc = resolvedServiceName(svc);
       var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
       var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ⚠' : '') + '</td>';
       var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';

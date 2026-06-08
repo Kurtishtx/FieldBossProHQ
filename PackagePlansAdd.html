@@ -446,6 +446,7 @@
       if (cells.length < 8) return;
       var rowName = cells[2].querySelector('input') ? cells[2].querySelector('input').value.trim() : '';
       var sel = cells[3].querySelector('select');
+      var svcId   = sel && sel.selectedIndex > 0 ? (parseInt(sel.value) || null) : null;
       var svcName = sel && sel.selectedIndex > 0 ? sel.options[sel.selectedIndex].text : '';
       var startInput = cells[4].querySelector('input[type="text"]');
       var endInput = cells[5].querySelector('input[type="text"]');
@@ -453,6 +454,9 @@
       var defR = parseFloat((cells[7].querySelector('input') || {}).value) || 0;
       if (!rowName && !svcName) return;
       var tr = cells[0].closest('tr');
+      /* if dropdown is not selected, preserve the originally-loaded service info */
+      if (!svcName && tr && tr.dataset.origServiceName) svcName = tr.dataset.origServiceName;
+      if (!svcId  && tr && tr.dataset.origServiceId)   svcId   = parseInt(tr.dataset.origServiceId) || null;
       var discType   = tr ? (tr.getAttribute('data-discount-type') || null) : null;
       var discVal    = tr ? (parseFloat(tr.getAttribute('data-discount-value')) || null) : null;
       var discExpiry = tr ? (tr.getAttribute('data-discount-expires-at') || null) : null;
@@ -460,7 +464,7 @@
         user_id:               uid,
         package_id:            savedPkgId,
         name:                  rowName || null,
-        service_id:            null,
+        service_id:            svcId,
         service_name:          svcName || null,
         start_date:            parseDateToISO(startInput ? startInput.value : ''),
         end_date:              parseDateToISO(endInput ? endInput.value : ''),
@@ -665,6 +669,12 @@
       if (sel) {
         if (data.service_id) {
           sel.value = String(data.service_id);
+          if (sel.value !== String(data.service_id)) {
+            /* option not found by id — fall back to text match */
+            for (var i = 0; i < sel.options.length; i++) {
+              if (sel.options[i].text === data.service_name) { sel.selectedIndex = i; break; }
+            }
+          }
         } else {
           for (var i = 0; i < sel.options.length; i++) {
             if (sel.options[i].text === data.service_name) { sel.selectedIndex = i; break; }
@@ -672,6 +682,9 @@
         }
       }
     }
+    /* store original service_name so save preserves it if dropdown can't re-match */
+    if (data && data.service_name) tr.dataset.origServiceName = data.service_name;
+    if (data && data.service_id)   tr.dataset.origServiceId   = String(data.service_id);
   }
 
   function deleteCheckedRows() {
