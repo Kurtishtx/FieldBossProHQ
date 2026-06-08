@@ -531,13 +531,14 @@
       if (byId) results = results.concat(byId);
     }
     if (svcNames && svcNames.length) {
-      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', svcNames);
+      var { data: byName, error: nameErr } = await sb.from('Services').select('id, name, associated_areas, property_id').in('name', svcNames);
+      console.log('[catalog] byName raw:', (byName||[]).length, 'rows:', (byName||[]).map(function(s){return s.name+'(pid='+s.property_id+')';}), nameErr);
       if (byName) byName.forEach(function(s) {
         if (!results.find(function(r) { return r.id === s.id; })) results.push(s);
       });
     }
     serviceCatalog = results.filter(function(s) { return !s.property_id; });
-    console.log('[catalog] loaded', serviceCatalog.length, 'entries:', serviceCatalog.map(function(c){return c.name;}));
+    console.log('[catalog] after filter:', serviceCatalog.length, serviceCatalog.map(function(c){return c.name+'→'+JSON.stringify(c.associated_areas);}));
   }
 
   /* Returns the associated_areas object if the service has an area assigned, otherwise null.
