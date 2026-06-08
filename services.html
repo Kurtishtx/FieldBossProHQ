@@ -228,12 +228,34 @@
 </head>
 <body>
 
-<!-- Page header -->
-<div class="page-header">
-    <span class="showing-count" id="results-count"></span>
-  <button class="btn-orange-filled" onclick="window.location.href='servicescreate.html'">Add Service</button>
+<!-- ── Landing: two category cards ── -->
+<div id="landing-view" style="padding:40px 32px;">
+  <h2 style="font-size:20px;font-weight:800;color:#111;margin-bottom:24px;">Services</h2>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#130520;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:transform .15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:32px;margin-bottom:12px;">📦</div>
+      <div style="font-size:17px;font-weight:800;margin-bottom:6px;">Package Services</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.7);">Recurring services tied to package plans</div>
+    </div>
+    <div onclick="openCategory('one_time')" style="flex:1;min-width:220px;max-width:340px;background:#e07820;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:transform .15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:32px;margin-bottom:12px;">🔧</div>
+      <div style="font-size:17px;font-weight:800;margin-bottom:6px;">One Time Services</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.85);">Standalone services not tied to a package</div>
+    </div>
+  </div>
 </div>
 
+<!-- ── List view (shown after selecting a category) ── -->
+<div id="list-view" style="display:none;flex-direction:column;height:100vh;">
+
+<!-- Page header -->
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button onclick="backToLanding()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#555;line-height:1;">&#8592;</button>
+    <span class="showing-count" id="results-count"></span>
+  </div>
+  <button class="btn-orange-filled" id="add-svc-btn" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
+</div>
 
 <div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#130520;color:#fff;font-size:13px;">
   <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> service(s)? This cannot be undone.</span>
@@ -246,11 +268,9 @@
   <div class="actions-split">
     <button class="btn-green-main">Actions</button>
     <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
-
-    <!-- Actions dropdown -->
     <div class="actions-dropdown" id="actions-dropdown">
       <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="window.location.href='servicescreate.html'">Add Service</button>
+      <button class="dropdown-item" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
       <button class="dropdown-item" onclick="makeServicesActive(true)">Make Active</button>
       <button class="dropdown-item" onclick="makeServicesActive(false)">Make Inactive</button>
       <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
@@ -258,8 +278,7 @@
       <button class="dropdown-item" onclick="copySelected()">Copy</button>
     </div>
   </div>
-
-  </div>
+</div>
 
 <!-- Tabs -->
 <div class="tabs-bar">
@@ -288,6 +307,8 @@
   <div class="empty-msg" id="empty-msg">No services found.</div>
 </div>
 
+</div><!-- /list-view -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const sb = supabase.createClient(
@@ -295,6 +316,19 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
   { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
+
+  /* ── Category landing ── */
+  var currentCategory = 'package';
+  function openCategory(cat) {
+    currentCategory = cat;
+    document.getElementById('landing-view').style.display = 'none';
+    document.getElementById('list-view').style.display = 'flex';
+    loadServices();
+  }
+  function backToLanding() {
+    document.getElementById('list-view').style.display = 'none';
+    document.getElementById('landing-view').style.display = '';
+  }
 
   /* ── Dropdown ── */
   function toggleDropdown(e) {
@@ -339,6 +373,9 @@
     tbody.innerHTML = '';
 
     var filtered = services.filter(function(s) {
+      var isOneTime = s.svc_mode === 'one_time';
+      if (currentCategory === 'one_time' && !isOneTime) return false;
+      if (currentCategory === 'package'  &&  isOneTime) return false;
       if (currentTab === 'active')   return s.active;
       if (currentTab === 'inactive') return !s.active;
       return true;
