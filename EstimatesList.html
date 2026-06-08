@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,7 +6,7 @@
   <title>Estimates</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
 
     .page-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; }
     .page-topbar h1 { font-size:20px; font-weight:700; color:#111; }
@@ -165,7 +165,7 @@
     filtered.forEach(function(e) {
       var tr = document.createElement('tr');
       var date = e.created_at ? new Date(e.created_at).toLocaleDateString() : '';
-      var expiry = e.expiry_date ? new Date(e.expiry_date + 'T00:00:00').toLocaleDateString() : '—';
+      var expiry = e.expiry_date ? new Date(e.expiry_date + 'T00:00:00').toLocaleDateString() : '�';
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + e.id + '" onclick="event.stopPropagation()"/></td>' +
         '<td style="font-weight:700;color:#e07820;">#' + (e.estimate_number || '') + '</td>' +
@@ -194,9 +194,9 @@
       body: JSON.stringify({ estimate_id: id })
     });
     var json = await res.json();
-    if (!res.ok) { alert('Error: ' + (json.error || 'Failed to send')); btn.disabled = false; btn.textContent = '✉ Email'; return; }
+    if (!res.ok) { alert('Error: ' + (json.error || 'Failed to send')); btn.disabled = false; btn.textContent = '? Email'; return; }
     alert('Email sent!');
-    btn.textContent = '✓ Sent';
+    btn.textContent = '? Sent';
     load();
   }
 
