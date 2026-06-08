@@ -599,9 +599,39 @@
     customFieldDefs = (data || []).map(function(f) { return { id: f.id, key: f.key, label: f.name }; });
   }
 
-  async function loadServiceCatalog() {
-    var { data } = await sb.from('Services').select('name, associated_areas').is('property_id', null);
-    serviceCatalog = data || [];
+  async function loadServiceCatalog(catalogIds, serviceNames) {
+    serviceCatalog = [];
+    var seen = {};
+    if (catalogIds && catalogIds.length) {
+      var { data: byId } = await sb.from('Services').select('id, name, associated_areas').in('id', catalogIds);
+      (byId || []).forEach(function(r) { if (!seen[r.id]) { seen[r.id] = true; serviceCatalog.push(r); } });
+    }
+    if (serviceNames && serviceNames.length) {
+      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', serviceNames);
+      (byName || []).filter(function(r) { return !r.property_id; }).forEach(function(r) {
+        if (!seen[r.id]) { seen[r.id] = true; serviceCatalog.push(r); }
+      });
+    }
+  }
+
+  function getCatalogAreas(svc) {
+    var direct = svc.associated_areas;
+    if (direct !== null && direct !== undefined) {
+      var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
+      return hasArea ? direct : null;
+    }
+    var svcName = svc.service, svcLines = svc.service_lines;
+    if (!serviceCatalog.length) return undefined;
+    var nameLower = (svcName || '').trim().toLowerCase();
+    var ce = serviceCatalog.find(function(c) { return (c.name || '').trim().toLowerCase() === nameLower; });
+    if (!ce && svcLines && svcLines.length) {
+      var svcId = svcLines[0].service_id;
+      if (svcId) ce = serviceCatalog.find(function(c) { return c.id === svcId; });
+    }
+    if (!ce) return undefined;
+    if (!ce.associated_areas) return null;
+    var hasArea = Object.keys(ce.associated_areas).some(function(k) { return ce.associated_areas[k]; });
+    return hasArea ? ce.associated_areas : null;
   }
 
   async function loadCfValues(propertyIds) {
@@ -740,14 +770,21 @@
   async function loadServices() {
     document.getElementById('jobs-total').textContent = 'Loading…';
     var { data, error } = await sb.from('Services')
-      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, Properties(lat, lng), trucks(name)')
+      .select('id, property_id, client_name, address, service, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, Properties(lat, lng), trucks(name)')
       .not('property_id', 'is', null)
       .eq('dispatched', true);
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
+    var catalogIds = [], svcNames = [];
+    services.forEach(function(s) {
+      if (s.service && svcNames.indexOf(s.service) < 0) svcNames.push(s.service);
+      if (s.service_lines) s.service_lines.forEach(function(line) {
+        if (line.service_id && catalogIds.indexOf(line.service_id) < 0) catalogIds.push(line.service_id);
+      });
+    });
     await loadCfValues(propIds);
-    await loadPropertyData(propIds);
+    await Promise.all([loadPropertyData(propIds), loadServiceCatalog(catalogIds, svcNames)]);
     renderTable();
     loadMarkers();
   }
@@ -807,8 +844,7 @@
     filtered.forEach(function(s) {
       var name = s.service || 'Unknown';
       svcCounts[name] = (svcCounts[name] || 0) + 1;
-      var ce = serviceCatalog.find(function(c) { return c.name === s.service; });
-      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var aa = getCatalogAreas(s);
       if (aa && s.property_id) {
         var key = s.property_id + '_' + name;
         if (!seenPropForSvc[key]) {
@@ -840,11 +876,11 @@
     filtered.forEach(function(svc) {
       var amt = parseFloat(svc.amount) || 0;
       totalAmt += amt;
-      var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
-      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var aa = getCatalogAreas(svc);
       AREA_COL_KEYS.forEach(function(k) {
         var areaDataKey = AREA_DATA_KEYS[k];
-        if (!aa || !aa[areaDataKey]) return;
+        if (aa === null) return;
+        if (aa !== undefined && !aa[areaDataKey]) return;
         var propAreaKey = svc.property_id + '_' + k;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
@@ -868,14 +904,13 @@
         return '<td>' + getCfValue(svc.property_id, def) + '</td>';
       }).join('');
 
-      var catalogEntry = serviceCatalog.find(function(c) { return c.name === svc.service; });
-      var assocAreas = (catalogEntry && catalogEntry.associated_areas) ? catalogEntry.associated_areas : null;
+      var assocAreas = getCatalogAreas(svc);
       var areaCells = AREA_COL_KEYS.map(function(k) {
         if (activeAreaCols.indexOf(k) < 0) return '';
         var areaDataKey = AREA_DATA_KEYS[k];
         var areaMap = areaTreatedByProperty[svc.property_id] || {};
         var val = areaMap[areaDataKey];
-        var relevant = !!assocAreas && !!assocAreas[areaDataKey];
+        var relevant = assocAreas === undefined ? !!val : assocAreas === null ? false : !!assocAreas[areaDataKey];
         return '<td style="text-align:right;">' + (relevant && val ? Number(val).toLocaleString() : '') + '</td>';
       }).join('');
 
@@ -1386,11 +1421,11 @@
     var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
     var seenPropForArea = {};
     selected.forEach(function(svc) {
-      var ce = serviceCatalog.find(function(c) { return c.name === svc.service; });
-      var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
+      var aa = getCatalogAreas(svc);
       var areaMap = areaTreatedByProperty[svc.property_id] || {};
       Object.keys(areaLabels).forEach(function(k) {
-        if (!aa || !aa[k]) return;
+        if (aa === null) return;
+        if (aa !== undefined && !aa[k]) return;
         var propAreaKey = svc.property_id + '_' + k;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
@@ -2027,7 +2062,7 @@
   document.getElementById('use-min-days').addEventListener('change', renderTable);
 
   (async function() {
-    await Promise.all([loadCustomFields(), loadServiceCatalog(), loadColPrefs(), loadSavedViews()]);
+    await Promise.all([loadCustomFields(), loadColPrefs(), loadSavedViews()]);
     await loadDefaultView();
     buildTableHeader();
     await loadServices();
@@ -2118,8 +2153,7 @@
         if (prop.zip)   document.getElementById('chem-prop-zip').value   = prop.zip;
         if (prop.area_treated) {
           var at = prop.area_treated;
-          var catalogEntry = serviceCatalog.find(function(c) { return c.name === first.service; });
-          var aa = (catalogEntry && catalogEntry.associated_areas) ? catalogEntry.associated_areas : {};
+          var aa = getCatalogAreas(first) || {};
           var areaKeys = ['lawn_care', 'lawn_insect', 'flower_beds', 'mosquito', 'mosquito_linear_ft', 'pest_control', 'pest_control_linear_ft'];
           var matchedKey = areaKeys.find(function(k) { return aa[k] && at[k]; });
           document.getElementById('chem-area').value = matchedKey ? at[matchedKey] : '';
