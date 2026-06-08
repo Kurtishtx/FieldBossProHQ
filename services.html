@@ -229,15 +229,15 @@
 <body>
 
 <!-- ── Landing: two category cards ── -->
-<div id="landing-view" style="padding:40px 32px;">
-  <h2 style="font-size:20px;font-weight:800;color:#111;margin-bottom:24px;">Services</h2>
-  <div style="display:flex;gap:20px;flex-wrap:wrap;">
-    <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#130520;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:transform .15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+<div id="landing-view" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px 32px;">
+  <h2 style="font-size:20px;font-weight:800;color:#111;margin-bottom:28px;">Services</h2>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+    <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#e07820';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
       <div style="font-size:32px;margin-bottom:12px;">📦</div>
       <div style="font-size:17px;font-weight:800;margin-bottom:6px;">Package Services</div>
       <div style="font-size:13px;color:rgba(255,255,255,.7);">Recurring services tied to package plans</div>
     </div>
-    <div onclick="openCategory('one_time')" style="flex:1;min-width:220px;max-width:340px;background:#e07820;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:transform .15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+    <div onclick="openCategory('one_time')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#e07820';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
       <div style="font-size:32px;margin-bottom:12px;">🔧</div>
       <div style="font-size:17px;font-weight:800;margin-bottom:6px;">One Time Services</div>
       <div style="font-size:13px;color:rgba(255,255,255,.85);">Standalone services not tied to a package</div>
