@@ -28,6 +28,14 @@
       border-bottom: 1px solid rgba(255,255,255,.12);
     }
     .left-hdr h2 { color: #fff; font-size: 18px; font-weight: 800; }
+
+    .biz-phone-bar {
+      padding: 8px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+    }
+    .biz-phone-label { font-size: 10px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
+    .biz-phone-num   { font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
     .compose-btn {
       background: none; border: none; cursor: pointer;
       color: rgba(255,255,255,.75); font-size: 18px; padding: 2px;
@@ -193,6 +201,10 @@
 
   <!-- Left: conversation list -->
   <div class="left-panel">
+    <div class="biz-phone-bar" id="biz-phone-bar" style="display:none">
+      <div class="biz-phone-label">Your business number</div>
+      <div class="biz-phone-num" id="biz-phone-num"></div>
+    </div>
     <div class="convo-list" id="convo-list">
       <div class="empty-convos">No messages yet.<br/>Messages will appear here after alerts are sent.</div>
     </div>
@@ -275,6 +287,18 @@
 
     var { data: co } = await sb.from('company_info').select('company_name, display_name').eq('user_id', uid).single();
     companyName = (co && (co.display_name || co.company_name)) || 'Us';
+
+    var { data: ts } = await sb.from('twilio_settings').select('phone_number').eq('user_id', uid).single();
+    if (ts && ts.phone_number) {
+      var raw = ts.phone_number.replace(/\D/g, '');
+      var fmt = raw.length === 11 && raw[0] === '1'
+        ? '(' + raw.slice(1,4) + ') ' + raw.slice(4,7) + '-' + raw.slice(7)
+        : raw.length === 10
+          ? '(' + raw.slice(0,3) + ') ' + raw.slice(3,6) + '-' + raw.slice(6)
+          : ts.phone_number;
+      document.getElementById('biz-phone-num').textContent = fmt;
+      document.getElementById('biz-phone-bar').style.display = '';
+    }
 
     var params = new URLSearchParams(window.location.search);
     var prePhone = params.get('phone');
