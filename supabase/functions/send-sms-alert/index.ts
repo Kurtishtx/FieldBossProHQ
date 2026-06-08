@@ -127,12 +127,14 @@ serve(async (req: Request) => {
       const psIds = group.services
         .map((s: any) => s.package_service_id)
         .filter(Boolean);
+      console.log("psIds for invoice lookup:", psIds, "services:", group.services.map((s: any) => ({ id: s.id, service: s.service, package_service_id: s.package_service_id })));
       let invoiceNameMap: Record<string, string> = {};
       if (psIds.length) {
-        const { data: psRows } = await supabase
+        const { data: psRows, error: psErr } = await supabase
           .from("package_services")
           .select("id, name")
           .in("id", psIds);
+        console.log("package_services rows:", psRows, "error:", psErr);
         (psRows || []).forEach((ps: any) => {
           if (ps.id && ps.name) invoiceNameMap[String(ps.id)] = ps.name;
         });
@@ -141,6 +143,7 @@ serve(async (req: Request) => {
         .map((s: any) => (s.package_service_id && invoiceNameMap[String(s.package_service_id)]) || s.service || "")
         .filter(Boolean)
         .join(", ");
+      console.log("invoiceServiceList:", invoiceServiceList);
 
       // Substitute all [variables]
       let msg: string = alertSettings.message;
