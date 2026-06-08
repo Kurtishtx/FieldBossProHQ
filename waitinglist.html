@@ -560,7 +560,8 @@
     var direct = svc.associated_areas;
     if (direct !== null && direct !== undefined) {
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
-      return hasArea ? direct : null;
+      if (hasArea) return direct;
+      /* empty or all-false — fall through to catalog lookup */
     }
     var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
