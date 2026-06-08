@@ -134,7 +134,6 @@
   );
 
   var serviceId = new URLSearchParams(window.location.search).get('id');
-  var serviceCategory = new URLSearchParams(window.location.search).get('category') || 'package';
   var existing = null;
   var mixOptions = '';
 
@@ -282,8 +281,7 @@ var aa = data.associated_areas || {};
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var catMode = existing ? (existing.svc_mode || serviceCategory) : serviceCategory;
-    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid, assigned_to: document.getElementById('assigned-to').value || null, svc_mode: catMode };
+    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid, assigned_to: document.getElementById('assigned-to').value || null };
     if (existing) {
       var { error } = await sb.from('Services').update(record).eq('id', existing.id);
     } else {
@@ -298,7 +296,7 @@ var aa = data.associated_areas || {};
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, user_id: uid, assigned_to: document.getElementById('assigned-to').value || null, svc_mode: serviceCategory });
+    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, user_id: uid, assigned_to: document.getElementById('assigned-to').value || null });
     if (error) { alert('Error: ' + error.message); return; }
     document.getElementById('service-name').value = '';
     document.getElementById('default-rate').value = '0.00';
