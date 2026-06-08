@@ -546,8 +546,8 @@
       (byId || []).forEach(function(r) { if (!seen[r.id]) { seen[r.id] = true; serviceCatalog.push(r); } });
     }
     if (serviceNames && serviceNames.length) {
-      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', serviceNames);
-      (byName || []).filter(function(r) { return !r.property_id; }).forEach(function(r) {
+      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', serviceNames).is('property_id', null);
+      (byName || []).forEach(function(r) {
         if (!seen[r.id]) { seen[r.id] = true; serviceCatalog.push(r); }
       });
     }
