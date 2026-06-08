@@ -164,7 +164,7 @@ serve(async (req: Request) => {
 
       sub("scheduledservices", serviceList);
       sub("completedservices", serviceList);
-      sub("invoiceservices",   invoiceServiceList);
+      sub("schedulednameoninvoices", invoiceServiceList);
       sub("servicedate",       svc.scheduled_date || "");
       sub("servicetime",       "");
       sub("servicetype",       svc.service || "");
