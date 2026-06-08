@@ -1897,7 +1897,29 @@
       }
       if (s.custom_cols) { activeCustomCols = s.custom_cols; saveColPrefs(); }
       if (s.use_min_days !== undefined) document.getElementById('use-min-days').checked = s.use_min_days;
+      if (s.truck_filter) activeTruckFilter = s.truck_filter;
     }
+    // Update status checkboxes + button
+    ['scheduled','completed','canceled','skipped'].forEach(function(st) {
+      var cb = document.getElementById('st-' + st);
+      if (cb) cb.checked = activeStatusFilter.indexOf(st) >= 0;
+    });
+    document.getElementById('status-ms-btn').textContent = activeStatusFilter.length ? activeStatusFilter.length + ' selected' : '-- Select --';
+    // Update service filter checkboxes + button
+    document.querySelectorAll('#ms-dropdown input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = activeServiceFilter.indexOf(cb.value) >= 0;
+    });
+    document.getElementById('ms-btn').textContent = activeServiceFilter.length ? activeServiceFilter.length + ' selected' : '-- Select --';
+    // Update tag filter checkboxes + button
+    document.querySelectorAll('#tag-ms-dropdown input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = activeTagFilter.indexOf(cb.value) >= 0;
+    });
+    document.getElementById('tag-ms-btn').textContent = activeTagFilter.length ? activeTagFilter.length + ' selected' : '-- Select --';
+    // Update truck filter checkboxes + button
+    document.querySelectorAll('#truck-ms-dropdown input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = activeTruckFilter.indexOf(cb.value) >= 0;
+    });
+    document.getElementById('truck-ms-btn').textContent = activeTruckFilter.length ? activeTruckFilter.length + ' selected' : '-- Select --';
     document.getElementById('active-filter-label').textContent = '• ' + v.name;
     document.getElementById('saved-filters-panel').classList.remove('show');
     buildTableHeader();
@@ -1923,7 +1945,8 @@
       core_cols: activeCoreColumns.slice(),
       area_cols: activeAreaCols.slice(),
       custom_cols: activeCustomCols.slice(),
-      use_min_days: document.getElementById('use-min-days').checked
+      use_min_days: document.getElementById('use-min-days').checked,
+      truck_filter: activeTruckFilter.slice()
     };
   }
 
