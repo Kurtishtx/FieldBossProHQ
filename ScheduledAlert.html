@@ -148,7 +148,7 @@
 <script>
   var SUPABASE_URL      = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
-  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: false, detectSessionInUrl: false } });
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var ALERT_TYPE = 'scheduled';
   var DEFAULT_MSG = 'Hi [clientfirstname], the following services [scheduledservices] are scheduled for tomorrow.\n\nThank you\n\n[companyname]';
 
@@ -192,9 +192,12 @@
     btn.disabled = true; btn.textContent = 'Saving…';
     statusEl.textContent = ''; statusEl.className = 'status-msg';
 
-    await sb.auth.refreshSession();
+    var { error: refreshErr } = await sb.auth.refreshSession();
+    console.log('[save] refreshSession error:', refreshErr ? refreshErr.message : 'none');
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var exp = sessionData && sessionData.session ? sessionData.session.expires_at : null;
+    console.log('[save] uid:', uid, 'token exp:', exp, 'now:', Math.floor(Date.now()/1000), 'expired:', exp ? exp < Math.floor(Date.now()/1000) : 'unknown');
     if (!uid) {
       btn.disabled = false; btn.textContent = 'Save';
       statusEl.textContent = 'Not logged in.'; statusEl.className = 'status-msg err'; return;
@@ -204,6 +207,8 @@
       { user_id: uid, alert_type: ALERT_TYPE, enabled: document.getElementById('enabled-toggle').checked, message: document.getElementById('msg-area').value, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,alert_type' }
     ).select();
+
+    console.log('[save] upsert result - data:', JSON.stringify(saved), 'error:', JSON.stringify(error));
 
     btn.disabled = false;
     if (error || !saved || !saved.length) {
