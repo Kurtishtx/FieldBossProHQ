@@ -29,11 +29,12 @@
     .dd-menu a:hover { background:#f5f5f5; }
     .total-pill { margin-left:auto; color:#fff; font-size:13px; font-weight:600; }
 
+    .table-wrap { background:#fff; }
     table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
-    thead th { padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#555; border-bottom:2px solid #ddd; background:#fafafa; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; cursor:pointer; user-select:none; }
+    thead th { padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#555; border-bottom:2px solid #bbb; background:#d4cfe0; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; cursor:pointer; user-select:none; }
     thead th:first-child { width:40px; text-align:center; cursor:default; }
-    tbody tr { border-bottom:1px solid #eee; cursor:pointer; }
-    tbody tr:hover { background:#f9f9f9; }
+    tbody tr { border-bottom:1px solid #eee; cursor:pointer; background:#fff; }
+    tbody tr:hover { background:#fdfbe8; }
     tbody td { padding:12px 16px; color:#333; vertical-align:middle; }
     tbody td:first-child { text-align:center; }
 
@@ -77,6 +78,7 @@
   <span class="total-pill" id="total-pill"></span>
 </div>
 
+<div class="table-wrap">
 <table>
   <thead>
     <tr>
@@ -93,6 +95,7 @@
   <tbody id="est-tbody"></tbody>
 </table>
 <div class="empty-msg" id="empty-msg" style="display:none;">No estimates found.</div>
+</div>
 <div style="height:28px; background:#130520;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
