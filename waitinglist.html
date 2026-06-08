@@ -729,8 +729,8 @@
     var psIds = [];
     svcs.forEach(function(s) { if (s.package_service_id && psIds.indexOf(s.package_service_id) < 0) psIds.push(s.package_service_id); });
     if (!psIds.length) return;
-    var { data } = await sb.from('package_services').select('id, package_id, service_id').in('id', psIds);
-    (data || []).forEach(function(r) { packageServiceMeta[r.id] = { package_id: r.package_id, service_id: r.service_id }; });
+    var { data } = await sb.from('package_services').select('id, package_id, service_id, service_name').in('id', psIds);
+    (data || []).forEach(function(r) { packageServiceMeta[r.id] = { package_id: r.package_id, service_id: r.service_id, service_name: r.service_name }; });
   }
 
   async function loadLastDispatches(svcs) {
@@ -922,7 +922,8 @@
 
       var orderCell = activeCoreColumns.indexOf('order') >= 0 ? '<td style="text-align:center;font-weight:700;color:#e07820;">' + (svc.route_order || '') + '</td>' : '';
       var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span></td>' : '';
-      var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + (svc.service || '') + '</td>' : '';
+      var displaySvc = (svc.package_service_id && packageServiceMeta[svc.package_service_id] && packageServiceMeta[svc.package_service_id].service_name) ? packageServiceMeta[svc.package_service_id].service_name : (svc.service || '');
+      var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
       var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ⚠' : '') + '</td>';
       var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';
       var amtCell = activeCoreColumns.indexOf('amount') >= 0 ? '<td>$' + amt.toFixed(2) + '</td>' : '';
