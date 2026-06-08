@@ -700,7 +700,6 @@
       .eq('dispatched', false);
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
-    console.log('[services] rows:', services.map(function(s){ return {id:s.id, service:s.service, name:s.name, pkg_id:s.package_service_id}; }));
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     await loadCfValues(propIds);
     await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadInvoiceNameMap(services)]);
@@ -745,14 +744,11 @@
     svcs.forEach(function(s) {
       if (!s.package_service_id && s.service && names.indexOf(s.service) < 0) names.push(s.service);
     });
-    console.log('[invoiceMap] looking up invoice names:', names);
     if (!names.length) return;
-    var { data, error } = await sb.from('package_services').select('name, service_name').in('name', names);
-    console.log('[invoiceMap] package_services rows:', data, 'error:', error);
+    var { data } = await sb.from('package_services').select('name, service_name').in('name', names);
     (data || []).forEach(function(r) {
       if (r.service_name && r.service_name !== r.name) invoiceNameToServiceName[r.name] = r.service_name;
     });
-    console.log('[invoiceMap] result map:', invoiceNameToServiceName);
   }
 
   async function loadPackageServiceMeta(svcs) {
