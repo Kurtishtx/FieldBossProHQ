@@ -6,72 +6,81 @@
   <title>Alerts</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #d4cfe0;
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+
+    .page-hdr { padding: 20px 24px 14px; }
+    .page-hdr p { font-size: 13px; color: #777; margin-top: 4px; }
+
+    .list { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+    .link-item {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      padding: 40px 24px 226px;
-    }
-
-    h2 { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 28px; }
-
-    .card-row {
-      display: flex;
       gap: 16px;
-      justify-content: center;
-      width: 100%;
-      max-width: 960px;
-    }
-
-    .card {
-      flex: 1;
+      padding: 18px 20px;
       background: #5b2d8e;
-      color: #fff;
       border-radius: 10px;
-      padding: 24px 20px;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(0,0,0,.18);
       transition: background .2s, transform .15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
-    .card:hover { background: #e07820; transform: translateY(-3px); }
+    .link-item:hover { background: #e07820; transform: translateX(4px); }
 
-    .card-icon { font-size: 28px; margin-bottom: 12px; }
-    .card-name  { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
-    .card-desc  { font-size: 12px; color: rgba(255,255,255,.8); line-height: 1.4; }
+    .link-icon {
+      width: 42px; height: 42px; min-width: 42px;
+      background: rgba(255,255,255,.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    .link-name { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .link-desc { font-size: 12.5px; color: rgba(255,255,255,.8); line-height: 1.4; }
+    .link-arrow { margin-left: auto; color: rgba(255,255,255,.7); font-size: 20px; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<h2>Alerts</h2>
+<div class="page-hdr">
+  <p>Configure automated alerts sent to clients for scheduling events.</p>
+</div>
 
-<div class="card-row">
-  <div class="card" onclick="navigate('scheduledalert')">
-    <div class="card-icon">&#128197;</div>
-    <div class="card-name">Scheduled Alert</div>
-    <div class="card-desc">Sent to clients when a service is scheduled.</div>
+<div class="list">
+  <div class="link-item" onclick="navigate('scheduledalert')">
+    <div class="link-icon">&#128197;</div>
+    <div class="link-text">
+      <div class="link-name">Scheduled Alert</div>
+      <div class="link-desc">Set up automated alerts sent to clients when a service is scheduled.</div>
+    </div>
+    <div class="link-arrow">&#8250;</div>
   </div>
 
-  <div class="card" onclick="navigate('reschedulealert')">
-    <div class="card-icon">&#128260;</div>
-    <div class="card-name">Reschedule Alert</div>
-    <div class="card-desc">Sent to clients when a service is rescheduled.</div>
+  <div class="link-item" onclick="navigate('reschedulealert')">
+    <div class="link-icon">&#128260;</div>
+    <div class="link-text">
+      <div class="link-name">Reschedule Alert</div>
+      <div class="link-desc">Set up automated alerts sent to clients when a service is rescheduled.</div>
+    </div>
+    <div class="link-arrow">&#8250;</div>
   </div>
 
-  <div class="card" onclick="navigate('canceledalert')">
-    <div class="card-icon">&#10060;</div>
-    <div class="card-name">Canceled Alert</div>
-    <div class="card-desc">Sent to clients when a service is canceled.</div>
+  <div class="link-item" onclick="navigate('canceledalert')">
+    <div class="link-icon">&#10060;</div>
+    <div class="link-text">
+      <div class="link-name">Canceled Alert</div>
+      <div class="link-desc">Set up automated alerts sent to clients when a service is canceled.</div>
+    </div>
+    <div class="link-arrow">&#8250;</div>
   </div>
 
-  <div class="card" onclick="navigate('completedalert')">
-    <div class="card-icon">&#9989;</div>
-    <div class="card-name">Completed Alert</div>
-    <div class="card-desc">Sent to clients when a service is completed.</div>
+  <div class="link-item" onclick="navigate('completedalert')">
+    <div class="link-icon">&#9989;</div>
+    <div class="link-text">
+      <div class="link-name">Completed Alert</div>
+      <div class="link-desc">Set up automated alerts sent to clients when a service is completed.</div>
+    </div>
+    <div class="link-arrow">&#8250;</div>
   </div>
 </div>
 
