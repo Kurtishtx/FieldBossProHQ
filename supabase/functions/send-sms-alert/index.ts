@@ -21,15 +21,19 @@ serve(async (req: Request) => {
     );
 
     // Load alert template
-    const { data: alertSettings } = await supabase
+    const { data: alertRows, error: alertErr } = await supabase
       .from("alert_settings")
       .select("enabled, message")
       .eq("user_id", user_id)
       .eq("alert_type", alert_type)
-      .single();
+      .limit(1);
+
+    console.log("alert_settings query:", { user_id, alert_type, rows: alertRows, error: alertErr });
+
+    const alertSettings = alertRows && alertRows.length > 0 ? alertRows[0] : null;
 
     if (!alertSettings?.enabled || !alertSettings?.message) {
-      return new Response(JSON.stringify({ skipped: "alert disabled or no message" }), { headers: cors });
+      return new Response(JSON.stringify({ skipped: "alert disabled or no message", found: alertSettings }), { headers: cors });
     }
 
     // Load voip.ms credentials
@@ -74,6 +78,8 @@ serve(async (req: Request) => {
       const group = byProperty[key];
       if (!group.property_id) continue;
 
+      const svc = group.services[0];
+
       // Load property
       const { data: prop } = await supabase
         .from("Properties")
@@ -114,8 +120,6 @@ serve(async (req: Request) => {
         .map((s: any) => s.service || "")
         .filter(Boolean)
         .join(", ");
-
-      const svc = group.services[0];
 
       // Substitute all [variables]
       let msg: string = alertSettings.message;
