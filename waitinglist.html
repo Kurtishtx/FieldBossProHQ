@@ -674,14 +674,19 @@
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
+    await loadCfValues(propIds);
+    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services)]);
     var catalogIds = [];
     services.forEach(function(s) {
       if (s.service_lines) s.service_lines.forEach(function(line) {
         if (line.service_id && catalogIds.indexOf(line.service_id) < 0) catalogIds.push(line.service_id);
       });
+      if (s.package_service_id && packageServiceMeta[s.package_service_id] && packageServiceMeta[s.package_service_id].service_id) {
+        var sid = packageServiceMeta[s.package_service_id].service_id;
+        if (catalogIds.indexOf(sid) < 0) catalogIds.push(sid);
+      }
     });
-    await loadCfValues(propIds);
-    await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadServiceCatalog(catalogIds)]);
+    await loadServiceCatalog(catalogIds);
     renderTable();
   }
 
@@ -711,8 +716,8 @@
     var psIds = [];
     svcs.forEach(function(s) { if (s.package_service_id && psIds.indexOf(s.package_service_id) < 0) psIds.push(s.package_service_id); });
     if (!psIds.length) return;
-    var { data } = await sb.from('package_services').select('id, package_id').in('id', psIds);
-    (data || []).forEach(function(r) { packageServiceMeta[r.id] = { package_id: r.package_id }; });
+    var { data } = await sb.from('package_services').select('id, package_id, service_id').in('id', psIds);
+    (data || []).forEach(function(r) { packageServiceMeta[r.id] = { package_id: r.package_id, service_id: r.service_id }; });
   }
 
   async function loadLastDispatches(svcs) {
