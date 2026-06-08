@@ -83,9 +83,9 @@ serve(async (req: Request) => {
 
       if (!prop) continue;
 
-      // Load client
+      // Load client — try property first, fall back to service
       let client: any = null;
-      const clientId = prop.customer_id || prop.client_id;
+      const clientId = prop.customer_id || prop.client_id || svc.customer_id;
       if (clientId) {
         const { data: cl } = await supabase
           .from("Clients")
@@ -93,6 +93,9 @@ serve(async (req: Request) => {
           .eq("id", clientId)
           .single();
         client = cl;
+        console.log("client lookup:", clientId, "found:", !!cl, "phone:", cl?.phone || cl?.mobile || cl?.cell);
+      } else {
+        console.log("no clientId found — prop.customer_id:", prop.customer_id, "svc.customer_id:", svc.customer_id);
       }
 
       // Find phone number

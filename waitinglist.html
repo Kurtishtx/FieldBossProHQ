@@ -1798,16 +1798,19 @@
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
       var accessToken = sessionData && sessionData.session ? sessionData.session.access_token : null;
-      if (!uid || !accessToken) return;
-      fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+      console.log('[sendAlert] uid:', uid, 'hasToken:', !!accessToken, 'type:', alertType, 'ids:', serviceIds);
+      if (!uid || !accessToken) { console.error('[sendAlert] No session — alert not sent'); return; }
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + accessToken
         },
         body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid })
-      }).catch(function(e) { console.error('SMS alert error:', e); });
-    } catch(e) { console.error('SMS alert error:', e); }
+      });
+      var json = await res.json();
+      console.log('[sendAlert] response:', JSON.stringify(json));
+    } catch(e) { console.error('[sendAlert] error:', e); }
   }
 
   /* ── Delete services ── */
