@@ -86,6 +86,11 @@
       <div style="flex:1;"><input type="number" id="default-rate" value="0.00" step="0.01" min="0"/></div>
     </div>
 
+    <div class="field-row">
+      <label for="assigned-to">Assigned To</label>
+      <div style="flex:1;"><select class="std-select" id="assigned-to"><option value="">— Unassigned —</option></select></div>
+    </div>
+
     <div class="section-label">Associated Areas</div>
 
     <div class="field-row">
@@ -181,12 +186,22 @@
   async function initEdit() {
     await loadMixes();
 
+    var { data: empList } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
+    var assignSel = document.getElementById('assigned-to');
+    (empList || []).forEach(function(e) {
+      var opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.last_name + ', ' + e.first_name;
+      assignSel.appendChild(opt);
+    });
+
     if (!serviceId) return;
     var { data } = await sb.from('Services').select('*').eq('id', serviceId).single();
     if (data) {
       existing = data;
       document.getElementById('service-name').value  = data.name || '';
       document.getElementById('default-rate').value  = data.default_rate || '0.00';
+      if (data.assigned_to) assignSel.value = data.assigned_to;
 var aa = data.associated_areas || {};
       var areaKey = Object.keys(aa).find(function(k) { return aa[k]; }) || '';
       document.getElementById('area-select').value = areaKey;
@@ -266,7 +281,7 @@ var aa = data.associated_areas || {};
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid };
+    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid, assigned_to: document.getElementById('assigned-to').value || null };
     if (existing) {
       var { error } = await sb.from('Services').update(record).eq('id', existing.id);
     } else {
@@ -281,7 +296,7 @@ var aa = data.associated_areas || {};
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, user_id: uid });
+    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, user_id: uid, assigned_to: document.getElementById('assigned-to').value || null });
     if (error) { alert('Error: ' + error.message); return; }
     document.getElementById('service-name').value = '';
     document.getElementById('default-rate').value = '0.00';

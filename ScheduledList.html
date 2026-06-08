@@ -844,7 +844,7 @@
       var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
       AREA_COL_KEYS.forEach(function(k) {
         var areaDataKey = AREA_DATA_KEYS[k];
-        if (aa && !aa[areaDataKey]) return;
+        if (!aa || !aa[areaDataKey]) return;
         var propAreaKey = svc.property_id + '_' + k;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
@@ -875,7 +875,7 @@
         var areaDataKey = AREA_DATA_KEYS[k];
         var areaMap = areaTreatedByProperty[svc.property_id] || {};
         var val = areaMap[areaDataKey];
-        var relevant = !assocAreas || !!assocAreas[areaDataKey];
+        var relevant = !!assocAreas && !!assocAreas[areaDataKey];
         return '<td style="text-align:right;">' + (relevant && val ? Number(val).toLocaleString() : '') + '</td>';
       }).join('');
 
@@ -1390,7 +1390,7 @@
       var aa = (ce && ce.associated_areas) ? ce.associated_areas : null;
       var areaMap = areaTreatedByProperty[svc.property_id] || {};
       Object.keys(areaLabels).forEach(function(k) {
-        if (aa && !aa[k]) return;
+        if (!aa || !aa[k]) return;
         var propAreaKey = svc.property_id + '_' + k;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
