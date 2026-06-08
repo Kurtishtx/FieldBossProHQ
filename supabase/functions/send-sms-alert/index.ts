@@ -123,6 +123,25 @@ serve(async (req: Request) => {
         .filter(Boolean)
         .join(", ");
 
+      // Build invoice name list (from package_services.name)
+      const psIds = group.services
+        .map((s: any) => s.package_service_id)
+        .filter(Boolean);
+      let invoiceNameMap: Record<string, string> = {};
+      if (psIds.length) {
+        const { data: psRows } = await supabase
+          .from("package_services")
+          .select("id, name")
+          .in("id", psIds);
+        (psRows || []).forEach((ps: any) => {
+          if (ps.id && ps.name) invoiceNameMap[String(ps.id)] = ps.name;
+        });
+      }
+      const invoiceServiceList = group.services
+        .map((s: any) => (s.package_service_id && invoiceNameMap[String(s.package_service_id)]) || s.service || "")
+        .filter(Boolean)
+        .join(", ");
+
       // Substitute all [variables]
       let msg: string = alertSettings.message;
       const sub = (tag: string, val: string) => {
@@ -145,6 +164,7 @@ serve(async (req: Request) => {
 
       sub("scheduledservices", serviceList);
       sub("completedservices", serviceList);
+      sub("invoiceservices",   invoiceServiceList);
       sub("servicedate",       svc.scheduled_date || "");
       sub("servicetime",       "");
       sub("servicetype",       svc.service || "");
