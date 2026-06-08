@@ -582,11 +582,29 @@
   updateClock();
   setInterval(updateClock, 1000);
 
+  var invoiceNameToServiceName = {};
+
   function resolvedServiceName(svc) {
-    var sn = (svc.package_services && svc.package_services.service_name)
-      ? svc.package_services.service_name
-      : (svc.package_service_id ? packageServiceMeta['name_' + svc.package_service_id] : null);
-    return sn || svc.service || svc.name || '';
+    if (svc.package_service_id) {
+      var sn = packageServiceMeta['name_' + svc.package_service_id];
+      if (sn) return sn;
+    }
+    var stored = svc.service || svc.name || '';
+    if (stored && invoiceNameToServiceName[stored]) return invoiceNameToServiceName[stored];
+    return stored;
+  }
+
+  async function loadInvoiceNameMap(svcs) {
+    invoiceNameToServiceName = {};
+    var names = [];
+    svcs.forEach(function(s) {
+      if (!s.package_service_id && s.service && names.indexOf(s.service) < 0) names.push(s.service);
+    });
+    if (!names.length) return;
+    var { data } = await sb.from('package_services').select('name, service_name').in('name', names);
+    (data || []).forEach(function(r) {
+      if (r.service_name && r.service_name !== r.name) invoiceNameToServiceName[r.name] = r.service_name;
+    });
   }
 
   var services = [];
@@ -615,8 +633,8 @@
       (byId || []).forEach(function(r) { if (!seen[r.id]) { seen[r.id] = true; serviceCatalog.push(r); } });
     }
     if (serviceNames && serviceNames.length) {
-      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', serviceNames);
-      (byName || []).filter(function(r) { return !r.property_id; }).forEach(function(r) {
+      var { data: byName } = await sb.from('Services').select('id, name, associated_areas').in('name', serviceNames).is('property_id', null);
+      (byName || []).forEach(function(r) {
         if (!seen[r.id]) { seen[r.id] = true; serviceCatalog.push(r); }
       });
     }
@@ -626,9 +644,10 @@
     var direct = svc.associated_areas;
     if (direct !== null && direct !== undefined) {
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
-      return hasArea ? direct : null;
+      if (hasArea) return direct;
+      /* empty or all-false — fall through to catalog lookup */
     }
-    var svcName = svc.service, svcLines = svc.service_lines;
+    var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
     var nameLower = (svcName || '').trim().toLowerCase();
     var ce = serviceCatalog.find(function(c) { return (c.name || '').trim().toLowerCase() === nameLower; });
@@ -784,9 +803,8 @@
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
-    var catalogIds = [], svcNames = [], psIds = [];
+    var catalogIds = [], psIds = [];
     services.forEach(function(s) {
-      if (s.service && svcNames.indexOf(s.service) < 0) svcNames.push(s.service);
       if (s.service_lines) s.service_lines.forEach(function(line) {
         if (line.service_id && catalogIds.indexOf(line.service_id) < 0) catalogIds.push(line.service_id);
       });
@@ -800,6 +818,12 @@
         packageServiceMeta['name_' + r.id] = r.service_name;
       });
     }
+    await loadInvoiceNameMap(services);
+    var svcNames = [];
+    services.forEach(function(s) {
+      var rn = resolvedServiceName(s);
+      if (rn && svcNames.indexOf(rn) < 0) svcNames.push(rn);
+    });
     await loadCfValues(propIds);
     await Promise.all([loadPropertyData(propIds), loadServiceCatalog(catalogIds, svcNames)]);
     renderTable();
