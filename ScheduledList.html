@@ -628,6 +628,7 @@
   setInterval(updateClock, 1000);
 
   var invoiceNameToServiceName = {};
+  var serviceInvoiceNameMap = {}; // catalog service name → invoice_name for one-time services
 
   function resolvedServiceName(svc) {
     if (svc.package_service_id) {
@@ -636,6 +637,7 @@
     }
     var stored = svc.service || svc.name || '';
     if (stored && invoiceNameToServiceName[stored]) return invoiceNameToServiceName[stored];
+    if (stored && serviceInvoiceNameMap[stored]) return serviceInvoiceNameMap[stored];
     return stored;
   }
 
@@ -864,6 +866,13 @@
       });
     }
     await loadInvoiceNameMap(services);
+    serviceInvoiceNameMap = {};
+    var oneTimeNames = [];
+    services.forEach(function(s) { if (!s.package_service_id && s.service && oneTimeNames.indexOf(s.service) < 0) oneTimeNames.push(s.service); });
+    if (oneTimeNames.length) {
+      var { data: invData } = await sb.from('Services').select('name, invoice_name').in('name', oneTimeNames).is('property_id', null).not('invoice_name', 'is', null);
+      (invData || []).forEach(function(r) { if (r.invoice_name) serviceInvoiceNameMap[r.name] = r.invoice_name; });
+    }
     var svcNames = [];
     services.forEach(function(s) {
       var rn = resolvedServiceName(s);

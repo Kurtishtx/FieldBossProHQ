@@ -906,11 +906,20 @@
     if (!svcs || !svcs.length) return;
     var nextNum = await getNextInvoiceNumber();
 
+    var oneTimeNames = [];
+    svcs.forEach(function(s) { if (!s.package_service_id && s.service && oneTimeNames.indexOf(s.service) < 0) oneTimeNames.push(s.service); });
+    var invoiceNameLookup = {};
+    if (oneTimeNames.length) {
+      var { data: invData } = await sb.from('Services').select('name, invoice_name').in('name', oneTimeNames).is('property_id', null).not('invoice_name', 'is', null);
+      (invData || []).forEach(function(r) { if (r.invoice_name) invoiceNameLookup[r.name] = r.invoice_name; });
+    }
+
     var groups = {};
     svcs.forEach(function(s) {
       var key = s.property_id || ('no-prop-' + s.id);
       if (!groups[key]) groups[key] = { property_id: s.property_id, client_name: s.client_name, address: s.address, lines: [] };
-      groups[key].lines.push({ name: s.service || '', description: s.notes || '', date: s.scheduled_date || '', rate: parseFloat(s.amount) || 0, qty: 1, amount: parseFloat(s.amount) || 0 });
+      var lineItemName = invoiceNameLookup[s.service] || s.service || '';
+      groups[key].lines.push({ name: lineItemName, description: s.notes || '', date: s.scheduled_date || '', rate: parseFloat(s.amount) || 0, qty: 1, amount: parseFloat(s.amount) || 0 });
     });
 
     var { data: genSession } = await sb.auth.getSession();

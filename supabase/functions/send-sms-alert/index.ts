@@ -287,27 +287,43 @@ serve(async (req: Request) => {
         .filter(Boolean)
         .join(", ");
 
-      // Build invoice name list (from package_services.name)
+      // Build invoice name list (from package_services.name for packages, Services.invoice_name for one-time)
       const psIds = group.services
         .map((s: any) => s.package_service_id)
         .filter(Boolean);
-      console.log("psIds for invoice lookup:", psIds, "services:", group.services.map((s: any) => ({ id: s.id, service: s.service, package_service_id: s.package_service_id })));
       let invoiceNameMap: Record<string, string> = {};
       if (psIds.length) {
-        const { data: psRows, error: psErr } = await supabase
+        const { data: psRows } = await supabase
           .from("package_services")
           .select("id, name")
           .in("id", psIds);
-        console.log("package_services rows:", psRows, "error:", psErr);
         (psRows || []).forEach((ps: any) => {
           if (ps.id && ps.name) invoiceNameMap[String(ps.id)] = ps.name;
         });
       }
+      const oneTimeSvcNames = group.services
+        .filter((s: any) => !s.package_service_id && s.service)
+        .map((s: any) => s.service)
+        .filter((v: string, i: number, a: string[]) => a.indexOf(v) === i);
+      let oneTimeInvoiceNameMap: Record<string, string> = {};
+      if (oneTimeSvcNames.length) {
+        const { data: otRows } = await supabase
+          .from("Services")
+          .select("name, invoice_name")
+          .in("name", oneTimeSvcNames)
+          .is("property_id", null)
+          .not("invoice_name", "is", null);
+        (otRows || []).forEach((r: any) => {
+          if (r.invoice_name) oneTimeInvoiceNameMap[r.name] = r.invoice_name;
+        });
+      }
       const invoiceServiceList = group.services
-        .map((s: any) => (s.package_service_id && invoiceNameMap[String(s.package_service_id)]) || s.service || "")
+        .map((s: any) => {
+          if (s.package_service_id) return invoiceNameMap[String(s.package_service_id)] || s.service || "";
+          return oneTimeInvoiceNameMap[s.service] || s.service || "";
+        })
         .filter(Boolean)
         .join(", ");
-      console.log("invoiceServiceList:", invoiceServiceList);
 
       // Substitute all [variables]
       let msg: string = alertSettings.message;
