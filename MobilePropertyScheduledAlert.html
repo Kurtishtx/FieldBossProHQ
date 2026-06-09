@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Property Scheduled Alert</title>
+  <title>Property Scheduled Next</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
@@ -73,15 +73,16 @@
 <body>
 
 <div class="page-hdr">
-  <p>Notification sent to mobile app users when their next property service is coming up soon.</p>
+  <h1>Property Scheduled Next</h1>
+  <p>Tap the &#128276; icon on a service row to notify the customer that we have them scheduled next.</p>
 </div>
 
 <div class="content">
 
   <div class="toggle-row">
     <div>
-      <div class="toggle-label">Enable Property Scheduled Alert</div>
-      <div class="toggle-sub">Send a notification to mobile users when a property service is scheduled.</div>
+      <div class="toggle-label">Enable Property Scheduled Next Alert</div>
+      <div class="toggle-sub">When enabled, tapping the alert icon on a service sends the customer a text/email.</div>
     </div>
     <label class="switch">
       <input type="checkbox" id="enabled-toggle"/>
@@ -140,7 +141,7 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var ALERT_TYPE = 'mobile_property_scheduled';
-  var DEFAULT_MSG = 'Hi [clientfirstname], your [scheduledservices] service is scheduled for [servicedate] at [propertyaddress]. We\'ll see you soon!\n\n[companyname]';
+  var DEFAULT_MSG = 'Hi [clientfirstname], we have you scheduled next for [scheduledservices] on [servicedate] at [propertyaddress]. See you soon!\n\n[companyname]';
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();
