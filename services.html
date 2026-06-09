@@ -383,7 +383,7 @@
   }
 
   window.addEventListener('pageshow', function(e) {
-    if (e.persisted) loadServices();
+    if (e.persisted) backToLanding();
   });
 
   function renderTable() {
