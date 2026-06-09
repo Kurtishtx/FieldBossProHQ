@@ -10,8 +10,8 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    const { alert_type, service_ids, user_id, alert_message } = await req.json();
-    if (!alert_type || !service_ids?.length || !user_id) {
+    const { alert_type, service_ids, user_id, alert_message, estimate_id } = await req.json();
+    if (!alert_type || !user_id || (!service_ids?.length && !estimate_id)) {
       return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: cors });
     }
 
@@ -56,6 +56,84 @@ serve(async (req: Request) => {
       .eq("user_id", user_id)
       .single();
 
+    // --- Estimate alert flow ---
+    if (estimate_id) {
+      const { data: est } = await supabase.from("estimates").select("*").eq("id", estimate_id).single();
+      if (!est) return new Response(JSON.stringify({ skipped: "estimate not found" }), { headers: cors });
+
+      const { data: company } = await supabase.from("company_info").select("*").eq("user_id", user_id).single();
+
+      let clientName = est.client_name || "";
+      let firstName = clientName.split(" ")[0] || "";
+      let lastName  = clientName.split(" ").slice(1).join(" ") || "";
+      let phone = "";
+
+      if (est.customer_id) {
+        const { data: lead } = await supabase.from("Leads").select("name, phone, first_name, last_name").eq("id", est.customer_id).single();
+        if (lead) {
+          firstName = lead.first_name || lead.name?.split(" ")[0] || firstName;
+          lastName  = lead.last_name  || lead.name?.split(" ").slice(1).join(" ") || lastName;
+          phone = (lead.phone || "").replace(/\D/g, "");
+        }
+        if (!phone) {
+          const { data: cl } = await supabase.from("Clients").select("phone, first_name, last_name").eq("id", est.customer_id).single();
+          if (cl) {
+            firstName = cl.first_name || firstName;
+            lastName  = cl.last_name  || lastName;
+            phone = (cl.phone || "").replace(/\D/g, "");
+          }
+        }
+      }
+
+      const formattedPhone = phone.length === 10 ? "+1" + phone : phone.length === 11 ? "+" + phone : phone;
+      if (!formattedPhone || formattedPhone.length < 10) {
+        return new Response(JSON.stringify({ skipped: "no phone number found" }), { headers: cors });
+      }
+
+      let msg: string = alertSettings.message;
+      const sub = (tag: string, val: string) => { msg = msg.split(`[${tag}]`).join(val || ""); };
+      sub("clientname",      (firstName + " " + lastName).trim());
+      sub("clientfirstname", firstName);
+      sub("clientlastname",  lastName);
+      sub("estimateamount",  est.amount ? "$" + parseFloat(est.amount).toFixed(2) : "");
+      sub("estimatenumber",  est.estimate_number ? String(est.estimate_number) : "");
+      sub("companyname",     company?.company_name || company?.display_name || "");
+      sub("companyphone",    company?.phone || "");
+      sub("companywebsite",  company?.website || "");
+
+      const parts: string[] = [];
+      let remaining = msg;
+      while (remaining.length > 0 && parts.length < 3) {
+        if (remaining.length <= 160) { parts.push(remaining); break; }
+        let cut = 160;
+        while (cut > 0 && remaining[cut] !== " " && remaining[cut] !== "\n") cut--;
+        if (cut === 0) cut = 160;
+        parts.push(remaining.substring(0, cut).trimEnd());
+        remaining = remaining.substring(cut).trimStart();
+      }
+
+      const toClean  = formattedPhone.replace(/^\+/, "");
+      const didClean = twilio.phone_number.replace(/\D/g, "");
+      let lastStatus = "success";
+      for (const part of parts) {
+        const voipUrl = `https://voip.ms/api/v1/rest.php?api_username=${encodeURIComponent(twilio.account_sid)}&api_password=${encodeURIComponent(twilio.auth_token)}&method=sendSMS&did=${didClean}&dst=${toClean}&message=${encodeURIComponent(part)}`;
+        const vr = await fetch(voipUrl);
+        const vj = await vr.json();
+        if (vj.status !== "success") lastStatus = vj.status;
+      }
+
+      await supabase.from("sms_messages").insert({
+        user_id, client_name: (firstName + " " + lastName).trim(), phone_to: formattedPhone,
+        phone_from: twilio.phone_number, body: msg, direction: "outbound",
+        twilio_sid: null, alert_type, sent_at: new Date().toISOString(),
+      });
+
+      return new Response(JSON.stringify({ results: [{ to: formattedPhone, status: lastStatus, error: lastStatus !== "success" ? lastStatus : null }] }), {
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+
+    // --- Service alert flow ---
     // Load services
     const { data: svcs } = await supabase
       .from("Services")
@@ -186,15 +264,30 @@ serve(async (req: Request) => {
       sub("companywebsite", company?.website || "");
       sub("companyaddress", company?.phys_address || company?.address || "");
 
-      // Send SMS via voip.ms
+      // Split into up to 3 messages of 160 chars each at word boundaries
+      const parts: string[] = [];
+      let remaining = msg;
+      while (remaining.length > 0 && parts.length < 3) {
+        if (remaining.length <= 160) { parts.push(remaining); break; }
+        let cut = 160;
+        while (cut > 0 && remaining[cut] !== " " && remaining[cut] !== "\n") cut--;
+        if (cut === 0) cut = 160;
+        parts.push(remaining.substring(0, cut).trimEnd());
+        remaining = remaining.substring(cut).trimStart();
+      }
+
+      // Send SMS via voip.ms (one call per part)
       const toClean = formattedPhone.replace(/^\+/, "");
       const didClean = twilio.phone_number.replace(/\D/g, "");
-      const voipUrl = `https://voip.ms/api/v1/rest.php?api_username=${encodeURIComponent(twilio.account_sid)}&api_password=${encodeURIComponent(twilio.auth_token)}&method=sendSMS&did=${didClean}&dst=${toClean}&message=${encodeURIComponent(msg)}`;
-
-      const voipRes = await fetch(voipUrl);
-      const voipJson = await voipRes.json();
-      const success = voipJson.status === "success";
-      results.push({ to: formattedPhone, status: voipJson.status, error: success ? null : voipJson.status });
+      let lastStatus = "success";
+      for (const part of parts) {
+        const voipUrl = `https://voip.ms/api/v1/rest.php?api_username=${encodeURIComponent(twilio.account_sid)}&api_password=${encodeURIComponent(twilio.auth_token)}&method=sendSMS&did=${didClean}&dst=${toClean}&message=${encodeURIComponent(part)}`;
+        const voipRes = await fetch(voipUrl);
+        const voipJson = await voipRes.json();
+        if (voipJson.status !== "success") lastStatus = voipJson.status;
+      }
+      const success = lastStatus === "success";
+      results.push({ to: formattedPhone, status: lastStatus, error: success ? null : lastStatus, parts: parts.length });
 
       // Log message to sms_messages table
       await supabase.from("sms_messages").insert({

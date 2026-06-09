@@ -198,9 +198,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   const sb = supabase.createClient(
     "https://knjdbgroiyhvqwrpqzcx.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
+    SUPABASE_ANON_KEY,
   { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
@@ -515,10 +516,24 @@
         alert('Estimate saved but email failed: ' + (emailJson.error || 'Unknown error'));
       } else {
         alert('Estimate sent! The client will receive an email with a link to view and accept.');
+        sendEstimateAlert(savedData.id, uid);
       }
     }
 
     goBack();
+  }
+
+  async function sendEstimateAlert(estimateId, uid) {
+    if (!uid) return;
+    try {
+      var { data: alertRow } = await sb.from('alert_settings').select('enabled, message').eq('user_id', uid).eq('alert_type', 'estimate_sent').single();
+      if (!alertRow || !alertRow.enabled || !alertRow.message) return;
+      fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({ alert_type: 'estimate_sent', estimate_id: estimateId, user_id: uid, alert_message: alertRow.message })
+      }).catch(function(e) { console.error('Estimate SMS alert error:', e); });
+    } catch(e) { console.error('Estimate SMS alert error:', e); }
   }
 
   /* ── Convert to Services ── */

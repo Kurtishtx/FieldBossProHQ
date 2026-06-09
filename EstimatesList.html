@@ -187,9 +187,12 @@
     });
   }
 
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+
   async function sendEmail(id) {
     var { data: sessionData } = await sb.auth.getSession();
     var token = sessionData && sessionData.session ? sessionData.session.access_token : '';
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var btn = event.target;
     btn.disabled = true; btn.textContent = 'Sending...';
     var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-estimate-email', {
@@ -198,10 +201,24 @@
       body: JSON.stringify({ estimate_id: id })
     });
     var json = await res.json();
-    if (!res.ok) { alert('Error: ' + (json.error || 'Failed to send')); btn.disabled = false; btn.textContent = '? Email'; return; }
+    if (!res.ok) { alert('Error: ' + (json.error || 'Failed to send')); btn.disabled = false; btn.textContent = '✉ Email'; return; }
     alert('Email sent!');
-    btn.textContent = '? Sent';
+    btn.textContent = '✓ Sent';
     load();
+    sendEstimateAlert(id, uid);
+  }
+
+  async function sendEstimateAlert(estimateId, uid) {
+    if (!uid) return;
+    try {
+      var { data: alertRow } = await sb.from('alert_settings').select('enabled, message').eq('user_id', uid).eq('alert_type', 'estimate_sent').single();
+      if (!alertRow || !alertRow.enabled || !alertRow.message) return;
+      fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({ alert_type: 'estimate_sent', estimate_id: estimateId, user_id: uid, alert_message: alertRow.message })
+      }).catch(function(e) { console.error('Estimate SMS alert error:', e); });
+    } catch(e) { console.error('Estimate SMS alert error:', e); }
   }
 
   async function load() {
