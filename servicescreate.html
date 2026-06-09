@@ -76,6 +76,11 @@
     <div class="section-label">Service Info</div>
 
     <div class="field-row">
+      <label for="invoice-name">Name on Invoice</label>
+      <div style="flex:1;"><input type="text" id="invoice-name" autocomplete="off"/></div>
+    </div>
+
+    <div class="field-row">
       <label for="service-name">Service Name</label>
       <div style="flex:1;"><input type="text" id="service-name" autocomplete="off"/></div>
     </div>
@@ -200,6 +205,7 @@
     var { data } = await sb.from('Services').select('*').eq('id', serviceId).single();
     if (data) {
       existing = data;
+      document.getElementById('invoice-name').value  = data.invoice_name || '';
       document.getElementById('service-name').value  = data.name || '';
       document.getElementById('default-rate').value  = data.default_rate || '0.00';
       if (data.assigned_to) assignSel.value = data.assigned_to;
@@ -266,6 +272,7 @@ var aa = data.associated_areas || {};
     if (!name) { alert('Please enter a service name.'); return null; }
     return {
       name:        name,
+      invoiceName: document.getElementById('invoice-name').value.trim() || null,
       active:      true,
       defaultRate: parseFloat(document.getElementById('default-rate').value) || 0,
       associatedAreas: (function() {
@@ -283,7 +290,7 @@ var aa = data.associated_areas || {};
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     var catMode = existing ? (existing.svc_mode || serviceCategory) : serviceCategory;
-    var record = { name: svc.name, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid, assigned_to: document.getElementById('assigned-to').value || null, svc_mode: catMode };
+    var record = { name: svc.name, invoice_name: svc.invoiceName, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid, assigned_to: document.getElementById('assigned-to').value || null, svc_mode: catMode };
     if (existing) {
       var { error } = await sb.from('Services').update(record).eq('id', existing.id);
     } else {
@@ -298,7 +305,7 @@ var aa = data.associated_areas || {};
     if (!svc) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var { error } = await sb.from('Services').insert({ name: svc.name, active: svc.active, default_rate: svc.defaultRate, user_id: uid, assigned_to: document.getElementById('assigned-to').value || null, svc_mode: serviceCategory });
+    var { error } = await sb.from('Services').insert({ name: svc.name, invoice_name: svc.invoiceName, active: svc.active, default_rate: svc.defaultRate, user_id: uid, assigned_to: document.getElementById('assigned-to').value || null, svc_mode: serviceCategory });
     if (error) { alert('Error: ' + error.message); return; }
     document.getElementById('service-name').value = '';
     document.getElementById('default-rate').value = '0.00';

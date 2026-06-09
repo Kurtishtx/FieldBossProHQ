@@ -1876,7 +1876,9 @@
   }
 
   async function loadDefaultView() {
-    var { data } = await sb.from('app_preferences').select('pref_value').eq('pref_key', 'waiting_default_view').single();
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { data } = await sb.from('app_preferences').select('pref_value').eq('user_id', uid).eq('pref_key', 'waiting_default_view').single();
     var defaultId = (data && data.pref_value && data.pref_value !== 'none') ? data.pref_value : 'pending';
     activeViewId = defaultId;
     if (typeof defaultId === 'string' && defaultId.startsWith('v_')) {
@@ -1948,7 +1950,10 @@
   }
 
   async function saveDefaultPreference(viewId) {
-    var { error } = await sb.from('app_preferences').upsert({ pref_key: 'waiting_default_view', pref_value: viewId }, { onConflict: 'pref_key' });
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { showToast('Not logged in', 'error'); return; }
+    var { error } = await sb.from('app_preferences').upsert({ user_id: uid, pref_key: 'waiting_default_view', pref_value: viewId }, { onConflict: 'user_id,pref_key' });
     if (!error) showToast('Default view saved', 'success');
     else showToast('Failed to save default', 'error');
   }
