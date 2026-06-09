@@ -99,6 +99,9 @@
     <button class="insert-btn" onclick="insertVar()">Insert</button>
   </div>
 
+  <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+    <button onclick="resetMsg()" style="background:none; border:1px solid #bbb; color:#555; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
+  </div>
   <textarea class="msg-area" id="msg-area"
     oninput="updateCount()"></textarea>
   <div class="char-count" id="char-count">0 characters</div>
@@ -130,6 +133,11 @@
     var sel = document.getElementById('var-select'); var val = sel.value; if (!val) return;
     var ta = document.getElementById('msg-area'); var s = ta.selectionStart, e = ta.selectionEnd;
     ta.value = ta.value.substring(0,s)+val+ta.value.substring(e); ta.selectionStart=ta.selectionEnd=s+val.length; ta.focus(); sel.value=''; updateCount();
+  }
+
+  function resetMsg() {
+    document.getElementById('msg-area').value = DEFAULT_MSG;
+    updateCount();
   }
 
   function updateCount() {
