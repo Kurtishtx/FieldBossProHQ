@@ -297,7 +297,8 @@ var aa = data.associated_areas || {};
       var { error } = await sb.from('Services').insert(record);
     }
     if (error) { alert('Error: ' + error.message); return; }
-    if (window.parent && window.parent.loadPage) { window.parent.loadPage('services'); } else { window.location.href = 'services.html'; }
+    var dest = 'services?category=' + catMode;
+    if (window.parent && window.parent.loadPage) { window.parent.loadPage(dest); } else { window.location.href = 'services.html?category=' + catMode; }
   }
 
   async function saveAndNew() {

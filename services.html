@@ -338,6 +338,9 @@
 
   /* ── Category landing ── */
   var currentCategory = 'package';
+  var _initCat = new URLSearchParams(window.location.search).get('category');
+  if (_initCat) { window.addEventListener('DOMContentLoaded', function() { openCategory(_initCat); }); }
+
   function openCategory(cat) {
     currentCategory = cat;
     document.getElementById('landing-view').style.display = 'none';
