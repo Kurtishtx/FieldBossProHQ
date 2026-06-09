@@ -898,6 +898,7 @@
     if (activeStatusFilter.length) {
       filtered = filtered.filter(function(s) {
         var st = (!s.status || s.status === 'pending') ? 'scheduled' : s.status;
+        if (st === 'rescheduled' && activeStatusFilter.indexOf('scheduled') >= 0) return true;
         return activeStatusFilter.indexOf(st) >= 0;
       });
     } else {
