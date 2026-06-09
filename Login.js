@@ -1,13 +1,15 @@
 // Correct Supabase client initialization
 const client = supabase.createClient(
   "https://knjdbgroiyhvqwrpqzcx.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
+  { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false } }
 );
 
 // Auto-redirect if already logged in and stay-logged-in was checked
 (async function() {
   if (localStorage.getItem('sbp_stay_logged_in') !== '1') return;
-  var { data } = await client.auth.getSession();
+  // refreshSession uses the stored refresh token to get a new access token even after browser restart
+  var { data } = await client.auth.refreshSession();
   if (data && data.session) {
     sessionStorage.setItem('sbp_session_active', '1');
     window.location.href = 'dashboard.html';
