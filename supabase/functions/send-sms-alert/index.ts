@@ -10,7 +10,7 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    const { alert_type, service_ids, user_id, alert_message, estimate_id } = await req.json();
+    const { alert_type, service_ids, user_id, alert_message, estimate_id, skip_note } = await req.json();
     if (!alert_type || !user_id || (!service_ids?.length && !estimate_id)) {
       return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: cors });
     }
@@ -181,6 +181,7 @@ serve(async (req: Request) => {
         sub("scheduledservices", svc.service || "");
         sub("clientname",      svc.client_name || "");
         sub("servicedate",     svc.scheduled_date || "");
+        sub("skipnote",        skip_note || "");
         sub("companyname",     company?.company_name || company?.display_name || "");
 
         const parts: string[] = [];
