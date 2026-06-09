@@ -521,7 +521,7 @@
   <div style="position:relative; display:flex;">
     <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
     <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
-    <div id="actions-dd" style="display:none; position:absolute; bottom:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 -4px 12px rgba(0,0,0,.2); min-width:160px; z-index:400; padding:4px 0;">
+    <div id="actions-dd" style="display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 12px rgba(0,0,0,.2); min-width:160px; z-index:400; padding:4px 0;">
       <a href="#" onclick="scheduleSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Schedule Service</a>
       <a href="#" onclick="event.stopPropagation();rescheduleSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Reschedule</a>
       <a href="#" onclick="markComplete(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Mark as Complete</a>
