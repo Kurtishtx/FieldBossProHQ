@@ -1812,6 +1812,7 @@
     if (!ids.length) { alert('Select at least one service.'); return; }
     if (!confirm('Skip ' + ids.length + ' service(s)?')) return;
     await Promise.all(ids.map(function(id) { return sb.from('Services').update({ status:'skipped' }).eq('id', id); }));
+    sendAlert('skipped', ids);
     loadServices();
   }
 

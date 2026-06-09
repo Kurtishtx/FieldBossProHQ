@@ -133,6 +133,91 @@ serve(async (req: Request) => {
       });
     }
 
+    // --- Skipped alert flow (employee alert) ---
+    if (alert_type === "skipped") {
+      // Load recipients from alert_settings
+      const { data: skippedSettings } = await supabase
+        .from("alert_settings")
+        .select("enabled, message, recipients")
+        .eq("user_id", user_id)
+        .eq("alert_type", "skipped")
+        .single();
+
+      if (!skippedSettings?.enabled) {
+        return new Response(JSON.stringify({ skipped: "skipped alert disabled" }), { headers: cors });
+      }
+      const recipientsRaw: string[] = (() => {
+        try { return JSON.parse(skippedSettings.recipients || "[]"); } catch { return []; }
+      })();
+      const recipients = recipientsRaw.map((p: string) => p.replace(/\D/g, "")).filter((p: string) => p.length >= 10);
+      if (!recipients.length) {
+        return new Response(JSON.stringify({ skipped: "no recipient phones configured" }), { headers: cors });
+      }
+
+      const { data: svcs } = await supabase.from("Services").select("*").in("id", service_ids);
+      if (!svcs?.length) {
+        return new Response(JSON.stringify({ skipped: "no services found" }), { headers: cors });
+      }
+
+      const skippedResults: any[] = [];
+      const msgTemplate: string = skippedSettings.message || alertSettings?.message || "";
+      const didClean = twilio.phone_number.replace(/\D/g, "");
+
+      for (const svc of svcs) {
+        let addr = svc.address || "";
+        let truck = svc.truck || svc.assigned_truck || svc.vehicle || "";
+        if (svc.property_id) {
+          const { data: prop } = await supabase.from("Properties").select("address, city, state").eq("id", svc.property_id).single();
+          if (prop) addr = prop.address || addr;
+        }
+
+        let msg = msgTemplate;
+        const sub = (tag: string, val: string) => { msg = msg.split(`[${tag}]`).join(val || ""); };
+        sub("propertyaddress", addr);
+        sub("propertycity",    "");
+        sub("propertystate",   "");
+        sub("propertyzip",     "");
+        sub("truck",           truck);
+        sub("scheduledservices", svc.service || "");
+        sub("clientname",      svc.client_name || "");
+        sub("servicedate",     svc.scheduled_date || "");
+        sub("companyname",     company?.company_name || company?.display_name || "");
+
+        const parts: string[] = [];
+        let remaining = msg;
+        while (remaining.length > 0 && parts.length < 3) {
+          if (remaining.length <= 160) { parts.push(remaining); break; }
+          let cut = 160;
+          while (cut > 0 && remaining[cut] !== " " && remaining[cut] !== "\n") cut--;
+          if (cut === 0) cut = 160;
+          parts.push(remaining.substring(0, cut).trimEnd());
+          remaining = remaining.substring(cut).trimStart();
+        }
+
+        for (const recipPhone of recipients) {
+          const toClean = recipPhone.length === 10 ? "1" + recipPhone : recipPhone;
+          let lastStatus = "success";
+          for (const part of parts) {
+            const voipUrl = `https://voip.ms/api/v1/rest.php?api_username=${encodeURIComponent(twilio.account_sid)}&api_password=${encodeURIComponent(twilio.auth_token)}&method=sendSMS&did=${didClean}&dst=${toClean}&message=${encodeURIComponent(part)}`;
+            const vr = await fetch(voipUrl);
+            const vj = await vr.json();
+            if (vj.status !== "success") lastStatus = vj.status;
+          }
+          skippedResults.push({ to: "+" + toClean, status: lastStatus, error: lastStatus !== "success" ? lastStatus : null });
+
+          await supabase.from("sms_messages").insert({
+            user_id, client_name: "Team Alert", phone_to: "+" + toClean,
+            phone_from: twilio.phone_number, body: msg, direction: "outbound",
+            twilio_sid: null, alert_type, sent_at: new Date().toISOString(),
+          });
+        }
+      }
+
+      return new Response(JSON.stringify({ results: skippedResults }), {
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+
     // --- Service alert flow ---
     // Load services
     const { data: svcs } = await supabase
