@@ -521,7 +521,7 @@
   <div style="position:relative; display:flex;">
     <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
     <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
-    <div id="actions-dd" style="display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 12px rgba(0,0,0,.2); min-width:160px; z-index:400; padding:4px 0;">
+    <div id="actions-dd" style="display:none; position:fixed; background:#fff; border:1px solid #ccc; box-shadow:0 -4px 12px rgba(0,0,0,.2); min-width:180px; z-index:9999; padding:4px 0;">
       <a href="#" onclick="scheduleSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Schedule Service</a>
       <a href="#" onclick="event.stopPropagation();rescheduleSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Reschedule</a>
       <a href="#" onclick="markComplete(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Mark as Complete</a>
@@ -1925,7 +1925,14 @@
   function toggleActionsDD(e) {
     e.stopPropagation();
     var dd = document.getElementById('actions-dd');
-    dd.style.display = dd.style.display === 'none' ? '' : 'none';
+    if (dd.style.display !== 'none') { dd.style.display = 'none'; return; }
+    var btn = e.currentTarget;
+    var rect = btn.getBoundingClientRect();
+    dd.style.position = 'fixed';
+    dd.style.left = rect.left + 'px';
+    dd.style.top = 'auto';
+    dd.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+    dd.style.display = '';
   }
 
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
