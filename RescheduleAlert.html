@@ -102,9 +102,9 @@
   <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
     <button onclick="resetMsg()" style="background:none; border:1px solid #bbb; color:#555; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
   </div>
-  <textarea class="msg-area" id="msg-area" maxlength="130"
+  <textarea class="msg-area" id="msg-area" maxlength="160"
     oninput="updateCount()"></textarea>
-  <div class="char-count" id="char-count">0 / 130</div>
+  <div class="char-count" id="char-count">0 / 160</div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
@@ -140,7 +140,7 @@
     updateCount();
   }
 
-  var MAX_CHARS = 130;
+  var MAX_CHARS = 160;
   function updateCount() {
     var len = document.getElementById('msg-area').value.length;
     var el = document.getElementById('char-count');

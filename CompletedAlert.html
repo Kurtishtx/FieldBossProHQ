@@ -112,7 +112,7 @@
     <button onclick="loadDefault()" style="background:none; border:1px solid #bbb; color:#555; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
   </div>
   <div class="msg-area" id="msg-area" contenteditable="true" oninput="onMsgInput()" onkeydown="enforceMsgLimit(event)"></div>
-  <div class="char-count" id="char-count">0 / 130</div>
+  <div class="char-count" id="char-count">0 / 160</div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
@@ -170,7 +170,7 @@
     return document.getElementById('msg-area').innerText || '';
   }
 
-  var MAX_CHARS = 130;
+  var MAX_CHARS = 160;
   function updateCount() {
     var len = getMsgText().length;
     var el = document.getElementById('char-count');
