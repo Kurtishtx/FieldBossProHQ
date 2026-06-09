@@ -124,11 +124,7 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var ALERT_TYPE = 'completed';
-  var GHOST_TEXT = 'add anything additional here';
-
-  function buildDefaultHTML() {
-    return 'Hi [clientfirstname], we just completed your property. Your [completedservices] has all been taken care of today.\n\n<span class="ghost-reason" id="ghost-reason">' + GHOST_TEXT + '</span>\n\nThank you for your business!\n\n[companyname]';
-  }
+  var DEFAULT_MSG = 'Hi [clientfirstname], we just completed your property.\n\nThank you for your business!\n\n[companyname]';
 
   function loadSavedText(text) {
     document.getElementById('msg-area').innerText = text;
@@ -136,18 +132,7 @@
   }
 
   function loadDefault() {
-    var el = document.getElementById('msg-area');
-    el.innerHTML = buildDefaultHTML();
-    var ghost = document.getElementById('ghost-reason');
-    if (ghost) {
-      ghost.addEventListener('click', function() {
-        var range = document.createRange();
-        range.selectNodeContents(ghost);
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      });
-    }
+    document.getElementById('msg-area').innerText = DEFAULT_MSG;
     updateCount();
   }
 
@@ -158,11 +143,6 @@
   }
 
   function onMsgInput() {
-    var ghost = document.getElementById('ghost-reason');
-    if (ghost && ghost.textContent !== GHOST_TEXT) {
-      var text = ghost.textContent;
-      ghost.parentNode.replaceChild(document.createTextNode(text), ghost);
-    }
     updateCount();
   }
 
