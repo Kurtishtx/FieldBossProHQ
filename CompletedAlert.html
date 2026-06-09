@@ -37,7 +37,7 @@
     .msg-area:focus { border-color: #2272c3; }
     .ghost-reason { color: #bbb; font-style: italic; }
 
-    .char-count { text-align: right; font-size: 12px; color: #aaa; margin-bottom: 18px; }
+    .char-count { text-align: right; font-size: 12px; color: #888; margin-bottom: 18px; font-weight: 600; }
     .char-count.warn { color: #e67e22; }
     .char-count.over { color: #d9534f; }
     .save-btn { padding: 10px 30px; background: #2272c3; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
@@ -111,8 +111,8 @@
   <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
     <button onclick="loadDefault()" style="background:none; border:1px solid #bbb; color:#555; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
   </div>
-  <div class="msg-area" id="msg-area" contenteditable="true" oninput="onMsgInput()"></div>
-  <div class="char-count" id="char-count">0 characters</div>
+  <div class="msg-area" id="msg-area" contenteditable="true" oninput="onMsgInput()" onkeydown="enforceMsgLimit(event)"></div>
+  <div class="char-count" id="char-count">0 / 130</div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
@@ -151,6 +151,12 @@
     updateCount();
   }
 
+  function enforceMsgLimit(e) {
+    var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Tab'];
+    if (allowed.indexOf(e.key) >= 0 || e.ctrlKey || e.metaKey) return;
+    if (getMsgText().length >= MAX_CHARS) e.preventDefault();
+  }
+
   function onMsgInput() {
     var ghost = document.getElementById('ghost-reason');
     if (ghost && ghost.textContent !== GHOST_TEXT) {
@@ -164,11 +170,12 @@
     return document.getElementById('msg-area').innerText || '';
   }
 
+  var MAX_CHARS = 130;
   function updateCount() {
     var len = getMsgText().length;
     var el = document.getElementById('char-count');
-    el.textContent = len + ' character' + (len === 1 ? '' : 's');
-    el.className = 'char-count' + (len > 320 ? ' over' : len > 160 ? ' warn' : '');
+    el.textContent = len + ' / ' + MAX_CHARS;
+    el.className = 'char-count' + (len >= MAX_CHARS ? ' over' : len >= 100 ? ' warn' : '');
   }
 
   function insertVar() {
