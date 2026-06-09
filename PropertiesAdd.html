@@ -146,7 +146,18 @@
     </div>
   </div><!-- /tab-info -->
 
-  <div class="tab-panel" id="tab-details"><p class="placeholder-panel">Details tab content goes here.</p></div>
+  <div class="tab-panel" id="tab-details">
+    <div class="dialog-body">
+      <div class="section-label">Mobile App Alerts</div>
+      <div class="field-row" style="align-items:center;">
+        <label for="alert-scheduled-next" style="cursor:pointer;">Service Alerts Next</label>
+        <div style="flex:1; display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="alert-scheduled-next" style="width:18px;height:18px;cursor:pointer;accent-color:#5b2d8e;"/>
+          <span style="font-size:12.5px;color:#777;">Show bell icon on mobile app and allow tech to send &ldquo;we have you scheduled next&rdquo; text to this customer.</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="tab-panel" id="tab-notes">
     <div class="dialog-body">
@@ -288,6 +299,7 @@
       set('svc-city',      p.city);
       set('svc-state',     p.state);
       set('office-notes',  p.notes);
+      document.getElementById('alert-scheduled-next').checked = !!p.alert_scheduled_next;
       document.getElementById('prop-title').textContent = p.name || p.address || 'Property';
 
       var at = p.area_treated || {};
@@ -389,8 +401,9 @@
       state:        state,
       zip:          zip,
       notes:        document.getElementById('office-notes').value.trim(),
-      customer_id:  document.getElementById('master-client').value || null,
-      sales_tax_id: document.getElementById('prop-sales-tax').value || null,
+      customer_id:          document.getElementById('master-client').value || null,
+      sales_tax_id:         document.getElementById('prop-sales-tax').value || null,
+      alert_scheduled_next: document.getElementById('alert-scheduled-next').checked,
     };
 
     if (cfLoaded) record.custom_fields = buildCfValues();
