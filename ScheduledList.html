@@ -1930,9 +1930,15 @@
     var rect = btn.getBoundingClientRect();
     dd.style.position = 'fixed';
     dd.style.left = rect.left + 'px';
-    dd.style.top = 'auto';
-    dd.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+    dd.style.top = '-9999px';
+    dd.style.bottom = 'auto';
     dd.style.display = '';
+    var ddH = dd.offsetHeight;
+    if (rect.bottom + ddH + 4 <= window.innerHeight) {
+      dd.style.top = (rect.bottom + 4) + 'px';
+    } else {
+      dd.style.top = Math.max(4, rect.top - ddH - 4) + 'px';
+    }
   }
 
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
@@ -1948,15 +1954,25 @@
         .eq('user_id', uid)
         .eq('alert_type', alertType)
         .single();
+      console.log('[sendAlert] alert_type:', alertType, 'alertRow:', JSON.stringify(alertRow));
       if (!alertRow || !alertRow.enabled || !alertRow.message) {
         console.log('[sendAlert] Alert not configured for', alertType, '— skipping');
         return;
       }
-      fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
         body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid, alert_message: alertRow.message })
-      }).catch(function(e) { console.error('SMS alert error:', e); });
+      });
+      var json = await res.json();
+      console.log('[sendAlert] response for', alertType, ':', JSON.stringify(json));
+      if (json.error) showToast('Alert error: ' + json.error, 'error');
+      else if (json.skipped) showToast('Alert skipped: ' + json.skipped, 'error');
+      else if (json.results) {
+        var failed = json.results.filter(function(r) { return r.error; });
+        if (failed.length) showToast('Alert sent but VoIP error: ' + failed[0].error, 'error');
+        else showToast(alertType + ' alert sent (' + json.results.length + ')', 'success');
+      }
     } catch(e) { console.error('SMS alert error:', e); }
   }
 

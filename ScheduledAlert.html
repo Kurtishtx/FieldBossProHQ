@@ -154,7 +154,7 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var ALERT_TYPE = 'scheduled';
-  var DEFAULT_MSG = 'Hi [clientfirstname], the following services [scheduledservices] are scheduled for tomorrow.\n\nThank you\n\n[companyname]';
+  var DEFAULT_MSG = 'Hi [clientfirstname], your services ([scheduledservicesnameoninvoice]) are scheduled for tomorrow at your property: [propertyaddress].\nThank you\n\n[companyname]';
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();
