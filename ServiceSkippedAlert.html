@@ -117,17 +117,12 @@
   var ALERT_TYPE = 'skipped';
   var DEFAULT_MSG = '[propertyaddress] on [truck] was skipped.\n\nReason:\n[skipnote]';
 
-  var OLD_DEFAULT = '[propertyaddress] on [truck] was skipped.';
-
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) return;
     var { data } = await sb.from('alert_settings').select('enabled, message, recipients').eq('user_id', uid).eq('alert_type', ALERT_TYPE).single();
-    var savedMsg = data && data.message;
-    var newDefault = '[propertyaddress] on [truck] was skipped.\n\nReason:\n[skipnote]';
-    // Auto-upgrade from old default to new default
-    document.getElementById('msg-area').value = (!savedMsg || savedMsg === OLD_DEFAULT || !savedMsg.includes('[skipnote]')) ? newDefault : savedMsg;
+    document.getElementById('msg-area').value = (data && data.message) ? data.message : DEFAULT_MSG;
     if (data) {
       document.getElementById('enabled-toggle').checked = !!data.enabled;
       if (data.recipients) {
