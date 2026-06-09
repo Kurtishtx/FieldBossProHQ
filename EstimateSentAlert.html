@@ -78,8 +78,8 @@
   <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
     <button onclick="resetMsg()" style="background:none; border:1px solid #bbb; color:#555; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
   </div>
-  <textarea class="msg-area" id="msg-area" maxlength="160" oninput="updateCount()"></textarea>
-  <div class="char-count" id="char-count">0 / 160</div>
+  <textarea class="msg-area" id="msg-area" oninput="updateCount()"></textarea>
+  <div class="char-count" id="char-count">~0 chars · 1 text</div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
@@ -91,8 +91,13 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var ALERT_TYPE = 'estimate_sent';
-  var MAX_CHARS = 160;
   var DEFAULT_MSG = 'Hi [clientfirstname], your estimate has been sent to your email. Let us know if you have any questions!\n\n[companyname]';
+  var SAMPLES = { clientfirstname:'John', clientlastname:'Smith', clientname:'John Smith', estimateamount:'$450.00', estimatenumber:'E-042', companyname:'Hamann Landscape', companyphone:'817-555-0100', companywebsite:'company.com' };
+  function expandedLen(text) {
+    var out = text;
+    Object.keys(SAMPLES).forEach(function(k) { out = out.split('['+k+']').join(SAMPLES[k]); });
+    return out.length;
+  }
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();
@@ -119,10 +124,11 @@
   }
 
   function updateCount() {
-    var len = document.getElementById('msg-area').value.length;
+    var len = expandedLen(document.getElementById('msg-area').value);
+    var texts = len <= 160 ? 1 : len <= 320 ? 2 : 3;
     var el = document.getElementById('char-count');
-    el.textContent = len + ' / ' + MAX_CHARS;
-    el.className = 'char-count' + (len >= MAX_CHARS ? ' over' : len >= 100 ? ' warn' : '');
+    el.textContent = '~' + len + ' chars · ' + texts + ' text' + (texts > 1 ? 's' : '');
+    el.className = 'char-count' + (texts >= 3 ? ' over' : texts >= 2 ? ' warn' : '');
   }
 
   async function save() {

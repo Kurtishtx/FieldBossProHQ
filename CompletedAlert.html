@@ -111,8 +111,8 @@
   <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
     <button onclick="loadDefault()" style="background:none; border:1px solid #bbb; color:#555; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
   </div>
-  <div class="msg-area" id="msg-area" contenteditable="true" oninput="onMsgInput()" onkeydown="enforceMsgLimit(event)"></div>
-  <div class="char-count" id="char-count">0 / 160</div>
+  <div class="msg-area" id="msg-area" contenteditable="true" oninput="onMsgInput()"></div>
+  <div class="char-count" id="char-count">~0 chars · 1 text</div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
@@ -136,12 +136,6 @@
     updateCount();
   }
 
-  function enforceMsgLimit(e) {
-    var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Tab'];
-    if (allowed.indexOf(e.key) >= 0 || e.ctrlKey || e.metaKey) return;
-    if (getMsgText().length >= MAX_CHARS) e.preventDefault();
-  }
-
   function onMsgInput() {
     updateCount();
   }
@@ -150,12 +144,18 @@
     return document.getElementById('msg-area').innerText || '';
   }
 
-  var MAX_CHARS = 160;
+  var SAMPLES = { clientfirstname:'John', clientlastname:'Smith', clientname:'John Smith', completedservices:'Fertilization, Weed Control', scheduledservices:'Fertilization, Weed Control', scheduledservicesnameoninvoice:'Fert App 1, Weed Control', servicedate:'06/09/2026', servicetime:'8:00 AM', servicenotes:'', servicetech:'Mike', serviceprice:'$66.00', serviceproducts:'Fertilizer', companyname:'Hamann Landscape', companyphone:'817-555-0100', companyemail:'info@company.com', companywebsite:'company.com', companyaddress:'456 Business Rd', invoicenumber:'1042', invoiceamount:'$66.00', invoiceduedate:'07/09/2026', paymentlink:'pay.example.com/1042' };
+  function expandedLen(text) {
+    var out = text;
+    Object.keys(SAMPLES).forEach(function(k) { out = out.split('['+k+']').join(SAMPLES[k]); });
+    return out.length;
+  }
   function updateCount() {
-    var len = getMsgText().length;
+    var len = expandedLen(getMsgText());
+    var texts = len <= 160 ? 1 : len <= 320 ? 2 : 3;
     var el = document.getElementById('char-count');
-    el.textContent = len + ' / ' + MAX_CHARS;
-    el.className = 'char-count' + (len >= MAX_CHARS ? ' over' : len >= 100 ? ' warn' : '');
+    el.textContent = '~' + len + ' chars · ' + texts + ' text' + (texts > 1 ? 's' : '');
+    el.className = 'char-count' + (texts >= 3 ? ' over' : texts >= 2 ? ' warn' : '');
   }
 
   function insertVar() {
