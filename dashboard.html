@@ -615,6 +615,7 @@
     <button class="mobile-nav-btn" data-page="texts" onclick="mobileNav('texts')"><span class="icon">&#128172;</span> Texts</button>
     <div class="mobile-nav-section-label">System</div>
     <button class="mobile-nav-btn" data-page="settings" onclick="mobileNav('settings')"><span class="icon">&#9881;</span> Settings</button>
+    <button class="mobile-nav-btn" id="admin-mobile-nav-btn" data-page="admin" onclick="mobileNav('admin')" style="display:none;"><span class="icon">&#128737;</span> Admin</button>
     <div class="mobile-nav-logout">
       <button class="mobile-nav-btn" onclick="logout()" style="color:#ff7b7b;"><span class="icon">&#128682;</span> Log Out</button>
     </div>
@@ -917,6 +918,8 @@
     if (user.email === 'hamannlandscape@gmail.com') {
       var adminBtn = document.getElementById('admin-nav-btn');
       if (adminBtn) adminBtn.style.display = 'flex';
+      var adminMobileBtn = document.getElementById('admin-mobile-nav-btn');
+      if (adminMobileBtn) adminMobileBtn.style.display = 'flex';
     }
     var { data } = await sbMain.from('company_info').select('phys_timezone').eq('user_id', user.id).single();
     if (data && data.phys_timezone && tzMap[data.phys_timezone]) {
