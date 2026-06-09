@@ -155,7 +155,7 @@
       tr.setAttribute('data-uid', u.user_id);
       tr.innerHTML =
         '<td>' +
-          '<div class="user-email">' + escHtml(u.email) + '</div>' +
+          '<div class="user-email"><a href="#" onclick="loginAs(event,\'' + escHtml(u.email) + '\')" style="color:#5b2d8e;text-decoration:none;font-weight:700;" title="Login as this user">' + escHtml(u.email) + '</a></div>' +
         '</td>' +
         '<td><input class="twilio-input" data-field="account_sid" placeholder="yourname@email.com" value="' + escHtml(tw.account_sid || '') + '"/></td>' +
         '<td><input class="twilio-input" data-field="auth_token" placeholder="API Password" value="' + escHtml(tw.auth_token || '') + '"/></td>' +
@@ -192,6 +192,21 @@
       btn.classList.add('saved');
       setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
     }
+  }
+
+  async function loginAs(e, email) {
+    e.preventDefault();
+    if (!confirm('Login as ' + email + '?\n\nThis will replace your current session. Log back in as yourself when done.')) return;
+    var { data: sessionData } = await sb.auth.getSession();
+    var token = sessionData && sessionData.session ? sessionData.session.access_token : '';
+    var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/admin-impersonate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ email: email })
+    });
+    var json = await res.json();
+    if (json.error) { alert('Error: ' + json.error); return; }
+    window.location.href = json.action_link;
   }
 
   function escHtml(s) {
