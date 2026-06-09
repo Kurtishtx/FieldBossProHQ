@@ -248,6 +248,7 @@
       <div class="ms-item"><input type="checkbox" value="completed" id="st-completed" onchange="applyStatusFilter()"/><label for="st-completed" style="cursor:pointer;margin-left:3px;">Completed</label></div>
       <div class="ms-item"><input type="checkbox" value="canceled" id="st-canceled" onchange="applyStatusFilter()"/><label for="st-canceled" style="cursor:pointer;margin-left:3px;">Canceled</label></div>
       <div class="ms-item"><input type="checkbox" value="skipped" id="st-skipped" onchange="applyStatusFilter()"/><label for="st-skipped" style="cursor:pointer;margin-left:3px;">Skipped</label></div>
+      <div class="ms-item"><input type="checkbox" value="rescheduled" id="st-rescheduled" onchange="applyStatusFilter()"/><label for="st-rescheduled" style="cursor:pointer;margin-left:3px;">Rescheduled</label></div>
     </div>
   </div>
 </div>
@@ -466,6 +467,48 @@
   </div>
 </div>
 
+<!-- Reschedule modal -->
+<div id="reschedule-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:500; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:4px; padding:32px 36px; min-width:400px; max-width:480px; position:relative; box-shadow:0 8px 40px rgba(0,0,0,.3);">
+    <button onclick="closeRescheduleModal()" style="position:absolute; top:14px; right:16px; background:none; border:1px solid #aaa; width:26px; height:26px; cursor:pointer; font-size:13px; border-radius:2px; line-height:1;">&#x2715;</button>
+    <h2 style="margin:0 0 28px; font-size:22px; font-weight:700; color:#222;">Reschedule</h2>
+    <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
+      <label style="width:90px; padding-top:7px; color:#888; font-size:14px; flex-shrink:0;">New Date</label>
+      <div style="position:relative;">
+        <div style="display:flex; align-items:center; gap:2px;">
+          <input type="text" id="rs-date-input" placeholder="" readonly
+            style="border:1.5px solid #222; padding:6px 10px; font-size:14px; width:160px; cursor:pointer; font-family:inherit;"
+            onclick="toggleRsCal()"/>
+          <button onclick="toggleRsCal()" style="border:1px solid #bbb; background:#f0f0f0; padding:5px 8px; font-size:15px; cursor:pointer; height:33px;">&#x1F4C5;</button>
+        </div>
+        <div id="rs-cal" style="display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.18); z-index:600; padding:12px; min-width:290px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <button onclick="rsCalNav(-1)" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 6px;">&#9664;</button>
+            <span id="rs-cal-title" style="font-size:14px; font-weight:600;"></span>
+            <button onclick="rsCalNav(1)" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 6px;">&#9654;</button>
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+            <thead><tr>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Su</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Mo</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Tu</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">We</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Th</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Fr</th>
+              <th style="padding:4px 2px; font-weight:700; color:#555;">Sa</th>
+            </tr></thead>
+            <tbody id="rs-cal-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
+      <button onclick="confirmReschedule()" style="background:#e07820; color:#fff; border:none; padding:9px 26px; font-size:14px; font-weight:700; border-radius:3px; cursor:pointer; font-family:inherit;">Reschedule</button>
+      <a href="#" onclick="closeRescheduleModal(); return false;" style="color:#2272c3; font-size:14px;">Cancel</a>
+    </div>
+  </div>
+</div>
+
 <!-- Delete confirmation bar -->
 <div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#130520;color:#fff;font-size:13px;position:sticky;top:0;z-index:500;">
   <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> service(s)? This cannot be undone.</span>
@@ -480,6 +523,7 @@
     <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
     <div id="actions-dd" style="display:none; position:absolute; bottom:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 -4px 12px rgba(0,0,0,.2); min-width:160px; z-index:400; padding:4px 0;">
       <a href="#" onclick="scheduleSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Schedule Service</a>
+      <a href="#" onclick="event.stopPropagation();rescheduleSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Reschedule</a>
       <a href="#" onclick="markComplete(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Mark as Complete</a>
       <a href="#" onclick="cancelSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Cancel Service</a>
       <a href="#" onclick="skipSelected(event)" style="display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px;">Skip Service</a>
@@ -1783,6 +1827,77 @@
     loadServices();
   }
 
+  var rsCalYear, rsCalMonth, rsSelDate;
+
+  function rescheduleSelected(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    document.getElementById('actions-dd').style.display = 'none';
+    var checked = document.querySelectorAll('.row-cb:checked');
+    if (!checked.length) { alert('Select at least one service.'); return; }
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    rsCalYear = tomorrow.getFullYear();
+    rsCalMonth = tomorrow.getMonth();
+    rsSelDate = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth()+1).padStart(2,'0') + '-' + String(tomorrow.getDate()).padStart(2,'0');
+    document.getElementById('rs-date-input').value = tomorrow.toLocaleDateString('en-US', { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' });
+    buildRsCal();
+    document.getElementById('reschedule-modal-overlay').style.display = 'flex';
+  }
+
+  function closeRescheduleModal() { document.getElementById('reschedule-modal-overlay').style.display = 'none'; }
+
+  function toggleRsCal() {
+    var cal = document.getElementById('rs-cal');
+    cal.style.display = cal.style.display === 'none' ? '' : 'none';
+  }
+
+  function rsCalNav(dir) {
+    rsCalMonth += dir;
+    if (rsCalMonth > 11) { rsCalMonth = 0; rsCalYear++; }
+    if (rsCalMonth < 0) { rsCalMonth = 11; rsCalYear--; }
+    buildRsCal();
+  }
+
+  function buildRsCal() {
+    var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('rs-cal-title').textContent = MN[rsCalMonth] + ' ' + rsCalYear;
+    var first = new Date(rsCalYear, rsCalMonth, 1);
+    var last = new Date(rsCalYear, rsCalMonth + 1, 0);
+    var html = '';
+    for (var i = 0; i < first.getDay(); i++) html += '<td></td>';
+    var count = first.getDay();
+    for (var d = 1; d <= last.getDate(); d++) {
+      if (count % 7 === 0) html += '<tr>';
+      var ds = rsCalYear + '-' + String(rsCalMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      var sel = rsSelDate === ds ? 'background:#e07820;color:#fff;border-radius:50%;' : '';
+      html += '<td onclick="rsPickDate(\'' + ds + '\')" style="padding:5px 3px;cursor:pointer;text-align:center;' + sel + '">' + d + '</td>';
+      count++;
+      if (count % 7 === 0) html += '</tr>';
+    }
+    document.getElementById('rs-cal-body').innerHTML = html;
+  }
+
+  function rsPickDate(ds) {
+    rsSelDate = ds;
+    var dt = new Date(ds + 'T00:00:00');
+    document.getElementById('rs-date-input').value = dt.toLocaleDateString('en-US', { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' });
+    buildRsCal();
+    document.getElementById('rs-cal').style.display = 'none';
+  }
+
+  async function confirmReschedule() {
+    if (!rsSelDate) { alert('Please pick a date.'); return; }
+    var ids = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (!ids.length) { closeRescheduleModal(); return; }
+    await Promise.all(ids.map(function(id) {
+      return sb.from('Services').update({ scheduled_date: rsSelDate, status: 'rescheduled', dispatched: true }).eq('id', id);
+    }));
+    sendAlert('reschedule', ids);
+    closeRescheduleModal();
+    loadServices();
+  }
+
   /* ── Delete services ── */
   function deleteSelectedServices(e) {
     e.preventDefault(); e.stopPropagation();
@@ -1812,20 +1927,27 @@
     dd.style.display = dd.style.display === 'none' ? '' : 'none';
   }
 
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+
   async function sendAlert(alertType, serviceIds) {
     if (!serviceIds || !serviceIds.length) return;
     try {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      var accessToken = sessionData && sessionData.session ? sessionData.session.access_token : null;
-      if (!uid || !accessToken) return;
+      if (!uid) { console.error('[sendAlert] No session — alert not sent'); return; }
+      var { data: alertRow } = await sb.from('alert_settings')
+        .select('enabled, message')
+        .eq('user_id', uid)
+        .eq('alert_type', alertType)
+        .single();
+      if (!alertRow || !alertRow.enabled || !alertRow.message) {
+        console.log('[sendAlert] Alert not configured for', alertType, '— skipping');
+        return;
+      }
       fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + accessToken
-        },
-        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid, alert_message: alertRow.message })
       }).catch(function(e) { console.error('SMS alert error:', e); });
     } catch(e) { console.error('SMS alert error:', e); }
   }
