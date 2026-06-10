@@ -371,7 +371,11 @@ async function saveSettings() {
 
   var el = document.getElementById('save-status');
   el.classList.add('show');
-  setTimeout(function() { el.classList.remove('show'); }, 3000);
+  setTimeout(function() {
+    el.classList.remove('show');
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('emailalerttemplateslist');
+    else window.history.back();
+  }, 1500);
 }
 
 loadSettings();

@@ -282,7 +282,11 @@
     if (error) { alert('Error saving: ' + error.message); return; }
     var el = document.getElementById('save-msg');
     el.classList.add('show');
-    setTimeout(function() { el.classList.remove('show'); }, 3000);
+    setTimeout(function() {
+      el.classList.remove('show');
+      if (window.parent && window.parent.loadPage) window.parent.loadPage('emailalerttemplateslist');
+      else window.history.back();
+    }, 1500);
   }
 
   async function init() {
