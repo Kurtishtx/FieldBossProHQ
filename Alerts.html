@@ -11,38 +11,62 @@
     .page-hdr { padding: 20px 24px 14px; background: #130520; }
     .page-hdr p { font-size: 13px; color: #fff; margin-top: 4px; }
 
-    .divider { border: none; border-top: 1px solid #eee; margin: 0 24px; }
+    .section-label {
+      padding: 10px 24px 8px; background: #130520; color: #fff;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+    }
 
     .link-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 24px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-      background: #fff;
-      transition: background .15s;
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 24px; border-bottom: 1px solid #eee;
+      background: #fff; transition: background .15s;
     }
     .link-item:hover { background: #fdf3e8; }
-    .link-item:hover .link-name { color: #e07820; }
-    .link-item:hover .link-arrow { color: #e07820; }
 
     .link-icon {
       width: 42px; height: 42px; min-width: 42px;
-      background: #ede0ff;
-      border-radius: 50%;
+      background: #ede0ff; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+      font-size: 20px; cursor: pointer;
     }
-
-    .link-name {
-      font-size: 15px; font-weight: 700;
-      color: #5b2d8e;
-      margin-bottom: 3px;
-      transition: color .15s;
-    }
+    .link-text { flex: 1; cursor: pointer; }
+    .link-name { font-size: 15px; font-weight: 700; color: #5b2d8e; margin-bottom: 3px; }
+    .link-item:hover .link-name { color: #e07820; }
     .link-desc { font-size: 12.5px; color: #777; line-height: 1.4; }
-    .link-arrow { margin-left: auto; color: #5b2d8e; font-size: 20px; transition: color .15s; }
+
+    /* Toggle group */
+    .toggle-group {
+      display: flex; flex-direction: column; gap: 8px;
+      align-items: flex-end; min-width: 100px;
+    }
+    .toggle-row {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11.5px; font-weight: 600; color: #555;
+    }
+    .toggle-row .t-icon { font-size: 13px; }
+
+    /* Toggle switch */
+    .toggle-switch { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 20px;
+      background: #ccc; cursor: pointer; transition: background .2s;
+    }
+    .toggle-track::before {
+      content: ''; position: absolute;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; left: 3px; top: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    }
+    .toggle-switch input:checked + .toggle-track { background: #5b2d8e; }
+    .toggle-switch input:checked + .toggle-track::before { transform: translateX(18px); }
+
+    .link-arrow { color: #5b2d8e; font-size: 20px; cursor: pointer; padding-left: 8px; }
+    .link-item:hover .link-arrow { color: #e07820; }
+
+    .notice { background: #fff8e1; border-left: 4px solid #f5a623; padding: 10px 16px; margin: 12px 24px; font-size: 12px; color: #7a5c00; border-radius: 4px; }
+    .notice code { background: rgba(0,0,0,.07); border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 11px; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
@@ -52,77 +76,138 @@
   <p>Configure automated alerts sent to clients for scheduling events.</p>
 </div>
 
-<hr class="divider"/>
+<div id="setup-notice" class="notice" style="display:none">
+  One-time setup — run this in <strong>Supabase → SQL Editor</strong>:<br/><br/>
+  <code>CREATE TABLE IF NOT EXISTS alert_toggles (id uuid DEFAULT uuid_generate_v4() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, alert_type text NOT NULL, sms_enabled boolean DEFAULT false, email_enabled boolean DEFAULT false, UNIQUE(user_id, alert_type)); ALTER TABLE alert_toggles ENABLE ROW LEVEL SECURITY; CREATE POLICY "own" ON alert_toggles FOR ALL USING (auth.uid() = user_id);</code>
+</div>
 
-<div style="padding:10px 24px 8px;background:#130520;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;">Client Alerts</div>
+<div class="section-label">Client Alerts</div>
 
-<div class="link-item" onclick="navigate('scheduledalert')">
-  <div class="link-icon">&#128197;</div>
-  <div class="link-text">
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('scheduledalert')">&#128197;</div>
+  <div class="link-text" onclick="navigate('scheduledalert')">
     <div class="link-name">Scheduled Alert</div>
-    <div class="link-desc">Set up automated alerts sent to clients when a service is scheduled.</div>
+    <div class="link-desc">Sent to clients when a service is scheduled.</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="scheduledalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="scheduledalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('scheduledalert')">&#8250;</div>
 </div>
 
-<div class="link-item" onclick="navigate('reschedulealert')">
-  <div class="link-icon">&#128260;</div>
-  <div class="link-text">
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('reschedulealert')">&#128260;</div>
+  <div class="link-text" onclick="navigate('reschedulealert')">
     <div class="link-name">Reschedule Alert</div>
-    <div class="link-desc">Set up automated alerts sent to clients when a service is rescheduled.</div>
+    <div class="link-desc">Sent to clients when a service is rescheduled.</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="reschedulealert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="reschedulealert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('reschedulealert')">&#8250;</div>
 </div>
 
-
-<div class="link-item" onclick="navigate('completedalert')">
-  <div class="link-icon">&#9989;</div>
-  <div class="link-text">
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('completedalert')">&#9989;</div>
+  <div class="link-text" onclick="navigate('completedalert')">
     <div class="link-name">Completed Alert</div>
-    <div class="link-desc">Set up automated alerts sent to clients when a service is completed.</div>
+    <div class="link-desc">Sent to clients when a service is completed.</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="completedalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="completedalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('completedalert')">&#8250;</div>
 </div>
 
-<div class="link-item" onclick="navigate('estimatesentalert')">
-  <div class="link-icon">&#128203;</div>
-  <div class="link-text">
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('estimatesentalert')">&#128203;</div>
+  <div class="link-text" onclick="navigate('estimatesentalert')">
     <div class="link-name">Estimate Sent Alert</div>
-    <div class="link-desc">Set up automated alerts sent to clients when an estimate is emailed to them.</div>
+    <div class="link-desc">Sent to clients when an estimate is emailed to them.</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="estimatesentalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="estimatesentalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('estimatesentalert')">&#8250;</div>
 </div>
 
-<div style="padding:10px 24px 8px;background:#130520;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;">Employee Alerts</div>
+<div class="section-label">Employee Alerts</div>
 
-<div class="link-item" onclick="navigate('serviceskippedalert')">
-  <div class="link-icon">&#9194;</div>
-  <div class="link-text">
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('serviceskippedalert')">&#9194;</div>
+  <div class="link-text" onclick="navigate('serviceskippedalert')">
     <div class="link-name">Service Skipped Alert</div>
-    <div class="link-desc">Send an alert to your team when a service is skipped.</div>
+    <div class="link-desc">Sent to your team when a service is skipped.</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="serviceskippedalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="serviceskippedalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('serviceskippedalert')">&#8250;</div>
 </div>
 
-<div style="padding:10px 24px 8px;background:#130520;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;">Mobile App</div>
+<div class="section-label">Mobile App</div>
 
-<div class="link-item" onclick="navigate('mobilepropertyscheduled')">
-  <div class="link-icon">&#128241;</div>
-  <div class="link-text">
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('mobilepropertyscheduled')">&#128241;</div>
+  <div class="link-text" onclick="navigate('mobilepropertyscheduled')">
     <div class="link-name">Property Scheduled Next</div>
-    <div class="link-desc">Send a text/email to the customer when the tech is heading to their property next.</div>
+    <div class="link-desc">Sent to the customer when the tech is heading to their property next.</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="mobilepropertyscheduled" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="mobilepropertyscheduled" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('mobilepropertyscheduled')">&#8250;</div>
 </div>
 
 <div style="height:28px;background:#130520;"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  function navigate(page) {
-    if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage(page);
-    }
-  }
+var sb = supabase.createClient(
+  'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+  { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
+);
+
+var uid = null;
+
+function navigate(page) {
+  if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+}
+
+async function saveToggle(input) {
+  if (!uid) return;
+  var type    = input.dataset.type;
+  var channel = input.dataset.channel;
+  var field   = channel === 'sms' ? 'sms_enabled' : 'email_enabled';
+  var payload = { user_id: uid, alert_type: type, [field]: input.checked };
+  await sb.from('alert_toggles').upsert(payload, { onConflict: 'user_id,alert_type' });
+}
+
+async function loadToggles() {
+  var { data: sess } = await sb.auth.getSession();
+  uid = sess?.session?.user?.id;
+  if (!uid) return;
+
+  var { data, error } = await sb.from('alert_toggles').select('*').eq('user_id', uid);
+  if (error) { document.getElementById('setup-notice').style.display = 'block'; return; }
+  if (!data) return;
+
+  data.forEach(function(row) {
+    var smsEl = document.querySelector('input[data-type="' + row.alert_type + '"][data-channel="sms"]');
+    var emailEl = document.querySelector('input[data-type="' + row.alert_type + '"][data-channel="email"]');
+    if (smsEl)   smsEl.checked   = !!row.sms_enabled;
+    if (emailEl) emailEl.checked = !!row.email_enabled;
+  });
+}
+
+loadToggles();
 </script>
 </body>
 </html>
