@@ -410,6 +410,13 @@
     }
 
     editId = getParam('id');
+
+    // No ID passed — load the user's single saved template if one exists
+    if (!editId && uid) {
+      var { data: existing } = await sb.from('email_alert_templates').select('*').eq('user_id', uid).order('created_at').limit(1).single();
+      if (existing) editId = existing.id;
+    }
+
     if (editId) {
       var { data: t } = await sb.from('email_alert_templates').select('*').eq('id', editId).single();
       if (t) {
@@ -418,7 +425,6 @@
         document.getElementById('btn-del').style.display = '';
         chosenStyle = t.style || 0;
         if (chosenStyle) {
-          // Skip picker — go straight to editor with saved style
           document.getElementById('picker-step').style.display = 'none';
           document.getElementById('editor-step').style.display = 'block';
           updatePreview();
