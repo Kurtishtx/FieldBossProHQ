@@ -166,7 +166,7 @@ serve(async (req: Request) => {
         .select("resend_api_key")
         .eq("user_id", user_id)
         .single();
-      resendKey = ci?.resend_api_key || null;
+      resendKey = ci?.resend_api_key || "re_apd6qCQb_LerK8x5aS84YU4J7jj6WarnM";
     }
     const canEmail = emailEnabled && !!resendKey;
 
