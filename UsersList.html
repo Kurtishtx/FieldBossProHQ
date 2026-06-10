@@ -110,6 +110,8 @@
   }
 
   async function load() {
+    var sessionRes = await sb.auth.getSession();
+    var ownerId = sessionRes?.data?.session?.user?.id || null;
     var [authRes, profRes] = await Promise.all([
       sb.functions.invoke('manage-users', { body: { action: 'list' } }),
       sb.from('user_profiles').select('*').eq('is_primary_owner', false)
@@ -118,8 +120,9 @@
     profiles = {};
     (profRes.data || []).forEach(function(p) { profiles[p.id] = p; });
     // Only show users that were created through the Users page (have a profile record)
+    // and exclude the logged-in owner account
     var profileIds = Object.keys(profiles);
-    users = allUsers.filter(function(u) { return profileIds.includes(u.id); });
+    users = allUsers.filter(function(u) { return profileIds.includes(u.id) && u.id !== ownerId; });
     renderTable();
   }
 
