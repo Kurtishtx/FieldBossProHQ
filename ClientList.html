@@ -255,35 +255,11 @@
     }
     .btn-columns:hover { background: rgba(255,255,255,.22); color: #fff; }
 
-    /* ── Tabs ── */
-    .tabs-bar {
-      background: #130520;
-      padding: 0 14px;
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      flex-shrink: 0;
-      border-top: 1px solid #0d0318;
-      overflow-x: auto;
-    }
-    .tabs-bar::-webkit-scrollbar { height: 3px; }
-    .tabs-bar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); }
-    .tab-btn {
-      background: #bbb;
-      color: #111;
-      border: none;
-      border-radius: 5px 5px 0 0;
-      padding: 7px 16px;
-      font-size: 12.5px;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      font-weight: 600;
-      transition: background .15s;
-    }
-    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
-    .tab-btn:hover:not(.active) { background: #aaa; }
+    /* ── Filter pills ── */
+    .filter-tabs { display:flex; gap:4px; padding:8px 16px; background:#fff; border-bottom:1px solid #ddd; flex-wrap:wrap; flex-shrink:0; }
+    .ftab { padding:5px 16px; border:1px solid #bbb; background:#fff; font-size:13px; font-family:inherit; cursor:pointer; border-radius:20px; color:#555; transition:background .15s; }
+    .ftab:hover { background:#f0f0f0; }
+    .ftab.active { background:#130520; color:#fff; border-color:#130520; font-weight:700; }
 
     /* ── Table ── */
     .table-container {
@@ -390,13 +366,13 @@
   </div>
 </div>
 
-<!-- Tabs -->
-<div class="tabs-bar">
-  <button class="tab-btn active" onclick="setTab(this)">Clients</button>
-  <button class="tab-btn" onclick="setTab(this)">Former Clients</button>
-  <button class="tab-btn" onclick="setTab(this)">Clients &amp; Former Clients</button>
-  <button class="tab-btn" onclick="setTab(this)">Current Clients &amp; Leads</button>
-  <button class="tab-btn" onclick="setTab(this)">All Clients &amp; Leads</button>
+<!-- Filter pills -->
+<div class="filter-tabs">
+  <button class="ftab active" onclick="setTab(this)">Clients</button>
+  <button class="ftab" onclick="setTab(this)">Former Clients</button>
+  <button class="ftab" onclick="setTab(this)">Clients &amp; Former Clients</button>
+  <button class="ftab" onclick="setTab(this)">Current Clients &amp; Leads</button>
+  <button class="ftab" onclick="setTab(this)">All Clients &amp; Leads</button>
 </div>
 
 <!-- Table -->
@@ -440,7 +416,7 @@
   }
 
   function setTab(btn) {
-    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.ftab').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     renderTable();
   }
