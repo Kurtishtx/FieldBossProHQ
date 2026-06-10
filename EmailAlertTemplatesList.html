@@ -8,10 +8,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
 
-    .page-hdr { padding: 20px 24px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .page-hdr { padding: 20px 24px 14px; }
     .page-hdr p { font-size: 13px; color: #777; }
-    .btn-add { background: #e07820; color: #fff; border: none; border-radius: 4px; padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-    .btn-add:hover { background: #c96a10; }
 
     .divider { border: none; border-top: 1px solid #eee; margin: 0 24px; }
 
@@ -31,24 +29,28 @@
     .link-text .link-name { font-size: 15px; font-weight: 700; color: #2272c3; margin-bottom: 3px; }
     .link-text .link-desc { font-size: 12.5px; color: #777; line-height: 1.4; }
     .link-arrow { margin-left: auto; color: #2272c3; font-size: 18px; }
-
-    .notice { background: #fff8e1; border-left: 4px solid #f5a623; padding: 12px 18px; margin: 16px 24px; font-size: 12.5px; color: #7a5c00; border-radius: 4px; }
-    .notice code { background: rgba(0,0,0,.07); border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 12px; }
-    .loading { padding: 30px 24px; color: #aaa; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
 <div class="page-hdr">
-  <p>Create and manage email templates used for customer alert notifications.</p>
-  <button class="btn-add" onclick="nav('emailalerttemplatesadd')">+ Add Template</button>
+  <p>Configure how alert emails look and what information they include.</p>
 </div>
 
 <hr class="divider"/>
 
-<div class="link-item" onclick="nav('alertemailinfo')">
-  <div class="link-icon">&#127970;</div>
+<div class="link-item" onclick="navigate('alerttemplatesall')">
+  <div class="link-icon">&#9993;</div>
+  <div class="link-text">
+    <div class="link-name">Email Alert Templates</div>
+    <div class="link-desc">Create and manage email templates used for customer alert notifications.</div>
+  </div>
+  <div class="link-arrow">&#8250;</div>
+</div>
+
+<div class="link-item" onclick="navigate('alertemailinfo')">
+  <div class="link-icon">&#128196;</div>
   <div class="link-text">
     <div class="link-name">Alert Email Info</div>
     <div class="link-desc">Set your logo, business name, address, and social links that appear in alert emails.</div>
@@ -56,75 +58,11 @@
   <div class="link-arrow">&#8250;</div>
 </div>
 
-<hr class="divider"/>
-
-<div id="setup-notice" class="notice" style="display:none">
-  One-time setup — run this SQL in <strong>Supabase → SQL Editor</strong>:<br/><br/>
-  <code>CREATE TABLE IF NOT EXISTS email_alert_templates (id uuid DEFAULT uuid_generate_v4() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, name text NOT NULL, body text, style int DEFAULT 1, created_at timestamptz DEFAULT now()); ALTER TABLE email_alert_templates ENABLE ROW LEVEL SECURITY; CREATE POLICY "own" ON email_alert_templates FOR ALL USING (auth.uid() = user_id);</code>
-</div>
-
-<div id="list"></div>
-<div id="loading" class="loading">Loading…</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  var sb = supabase.createClient(
-    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
-    { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
-  );
-
-  var DEFAULTS = [
-    { name: 'Service Reminder',  body: 'Just a reminder that your scheduled service is coming up soon. Our team will be out to take care of your property.' },
-    { name: 'Service Complete',  body: 'We completed your service today. Please let us know if you have any questions — we appreciate your business!' },
-    { name: 'General Update',    body: 'We wanted to reach out with a quick update regarding your property service. Feel free to contact us if you have any questions.' },
-  ];
-
-  function nav(page, id) {
-    var qs = id ? '?id=' + id : '';
-    if (window.parent && window.parent.loadPage) window.parent.loadPage(page + qs);
-    else window.location.href = page.charAt(0).toUpperCase() + page.slice(1) + '.html' + qs;
+  function navigate(page) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page + '.html';
   }
-
-  function escHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  async function load() {
-    var { data: sess } = await sb.auth.getSession();
-    var uid = sess?.session?.user?.id;
-    document.getElementById('loading').style.display = 'none';
-    if (!uid) return;
-
-    var { data, error } = await sb.from('email_alert_templates').select('*').eq('user_id', uid).order('created_at');
-
-    if (error) {
-      document.getElementById('setup-notice').style.display = 'block';
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      for (var i = 0; i < DEFAULTS.length; i++) {
-        await sb.from('email_alert_templates').insert({ user_id: uid, name: DEFAULTS[i].name, body: DEFAULTS[i].body });
-      }
-      var { data: fresh } = await sb.from('email_alert_templates').select('*').eq('user_id', uid).order('created_at');
-      data = fresh || [];
-    }
-
-    var list = document.getElementById('list');
-    list.innerHTML = data.map(function(t) {
-      return '<div class="link-item" onclick="nav(\'emailalerttemplatesadd\',\'' + t.id + '\')">' +
-        '<div class="link-icon">&#9993;</div>' +
-        '<div class="link-text">' +
-          '<div class="link-name">' + escHtml(t.name) + '</div>' +
-          '<div class="link-desc">' + escHtml((t.body || '').substring(0, 80)) + '…</div>' +
-        '</div>' +
-        '<div class="link-arrow">&#8250;</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  load();
 </script>
 </body>
 </html>
