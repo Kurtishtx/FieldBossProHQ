@@ -241,13 +241,13 @@
 
   function logoHtml(imgCls, phCls) {
     if (info.company_logo) return '<div class="' + imgCls + '"><img src="' + esc(info.company_logo) + '"/></div>';
-    return '<div class="' + phCls + '">&#127807;</div>';
+    return '<div class="' + phCls + '" style="font-style:italic;color:#aaa;font-size:14px;">[logo]</div>';
   }
 
   function renderPreview() {
-    var co  = esc(info.company_name  || 'Your Company');
-    var msg = esc(info.alert_message || 'Your alert message will appear here.');
-    var sf  = esc(info.signoff_name  || info.company_name || 'Your Company');
+    var co  = info.company_name  ? esc(info.company_name)  : '<span style="color:#aaa;font-style:italic;">[companyname]</span>';
+    var msg = info.alert_message ? esc(info.alert_message) : '<span style="color:#aaa;font-style:italic;">[alert text]</span>';
+    var sf  = info.signoff_name  ? esc(info.signoff_name)  : (info.company_name ? esc(info.company_name) : '<span style="color:#aaa;font-style:italic;">[companyname]</span>');
     var html = '';
 
     if (chosenStyle === 1) {
