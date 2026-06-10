@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alert Email Info</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #d4cfe0;
+      font-size: 13px;
+      color: #333;
+      padding: 24px 16px 60px;
+    }
+
+    .form-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.15);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .card-header { padding: 18px 22px 14px; border-bottom: 1px solid #eee; }
+    .card-header h1 { font-size: 22px; font-weight: 800; color: #111; }
+    .card-header p { font-size: 13px; color: #777; margin-top: 4px; }
+
+    .section-bar {
+      background: #130520; color: #fff;
+      padding: 8px 22px; font-size: 12.5px;
+      font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+    }
+
+    .fields-block { padding: 18px 22px 6px; }
+
+    .field-row { display: flex; gap: 14px; margin-bottom: 14px; }
+    .field-row.single { flex-direction: column; }
+
+    .field { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 11px; font-weight: 700; color: #666;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .field input[type="text"],
+    .field input[type="url"],
+    .field input[type="email"],
+    .field input[type="tel"],
+    .field textarea {
+      width: 100%; border: 1px solid #ccc; border-radius: 4px;
+      padding: 9px 11px; font-size: 14px; font-family: inherit;
+      color: #222; outline: none; resize: vertical;
+    }
+    .field input:focus, .field textarea:focus { border-color: #2272c3; }
+    .field textarea { min-height: 100px; line-height: 1.5; }
+    .field .hint { font-size: 11.5px; color: #999; margin-top: 2px; line-height: 1.4; }
+
+    .logo-upload-zone {
+      border: 2px dashed #ccc; border-radius: 6px; background: #fafafa;
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative; margin-bottom: 14px;
+    }
+    .logo-upload-zone:hover, .logo-upload-zone.drag-over { border-color: #2272c3; background: #f0f6ff; }
+    .logo-upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .logo-upload-zone .upload-icon { font-size: 28px; color: #bbb; margin-bottom: 6px; }
+    .logo-upload-zone .upload-text { font-size: 13px; color: #777; }
+    .logo-upload-zone .upload-text strong { color: #2272c3; }
+    .logo-upload-zone .upload-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+    .logo-preview-area {
+      display: none; align-items: center; gap: 16px;
+      padding: 12px 14px; background: #f8f8f8;
+      border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 14px;
+    }
+    .logo-preview-area.show { display: flex; }
+    .logo-preview-area img { max-height: 60px; max-width: 180px; object-fit: contain; border-radius: 3px; }
+    .logo-preview-area .logo-meta { flex: 1; }
+    .logo-preview-area .logo-name { font-size: 13px; font-weight: 600; color: #333; }
+    .logo-preview-area .logo-status { font-size: 12px; color: #3d8f5f; margin-top: 2px; }
+    .logo-preview-area .logo-status.uploading { color: #e07820; }
+    .logo-preview-area .logo-status.error { color: #c0392b; }
+    .logo-change-btn {
+      background: none; border: 1px solid #ccc; border-radius: 4px;
+      padding: 5px 12px; font-size: 12px; cursor: pointer; color: #555;
+      font-family: inherit; position: relative; overflow: hidden;
+    }
+    .logo-change-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .logo-change-btn:hover { background: #f0f0f0; }
+
+    .social-item { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
+    .social-check-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 9px; flex-shrink: 0; }
+    .social-check-wrap input[type="checkbox"] { width: 17px; height: 17px; accent-color: #3d8f5f; cursor: pointer; }
+    .social-icon-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+
+    .form-footer {
+      padding: 16px 22px; border-top: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .save-btn { background: #e07820; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    .save-btn:hover { background: #c96a10; }
+    .save-status { font-size: 13px; color: #3d8f5f; font-weight: 600; opacity: 0; transition: opacity .3s; }
+    .save-status.show { opacity: 1; }
+
+    .notice { background: #fff8e1; border-left: 4px solid #f5a623; padding: 10px 16px; margin: 12px 22px; font-size: 12.5px; color: #7a5c00; border-radius: 4px; }
+    .notice code { background: rgba(0,0,0,.07); border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 12px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="form-card">
+
+  <div class="card-header">
+    <h1>Alert Email Info</h1>
+    <p>This information auto-fills into your alert email templates when sent to clients.</p>
+  </div>
+
+  <div id="setup-notice" class="notice" style="display:none">
+    One-time setup — run this SQL in <strong>Supabase → SQL Editor</strong>:<br/><br/>
+    <code>CREATE TABLE IF NOT EXISTS alert_email_settings (id uuid DEFAULT uuid_generate_v4() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE, company_name text, company_logo text, company_address text, company_city text, company_state text, company_zip text, company_phone text, company_email text, company_website text, facebook_url text, instagram_url text, twitter_url text, youtube_url text, show_facebook boolean DEFAULT true, show_instagram boolean DEFAULT true, show_twitter boolean DEFAULT true, show_youtube boolean DEFAULT true, signoff_name text); ALTER TABLE alert_email_settings ENABLE ROW LEVEL SECURITY; CREATE POLICY "own" ON alert_email_settings FOR ALL USING (auth.uid() = user_id);</code>
+  </div>
+
+  <!-- Business Details -->
+  <div class="section-bar">Business Details</div>
+  <div class="fields-block">
+
+    <div class="field-row">
+      <div class="field">
+        <label>Business Name</label>
+        <input type="text" id="company_name" placeholder="e.g. Acme Lawn Care"/>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:0;">
+      <label>Company Logo</label>
+    </div>
+
+    <div class="logo-preview-area" id="logo-preview-area">
+      <img id="logo-preview-img" src="" alt="Logo"/>
+      <div class="logo-meta">
+        <div class="logo-name" id="logo-file-name"></div>
+        <div class="logo-status" id="logo-status-text">Uploaded</div>
+      </div>
+      <button class="logo-change-btn" type="button">
+        Change
+        <input type="file" id="logo-change-input" accept="image/*" onchange="handleLogoFile(this.files[0])"/>
+      </button>
+    </div>
+
+    <div class="logo-upload-zone" id="logo-upload-zone"
+         ondragover="event.preventDefault(); this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="event.preventDefault(); this.classList.remove('drag-over'); handleLogoFile(event.dataTransfer.files[0])">
+      <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoFile(this.files[0])"/>
+      <div class="upload-icon">&#128247;</div>
+      <div class="upload-text"><strong>Click to upload</strong> or drag &amp; drop your logo</div>
+      <div class="upload-hint">PNG, JPG, SVG, WebP — max 5 MB</div>
+    </div>
+
+    <input type="hidden" id="company_logo"/>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Street Address</label>
+        <input type="text" id="company_address" placeholder="123 Main St"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field" style="flex:2">
+        <label>City</label>
+        <input type="text" id="company_city" placeholder="Springfield"/>
+      </div>
+      <div class="field" style="flex:1">
+        <label>State</label>
+        <input type="text" id="company_state" placeholder="IL"/>
+      </div>
+      <div class="field" style="flex:1">
+        <label>Zip</label>
+        <input type="text" id="company_zip" placeholder="62701"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" id="company_phone" placeholder="(555) 555-5555"/>
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="company_email" placeholder="info@yourbusiness.com"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Website</label>
+        <input type="url" id="company_website" placeholder="https://www.yourbusiness.com"/>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Social Media -->
+  <div class="section-bar">Social Media Links</div>
+  <div class="fields-block">
+
+    <div class="social-item">
+      <div class="social-check-wrap">
+        <input type="checkbox" id="show_facebook" checked/>
+        <div class="social-icon-badge" style="background:#1877f2;">f</div>
+      </div>
+      <div class="field">
+        <label>Facebook URL</label>
+        <input type="url" id="facebook_url" placeholder="https://facebook.com/yourbusiness"/>
+      </div>
+    </div>
+
+    <div class="social-item">
+      <div class="social-check-wrap">
+        <input type="checkbox" id="show_instagram" checked/>
+        <div class="social-icon-badge" style="background:#e1306c;font-size:11px;">ig</div>
+      </div>
+      <div class="field">
+        <label>Instagram URL</label>
+        <input type="url" id="instagram_url" placeholder="https://instagram.com/yourbusiness"/>
+      </div>
+    </div>
+
+    <div class="social-item">
+      <div class="social-check-wrap">
+        <input type="checkbox" id="show_twitter" checked/>
+        <div class="social-icon-badge" style="background:#000;">X</div>
+      </div>
+      <div class="field">
+        <label>Twitter / X URL</label>
+        <input type="url" id="twitter_url" placeholder="https://x.com/yourbusiness"/>
+      </div>
+    </div>
+
+    <div class="social-item">
+      <div class="social-check-wrap">
+        <input type="checkbox" id="show_youtube" checked/>
+        <div class="social-icon-badge" style="background:#ff0000;">&#9654;</div>
+      </div>
+      <div class="field">
+        <label>YouTube URL</label>
+        <input type="url" id="youtube_url" placeholder="https://youtube.com/@yourbusiness"/>
+      </div>
+    </div>
+
+    <p class="hint" style="margin-top:-4px;margin-bottom:4px;">Check the box to show that icon in alert email footers. Uncheck to hide it.</p>
+
+  </div>
+
+  <!-- Sign-Off -->
+  <div class="section-bar">Email Sign-Off</div>
+  <div class="fields-block">
+    <div class="field-row single">
+      <div class="field">
+        <label>Sign-Off Name</label>
+        <input type="text" id="signoff_name" placeholder="e.g. The Acme Lawn Care Team"/>
+        <span class="hint">Appears after "Thank you," in alert emails.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <span class="save-status" id="save-status">&#10003; Saved successfully!</span>
+    <button class="save-btn" onclick="saveSettings()">Save Settings</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var sb = supabase.createClient(
+  'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g'
+);
+
+var TEXT_FIELDS = [
+  'company_name','company_logo','company_address','company_city',
+  'company_state','company_zip','company_phone','company_email',
+  'company_website','facebook_url','instagram_url','twitter_url','youtube_url','signoff_name'
+];
+var SOCIAL_CHECKS = ['show_facebook','show_instagram','show_twitter','show_youtube'];
+var LOGO_BUCKET = 'company-logos';
+
+function showLogoPreview(url, name) {
+  document.getElementById('logo-preview-img').src = url;
+  document.getElementById('logo-file-name').textContent = name || 'Logo';
+  document.getElementById('logo-upload-zone').style.display = 'none';
+  document.getElementById('logo-preview-area').classList.add('show');
+}
+function setLogoStatus(text, cls) {
+  var el = document.getElementById('logo-status-text');
+  el.textContent = text;
+  el.className = 'logo-status' + (cls ? ' ' + cls : '');
+}
+
+async function handleLogoFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+  if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5 MB.'); return; }
+
+  showLogoPreview(URL.createObjectURL(file), file.name);
+  setLogoStatus('Uploading...', 'uploading');
+
+  var ext = file.name.split('.').pop();
+  var path = 'alert-logo.' + ext;
+  var { error: upErr } = await sb.storage.from(LOGO_BUCKET).upload(path, file, { upsert: true, contentType: file.type });
+  if (upErr) { setLogoStatus('Upload failed: ' + upErr.message, 'error'); return; }
+
+  var { data: urlData } = sb.storage.from(LOGO_BUCKET).getPublicUrl(path);
+  var publicUrl = urlData.publicUrl + '?t=' + Date.now();
+  document.getElementById('company_logo').value = publicUrl;
+  document.getElementById('logo-preview-img').src = publicUrl;
+  setLogoStatus('✓ Uploaded successfully');
+}
+
+async function loadSettings() {
+  var { data: sess } = await sb.auth.getSession();
+  var uid = sess?.session?.user?.id;
+  if (!uid) return;
+
+  var { data, error } = await sb.from('alert_email_settings').select('*').eq('user_id', uid).single();
+
+  if (error) {
+    // Table may not exist yet — show notice
+    if (error.code === '42P01' || error.message.includes('does not exist')) {
+      document.getElementById('setup-notice').style.display = 'block';
+    }
+    // Try pre-filling from invoice_email_settings
+    var { data: inv } = await sb.from('invoice_email_settings').select('*').eq('user_id', uid).single();
+    if (inv) {
+      TEXT_FIELDS.forEach(function(f) { var el = document.getElementById(f); if (el && inv[f]) el.value = inv[f]; });
+      if (inv.company_logo) { showLogoPreview(inv.company_logo, 'Current logo'); setLogoStatus('✓ Saved'); }
+      SOCIAL_CHECKS.forEach(function(id) { var el = document.getElementById(id); if (el) el.checked = inv[id] !== false; });
+    }
+    return;
+  }
+
+  if (!data) return;
+  TEXT_FIELDS.forEach(function(f) { var el = document.getElementById(f); if (el && data[f] != null) el.value = data[f]; });
+  if (data.company_logo) { showLogoPreview(data.company_logo, 'Current logo'); setLogoStatus('✓ Saved'); }
+  SOCIAL_CHECKS.forEach(function(id) { var el = document.getElementById(id); if (el) el.checked = data[id] !== false; });
+}
+
+async function saveSettings() {
+  var { data: sess } = await sb.auth.getSession();
+  var uid = sess?.session?.user?.id;
+  if (!uid) return;
+
+  var payload = { user_id: uid };
+  TEXT_FIELDS.forEach(function(f) { var el = document.getElementById(f); payload[f] = el ? el.value.trim() : ''; });
+  SOCIAL_CHECKS.forEach(function(id) { var el = document.getElementById(id); payload[id] = el ? el.checked : true; });
+
+  var { error } = await sb.from('alert_email_settings').upsert(payload, { onConflict: 'user_id' });
+  if (error) { alert('Error saving: ' + error.message); return; }
+
+  var el = document.getElementById('save-status');
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 3000);
+}
+
+loadSettings();
+</script>
+</body>
+</html>

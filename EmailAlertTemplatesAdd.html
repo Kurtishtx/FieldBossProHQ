@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Alert Template</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; font-size: 13px; color: #222; }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: #0d1b2a; color: #fff;
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 20px; height: 52px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .btn-back { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 5px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
+    .btn-back:hover { background: rgba(255,255,255,.2); }
+    .topbar-title { font-size: 16px; font-weight: 700; }
+
+    /* ── Picker step ── */
+    #picker-step { padding: 28px 24px; }
+    .picker-hdr { margin-bottom: 22px; }
+    .picker-hdr h2 { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 4px; }
+    .picker-hdr p  { font-size: 13px; color: #777; }
+
+    .template-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+
+    .tmpl-card {
+      flex: 0 0 220px; border: 2px solid #ddd; border-radius: 10px;
+      overflow: hidden; cursor: pointer; background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .tmpl-card:hover { border-color: #5b2d8e; box-shadow: 0 4px 16px rgba(91,45,142,.2); }
+
+    .tmpl-preview { height: 280px; overflow: hidden; pointer-events: none; position: relative; }
+    .tmpl-preview > * { transform-origin: top left; transform: scale(.55); width: 182%; }
+
+    .tmpl-label { padding: 10px 14px; font-size: 13px; font-weight: 700; color: #333; border-top: 1px solid #eee; background: #fafafa; text-align: center; }
+
+    /* ── Mini email preview styles ── */
+
+    /* Style 1 — Clean White */
+    .s1-wrap { background: #fff; font-family: Arial, sans-serif; }
+    .s1-logo { text-align: center; padding: 28px 20px 10px; font-size: 38px; }
+    .s1-co { text-align: center; font-size: 20px; font-weight: 700; color: #5b2d8e; padding-bottom: 18px; }
+    .s1-div { height: 2px; background: #ede7f6; margin: 0 30px 20px; }
+    .s1-body { padding: 0 30px 20px; font-size: 14px; color: #444; line-height: 1.7; }
+    .s1-footer { background: #f9f4ff; border-top: 1px solid #ede7f6; padding: 18px 30px; text-align: center; }
+    .s1-footer .ty { font-size: 13px; font-weight: 700; color: #5b2d8e; }
+    .s1-footer .co { font-size: 12px; color: #888; margin-top: 4px; }
+
+    /* Style 2 — Dark */
+    .s2-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .s2-header { background: #1a1a1a; padding: 26px 20px 18px; text-align: center; border-bottom: 2px solid #e07820; }
+    .s2-logo { font-size: 36px; margin-bottom: 8px; }
+    .s2-co { font-size: 20px; font-weight: 700; color: #e07820; }
+    .s2-body { padding: 26px 30px; font-size: 14px; color: #ddd; line-height: 1.7; }
+    .s2-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 18px 30px; text-align: center; }
+    .s2-footer .ty { font-size: 13px; font-weight: 700; color: #e07820; }
+    .s2-footer .co { font-size: 12px; color: #888; margin-top: 4px; }
+
+    /* Style 3 — Brand Header */
+    .s3-wrap { background: #fff; font-family: Arial, sans-serif; }
+    .s3-header { background: linear-gradient(135deg, #3d1060, #6b21a8); padding: 28px 20px 20px; text-align: center; }
+    .s3-logo { font-size: 36px; margin-bottom: 8px; }
+    .s3-co { font-size: 20px; font-weight: 700; color: #fff; }
+    .s3-body { padding: 28px 30px 20px; font-size: 14px; color: #333; line-height: 1.7; }
+    .s3-footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 18px 30px; text-align: center; }
+    .s3-footer .ty { font-size: 13px; font-weight: 700; color: #3d1060; }
+    .s3-footer .co { font-size: 12px; color: #888; margin-top: 4px; }
+
+    /* ── Editor step ── */
+    #editor-step { display: none; }
+
+    .editor-header {
+      background: #fff; border-bottom: 1px solid #e0e0e0;
+      padding: 16px 24px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .editor-header h2 { font-size: 20px; font-weight: 800; color: #111; }
+    .editor-header p  { font-size: 12.5px; color: #777; margin-top: 3px; }
+    .btn-change { background: #fff; border: 1.5px solid #333; color: #222; border-radius: 5px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .btn-change:hover { background: #f5f5f5; }
+
+    .info-bar { background: #fffbea; border: 1px solid #f5e48e; border-radius: 5px; margin: 14px 24px 0; padding: 9px 14px; font-size: 12.5px; color: #7a6000; }
+
+    .editor-form { background: #fff; margin: 14px 24px; border-radius: 8px; border: 1px solid #e0e0e0; padding: 20px 22px; }
+    .editor-form h3 { font-size: 14px; font-weight: 800; color: #111; margin-bottom: 14px; }
+    .form-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .form-group { flex: 1; min-width: 180px; }
+    .form-group label { display: block; font-size: 11.5px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+    .form-group input, .form-group textarea {
+      width: 100%; border: 1px solid #ccc; border-radius: 4px;
+      padding: 8px 11px; font-size: 13px; font-family: inherit; color: #222; outline: none;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color: #5b2d8e; }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+
+    .tokens { margin-top: 8px; }
+    .tokens p { font-size: 11.5px; color: #888; margin-bottom: 5px; }
+    .token { display: inline-block; background: #e8f0fe; color: #2272c3; border-radius: 3px; padding: 2px 7px; font-size: 11.5px; font-family: monospace; margin: 2px 4px 2px 0; cursor: pointer; }
+    .token:hover { background: #d0e3ff; }
+
+    .form-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; align-items: center; }
+    .btn-save { background: #e07820; color: #fff; border: none; border-radius: 4px; padding: 9px 24px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-save:hover { background: #c96a10; }
+    .btn-del { background: none; border: 1px solid #d32f2f; color: #d32f2f; border-radius: 4px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
+    .btn-del:hover { background: #fff0f0; }
+    .save-msg { font-size: 12.5px; color: #2e7d32; font-weight: 600; display: none; }
+    .save-msg.show { display: inline; }
+    .err-msg  { font-size: 12.5px; color: #c62828; font-weight: 600; display: none; }
+    .err-msg.show  { display: inline; }
+
+    .preview-wrap { margin: 0 24px 30px; }
+    .preview-wrap h3 { font-size: 13px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; }
+    .preview-outer { max-width: 600px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.12); }
+
+    /* Full-size live preview (same classes as mini, but no scaling) */
+    .s1-wrap, .s2-wrap, .s3-wrap { display: block; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="btn-back" onclick="goBack()">&#8592; Back</button>
+  <span class="topbar-title">Email Alert Template</span>
+</div>
+
+<!-- ── STEP 1: PICKER ── -->
+<div id="picker-step">
+  <div class="picker-hdr">
+    <h2>Choose an Alert Email Layout</h2>
+    <p>Select the design for this alert email template</p>
+  </div>
+
+  <div class="template-grid">
+
+    <!-- Card 1 — Clean White -->
+    <div class="tmpl-card" onclick="selectStyle(1)">
+      <div class="tmpl-preview">
+        <div class="s1-wrap">
+          <div class="s1-logo">&#127807;</div>
+          <div class="s1-co">Your Company</div>
+          <div class="s1-div"></div>
+          <div class="s1-body">Just a reminder that your scheduled service is coming up soon. Our team will be out to take care of your property.</div>
+          <div class="s1-footer">
+            <div class="ty">Thank you,</div>
+            <div class="co">Your Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="tmpl-label">Clean &amp; Simple</div>
+    </div>
+
+    <!-- Card 2 — Dark -->
+    <div class="tmpl-card" onclick="selectStyle(2)">
+      <div class="tmpl-preview">
+        <div class="s2-wrap">
+          <div class="s2-header">
+            <div class="s2-logo">&#127807;</div>
+            <div class="s2-co">Your Company</div>
+          </div>
+          <div class="s2-body">Just a reminder that your scheduled service is coming up soon. Our team will be out to take care of your property.</div>
+          <div class="s2-footer">
+            <div class="ty">Thank you for your business!</div>
+            <div class="co">Your Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="tmpl-label">Dark Professional</div>
+    </div>
+
+    <!-- Card 3 — Brand Header -->
+    <div class="tmpl-card" onclick="selectStyle(3)">
+      <div class="tmpl-preview">
+        <div class="s3-wrap">
+          <div class="s3-header">
+            <div class="s3-logo">&#127807;</div>
+            <div class="s3-co">Your Company</div>
+          </div>
+          <div class="s3-body">Just a reminder that your scheduled service is coming up soon. Our team will be out to take care of your property.</div>
+          <div class="s3-footer">
+            <div class="ty">Thank you,</div>
+            <div class="co">Your Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="tmpl-label">Brand Header</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── STEP 2: EDITOR ── -->
+<div id="editor-step">
+
+  <div class="editor-header">
+    <div>
+      <h2>Your Alert Email Template</h2>
+      <p>Showing with your saved business info filled in</p>
+    </div>
+    <button class="btn-change" onclick="changeTemplate()">&#8592; Change Template</button>
+  </div>
+
+  <div class="info-bar">&#9432; Alert text fields show your saved message — real values (client name, etc.) fill in when the alert is sent.</div>
+
+  <div class="editor-form">
+    <h3>Template Details</h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 220px">
+        <label>Template Name</label>
+        <input type="text" id="fld-name" placeholder="e.g. Service Reminder"/>
+      </div>
+      <div class="form-group">
+        <label>Alert Message</label>
+        <textarea id="fld-body" oninput="updatePreview()" placeholder="Enter the message that will appear in the email…"></textarea>
+        <div class="tokens">
+          <p>Insert a token:</p>
+          <span class="token" onclick="insertToken('[client_name]')">[client_name]</span>
+          <span class="token" onclick="insertToken('[company_name]')">[company_name]</span>
+          <span class="token" onclick="insertToken('[service_date]')">[service_date]</span>
+          <span class="token" onclick="insertToken('[property_address]')">[property_address]</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <span class="save-msg" id="save-msg">&#10003; Saved!</span>
+      <span class="err-msg"  id="err-msg"></span>
+      <button class="btn-del" id="btn-del" style="display:none" onclick="deleteTemplate()">Delete</button>
+      <button class="btn-save" onclick="save()">Save Template</button>
+    </div>
+  </div>
+
+  <div class="preview-wrap">
+    <h3>Live Preview</h3>
+    <div class="preview-outer" id="preview-outer"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
+  );
+
+  var editId = null;
+  var chosenStyle = 0;
+  var companyName = 'Your Company';
+  var companyLogo = '';
+  var signoffName = '';
+
+  function getParam(k) { return new URLSearchParams(window.location.search).get(k); }
+
+  function goBack() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('emailalerttemplateslist');
+    else window.location.href = 'EmailAlertTemplatesList.html';
+  }
+
+  function selectStyle(n) {
+    chosenStyle = n;
+    document.getElementById('picker-step').style.display = 'none';
+    document.getElementById('editor-step').style.display = 'block';
+    updatePreview();
+  }
+
+  function changeTemplate() {
+    document.getElementById('editor-step').style.display = 'none';
+    document.getElementById('picker-step').style.display = 'block';
+  }
+
+  function insertToken(t) {
+    var ta = document.getElementById('fld-body');
+    var s = ta.selectionStart, e = ta.selectionEnd;
+    ta.value = ta.value.substring(0, s) + t + ta.value.substring(e);
+    ta.selectionStart = ta.selectionEnd = s + t.length;
+    ta.focus();
+    updatePreview();
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function nl2br(s) { return esc(s).replace(/\n/g, '<br/>'); }
+
+  function logoHtml(wrapStyle) {
+    if (companyLogo) {
+      return '<img src="' + esc(companyLogo) + '" style="max-height:60px;max-width:180px;object-fit:contain;margin:0 auto 6px;display:block;"/>';
+    }
+    return '<div style="font-size:36px;' + (wrapStyle || '') + '">&#127807;</div>';
+  }
+
+  function updatePreview() {
+    var body = document.getElementById('fld-body').value || 'Your alert message will appear here.';
+    var co   = esc(companyName);
+    var sf   = esc(signoffName || companyName);
+    var html = '';
+
+    if (chosenStyle === 1) {
+      html =
+        '<div class="s1-wrap">' +
+          '<div class="s1-logo">' + logoHtml() + '</div>' +
+          '<div class="s1-co">' + co + '</div>' +
+          '<div class="s1-div"></div>' +
+          '<div class="s1-body">' + nl2br(body) + '</div>' +
+          '<div class="s1-footer">' +
+            '<div class="ty">Thank you,</div>' +
+            '<div class="co">' + sf + '</div>' +
+          '</div>' +
+        '</div>';
+    } else if (chosenStyle === 2) {
+      html =
+        '<div class="s2-wrap">' +
+          '<div class="s2-header">' +
+            '<div class="s2-logo">' + logoHtml('color:#e07820;') + '</div>' +
+            '<div class="s2-co">' + co + '</div>' +
+          '</div>' +
+          '<div class="s2-body">' + nl2br(body) + '</div>' +
+          '<div class="s2-footer">' +
+            '<div class="ty">Thank you for your business!</div>' +
+            '<div class="co">' + sf + '</div>' +
+          '</div>' +
+        '</div>';
+    } else if (chosenStyle === 3) {
+      html =
+        '<div class="s3-wrap">' +
+          '<div class="s3-header">' +
+            '<div class="s3-logo">' + logoHtml() + '</div>' +
+            '<div class="s3-co">' + co + '</div>' +
+          '</div>' +
+          '<div class="s3-body">' + nl2br(body) + '</div>' +
+          '<div class="s3-footer">' +
+            '<div class="ty">Thank you,</div>' +
+            '<div class="co">' + sf + '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    document.getElementById('preview-outer').innerHTML = html;
+  }
+
+  function showMsg(id, text, duration) {
+    var el = document.getElementById(id);
+    el.textContent = text || '';
+    el.classList.add('show');
+    if (duration !== 0) setTimeout(function() { el.classList.remove('show'); }, duration || 3500);
+  }
+
+  async function save() {
+    var name = document.getElementById('fld-name').value.trim();
+    var body = document.getElementById('fld-body').value.trim();
+    if (!name) { showMsg('err-msg', 'Please enter a template name.'); return; }
+    if (!chosenStyle) { showMsg('err-msg', 'Please choose a template style first.'); return; }
+
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    if (!uid) return;
+
+    var payload = { name: name, body: body, style: chosenStyle };
+    var err;
+    if (editId) {
+      err = (await sb.from('email_alert_templates').update(payload).eq('id', editId)).error;
+    } else {
+      var res = await sb.from('email_alert_templates').insert({ ...payload, user_id: uid }).select().single();
+      err = res.error;
+      if (!err && res.data) { editId = res.data.id; document.getElementById('btn-del').style.display = ''; }
+    }
+
+    if (err) { showMsg('err-msg', 'Error: ' + err.message); return; }
+    showMsg('save-msg', '✓ Saved!');
+    document.getElementById('save-msg').id = 'save-msg'; // keep id
+  }
+
+  async function deleteTemplate() {
+    if (!editId) return;
+    var ok = window.confirm('Delete this template?');
+    if (!ok) return;
+    await sb.from('email_alert_templates').delete().eq('id', editId);
+    goBack();
+  }
+
+  async function init() {
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+
+    if (uid) {
+      var { data: ai } = await sb.from('alert_email_settings').select('company_name,company_logo,signoff_name').eq('user_id', uid).single();
+      if (ai) {
+        if (ai.company_name) companyName = ai.company_name;
+        if (ai.company_logo) companyLogo = ai.company_logo;
+        if (ai.signoff_name) signoffName = ai.signoff_name;
+      } else {
+        // Fall back to invoice settings or company_info
+        var { data: inv } = await sb.from('invoice_email_settings').select('company_name,company_logo,signoff_name').eq('user_id', uid).single();
+        if (inv) {
+          if (inv.company_name) companyName = inv.company_name;
+          if (inv.company_logo) companyLogo = inv.company_logo;
+          if (inv.signoff_name) signoffName = inv.signoff_name;
+        } else {
+          var { data: ci } = await sb.from('company_info').select('company_name').eq('user_id', uid).single();
+          if (ci && ci.company_name) companyName = ci.company_name;
+        }
+      }
+    }
+
+    editId = getParam('id');
+    if (editId) {
+      var { data: t } = await sb.from('email_alert_templates').select('*').eq('id', editId).single();
+      if (t) {
+        document.getElementById('fld-name').value = t.name || '';
+        document.getElementById('fld-body').value = t.body || '';
+        document.getElementById('btn-del').style.display = '';
+        chosenStyle = t.style || 0;
+        if (chosenStyle) {
+          // Skip picker — go straight to editor with saved style
+          document.getElementById('picker-step').style.display = 'none';
+          document.getElementById('editor-step').style.display = 'block';
+          updatePreview();
+        }
+      }
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
