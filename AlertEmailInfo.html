@@ -255,9 +255,16 @@
 
   </div>
 
-  <!-- Sign-Off -->
-  <div class="section-bar">Email Sign-Off</div>
+  <!-- Alert Message -->
+  <div class="section-bar">Alert Message</div>
   <div class="fields-block">
+    <div class="field-row single">
+      <div class="field">
+        <label>Alert Message</label>
+        <textarea id="alert_message" placeholder="e.g. Just a reminder that your scheduled service is coming up soon. Our team will be out to take care of your property."></textarea>
+        <span class="hint">This message appears in the body of every alert email sent to clients.</span>
+      </div>
+    </div>
     <div class="field-row single">
       <div class="field">
         <label>Sign-Off Name</label>
@@ -285,7 +292,8 @@ var sb = supabase.createClient(
 var TEXT_FIELDS = [
   'company_name','company_logo','company_address','company_city',
   'company_state','company_zip','company_phone','company_email',
-  'company_website','facebook_url','instagram_url','twitter_url','youtube_url','signoff_name'
+  'company_website','facebook_url','instagram_url','twitter_url','youtube_url',
+  'alert_message','signoff_name'
 ];
 var SOCIAL_CHECKS = ['show_facebook','show_instagram','show_twitter','show_youtube'];
 var LOGO_BUCKET = 'company-logos';
