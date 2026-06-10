@@ -464,10 +464,12 @@ serve(async (req: Request) => {
       if (canEmail && toEmail) {
         const r = await sendEmail(toEmail, msg);
         results.push({ channel: "email", to: toEmail, ...r });
+      } else if (canEmail && !toEmail) {
+        results.push({ channel: "email", skipped: "no_client_email" });
       }
     }
 
-    return new Response(JSON.stringify({ results }), {
+    return new Response(JSON.stringify({ results, _debug: { emailEnabled, canEmail, resendKeySet: !!resendKey } }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });
 
