@@ -1751,8 +1751,20 @@
     if (!toCreate.length) return;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    // Check for already-pending duplicates to avoid snowballing
+    var propIds = toCreate.map(function(s) { return s.property_id; }).filter(Boolean);
+    var { data: existing } = propIds.length
+      ? await sb.from('Services').select('property_id, package_service_id, service').in('property_id', propIds).eq('status', 'pending')
+      : { data: [] };
+    var existingKeys = new Set((existing || []).map(function(e) {
+      return (e.property_id || '') + '|' + (e.package_service_id || e.service || '');
+    }));
+
     var inserts = [];
     toCreate.forEach(function(s) {
+      var key = (s.property_id || '') + '|' + (s.package_service_id || s.service || '');
+      if (existingKeys.has(key)) return; // already a pending copy, skip
       var base = new Date(scheduledDate + 'T00:00:00');
       base.setDate(base.getDate() + s.min_days);
       var nextDate = base.toISOString().split('T')[0];
