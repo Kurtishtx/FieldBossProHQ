@@ -3,137 +3,184 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Users</title>
+  <title>User Roles &amp; Rights</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
 
-    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid #eee; }
-    .topbar h1 { font-size: 20px; font-weight: 800; color: #111; }
-    .btn-add { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 13px; font-weight: 700; border-radius: 4px; cursor: pointer; }
-    .btn-add:hover { background: #c96a10; }
+    .page-hdr { padding: 20px 24px 14px; }
+    .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
+    .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
 
-    .tabs { display: flex; gap: 0; border-bottom: 2px solid #eee; padding: 0 20px; }
-    .tab { padding: 10px 22px; font-size: 13px; font-weight: 600; color: #777; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color .15s; }
-    .tab:hover { color: #333; }
-    .tab.active { color: #5b2d8e; border-bottom-color: #5b2d8e; }
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 2px solid #eee; padding: 0 24px; }
+    .tab-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 20px; font-size: 13.5px; font-weight: 600;
+      color: #888; cursor: pointer; border: none; background: none;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: color .15s;
+    }
+    .tab-btn:hover { color: #5b2d8e; }
+    .tab-btn.active { color: #5b2d8e; border-bottom-color: #5b2d8e; }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* Tab panels */
+    .tab-panel { display: none; padding: 24px; }
+    .tab-panel.active { display: block; }
 
-    table { width: 100%; border-collapse: collapse; }
-    thead th { padding: 10px 20px; text-align: left; font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid #eee; background: #fafafa; }
-    tbody tr { border-bottom: 1px solid #eee; }
-    tbody tr:hover { background: #fafafa; }
-    tbody td { padding: 12px 20px; color: #333; vertical-align: middle; }
-    .user-email { font-weight: 600; color: #111; }
-    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; }
-    .badge-full    { background: #ede7f6; color: #5b2d8e; }
-    .badge-office  { background: #e3f2fd; color: #1565c0; }
-    .badge-mobile  { background: #e8f5e9; color: #2e7d32; }
-    .edit-link { color: #5b2d8e; text-decoration: none; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-    .edit-link:hover { text-decoration: underline; }
-    .empty { padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px; }
-    .loading { padding: 40px 20px; text-align: center; color: #aaa; }
+    /* Section blocks */
+    .perm-section { margin-bottom: 28px; }
+    .section-title {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; color: #999; margin-bottom: 12px;
+      padding-bottom: 6px; border-bottom: 1px solid #f0f0f0;
+    }
+    .perm-list { display: flex; flex-direction: column; gap: 10px; }
+
+    /* Checkbox row */
+    .perm-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 16px; border: 1px solid #eee;
+      border-radius: 8px; background: #fafafa;
+      cursor: pointer; transition: background .15s;
+    }
+    .perm-row:hover { background: #f3eeff; border-color: #d0b8f0; }
+    .perm-row input[type="checkbox"] {
+      width: 18px; height: 18px; min-width: 18px;
+      margin-top: 1px; cursor: pointer;
+      accent-color: #5b2d8e;
+    }
+    .perm-label { font-size: 14px; font-weight: 600; color: #222; }
+    .perm-desc  { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .empty-section {
+      padding: 12px 16px; border: 1px dashed #ddd;
+      border-radius: 8px; color: #bbb; font-size: 13px;
+      font-style: italic;
+    }
+
+    .save-status { font-size: 12px; color: #28a745; margin-left: 8px; opacity: 0; transition: opacity .3s; }
+    .save-status.show { opacity: 1; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<div class="topbar">
-  <h1>Users</h1>
-  <button class="btn-add" onclick="navigate('usersadd')">+ Add User</button>
+<div class="page-hdr">
+  <h1>User Roles &amp; Rights</h1>
+  <p>Configure what each role can access on the desktop and mobile app.</p>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('full_access')">&#128081; Full Access</div>
-  <div class="tab" onclick="switchTab('office_assistant')">&#128188; Office Assistant</div>
-  <div class="tab" onclick="switchTab('mobile')">&#128241; Mobile</div>
+  <button class="tab-btn active" id="tab-full_access"      onclick="switchTab('full_access')">&#128081; Full Access</button>
+  <button class="tab-btn"        id="tab-office_assistant" onclick="switchTab('office_assistant')">&#128188; Office Assistant</button>
+  <button class="tab-btn"        id="tab-mobile"           onclick="switchTab('mobile')">&#128241; Mobile</button>
 </div>
 
-<div id="loading" class="loading">Loading users…</div>
+<!-- Full Access -->
+<div class="tab-panel active" id="panel-full_access">
+  <div class="perm-section">
+    <div class="section-title">Desktop</div>
+    <div class="empty-section">Full access users have unrestricted desktop access.</div>
+  </div>
+  <div class="perm-section">
+    <div class="section-title">Mobile</div>
+    <div class="empty-section">Full access users have unrestricted mobile access.</div>
+  </div>
+</div>
 
-<div id="tab-full_access" class="tab-content active">
-  <table><thead><tr><th>Email</th><th>Access Level</th><th></th></tr></thead>
-  <tbody id="body-full_access"></tbody></table>
-  <div id="empty-full_access" class="empty" style="display:none">No full access users.</div>
+<!-- Office Assistant -->
+<div class="tab-panel" id="panel-office_assistant">
+  <div class="perm-section">
+    <div class="section-title">Desktop</div>
+    <div class="empty-section">No desktop restrictions configured yet.</div>
+  </div>
+  <div class="perm-section">
+    <div class="section-title">Mobile</div>
+    <div class="perm-list">
+      <label class="perm-row">
+        <input type="checkbox" id="office_assistant__no_text_replies" onchange="savePerm(this)"/>
+        <div>
+          <div class="perm-label">No access to text replies</div>
+          <div class="perm-desc">Prevents this role from viewing or sending messages in the Texts section.</div>
+        </div>
+        <span class="save-status" id="status-office_assistant__no_text_replies">Saved ✓</span>
+      </label>
+    </div>
+  </div>
 </div>
-<div id="tab-office_assistant" class="tab-content">
-  <table><thead><tr><th>Email</th><th>Access Level</th><th></th></tr></thead>
-  <tbody id="body-office_assistant"></tbody></table>
-  <div id="empty-office_assistant" class="empty" style="display:none">No office assistants.</div>
-</div>
-<div id="tab-mobile" class="tab-content">
-  <table><thead><tr><th>Email</th><th>Access Level</th><th></th></tr></thead>
-  <tbody id="body-mobile"></tbody></table>
-  <div id="empty-mobile" class="empty" style="display:none">No mobile users.</div>
+
+<!-- Mobile -->
+<div class="tab-panel" id="panel-mobile">
+  <div class="perm-section">
+    <div class="section-title">Desktop</div>
+    <div class="empty-section">No desktop restrictions configured yet.</div>
+  </div>
+  <div class="perm-section">
+    <div class="section-title">Mobile</div>
+    <div class="perm-list">
+      <label class="perm-row">
+        <input type="checkbox" id="mobile__no_text_replies" onchange="savePerm(this)"/>
+        <div>
+          <div class="perm-label">No access to text replies</div>
+          <div class="perm-desc">Prevents this role from viewing or sending messages in the Texts section.</div>
+        </div>
+        <span class="save-status" id="status-mobile__no_text_replies">Saved ✓</span>
+      </label>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  var sb = window.supabase.createClient(
+  var sb = supabase.createClient(
     'https://knjdbgroiyhvqwrpqzcx.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
     { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
   );
 
-  var activeTab = 'full_access';
-
-  var ROLE_LABELS = {
-    full_access:      { label: '👑 Full Access', cls: 'badge-full' },
-    office_assistant: { label: '💼 Office Assistant', cls: 'badge-office' },
-    mobile:           { label: '📱 Mobile User', cls: 'badge-mobile' },
-  };
+  var uid = null;
 
   function switchTab(role) {
-    activeTab = role;
-    document.querySelectorAll('.tab').forEach(function(t, i) {
-      t.classList.toggle('active', ['full_access','office_assistant','mobile'][i] === role);
-    });
-    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b)  { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById('tab-' + role).classList.add('active');
+    document.getElementById('panel-' + role).classList.add('active');
   }
 
-  function navigate(page, params) {
-    var url = page + (params ? '?' + new URLSearchParams(params).toString() : '');
-    if (window.parent && window.parent.loadPage) window.parent.loadPage(page, params);
-    else window.location.href = page.charAt(0).toUpperCase() + page.slice(1) + '.html' + (params ? '?' + new URLSearchParams(params).toString() : '');
+  async function savePerm(input) {
+    if (!uid) return;
+    var parts = input.id.split('__');   // e.g. "office_assistant__no_text_replies"
+    var role  = parts[0];
+    var field = parts[1];
+    var payload = { user_id: uid, role: role, [field]: input.checked };
+    await sb.from('role_permissions').upsert(payload, { onConflict: 'user_id,role' });
+    var statusEl = document.getElementById('status-' + input.id);
+    if (statusEl) {
+      statusEl.classList.add('show');
+      setTimeout(function() { statusEl.classList.remove('show'); }, 2000);
+    }
   }
 
-  async function init() {
-    var { data: profiles, error } = await sb.from('user_profiles').select('id, email, role').order('email');
-    document.getElementById('loading').style.display = 'none';
+  async function load() {
+    var { data: sess } = await sb.auth.getSession();
+    uid = sess?.session?.user?.id;
+    if (!uid) return;
 
-    if (error || !profiles) return;
+    var { data } = await sb.from('role_permissions').select('*').eq('user_id', uid);
+    if (!data) return;
 
-    var groups = { full_access: [], office_assistant: [], mobile: [] };
-    profiles.forEach(function(p) {
-      var r = p.role || 'full_access';
-      if (!groups[r]) r = 'full_access';
-      groups[r].push(p);
-    });
-
-    ['full_access', 'office_assistant', 'mobile'].forEach(function(role) {
-      var tbody = document.getElementById('body-' + role);
-      var emptyEl = document.getElementById('empty-' + role);
-      var users = groups[role];
-      if (!users.length) { emptyEl.style.display = ''; return; }
-      tbody.innerHTML = users.map(function(u) {
-        var badge = ROLE_LABELS[role] || ROLE_LABELS.full_access;
-        return '<tr>' +
-          '<td class="user-email">' + escHtml(u.email || '—') + '</td>' +
-          '<td><span class="role-badge ' + badge.cls + '">' + badge.label + '</span></td>' +
-          '<td><a class="edit-link" onclick="navigate(\'usersadd\', {id:\'' + u.id + '\'})">Edit</a></td>' +
-        '</tr>';
-      }).join('');
+    data.forEach(function(row) {
+      var prefix = row.role + '__';
+      Object.keys(row).forEach(function(key) {
+        if (key === 'id' || key === 'user_id' || key === 'role') return;
+        var el = document.getElementById(prefix + key);
+        if (el) el.checked = !!row[key];
+      });
     });
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  init();
+  load();
 </script>
 </body>
 </html>
