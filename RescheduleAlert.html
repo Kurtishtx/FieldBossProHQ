@@ -11,15 +11,6 @@
     .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
     .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
     .content { padding: 20px 24px; max-width: 680px; }
-    .toggle-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 14px 18px; background: #f8f8f8; border-radius: 8px; border: 1px solid #eee; }
-    .toggle-label { font-size: 14px; font-weight: 600; color: #111; flex: 1; }
-    .toggle-sub   { font-size: 12px; color: #888; margin-top: 2px; }
-    .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 24px; transition: .2s; }
-    .slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
-    input:checked + .slider { background: #2272c3; }
-    input:checked + .slider:before { transform: translateX(20px); }
     .var-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .var-row label { font-size: 12.5px; font-weight: 600; color: #555; white-space: nowrap; }
     .var-select { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; background: #fafafa; outline: none; cursor: pointer; }
@@ -46,14 +37,6 @@
   <p>Message sent to clients when a service is rescheduled.</p>
 </div>
 <div class="content">
-  <div class="toggle-row">
-    <div>
-      <div class="toggle-label">Enable Reschedule Alert</div>
-      <div class="toggle-sub">Automatically send this message when a service is rescheduled.</div>
-    </div>
-    <label class="switch"><input type="checkbox" id="enabled-toggle"/><span class="slider"></span></label>
-  </div>
-
   <div class="var-row">
     <label>Insert Variable</label>
     <select class="var-select" id="var-select">
@@ -122,9 +105,9 @@
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) return;
-    var { data } = await sb.from('alert_settings').select('enabled, message').eq('user_id', uid).eq('alert_type', ALERT_TYPE).single();
+    var { data } = await sb.from('alert_settings').select('message').eq('user_id', uid).eq('alert_type', ALERT_TYPE).single();
     var ta = document.getElementById('msg-area');
-    if (data) { document.getElementById('enabled-toggle').checked = !!data.enabled; ta.value = data.message || DEFAULT_MSG; }
+    if (data) { ta.value = data.message || DEFAULT_MSG; }
     else { ta.value = DEFAULT_MSG; }
     updateCount();
   }
@@ -156,7 +139,7 @@
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) { btn.disabled=false; btn.textContent='Save'; statusEl.textContent='Not logged in.'; statusEl.className='status-msg err'; return; }
     var { data: saved, error } = await sb.from('alert_settings').upsert(
-      { user_id: uid, alert_type: ALERT_TYPE, enabled: document.getElementById('enabled-toggle').checked, message: document.getElementById('msg-area').value, updated_at: new Date().toISOString() },
+      { user_id: uid, alert_type: ALERT_TYPE, message: document.getElementById('msg-area').value, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,alert_type' }
     ).select();
     btn.disabled=false;
