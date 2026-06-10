@@ -1,214 +1,139 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Roles</title>
+  <title>Users</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
 
-    .page-topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px; background: #fff; border-bottom: 1px solid #ddd;
-    }
-    .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
-    .btn-add {
-      background: #e07820; color: #fff; border: none;
-      padding: 8px 20px; font-size: 13px; font-weight: 700;
-      border-radius: 4px; cursor: pointer;
-    }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid #eee; }
+    .topbar h1 { font-size: 20px; font-weight: 800; color: #111; }
+    .btn-add { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 13px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-add:hover { background: #c96a10; }
 
-    .toolbar {
-      background: #130520; display: flex; align-items: center;
-      padding: 8px 14px; gap: 10px;
-    }
-    .dropdown { position: relative; }
-    .btn-group { display: flex; }
-    .btn-actions { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none;
-      padding: 5px 14px; font-size: 13px; font-weight: 700;
-      cursor: pointer; border-radius: 3px 0 0 3px;
-    }
-    .btn-actions:hover { background: #d4ae00; }
-    .btn-actions-caret {
-      background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15);
-      padding: 5px 8px; font-size: 12px; cursor: pointer; border-radius: 0 3px 3px 0;
-    }
-    .btn-actions-caret:hover { background: #d4ae00; }
-    .dd-menu {
-      display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
-      background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,.2);
-      min-width: 180px; padding: 4px 0;
-    }
-    .dd-menu.show { display: block; }
-    .dd-menu a {
-      display: block; padding: 8px 14px; color: #444;
-      text-decoration: none; font-size: 13px; cursor: pointer;
-    }
-    .dd-menu a:hover { background: #f5f5f5; }
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid #eee; padding: 0 20px; }
+    .tab { padding: 10px 22px; font-size: 13px; font-weight: 600; color: #777; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color .15s; }
+    .tab:hover { color: #333; }
+    .tab.active { color: #5b2d8e; border-bottom-color: #5b2d8e; }
 
-    .toolbar-tabs { display: flex; gap: 2px; margin-left: 4px; }
-    .tab-btn {
-      padding: 5px 14px; border: none; cursor: pointer;
-      font-size: 12.5px; font-weight: 600; font-family: inherit;
-      background: #555; color: #ccc; border-radius: 3px;
-    }
-    .tab-btn.active { background: #fff; color: #222; }
-    .tab-btn:hover:not(.active) { background: #666; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    .table-wrap { background: #fff; }
     table { width: 100%; border-collapse: collapse; }
-    thead { background: #f0f0f0; }
-    thead th {
-      padding: 10px 14px; text-align: left; font-size: 12px;
-      font-weight: 700; color: #555; border-bottom: 2px solid #ddd;
-      text-transform: uppercase; letter-spacing: .3px;
-    }
-    thead th:first-child { width: 36px; text-align: center; }
-    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
-    tbody tr:hover { background: #fdfbe8; }
-    tbody td { padding: 11px 14px; color: #333; vertical-align: middle; }
-    tbody td:first-child { text-align: center; }
-    .role-link { color: #e07820; font-weight: 600; }
-    .empty-msg { padding: 32px; text-align: center; color: #888; background: #fff; }
+    thead th { padding: 10px 20px; text-align: left; font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid #eee; background: #fafafa; }
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:hover { background: #fafafa; }
+    tbody td { padding: 12px 20px; color: #333; vertical-align: middle; }
+    .user-email { font-weight: 600; color: #111; }
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; }
+    .badge-full    { background: #ede7f6; color: #5b2d8e; }
+    .badge-office  { background: #e3f2fd; color: #1565c0; }
+    .badge-mobile  { background: #e8f5e9; color: #2e7d32; }
+    .edit-link { color: #5b2d8e; text-decoration: none; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+    .edit-link:hover { text-decoration: underline; }
+    .empty { padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px; }
+    .loading { padding: 40px 20px; text-align: center; color: #aaa; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
 
-<div class="page-topbar">
-    <span class="showing-count" id="results-count"></span>
-  <button class="btn-add" onclick="window.location.href='UserRolesAdd.html'">Add Role</button>
+<div class="topbar">
+  <h1>Users</h1>
+  <button class="btn-add" onclick="navigate('usersadd')">+ Add User</button>
 </div>
 
-<div class="toolbar">
-  <div class="dropdown">
-    <div class="btn-group">
-      <button class="btn-actions">Actions</button>
-      <button class="btn-actions-caret" onclick="toggleDD(event)">&#9660;</button>
-    </div>
-    <div class="dd-menu" id="actions-dd">
-      <a onclick="deleteSelected()">Delete Selected</a>
-      <a onclick="setActiveSelected(true)">Activate Selected</a>
-      <a onclick="setActiveSelected(false)">Deactivate Selected</a>
-    </div>
-  </div>
-  <div class="toolbar-tabs">
-    <button class="tab-btn active" onclick="setFilter('active',this)">Active</button>
-    <button class="tab-btn" onclick="setFilter('inactive',this)">Inactive</button>
-    <button class="tab-btn" onclick="setFilter('all',this)">All</button>
-  </div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('full_access')">&#128081; Full Access</div>
+  <div class="tab" onclick="switchTab('office_assistant')">&#128188; Office Assistant</div>
+  <div class="tab" onclick="switchTab('mobile')">&#128241; Mobile</div>
 </div>
 
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
-        <th>Role Name</th>
-        <th>Description</th>
-        <th>Active</th>
-        <th>Modified</th>
-      </tr>
-    </thead>
-    <tbody id="roles-tbody"></tbody>
-  </table>
-  <div class="empty-msg" id="empty-msg" style="display:none;">No roles found.</div>
+<div id="loading" class="loading">Loading users…</div>
+
+<div id="tab-full_access" class="tab-content active">
+  <table><thead><tr><th>Email</th><th>Access Level</th><th></th></tr></thead>
+  <tbody id="body-full_access"></tbody></table>
+  <div id="empty-full_access" class="empty" style="display:none">No full access users.</div>
+</div>
+<div id="tab-office_assistant" class="tab-content">
+  <table><thead><tr><th>Email</th><th>Access Level</th><th></th></tr></thead>
+  <tbody id="body-office_assistant"></tbody></table>
+  <div id="empty-office_assistant" class="empty" style="display:none">No office assistants.</div>
+</div>
+<div id="tab-mobile" class="tab-content">
+  <table><thead><tr><th>Email</th><th>Access Level</th><th></th></tr></thead>
+  <tbody id="body-mobile"></tbody></table>
+  <div id="empty-mobile" class="empty" style="display:none">No mobile users.</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const sb = supabase.createClient(
-    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
-  { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  var sb = window.supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
   );
 
-  var roles = [];
-  var filter = 'active';
+  var activeTab = 'full_access';
 
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  var ROLE_LABELS = {
+    full_access:      { label: '👑 Full Access', cls: 'badge-full' },
+    office_assistant: { label: '💼 Office Assistant', cls: 'badge-office' },
+    mobile:           { label: '📱 Mobile User', cls: 'badge-mobile' },
+  };
 
-  function toggleDD(e) {
-    e.stopPropagation();
-    document.getElementById('actions-dd').classList.toggle('show');
-  }
-  document.addEventListener('click', function() {
-    document.getElementById('actions-dd').classList.remove('show');
-  });
-
-  function setFilter(f, btn) {
-    filter = f;
-    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-    btn.classList.add('active');
-    renderTable();
-  }
-
-  function toggleAll(checked) {
-    document.querySelectorAll('#roles-tbody input[type="checkbox"]').forEach(function(cb){ cb.checked = checked; });
-  }
-
-  function getSelected() {
-    var ids = [];
-    document.querySelectorAll('#roles-tbody input[type="checkbox"]:checked').forEach(function(cb){ ids.push(cb.dataset.id); });
-    return ids;
-  }
-
-  async function deleteSelected() {
-    var ids = getSelected();
-    if (!ids.length) return;
-    if (!confirm('Delete ' + ids.length + ' role(s)?')) return;
-    await sb.from('roles').delete().in('id', ids);
-    document.getElementById('actions-dd').classList.remove('show');
-    loadRoles();
-  }
-
-  async function setActiveSelected(active) {
-    var ids = getSelected();
-    if (!ids.length) return;
-    await sb.from('roles').update({ active: active }).in('id', ids);
-    document.getElementById('actions-dd').classList.remove('show');
-    loadRoles();
-  }
-
-  async function loadRoles() {
-    var { data, error } = await sb.from('roles').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); return; }
-    roles = data || [];
-    renderTable();
-  }
-
-  function renderTable() {
-    var tbody = document.getElementById('roles-tbody');
-    var emptyMsg = document.getElementById('empty-msg');
-    var filtered = roles.filter(function(r){
-      if (filter === 'active')   return r.active !== false;
-      if (filter === 'inactive') return r.active === false;
-      return true;
+  function switchTab(role) {
+    activeTab = role;
+    document.querySelectorAll('.tab').forEach(function(t, i) {
+      t.classList.toggle('active', ['full_access','office_assistant','mobile'][i] === role);
     });
-    tbody.innerHTML = '';
-    if (!filtered.length) { emptyMsg.style.display = ''; return; }
-    emptyMsg.style.display = 'none';
-    filtered.forEach(function(r) {
-      var tr = document.createElement('tr');
-      var modified = r.updated_at ? new Date(r.updated_at).toLocaleDateString() : (r.created_at ? new Date(r.created_at).toLocaleDateString() : '');
-      tr.innerHTML =
-        '<td><input type="checkbox" data-id="' + r.id + '" onclick="event.stopPropagation()"/></td>' +
-        '<td><span class="role-link">' + esc(r.name) + '</span></td>' +
-        '<td>' + esc(r.description) + '</td>' +
-        '<td>' + (r.active !== false ? 'Active' : 'Inactive') + '</td>' +
-        '<td>' + modified + '</td>';
-      tr.addEventListener('click', function(e){
-        if (e.target.type === 'checkbox') return;
-        window.location.href = 'UserRolesAdd.html?id=' + r.id;
-      });
-      tbody.appendChild(tr);
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.getElementById('tab-' + role).classList.add('active');
+  }
+
+  function navigate(page, params) {
+    var url = page + (params ? '?' + new URLSearchParams(params).toString() : '');
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page, params);
+    else window.location.href = page.charAt(0).toUpperCase() + page.slice(1) + '.html' + (params ? '?' + new URLSearchParams(params).toString() : '');
+  }
+
+  async function init() {
+    var { data: profiles, error } = await sb.from('user_profiles').select('id, email, role').order('email');
+    document.getElementById('loading').style.display = 'none';
+
+    if (error || !profiles) return;
+
+    var groups = { full_access: [], office_assistant: [], mobile: [] };
+    profiles.forEach(function(p) {
+      var r = p.role || 'full_access';
+      if (!groups[r]) r = 'full_access';
+      groups[r].push(p);
+    });
+
+    ['full_access', 'office_assistant', 'mobile'].forEach(function(role) {
+      var tbody = document.getElementById('body-' + role);
+      var emptyEl = document.getElementById('empty-' + role);
+      var users = groups[role];
+      if (!users.length) { emptyEl.style.display = ''; return; }
+      tbody.innerHTML = users.map(function(u) {
+        var badge = ROLE_LABELS[role] || ROLE_LABELS.full_access;
+        return '<tr>' +
+          '<td class="user-email">' + escHtml(u.email || '—') + '</td>' +
+          '<td><span class="role-badge ' + badge.cls + '">' + badge.label + '</span></td>' +
+          '<td><a class="edit-link" onclick="navigate(\'usersadd\', {id:\'' + u.id + '\'})">Edit</a></td>' +
+        '</tr>';
+      }).join('');
     });
   }
 
-  loadRoles();
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  init();
 </script>
 </body>
 </html>
-
