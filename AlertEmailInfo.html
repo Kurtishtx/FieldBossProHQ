@@ -275,7 +275,6 @@
   </div>
 
   <div class="form-footer">
-    <button class="save-btn" style="background:#fff;border:1.5px solid #333;color:#222;margin-right:auto;" onclick="goTemplates()">&#9993; View Templates</button>
     <span class="save-status" id="save-status">&#10003; Saved successfully!</span>
     <button class="save-btn" onclick="saveSettings()">Save Settings</button>
   </div>
@@ -373,11 +372,6 @@ async function saveSettings() {
   var el = document.getElementById('save-status');
   el.classList.add('show');
   setTimeout(function() { el.classList.remove('show'); }, 3000);
-}
-
-function goTemplates() {
-  if (window.parent && window.parent.loadPage) window.parent.loadPage('alerttemplatesall');
-  else window.location.href = 'AlertTemplatesAll.html';
 }
 
 loadSettings();
