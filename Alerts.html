@@ -40,10 +40,11 @@
       align-items: flex-end; min-width: 100px;
     }
     .toggle-row {
-      display: flex; align-items: center; gap: 7px;
+      display: flex; align-items: center; gap: 6px;
       font-size: 11.5px; font-weight: 600; color: #555;
     }
-    .toggle-row .t-icon { font-size: 13px; }
+    .toggle-row .t-icon { font-size: 13px; width: 18px; text-align: center; }
+    .toggle-row .t-lbl { width: 34px; }
 
     /* Toggle switch */
     .toggle-switch { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
@@ -90,8 +91,8 @@
     <div class="link-desc">Sent to clients when a service is scheduled.</div>
   </div>
   <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="scheduledalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="scheduledalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="scheduledalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="scheduledalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('scheduledalert')">&#8250;</div>
 </div>
@@ -103,8 +104,8 @@
     <div class="link-desc">Sent to clients when a service is rescheduled.</div>
   </div>
   <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="reschedulealert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="reschedulealert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="reschedulealert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="reschedulealert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('reschedulealert')">&#8250;</div>
 </div>
@@ -116,8 +117,8 @@
     <div class="link-desc">Sent to clients when a service is completed.</div>
   </div>
   <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="completedalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="completedalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="completedalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="completedalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('completedalert')">&#8250;</div>
 </div>
@@ -129,8 +130,8 @@
     <div class="link-desc">Sent to clients when an estimate is emailed to them.</div>
   </div>
   <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="estimatesentalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="estimatesentalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="estimatesentalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="estimatesentalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('estimatesentalert')">&#8250;</div>
 </div>
@@ -144,8 +145,8 @@
     <div class="link-desc">Sent to your team when a service is skipped.</div>
   </div>
   <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="serviceskippedalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="serviceskippedalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="serviceskippedalert" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="serviceskippedalert" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('serviceskippedalert')">&#8250;</div>
 </div>
@@ -159,8 +160,8 @@
     <div class="link-desc">Sent to the customer when the tech is heading to their property next.</div>
   </div>
   <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span> Text <label class="toggle-switch"><input type="checkbox" data-type="mobilepropertyscheduled" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">📧</span> Email <label class="toggle-switch"><input type="checkbox" data-type="mobilepropertyscheduled" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="mobilepropertyscheduled" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="mobilepropertyscheduled" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('mobilepropertyscheduled')">&#8250;</div>
 </div>
