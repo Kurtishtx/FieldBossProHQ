@@ -67,6 +67,14 @@
     .s3-footer .ty { font-size: 13px; font-weight: 700; color: #3d1060; }
     .s3-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
 
+    .s4-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .s4-header { background: #1a1a1a; padding: 22px 16px; text-align: center; border-bottom: 2px solid #e07820; }
+    .s4-logo { font-size: 14px; color: #aaa; font-style: italic; }
+    .s4-body { padding: 26px 30px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
+    .s4-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 18px 30px; text-align: center; }
+    .s4-footer .ty { font-size: 13px; font-weight: 700; color: #e07820; }
+    .s4-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
+
     /* ── Preview step ── */
     #preview-step { display: none; }
 
@@ -116,6 +124,15 @@
     .ps3-footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 22px 40px; text-align: center; }
     .ps3-footer .ty { font-size: 14px; font-weight: 700; color: #3d1060; }
     .ps3-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
+
+    .ps4-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .ps4-header { background: #1a1a1a; padding: 24px 20px; text-align: center; border-bottom: 2px solid #e07820; }
+    .ps4-logo img { max-height: 130px; max-width: 90%; width: auto; object-fit: contain; display: block; margin: 0 auto; }
+    .ps4-logo-ph { font-size: 40px; color: #aaa; font-style: italic; font-size: 14px; }
+    .ps4-body { padding: 28px 40px; font-size: 15px; color: #ddd; line-height: 1.8; white-space: pre-wrap; }
+    .ps4-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 22px 40px; text-align: center; }
+    .ps4-footer .ty { font-size: 14px; font-weight: 700; color: #e07820; }
+    .ps4-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
 
     .save-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 24px 20px; }
     .btn-save { background: #e07820; color: #fff; border: none; border-radius: 4px; padding: 10px 28px; font-size: 14px; font-weight: 700; cursor: pointer; }
@@ -182,6 +199,19 @@
       <div class="tmpl-label">Brand Header</div>
     </div>
 
+    <div class="tmpl-card" onclick="selectStyle(4)">
+      <div class="tmpl-preview">
+        <div class="s4-wrap">
+          <div class="s4-header">
+            <div class="s4-logo">[logo — full width]</div>
+          </div>
+          <div class="s4-body">[alert text]</div>
+          <div class="s4-footer"><div class="ty">Thank you for your business!</div><div class="co">[companyname]</div></div>
+        </div>
+      </div>
+      <div class="tmpl-label">Dark Logo Banner</div>
+    </div>
+
   </div>
 </div>
 
@@ -241,7 +271,8 @@
 
   function logoHtml(imgCls, phCls) {
     if (info.company_logo) return '<div class="' + imgCls + '"><img src="' + esc(info.company_logo) + '"/></div>';
-    return '<div class="' + phCls + '" style="font-style:italic;color:#aaa;font-size:14px;">[logo]</div>';
+    var isLarge = phCls === 'ps4-logo-ph';
+    return '<div class="' + phCls + '" style="font-style:italic;color:#aaa;font-size:' + (isLarge ? '16' : '14') + 'px;">[your logo fills header here]</div>';
   }
 
   function renderPreview() {
@@ -269,6 +300,12 @@
         '<div class="ps3-header">' + logoHtml('ps3-logo','ps3-logo-ph') + '<div class="ps3-co">' + co + '</div></div>' +
         '<div class="ps3-body">' + msg + '</div>' +
         '<div class="ps3-footer"><div class="ty">Thank you,</div><div class="co">' + sf + '</div></div>' +
+      '</div>';
+    } else if (chosenStyle === 4) {
+      html = '<div class="ps4-wrap">' +
+        '<div class="ps4-header">' + logoHtml('ps4-logo','ps4-logo-ph') + '</div>' +
+        '<div class="ps4-body">' + msg + '</div>' +
+        '<div class="ps4-footer"><div class="ty">Thank you for your business!</div><div class="co">' + sf + '</div></div>' +
       '</div>';
     }
     document.getElementById('preview-outer').innerHTML = html;
