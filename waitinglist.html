@@ -1654,11 +1654,11 @@
     var checked = document.querySelectorAll('.row-cb:checked');
     if (!checked.length) { alert('Select at least one service.'); return; }
     var now = new Date();
-    schedCalYear = now.getFullYear(); schedCalMonth = now.getMonth(); schedSelDate = null;
-    document.getElementById('sched-date-input').value = '';
-    loadSchedTrucks();
+    schedCalYear = now.getFullYear(); schedCalMonth = now.getMonth();
+    var todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
     loadSchedTrucks();
     buildSchedCal();
+    schedPickDate(todayStr);
     document.getElementById('sched-modal-overlay').style.display = 'flex';
   }
 
