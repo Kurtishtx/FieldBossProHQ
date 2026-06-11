@@ -118,7 +118,7 @@ serve(async (req: Request) => {
     if (prof?.tenant_id) ownerUserId = prof.tenant_id;
 
     // ── Channel toggles ───────────────────────────────────────────────────────
-    const { data: toggles } = await supabase
+    const { data: toggles, error: toggleErr } = await supabase
       .from("alert_toggles")
       .select("sms_enabled, email_enabled")
       .eq("user_id", ownerUserId)
@@ -478,7 +478,7 @@ serve(async (req: Request) => {
       }
     }
 
-    return new Response(JSON.stringify({ results, _debug: { user_id, ownerUserId, emailEnabled, canEmail, resendKeySet: !!resendKey } }), {
+    return new Response(JSON.stringify({ results, _debug: { user_id, ownerUserId, alert_type, toggles, toggleErr: toggleErr?.message, emailEnabled, canEmail, resendKeySet: !!resendKey } }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });
 
