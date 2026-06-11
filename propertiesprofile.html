@@ -1416,6 +1416,21 @@
     nBtn.style.color = tab === 'notes' ? '#e07820' : '#888';
   }
 
+  var pkgNoteServices = ['Master Note']; // refreshed when package is selected
+
+  function buildNoteTypeOptions(selectedType) {
+    return pkgNoteServices.map(function(s) {
+      return '<option' + (s === selectedType ? ' selected' : '') + '>' + s + '</option>';
+    }).join('');
+  }
+
+  function refreshNoteTypeDropdowns() {
+    document.querySelectorAll('.pkg-note-type').forEach(function(sel) {
+      var cur = sel.value;
+      sel.innerHTML = buildNoteTypeOptions(cur);
+    });
+  }
+
   function pkgAddNoteRow(data) {
     var tbody = document.getElementById('pkg-notes-rows');
     var tr = document.createElement('tr');
@@ -1433,9 +1448,7 @@
       '</td>' +
       '<td style="padding:6px 10px;">' +
         '<select class="pkg-note-type" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;">' +
-          '<option' + (typeVal==='Master Note'?' selected':'') + '>Master Note</option>' +
-          '<option' + (typeVal==='Scheduling Note'?' selected':'') + '>Scheduling Note</option>' +
-          '<option' + (typeVal==='Service Note'?' selected':'') + '>Service Note</option>' +
+          buildNoteTypeOptions(typeVal) +
         '</select>' +
       '</td>' +
       '<td style="padding:6px 10px;">' +
@@ -1485,6 +1498,7 @@
     document.getElementById('pkg-modal-rows').innerHTML = '';
     document.getElementById('pkg-notes-rows').innerHTML = '';
     pkgServiceRows = [];
+    pkgNoteServices = ['Master Note'];
     rowDiscountData = {};
   }
 
@@ -1495,6 +1509,11 @@
     if (!pkgId) return;
     var { data } = await sb.from('package_services').select('*').eq('package_id', pkgId).order('id');
     pkgServiceRows = data || [];
+    // Update note type dropdown options with service names
+    pkgNoteServices = ['Master Note'].concat(
+      pkgServiceRows.map(function(r) { return r.service_name || r.name || ''; }).filter(Boolean)
+    );
+    refreshNoteTypeDropdowns();
     var tbody = document.getElementById('pkg-modal-rows');
     if (!pkgServiceRows.length) {
       tbody.innerHTML = '<tr><td colspan="9" style="padding:10px; color:#aaa; font-style:italic;">No services in this package.</td></tr>';
