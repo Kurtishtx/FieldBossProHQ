@@ -155,6 +155,16 @@
       </div>
     </div>
 
+    <div class="field-row">
+      <label for="pkg-master">Master Package</label>
+      <div style="flex:1;">
+        <select id="pkg-master" style="max-width:360px;">
+          <option value="">— None —</option>
+        </select>
+        <div class="field-hint">Services in this package won't appear on the waiting list until the master package is also due for that property.</div>
+      </div>
+    </div>
+
     <div class="section-label">Services</div>
 
     <!-- Service table -->
@@ -357,6 +367,16 @@
         svcs.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
       document.querySelectorAll('.svc-select').forEach(function(sel) { sel.innerHTML = serviceOptions; });
     }
+    /* load all packages for master dropdown */
+    var { data: allPkgs } = await sb.from('Packages').select('id, name').eq('active', true).order('name');
+    var masterSel = document.getElementById('pkg-master');
+    (allPkgs || []).forEach(function(p) {
+      if (pkgId && String(p.id) === String(pkgId)) return; /* exclude self */
+      var opt = document.createElement('option');
+      opt.value = p.id; opt.textContent = p.name;
+      masterSel.appendChild(opt);
+    });
+
     if (pkgId) {
       var { data } = await sb.from('Packages').select('*').eq('id', pkgId).single();
       if (data) {
@@ -364,6 +384,7 @@
         document.getElementById('pkg-name').value = data.name || '';
         document.getElementById('pkg-description').value = data.description || '';
         document.getElementById('pkg-renewal').value = data.renewal_date || '';
+        document.getElementById('pkg-master').value = data.master_package_id || '';
       }
       var { data: pkgRows } = await sb.from('package_services').select('id,package_id,name,service_id,service_name,start_date,end_date,min_days,default_rate,base_rate,discount_expires_at').eq('package_id', pkgId).order('id');
       if (pkgRows && pkgRows.length) {
@@ -419,10 +440,12 @@
     if (!name) { alert('Please enter a package name.'); document.getElementById('pkg-name').focus(); return; }
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var masterVal = document.getElementById('pkg-master').value;
     var payload = {
       name: name,
       description: document.getElementById('pkg-description').value.trim(),
       renewal_date: document.getElementById('pkg-renewal').value.trim() || null,
+      master_package_id: masterVal || null,
       active: true
     };
     var savedPkgId, error;

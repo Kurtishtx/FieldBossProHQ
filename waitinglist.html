@@ -750,6 +750,7 @@
 
   var lastDispatchMap = {};
   var packageServiceMeta = {}; /* { package_service_id: { package_id } } */
+  var packageMasterMap = {};   /* { package_id: master_package_id } */
 
   async function loadInvoiceNameMap(svcs) {
     invoiceNameToServiceName = {};
@@ -766,6 +767,7 @@
 
   async function loadPackageServiceMeta(svcs) {
     packageServiceMeta = {};
+    packageMasterMap = {};
     var psIds = [];
     svcs.forEach(function(s) { if (s.package_service_id && psIds.indexOf(s.package_service_id) < 0) psIds.push(s.package_service_id); });
     if (!psIds.length) return;
@@ -774,6 +776,14 @@
       packageServiceMeta[r.id] = { package_id: r.package_id, service_id: r.service_id, service_name: r.service_name };
       packageServiceMeta['name_' + r.id] = r.service_name;
     });
+    /* load master_package_id for each unique package */
+    var pkgIds = [...new Set((data || []).map(function(r) { return r.package_id; }).filter(Boolean))];
+    if (pkgIds.length) {
+      var { data: pkgs } = await sb.from('Packages').select('id, master_package_id').in('id', pkgIds);
+      (pkgs || []).forEach(function(p) {
+        if (p.master_package_id) packageMasterMap[p.id] = p.master_package_id;
+      });
+    }
   }
 
   async function loadLastDispatches(svcs) {
@@ -883,6 +893,43 @@
           : String(s.property_id) + '_pkgfallback';
         return s.package_service_id === pkgGroupMin[gKey];
       });
+
+      /* Master package dependency filter — hide services whose package requires a master
+         package until that master package also has a currently-due service on the property.
+         Exception: if the property has no services from the master package at all, show normally. */
+      if (Object.keys(packageMasterMap).length) {
+        /* which package_ids are currently due (in filtered) per property */
+        var activePkgsByProp = {};
+        filtered.forEach(function(s) {
+          if (!s.package_service_id) return;
+          var meta = packageServiceMeta[s.package_service_id];
+          if (!meta || !meta.package_id) return;
+          if (!activePkgsByProp[s.property_id]) activePkgsByProp[s.property_id] = {};
+          activePkgsByProp[s.property_id][meta.package_id] = true;
+        });
+        /* which package_ids does each property have enrolled (any dispatched state) */
+        var allPkgsByProp = {};
+        services.forEach(function(s) {
+          if (!s.package_service_id) return;
+          var meta = packageServiceMeta[s.package_service_id];
+          if (!meta || !meta.package_id) return;
+          if (!allPkgsByProp[s.property_id]) allPkgsByProp[s.property_id] = {};
+          allPkgsByProp[s.property_id][meta.package_id] = true;
+        });
+        filtered = filtered.filter(function(s) {
+          if (!s.package_service_id) return true;
+          var meta = packageServiceMeta[s.package_service_id];
+          if (!meta || !meta.package_id) return true;
+          var masterPkgId = packageMasterMap[meta.package_id];
+          if (!masterPkgId) return true; /* no master dependency */
+          /* not enrolled in master package → show normally */
+          var propPkgs = allPkgsByProp[s.property_id] || {};
+          if (!propPkgs[masterPkgId]) return true;
+          /* enrolled in master → only show when master is also currently due */
+          var activePkgs = activePkgsByProp[s.property_id] || {};
+          return !!activePkgs[masterPkgId];
+        });
+      }
     }
 
     /* sort */
