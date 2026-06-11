@@ -361,7 +361,7 @@ serve(async (req: Request) => {
       const style   = emailInfo?.template_style || 1;
       const html    = buildEmailHtml(style, emailInfo, msg);
       const subject = emailSubject(alert_type, emailInfo?.company_name || companyName);
-      const from    = (emailInfo?.company_name || companyName || "SprayBossPro") + " <Kurtis@spraybosspro.com>";
+      const from    = (emailInfo?.company_name || companyName || "SprayBossPro") + " <mail@spraybosspro.com>";
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: "Bearer " + resendKey!, "Content-Type": "application/json" },
