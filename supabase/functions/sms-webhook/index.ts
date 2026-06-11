@@ -90,42 +90,84 @@ serve(async (req: Request) => {
 
     // Fire text_received employee alert
     try {
-      const { data: alertRow } = await supabase
-        .from("alert_settings")
-        .select("message, recipients")
+      const { data: toggles } = await supabase
+        .from("alert_toggles")
+        .select("sms_enabled, email_enabled")
         .eq("user_id", userId)
         .eq("alert_type", "text_received")
         .single();
 
-      if (alertRow?.recipients && alertRow?.message) {
-        const phones: string[] = JSON.parse(alertRow.recipients);
-        if (phones.length > 0) {
-          const { data: voip } = await supabase
-            .from("twilio_settings")
-            .select("account_sid, auth_token, phone_number")
-            .eq("user_id", userId)
-            .single();
+      const smsEnabled   = toggles?.sms_enabled   ?? true;
+      const emailEnabled = toggles?.email_enabled ?? false;
 
-          if (voip?.account_sid && voip?.auth_token && voip?.phone_number) {
-            const displayName = clientName || from;
-            const alertMsg = alertRow.message
-              .replace(/\[clientname\]/g, displayName)
-              .replace(/\[message\]/g, body);
+      if (smsEnabled || emailEnabled) {
+        const { data: alertRow } = await supabase
+          .from("alert_settings")
+          .select("message, recipients")
+          .eq("user_id", userId)
+          .eq("alert_type", "text_received")
+          .single();
 
-            const didClean = voip.phone_number.replace(/\D/g, "");
+        if (alertRow?.message) {
+          const displayName = clientName || from;
+          const alertMsg = alertRow.message
+            .replace(/\[clientname\]/g, displayName)
+            .replace(/\[message\]/g, body);
 
-            for (const phone of phones) {
-              let dstClean = phone.replace(/\D/g, "");
-              if (dstClean.length === 10) dstClean = "1" + dstClean;
-              const url =
-                `https://voip.ms/api/v1/rest.php` +
-                `?api_username=${encodeURIComponent(voip.account_sid)}` +
-                `&api_password=${encodeURIComponent(voip.auth_token)}` +
-                `&method=sendSMS` +
-                `&did=${didClean}` +
-                `&dst=${dstClean}` +
-                `&message=${encodeURIComponent(alertMsg)}`;
-              await fetch(url);
+          // ── SMS ──
+          if (smsEnabled && alertRow.recipients) {
+            const phones: string[] = (() => { try { return JSON.parse(alertRow.recipients); } catch { return []; } })();
+            if (phones.length > 0) {
+              const { data: voip } = await supabase
+                .from("twilio_settings")
+                .select("account_sid, auth_token, phone_number")
+                .eq("user_id", userId)
+                .single();
+
+              if (voip?.account_sid && voip?.auth_token && voip?.phone_number) {
+                const didClean = voip.phone_number.replace(/\D/g, "");
+                for (const phone of phones) {
+                  let dstClean = phone.replace(/\D/g, "");
+                  if (dstClean.length === 10) dstClean = "1" + dstClean;
+                  const voipUrl =
+                    `https://voip.ms/api/v1/rest.php` +
+                    `?api_username=${encodeURIComponent(voip.account_sid)}` +
+                    `&api_password=${encodeURIComponent(voip.auth_token)}` +
+                    `&method=sendSMS&did=${didClean}&dst=${dstClean}` +
+                    `&message=${encodeURIComponent(alertMsg)}`;
+                  await fetch(voipUrl);
+                }
+              }
+            }
+          }
+
+          // ── Email ──
+          if (emailEnabled) {
+            const { data: co } = await supabase
+              .from("company_info")
+              .select("resend_api_key, company_name")
+              .eq("user_id", userId)
+              .single();
+
+            if (co?.resend_api_key) {
+              const { data: { user: ownerUser } } = await supabase.auth.admin.getUserById(userId);
+              const ownerEmail = ownerUser?.email;
+              if (ownerEmail) {
+                const htmlBody = alertMsg
+                  .split("\n")
+                  .map((line: string) => `<p style="margin:0 0 8px;font-family:sans-serif;font-size:15px;color:#222">${line || "&nbsp;"}</p>`)
+                  .join("");
+                await fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: { Authorization: "Bearer " + co.resend_api_key, "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    from: (co.company_name || "SprayBossPro") + " <mail@spraybosspro.com>",
+                    to: [ownerEmail],
+                    subject: "Text Received: " + displayName,
+                    html: `<!DOCTYPE html><html><body style="max-width:600px;margin:0 auto;padding:24px">${htmlBody}</body></html>`,
+                  }),
+                });
+              }
             }
           }
         }
