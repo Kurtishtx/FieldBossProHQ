@@ -19,8 +19,6 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
   const bodyHtml = bodyText.split(/\n\n+/).map((p: string) =>
     "<p style='margin:0 0 16px;'>" + p.split(/\n/).map((l: string) => e(l)).join("<br/>") + "</p>"
   ).join("");
-  const signoff = `<p style='margin:20px 0 0;'>Thank you,<br/><strong>${sf}</strong></p>`;
-
   if (style === 2) {
     return `<!DOCTYPE html><html><body style="margin:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
 <table width="100%" style="padding:30px 0"><tr><td align="center">
@@ -29,7 +27,7 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
 ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
 ${co ? `<div style="color:#fff;font-size:22px;font-weight:700;">${co}</div>` : ""}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}${signoff}</td></tr>
+<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
 ${foot ? `<tr><td style="background:#1a1a2e;padding:14px 32px;text-align:center;font-size:11px;color:#aaa;">${foot}</td></tr>` : ""}
 </table></td></tr></table></body></html>`;
   }
@@ -42,7 +40,7 @@ ${foot ? `<tr><td style="background:#1a1a2e;padding:14px 32px;text-align:center;
 ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
 ${co ? `<div style="color:#fff;font-size:24px;font-weight:800;">${co}</div>` : ""}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}${signoff}</td></tr>
+<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
 ${foot ? `<tr><td style="background:#f0e8fa;padding:14px 32px;text-align:center;font-size:11px;color:#7a5c8e;">${foot}</td></tr>` : ""}
 </table></td></tr></table></body></html>`;
   }
@@ -57,7 +55,7 @@ ${foot ? `<tr><td style="background:#f0e8fa;padding:14px 32px;text-align:center;
 <tr><td style="background:#1a1a1a;padding:28px 20px;text-align:center;border-bottom:2px solid #e07820;">
 ${bigLogo}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}<p style='margin:20px 0 0;color:#ddd;'>Thank you for your business!<br/><strong style="color:#e07820;">${sf}</strong></p></td></tr>
+<tr><td style="padding:32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
 ${foot ? `<tr><td style="background:#1a1a1a;border-top:2px solid #e07820;padding:14px 32px;text-align:center;font-size:11px;color:#888;">${foot}</td></tr>` : ""}
 </table></td></tr></table></body></html>`;
   }
@@ -70,7 +68,7 @@ ${foot ? `<tr><td style="background:#1a1a1a;border-top:2px solid #e07820;padding
 ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
 ${co ? `<div style="font-size:20px;font-weight:700;color:#222;">${co}</div>` : ""}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}${signoff}</td></tr>
+<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
 ${foot ? `<tr><td style="background:#f9f9f9;padding:14px 32px;text-align:center;font-size:11px;color:#aaa;border-top:1px solid #eee;">${foot}</td></tr>` : ""}
 </table></td></tr></table></body></html>`;
 }
