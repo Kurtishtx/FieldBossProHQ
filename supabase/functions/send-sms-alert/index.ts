@@ -117,17 +117,6 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
       bHg1:"#4c1d95", bHg2:"#6d28d9", bFbg:"#f0fdf4", bFbd:"#bbf7d0", bFtx:"#166534",
       nWbg:"#060a0e", nHbg:"#100a28", nAcc:"#16a34a", nFtx:"#4ade80",
       nbHbg:"#4c1d95", nbCo:"#4ade80" },
-    // ── Split palettes (styles 91-100) ────────────────────────────────────────
-    { sCo:"#5b2d8e", sDiv:"#ede7f6", sFbg:"#f9f4ff", sFbd:"#ede7f6", sFtx:"#5b2d8e",
-      dWbg:"#0e0e0e", dHbg:"#1a1a1a", dAcc:"#7c3aed", dCo:"#c084fc", dFtx:"#c084fc",
-      bHg1:"#3d1060", bHg2:"#6b21a8", bFbg:"#f5f5f5", bFbd:"#ddd", bFtx:"#3d1060",
-      nWbg:"#0e0e0e", nHbg:"#1a1a1a", nAcc:"#7c3aed", nFtx:"#c084fc",
-      nbHbg:"#5b2d8e", nbCo:"#fff" },
-    { sCo:"#5b2d8e", sDiv:"#ede7f6", sFbg:"#fff7ed", sFbd:"#fed7aa", sFtx:"#ea580c",
-      dWbg:"#0e0e0e", dHbg:"#1a1a1a", dAcc:"#e07820", dCo:"#e07820", dFtx:"#e07820",
-      bHg1:"#3d1060", bHg2:"#6b21a8", bFbg:"#fff7ed", bFbd:"#fed7aa", bFtx:"#ea580c",
-      nWbg:"#0e0e0e", nHbg:"#1a1a1a", nAcc:"#e07820", nFtx:"#e07820",
-      nbHbg:"#5b2d8e", nbCo:"#f97316" },
   ];
 
   const p = P[pi];
