@@ -1170,6 +1170,13 @@
     alerttemplatesall:       'Email Alert Templates',
   };
 
+  // Restore page from URL hash — waits for auth to finish first
+  _dashAuthPromise.then(function(user) {
+    if (!user) return;
+    var hash = window.location.hash.replace('#', '');
+    if (hash) loadPage(hash);
+  });
+
   // ── Global Search ──
   var _searchTimer = null;
   function globalSearchInput() {
