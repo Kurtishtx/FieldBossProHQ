@@ -10,11 +10,19 @@ const cors = {
 function buildEmailHtml(style: number, info: any, bodyText: string): string {
   const e = (s: string) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-  // Styles 1-36:  9 original palettes × 4 layouts  → li=(s-1)%4,  pi=floor((s-1)/4)
-  // Styles 37-45: name banner for original palettes → li=4, pi=s-37
-  // Styles 46-90: 9 new palettes × 5 layouts       → li=(s-46)%5, pi=9+floor((s-46)/5)
+  // Styles 1-36:   9 original palettes × 4 layouts  → li=(s-1)%4,  pi=floor((s-1)/4)
+  // Styles 37-45:  name banner for original palettes → li=4, pi=s-37
+  // Styles 46-90:  9 new palettes × 5 layouts       → li=(s-46)%5, pi=9+floor((s-46)/5)
+  // Styles 91-99:  dark name banner for original 9   → li=5, pi=s-91
+  // Styles 100-108:dark name banner for new 9        → li=5, pi=9+(s-100)
   let li: number, pi: number;
-  if (style >= 46) {
+  if (style >= 100) {
+    li = 5;
+    pi = 9 + (style - 100);
+  } else if (style >= 91) {
+    li = 5;
+    pi = style - 91;
+  } else if (style >= 46) {
     li = (style - 46) % 5;
     pi = 9 + Math.floor((style - 46) / 5);
   } else if (style >= 37) {
@@ -30,93 +38,93 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
       dWbg:"#0e0e0e", dHbg:"#1a1a1a", dAcc:"#e07820", dCo:"#e07820", dFtx:"#e07820",
       bHg1:"#3d1060", bHg2:"#6b21a8", bFbg:"#f5f5f5", bFbd:"#ddd",  bFtx:"#3d1060",
       nWbg:"#0e0e0e", nHbg:"#1a1a1a", nAcc:"#e07820", nFtx:"#e07820",
-      nbHbg:"#5b2d8e", nbCo:"#fff" },
+      nbHbg:"#5b2d8e", nbCo:"#fff", nbdBg:"#0e0e0e", nbdFbg:"#1a1a1a", nbdBd:"#e07820", nbdTx:"#e07820" },
     { sCo:"#0369a1", sDiv:"#bae6fd", sFbg:"#f0f9ff", sFbd:"#bae6fd", sFtx:"#0369a1",
       dWbg:"#071e38", dHbg:"#0c2744", dAcc:"#06b6d4", dCo:"#06b6d4", dFtx:"#06b6d4",
       bHg1:"#0c4a6e", bHg2:"#0369a1", bFbg:"#f0f9ff", bFbd:"#bae6fd", bFtx:"#0c4a6e",
       nWbg:"#071e38", nHbg:"#0c2744", nAcc:"#06b6d4", nFtx:"#06b6d4",
-      nbHbg:"#0369a1", nbCo:"#fff" },
+      nbHbg:"#0369a1", nbCo:"#fff", nbdBg:"#071e38", nbdFbg:"#0c2744", nbdBd:"#06b6d4", nbdTx:"#06b6d4" },
     { sCo:"#166534", sDiv:"#bbf7d0", sFbg:"#f0fdf4", sFbd:"#bbf7d0", sFtx:"#166534",
       dWbg:"#0a150e", dHbg:"#122018", dAcc:"#ca8a04", dCo:"#ca8a04", dFtx:"#ca8a04",
       bHg1:"#14532d", bHg2:"#166534", bFbg:"#f0fdf4", bFbd:"#bbf7d0", bFtx:"#14532d",
       nWbg:"#0a150e", nHbg:"#122018", nAcc:"#ca8a04", nFtx:"#ca8a04",
-      nbHbg:"#166534", nbCo:"#fff" },
+      nbHbg:"#166534", nbCo:"#fff", nbdBg:"#0a150e", nbdFbg:"#122018", nbdBd:"#ca8a04", nbdTx:"#ca8a04" },
     { sCo:"#991b1b", sDiv:"#fecdd3", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#7f1d1d",
       dWbg:"#1a0808", dHbg:"#2a0e0e", dAcc:"#dc2626", dCo:"#dc2626", dFtx:"#dc2626",
       bHg1:"#7f1d1d", bHg2:"#991b1b", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#7f1d1d",
       nWbg:"#1a0808", nHbg:"#2a0e0e", nAcc:"#dc2626", nFtx:"#dc2626",
-      nbHbg:"#991b1b", nbCo:"#fff" },
+      nbHbg:"#991b1b", nbCo:"#fff", nbdBg:"#1a0808", nbdFbg:"#2a0e0e", nbdBd:"#dc2626", nbdTx:"#dc2626" },
     { sCo:"#334155", sDiv:"#cbd5e1", sFbg:"#f8fafc", sFbd:"#cbd5e1", sFtx:"#334155",
       dWbg:"#0f172a", dHbg:"#1e293b", dAcc:"#64748b", dCo:"#94a3b8", dFtx:"#94a3b8",
       bHg1:"#1e293b", bHg2:"#334155", bFbg:"#f8fafc", bFbd:"#cbd5e1", bFtx:"#334155",
       nWbg:"#0f172a", nHbg:"#1e293b", nAcc:"#64748b", nFtx:"#94a3b8",
-      nbHbg:"#334155", nbCo:"#fff" },
+      nbHbg:"#334155", nbCo:"#fff", nbdBg:"#0f172a", nbdFbg:"#1e293b", nbdBd:"#64748b", nbdTx:"#94a3b8" },
     { sCo:"#92400e", sDiv:"#fde68a", sFbg:"#fffbeb", sFbd:"#fde68a", sFtx:"#92400e",
       dWbg:"#1a0e00", dHbg:"#291600", dAcc:"#f59e0b", dCo:"#f59e0b", dFtx:"#f59e0b",
       bHg1:"#78350f", bHg2:"#b45309", bFbg:"#fffbeb", bFbd:"#fde68a", bFtx:"#78350f",
       nWbg:"#1a0e00", nHbg:"#291600", nAcc:"#f59e0b", nFtx:"#f59e0b",
-      nbHbg:"#b45309", nbCo:"#fff" },
+      nbHbg:"#b45309", nbCo:"#fff", nbdBg:"#1a0e00", nbdFbg:"#291600", nbdBd:"#f59e0b", nbdTx:"#f59e0b" },
     { sCo:"#1d4ed8", sDiv:"#bfdbfe", sFbg:"#eff6ff", sFbd:"#bfdbfe", sFtx:"#ca8a04",
       dWbg:"#080d1f", dHbg:"#0d1640", dAcc:"#3b82f6", dCo:"#fbbf24", dFtx:"#fbbf24",
       bHg1:"#1e3a8a", bHg2:"#1d4ed8", bFbg:"#eff6ff", bFbd:"#bfdbfe", bFtx:"#ca8a04",
       nWbg:"#080d1f", nHbg:"#0d1640", nAcc:"#3b82f6", nFtx:"#fbbf24",
-      nbHbg:"#1d4ed8", nbCo:"#fbbf24" },
+      nbHbg:"#1d4ed8", nbCo:"#fbbf24", nbdBg:"#080d1f", nbdFbg:"#0d1640", nbdBd:"#3b82f6", nbdTx:"#fbbf24" },
     { sCo:"#065f46", sDiv:"#a7f3d0", sFbg:"#ecfdf5", sFbd:"#a7f3d0", sFtx:"#ea580c",
       dWbg:"#020e08", dHbg:"#041f12", dAcc:"#10b981", dCo:"#f97316", dFtx:"#f97316",
       bHg1:"#064e3b", bHg2:"#065f46", bFbg:"#ecfdf5", bFbd:"#a7f3d0", bFtx:"#ea580c",
       nWbg:"#020e08", nHbg:"#041f12", nAcc:"#10b981", nFtx:"#f97316",
-      nbHbg:"#065f46", nbCo:"#f97316" },
+      nbHbg:"#065f46", nbCo:"#f97316", nbdBg:"#020e08", nbdFbg:"#041f12", nbdBd:"#10b981", nbdTx:"#f97316" },
     { sCo:"#4338ca", sDiv:"#c7d2fe", sFbg:"#eef2ff", sFbd:"#c7d2fe", sFtx:"#db2777",
       dWbg:"#0d0a2e", dHbg:"#1a1550", dAcc:"#6366f1", dCo:"#f472b6", dFtx:"#f472b6",
       bHg1:"#312e81", bHg2:"#4338ca", bFbg:"#eef2ff", bFbd:"#c7d2fe", bFtx:"#db2777",
       nWbg:"#0d0a2e", nHbg:"#1a1550", nAcc:"#6366f1", nFtx:"#f472b6",
-      nbHbg:"#4338ca", nbCo:"#f472b6" },
+      nbHbg:"#4338ca", nbCo:"#f472b6", nbdBg:"#0d0a2e", nbdFbg:"#1a1550", nbdBd:"#6366f1", nbdTx:"#f472b6" },
     // ── 9 new palettes (styles 46-90) ─────────────────────────────────────
     { sCo:"#d97706", sDiv:"#fde68a", sFbg:"#fffde7", sFbd:"#fde68a", sFtx:"#d97706",
       dWbg:"#0a0a0a", dHbg:"#1c1c1c", dAcc:"#eab308", dCo:"#eab308", dFtx:"#eab308",
       bHg1:"#111111", bHg2:"#252525", bFbg:"#fffde7", bFbd:"#fde68a", bFtx:"#92400e",
       nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#eab308", nFtx:"#eab308",
-      nbHbg:"#111111", nbCo:"#eab308" },
+      nbHbg:"#111111", nbCo:"#eab308", nbdBg:"#0a0a0a", nbdFbg:"#1c1c1c", nbdBd:"#eab308", nbdTx:"#eab308" },
     { sCo:"#1d4ed8", sDiv:"#bfdbfe", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#dc2626",
       dWbg:"#080c1f", dHbg:"#0d1640", dAcc:"#dc2626", dCo:"#60a5fa", dFtx:"#60a5fa",
       bHg1:"#991b1b", bHg2:"#dc2626", bFbg:"#eff6ff", bFbd:"#bfdbfe", bFtx:"#1d4ed8",
       nWbg:"#080c1f", nHbg:"#0d1640", nAcc:"#dc2626", nFtx:"#f87171",
-      nbHbg:"#1d4ed8", nbCo:"#fff" },
+      nbHbg:"#1d4ed8", nbCo:"#fff", nbdBg:"#080c1f", nbdFbg:"#0d1640", nbdBd:"#dc2626", nbdTx:"#60a5fa" },
     { sCo:"#7c3aed", sDiv:"#e9d5ff", sFbg:"#fff7ed", sFbd:"#fed7aa", sFtx:"#ea580c",
       dWbg:"#0d0020", dHbg:"#1e0a3c", dAcc:"#f97316", dCo:"#f97316", dFtx:"#f97316",
       bHg1:"#1e0a3c", bHg2:"#3b0764", bFbg:"#fff7ed", bFbd:"#fed7aa", bFtx:"#c2410c",
       nWbg:"#0d0020", nHbg:"#1e0a3c", nAcc:"#f97316", nFtx:"#f97316",
-      nbHbg:"#1e0a3c", nbCo:"#f97316" },
+      nbHbg:"#1e0a3c", nbCo:"#f97316", nbdBg:"#0d0020", nbdFbg:"#1e0a3c", nbdBd:"#f97316", nbdTx:"#f97316" },
     { sCo:"#6d28d9", sDiv:"#ede9fe", sFbg:"#fefce8", sFbd:"#fde68a", sFtx:"#a16207",
       dWbg:"#0d0020", dHbg:"#1e0a3c", dAcc:"#eab308", dCo:"#eab308", dFtx:"#eab308",
       bHg1:"#1e0a3c", bHg2:"#3b0764", bFbg:"#fefce8", bFbd:"#fde68a", bFtx:"#92400e",
       nWbg:"#0d0020", nHbg:"#1e0a3c", nAcc:"#eab308", nFtx:"#eab308",
-      nbHbg:"#1e0a3c", nbCo:"#eab308" },
+      nbHbg:"#1e0a3c", nbCo:"#eab308", nbdBg:"#0d0020", nbdFbg:"#1e0a3c", nbdBd:"#eab308", nbdTx:"#eab308" },
     { sCo:"#7c3aed", sDiv:"#ddd6fe", sFbg:"#eff6ff", sFbd:"#bfdbfe", sFtx:"#1d4ed8",
       dWbg:"#06061e", dHbg:"#0f0a30", dAcc:"#3b82f6", dCo:"#a78bfa", dFtx:"#93c5fd",
       bHg1:"#4c1d95", bHg2:"#1d4ed8", bFbg:"#f5f3ff", bFbd:"#ddd6fe", bFtx:"#1d4ed8",
       nWbg:"#06061e", nHbg:"#0f0a30", nAcc:"#7c3aed", nFtx:"#a78bfa",
-      nbHbg:"#4c1d95", nbCo:"#93c5fd" },
+      nbHbg:"#4c1d95", nbCo:"#93c5fd", nbdBg:"#06061e", nbdFbg:"#0f0a30", nbdBd:"#7c3aed", nbdTx:"#a78bfa" },
     { sCo:"#1e40af", sDiv:"#bfdbfe", sFbg:"#f0f4ff", sFbd:"#ef4444", sFtx:"#dc2626",
       dWbg:"#060c1f", dHbg:"#0d1a40", dAcc:"#ef4444", dCo:"#fff", dFtx:"#fca5a5",
       bHg1:"#1e3a8a", bHg2:"#1d4ed8", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#dc2626",
       nWbg:"#060c1f", nHbg:"#0d1a40", nAcc:"#ef4444", nFtx:"#fca5a5",
-      nbHbg:"#1d4ed8", nbCo:"#fff" },
+      nbHbg:"#1d4ed8", nbCo:"#fff", nbdBg:"#060c1f", nbdFbg:"#0d1a40", nbdBd:"#ef4444", nbdTx:"#fca5a5" },
     { sCo:"#b91c1c", sDiv:"#fecdd3", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#991b1b",
       dWbg:"#0a0a0a", dHbg:"#1a0505", dAcc:"#dc2626", dCo:"#f87171", dFtx:"#f87171",
       bHg1:"#111111", bHg2:"#1f0606", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#b91c1c",
       nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#dc2626", nFtx:"#f87171",
-      nbHbg:"#111111", nbCo:"#ef4444" },
+      nbHbg:"#111111", nbCo:"#ef4444", nbdBg:"#0a0a0a", nbdFbg:"#1a0505", nbdBd:"#dc2626", nbdTx:"#f87171" },
     { sCo:"#111111", sDiv:"#d1d5db", sFbg:"#f3f4f6", sFbd:"#d1d5db", sFtx:"#374151",
       dWbg:"#0a0a0a", dHbg:"#1a1a1a", dAcc:"#e5e7eb", dCo:"#fff", dFtx:"#f3f4f6",
       bHg1:"#111111", bHg2:"#374151", bFbg:"#f9fafb", bFbd:"#e5e7eb", bFtx:"#111111",
       nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#e5e7eb", nFtx:"#f3f4f6",
-      nbHbg:"#111111", nbCo:"#fff" },
+      nbHbg:"#111111", nbCo:"#fff", nbdBg:"#0a0a0a", nbdFbg:"#1a1a1a", nbdBd:"#e5e7eb", nbdTx:"#f3f4f6" },
     { sCo:"#6d28d9", sDiv:"#ddd6fe", sFbg:"#f0fdf4", sFbd:"#bbf7d0", sFtx:"#166534",
       dWbg:"#060a0e", dHbg:"#100a28", dAcc:"#22c55e", dCo:"#a78bfa", dFtx:"#86efac",
       bHg1:"#4c1d95", bHg2:"#6d28d9", bFbg:"#f0fdf4", bFbd:"#bbf7d0", bFtx:"#166534",
       nWbg:"#060a0e", nHbg:"#100a28", nAcc:"#16a34a", nFtx:"#4ade80",
-      nbHbg:"#4c1d95", nbCo:"#4ade80" },
+      nbHbg:"#4c1d95", nbCo:"#4ade80", nbdBg:"#060a0e", nbdFbg:"#100a28", nbdBd:"#22c55e", nbdTx:"#86efac" },
   ];
 
   const p = P[pi];
@@ -180,6 +188,18 @@ ${co ? `<div style="font-size:30px;font-weight:800;color:${p.nbCo};letter-spacin
 </td></tr>
 <tr><td style="padding:28px 32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
 <tr><td style="background:${p.sFbg};border-top:1px solid ${p.sFbd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.sFtx};">Thank you for your business!</td></tr>
+</table></td></tr></table></body></html>`;
+  }
+
+  if (li === 5) {  // Name Banner (Dark) — same header, dark body/footer
+    return `<!DOCTYPE html><html><body style="margin:0;background:${p.nbdBg};font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" style="padding:30px 0"><tr><td align="center">
+<table width="600" style="background:${p.nbdBg};border-radius:8px;overflow:hidden;">
+<tr><td style="background:${p.nbHbg};padding:36px 40px;text-align:center;">
+${co ? `<div style="font-size:30px;font-weight:800;color:${p.nbCo};letter-spacing:.01em;">${co}</div>` : ""}
+</td></tr>
+<tr><td style="padding:28px 32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
+<tr><td style="background:${p.nbdFbg};border-top:2px solid ${p.nbdBd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.nbdTx};">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 
