@@ -1036,6 +1036,12 @@
 
   window.loadDashboardSettings();
 
+  // Restore page from URL hash on load (e.g. after refresh)
+  (function() {
+    var hash = window.location.hash.replace('#', '');
+    if (hash) loadPage(hash);
+  })();
+
   // ── Map page keys to HTML files ──
   var pageFiles = {
     customers:      'ClientList.html',
@@ -1268,6 +1274,8 @@
         window.location.href = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
         return;
       }
+      // Update the browser URL bar to reflect the current page
+      history.pushState({ page: page }, '', '/dashboard.html#' + page);
       // Hide home screen, show iframe and load the file
       homeScreen.style.display = 'none';
       frame.style.display = 'flex';
@@ -1315,6 +1323,7 @@
     homeScreen.style.display = '';
     document.getElementById('page-title').textContent = 'Dashboard';
     document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    history.pushState({ page: 'home' }, '', '/dashboard.html');
     loadDashboardSettings();
   }
 
