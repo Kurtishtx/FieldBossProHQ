@@ -1036,12 +1036,6 @@
 
   window.loadDashboardSettings();
 
-  // Restore page from URL hash on load (e.g. after refresh)
-  (function() {
-    var hash = window.location.hash.replace('#', '');
-    if (hash) loadPage(hash);
-  })();
-
   // ── Map page keys to HTML files ──
   var pageFiles = {
     customers:      'ClientList.html',
@@ -1175,6 +1169,12 @@
     alertemailinfo:          'Alert Email Info',
     alerttemplatesall:       'Email Alert Templates',
   };
+
+  // Restore page from URL hash on load (after pageFiles/pageTitles are ready)
+  (function() {
+    var hash = window.location.hash.replace('#', '');
+    if (hash) loadPage(hash);
+  })();
 
   // ── Global Search ──
   var _searchTimer = null;
