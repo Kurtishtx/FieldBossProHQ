@@ -9,64 +9,93 @@ const cors = {
 // ── Build styled HTML email from alert_email_settings + body text ──────────
 function buildEmailHtml(style: number, info: any, bodyText: string): string {
   const e = (s: string) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // 16 styles: 4 palettes × 4 layouts
+  // style 1-4 = Purple, 5-8 = Ocean, 9-12 = Forest, 13-16 = Crimson
+  // within each group: 1=simple, 2=darkpro, 3=brand, 4=banner
+  const li = (style - 1) % 4;               // 0=simple,1=darkpro,2=brand,3=banner
+  const pi = Math.floor((style - 1) / 4);   // 0=purple,1=ocean,2=forest,3=crimson
+
+  const P = [
+    { sCo:"#5b2d8e", sDiv:"#ede7f6", sFbg:"#f9f4ff", sFbd:"#ede7f6", sFtx:"#5b2d8e",
+      dWbg:"#0e0e0e", dHbg:"#1a1a1a", dAcc:"#e07820",
+      bHg1:"#3d1060", bHg2:"#6b21a8", bFbg:"#f5f5f5", bFbd:"#ddd", bFtx:"#3d1060",
+      nWbg:"#0e0e0e", nHbg:"#1a1a1a", nAcc:"#e07820" },
+    { sCo:"#0369a1", sDiv:"#bae6fd", sFbg:"#f0f9ff", sFbd:"#bae6fd", sFtx:"#0369a1",
+      dWbg:"#071e38", dHbg:"#0c2744", dAcc:"#06b6d4",
+      bHg1:"#0c4a6e", bHg2:"#0369a1", bFbg:"#f0f9ff", bFbd:"#bae6fd", bFtx:"#0c4a6e",
+      nWbg:"#071e38", nHbg:"#0c2744", nAcc:"#06b6d4" },
+    { sCo:"#166534", sDiv:"#bbf7d0", sFbg:"#f0fdf4", sFbd:"#bbf7d0", sFtx:"#166534",
+      dWbg:"#0a150e", dHbg:"#122018", dAcc:"#ca8a04",
+      bHg1:"#14532d", bHg2:"#166534", bFbg:"#f0fdf4", bFbd:"#bbf7d0", bFtx:"#14532d",
+      nWbg:"#0a150e", nHbg:"#122018", nAcc:"#ca8a04" },
+    { sCo:"#991b1b", sDiv:"#fecdd3", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#7f1d1d",
+      dWbg:"#1a0808", dHbg:"#2a0e0e", dAcc:"#dc2626",
+      bHg1:"#7f1d1d", bHg2:"#991b1b", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#7f1d1d",
+      nWbg:"#1a0808", nHbg:"#2a0e0e", nAcc:"#dc2626" },
+  ] as const;
+
+  const p = P[pi] as any;
   const logo = info?.company_logo
     ? `<img src="${e(info.company_logo)}" style="max-height:80px;max-width:220px;object-fit:contain;" alt=""/>`
     : "";
-  const co   = e(info?.company_name || "");
-  const bodyHtml = bodyText.split(/\n\n+/).map((p: string) =>
-    "<p style='margin:0 0 16px;'>" + p.split(/\n/).map((l: string) => e(l)).join("<br/>") + "</p>"
+  const bigLogo = info?.company_logo
+    ? `<img src="${e(info.company_logo)}" style="max-height:140px;max-width:90%;width:auto;object-fit:contain;" alt=""/>`
+    : "";
+  const co = e(info?.company_name || "");
+  const bodyHtml = bodyText.split(/\n\n+/).map((par: string) =>
+    "<p style='margin:0 0 16px;'>" + par.split(/\n/).map((l: string) => e(l)).join("<br/>") + "</p>"
   ).join("");
-  if (style === 2) {
+
+  if (li === 0) {  // Clean & Simple
     return `<!DOCTYPE html><html><body style="margin:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
 <table width="100%" style="padding:30px 0"><tr><td align="center">
 <table width="600" style="background:#fff;border-radius:8px;overflow:hidden;">
-<tr><td style="background:#1a1a2e;padding:26px 32px;text-align:center;">
+<tr><td style="padding:26px 32px 8px;text-align:center;">
 ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
-${co ? `<div style="color:#fff;font-size:22px;font-weight:700;">${co}</div>` : ""}
+${co ? `<div style="font-size:20px;font-weight:700;color:${p.sCo};">${co}</div>` : ""}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
-<tr><td style="background:#1a1a2e;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#fff;">Thank you for your business!</td></tr>
+<tr><td><div style="height:2px;background:${p.sDiv};margin:0 32px;"></div></td></tr>
+<tr><td style="padding:24px 32px 28px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
+<tr><td style="background:${p.sFbg};border-top:1px solid ${p.sFbd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.sFtx};">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 
-  if (style === 3) {
+  if (li === 1) {  // Dark Professional
+    return `<!DOCTYPE html><html><body style="margin:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" style="padding:30px 0"><tr><td align="center">
+<table width="600" style="background:${p.dWbg};border-radius:8px;overflow:hidden;">
+<tr><td style="background:${p.dHbg};padding:26px 32px;text-align:center;border-bottom:2px solid ${p.dAcc};">
+${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
+${co ? `<div style="font-size:22px;font-weight:700;color:${p.dAcc};">${co}</div>` : ""}
+</td></tr>
+<tr><td style="padding:28px 32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
+<tr><td style="background:${p.dHbg};border-top:2px solid ${p.dAcc};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.dAcc};">Thank you for your business!</td></tr>
+</table></td></tr></table></body></html>`;
+  }
+
+  if (li === 2) {  // Brand Header
     return `<!DOCTYPE html><html><body style="margin:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
 <table width="100%" style="padding:30px 0"><tr><td align="center">
 <table width="600" style="background:#fff;border-radius:8px;overflow:hidden;">
-<tr><td style="background:#5b2d8e;padding:26px 32px;text-align:center;">
+<tr><td style="background:linear-gradient(135deg,${p.bHg1},${p.bHg2});padding:28px 32px;text-align:center;">
 ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
-${co ? `<div style="color:#fff;font-size:24px;font-weight:800;">${co}</div>` : ""}
+${co ? `<div style="font-size:22px;font-weight:800;color:#fff;">${co}</div>` : ""}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
-<tr><td style="background:#f0e8fa;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#3d1060;">Thank you for your business!</td></tr>
+<tr><td style="padding:28px 32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
+<tr><td style="background:${p.bFbg};border-top:1px solid ${p.bFbd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.bFtx};">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 
-  if (style === 4) {
-    const bigLogo = info?.company_logo
-      ? `<img src="${e(info.company_logo)}" style="max-height:140px;max-width:90%;width:auto;object-fit:contain;" alt=""/>`
-      : "";
-    return `<!DOCTYPE html><html><body style="margin:0;background:#0e0e0e;font-family:'Segoe UI',Arial,sans-serif;">
+  // li === 3: Dark Logo Banner
+  return `<!DOCTYPE html><html><body style="margin:0;background:#0e0e0e;font-family:'Segoe UI',Arial,sans-serif;">
 <table width="100%" style="padding:30px 0"><tr><td align="center">
-<table width="600" style="background:#0e0e0e;border-radius:8px;overflow:hidden;border:1px solid #333;">
-<tr><td style="background:#1a1a1a;padding:28px 20px;text-align:center;border-bottom:2px solid #e07820;">
+<table width="600" style="background:${p.nWbg};border-radius:8px;overflow:hidden;border:1px solid #333;">
+<tr><td style="background:${p.nHbg};padding:28px 20px;text-align:center;border-bottom:2px solid ${p.nAcc};">
 ${bigLogo}
 </td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
-<tr><td style="background:#1a1a1a;border-top:2px solid #e07820;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#e07820;">Thank you for your business!</td></tr>
-</table></td></tr></table></body></html>`;
-  }
-
-  // Style 1 — Clean & Simple (default)
-  return `<!DOCTYPE html><html><body style="margin:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
-<table width="100%" style="padding:30px 0"><tr><td align="center">
-<table width="600" style="background:#fff;border-radius:8px;overflow:hidden;">
-<tr><td style="padding:26px 32px;text-align:center;border-bottom:1px solid #eee;">
-${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
-${co ? `<div style="font-size:20px;font-weight:700;color:#222;">${co}</div>` : ""}
-</td></tr>
-<tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
-<tr><td style="background:#f9f9f9;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#5b2d8e;border-top:1px solid #eee;">Thank you for your business!</td></tr>
+<tr><td style="padding:28px 32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
+<tr><td style="background:${p.nHbg};border-top:2px solid ${p.nAcc};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.nAcc};">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
 }
 

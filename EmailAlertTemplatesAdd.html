@@ -8,7 +8,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; font-size: 13px; color: #222; }
 
-    /* ── Top bar ── */
     .topbar {
       background: #0d1b2a; color: #fff;
       display: flex; align-items: center; gap: 14px;
@@ -19,11 +18,19 @@
     .btn-back:hover { background: rgba(255,255,255,.2); }
     .topbar-title { font-size: 16px; font-weight: 700; }
 
-    /* ── Picker step ── */
     #picker-step { padding: 28px 24px; }
     .picker-hdr { margin-bottom: 22px; }
     .picker-hdr h2 { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 4px; }
     .picker-hdr p  { font-size: 13px; color: #777; }
+
+    .palette-section { margin-bottom: 30px; }
+    .palette-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; color: #555;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .palette-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
 
     .template-grid { display: flex; gap: 20px; flex-wrap: wrap; }
 
@@ -33,49 +40,13 @@
       transition: border-color .15s, box-shadow .15s;
     }
     .tmpl-card:hover { border-color: #5b2d8e; box-shadow: 0 4px 16px rgba(91,45,142,.2); }
+    .tmpl-card.active { border-color: #5b2d8e; box-shadow: 0 4px 16px rgba(91,45,142,.25); }
 
     .tmpl-preview { height: 280px; overflow: hidden; pointer-events: none; position: relative; }
-    .tmpl-preview > * { transform-origin: top left; transform: scale(.55); width: 182%; }
+    .tmpl-scale { transform-origin: top left; transform: scale(.55); width: 182%; }
 
     .tmpl-label { padding: 10px 14px; font-size: 13px; font-weight: 700; color: #333; border-top: 1px solid #eee; background: #fafafa; text-align: center; }
 
-    /* ── Mini email styles ── */
-    .s1-wrap { background: #fff; font-family: Arial, sans-serif; }
-    .s1-logo { text-align: center; padding: 28px 20px 6px; font-size: 14px; color: #aaa; font-style: italic; }
-    .s1-co { text-align: center; font-size: 14px; font-weight: 700; color: #5b2d8e; padding-bottom: 18px; font-style: italic; }
-    .s1-div { height: 2px; background: #ede7f6; margin: 0 30px 20px; }
-    .s1-body { padding: 0 30px 20px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
-    .s1-footer { background: #f9f4ff; border-top: 1px solid #ede7f6; padding: 18px 30px; text-align: center; }
-    .s1-footer .ty { font-size: 13px; font-weight: 700; color: #5b2d8e; }
-    .s1-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
-
-    .s2-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
-    .s2-header { background: #1a1a1a; padding: 26px 20px 18px; text-align: center; border-bottom: 2px solid #e07820; }
-    .s2-logo { font-size: 14px; color: #aaa; margin-bottom: 8px; font-style: italic; }
-    .s2-co { font-size: 14px; font-weight: 700; color: #e07820; font-style: italic; }
-    .s2-body { padding: 26px 30px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
-    .s2-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 18px 30px; text-align: center; }
-    .s2-footer .ty { font-size: 13px; font-weight: 700; color: #e07820; }
-    .s2-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
-
-    .s3-wrap { background: #fff; font-family: Arial, sans-serif; }
-    .s3-header { background: linear-gradient(135deg, #3d1060, #6b21a8); padding: 28px 20px 20px; text-align: center; }
-    .s3-logo { font-size: 14px; color: rgba(255,255,255,.6); margin-bottom: 8px; font-style: italic; }
-    .s3-co { font-size: 14px; font-weight: 700; color: #fff; font-style: italic; }
-    .s3-body { padding: 28px 30px 20px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
-    .s3-footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 18px 30px; text-align: center; }
-    .s3-footer .ty { font-size: 13px; font-weight: 700; color: #3d1060; }
-    .s3-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
-
-    .s4-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
-    .s4-header { background: #1a1a1a; padding: 22px 16px; text-align: center; border-bottom: 2px solid #e07820; }
-    .s4-logo { font-size: 14px; color: #aaa; font-style: italic; }
-    .s4-body { padding: 26px 30px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
-    .s4-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 18px 30px; text-align: center; }
-    .s4-footer .ty { font-size: 13px; font-weight: 700; color: #e07820; }
-    .s4-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
-
-    /* ── Preview step ── */
     #preview-step { display: none; }
 
     .preview-header {
@@ -93,47 +64,6 @@
     .preview-wrap { margin: 16px 24px 30px; }
     .preview-outer { max-width: 600px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.12); }
 
-    /* Full-size preview email styles */
-    .ps1-wrap { background: #fff; font-family: Arial, sans-serif; }
-    .ps1-logo { text-align: center; padding: 32px 20px 8px; }
-    .ps1-logo img { max-height: 70px; max-width: 200px; object-fit: contain; }
-    .ps1-logo-ph { font-size: 42px; }
-    .ps1-co { text-align: center; font-size: 20px; font-weight: 700; color: #5b2d8e; padding-bottom: 20px; }
-    .ps1-div { height: 2px; background: #ede7f6; margin: 0 40px 24px; }
-    .ps1-body { padding: 0 40px 28px; font-size: 15px; color: #444; line-height: 1.8; white-space: pre-wrap; }
-    .ps1-footer { background: #f9f4ff; border-top: 1px solid #ede7f6; padding: 22px 40px; text-align: center; }
-    .ps1-footer .ty { font-size: 14px; font-weight: 700; color: #5b2d8e; }
-    .ps1-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
-
-    .ps2-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
-    .ps2-header { background: #1a1a1a; padding: 30px 20px 22px; text-align: center; border-bottom: 2px solid #e07820; }
-    .ps2-logo img { max-height: 70px; max-width: 200px; object-fit: contain; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
-    .ps2-logo-ph { font-size: 40px; margin-bottom: 10px; }
-    .ps2-co { font-size: 22px; font-weight: 700; color: #e07820; }
-    .ps2-body { padding: 28px 40px; font-size: 15px; color: #ddd; line-height: 1.8; white-space: pre-wrap; }
-    .ps2-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 22px 40px; text-align: center; }
-    .ps2-footer .ty { font-size: 14px; font-weight: 700; color: #e07820; }
-    .ps2-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
-
-    .ps3-wrap { background: #fff; font-family: Arial, sans-serif; }
-    .ps3-header { background: linear-gradient(135deg, #3d1060, #6b21a8); padding: 32px 20px 24px; text-align: center; }
-    .ps3-logo img { max-height: 70px; max-width: 200px; object-fit: contain; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
-    .ps3-logo-ph { font-size: 40px; margin-bottom: 10px; }
-    .ps3-co { font-size: 22px; font-weight: 700; color: #fff; }
-    .ps3-body { padding: 30px 40px 24px; font-size: 15px; color: #333; line-height: 1.8; white-space: pre-wrap; }
-    .ps3-footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 22px 40px; text-align: center; }
-    .ps3-footer .ty { font-size: 14px; font-weight: 700; color: #3d1060; }
-    .ps3-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
-
-    .ps4-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
-    .ps4-header { background: #1a1a1a; padding: 24px 20px; text-align: center; border-bottom: 2px solid #e07820; }
-    .ps4-logo img { max-height: 130px; max-width: 90%; width: auto; object-fit: contain; display: block; margin: 0 auto; }
-    .ps4-logo-ph { font-size: 40px; color: #aaa; font-style: italic; font-size: 14px; }
-    .ps4-body { padding: 28px 40px; font-size: 15px; color: #ddd; line-height: 1.8; white-space: pre-wrap; }
-    .ps4-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 22px 40px; text-align: center; }
-    .ps4-footer .ty { font-size: 14px; font-weight: 700; color: #e07820; }
-    .ps4-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
-
     .save-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 24px 20px; }
     .btn-save { background: #e07820; color: #fff; border: none; border-radius: 4px; padding: 10px 28px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-save:hover { background: #c96a10; }
@@ -149,75 +79,15 @@
   <span class="topbar-title">Alert Email Template</span>
 </div>
 
-<!-- ── STEP 1: PICKER ── -->
 <div id="picker-step">
   <div class="picker-hdr">
     <h2>Choose an Alert Email Layout</h2>
     <p>Select the design for your alert email</p>
   </div>
-
-  <div class="template-grid">
-
-    <div class="tmpl-card" onclick="selectStyle(1)">
-      <div class="tmpl-preview">
-        <div class="s1-wrap">
-          <div class="s1-logo">[logo]</div>
-          <div class="s1-co">[companyname]</div>
-          <div class="s1-div"></div>
-          <div class="s1-body">[alert text]</div>
-          <div class="s1-footer"><div class="ty">Thank you for your business!</div></div>
-        </div>
-      </div>
-      <div class="tmpl-label">Clean &amp; Simple</div>
-    </div>
-
-    <div class="tmpl-card" onclick="selectStyle(2)">
-      <div class="tmpl-preview">
-        <div class="s2-wrap">
-          <div class="s2-header">
-            <div class="s2-logo">[logo]</div>
-            <div class="s2-co">[companyname]</div>
-          </div>
-          <div class="s2-body">[alert text]</div>
-          <div class="s2-footer"><div class="ty">Thank you for your business!</div></div>
-        </div>
-      </div>
-      <div class="tmpl-label">Dark Professional</div>
-    </div>
-
-    <div class="tmpl-card" onclick="selectStyle(3)">
-      <div class="tmpl-preview">
-        <div class="s3-wrap">
-          <div class="s3-header">
-            <div class="s3-logo">[logo]</div>
-            <div class="s3-co">[companyname]</div>
-          </div>
-          <div class="s3-body">[alert text]</div>
-          <div class="s3-footer"><div class="ty">Thank you for your business!</div></div>
-        </div>
-      </div>
-      <div class="tmpl-label">Brand Header</div>
-    </div>
-
-    <div class="tmpl-card" onclick="selectStyle(4)">
-      <div class="tmpl-preview">
-        <div class="s4-wrap">
-          <div class="s4-header">
-            <div class="s4-logo">[logo — full width]</div>
-          </div>
-          <div class="s4-body">[alert text]</div>
-          <div class="s4-footer"><div class="ty">Thank you for your business!</div></div>
-        </div>
-      </div>
-      <div class="tmpl-label">Dark Logo Banner</div>
-    </div>
-
-  </div>
+  <div id="picker-groups"></div>
 </div>
 
-<!-- ── STEP 2: PREVIEW ── -->
 <div id="preview-step">
-
   <div class="preview-header">
     <div>
       <h2>Your Alert Email Template</h2>
@@ -225,18 +95,14 @@
     </div>
     <button class="btn-change" onclick="changeTemplate()">&#8592; Change Template</button>
   </div>
-
   <div class="info-bar">&#9432; Client and alert fields show sample data — real values fill in when an actual alert is sent.</div>
-
   <div class="preview-wrap">
     <div class="preview-outer" id="preview-outer"></div>
   </div>
-
   <div class="save-row">
     <span class="save-msg" id="save-msg">&#10003; Saved!</span>
     <button class="btn-save" onclick="saveStyle()">Save Template</button>
   </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -246,6 +112,130 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
     { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
   );
+
+  // 4 palettes × 4 layouts = 16 styles
+  // Style id = (paletteIndex * 4) + (layoutIndex + 1)
+  // styles 1-4 = Purple palette, styles 5-8 = Ocean, 9-12 = Forest, 13-16 = Crimson
+
+  var PALETTES = [
+    {
+      label: 'Purple', dot: '#5b2d8e',
+      simple:  { co:'#5b2d8e', div:'#ede7f6', fbg:'#f9f4ff', fbd:'#ede7f6', ftx:'#5b2d8e' },
+      darkpro: { wbg:'#0e0e0e', hbg:'#1a1a1a', hacc:'#e07820', co:'#e07820', fbg:'#1a1a1a', fbd:'#e07820', ftx:'#e07820' },
+      brand:   { hg1:'#3d1060', hg2:'#6b21a8', fbg:'#f5f5f5', fbd:'#ddd', ftx:'#3d1060' },
+      banner:  { wbg:'#0e0e0e', hbg:'#1a1a1a', hacc:'#e07820', fbg:'#1a1a1a', fbd:'#e07820', ftx:'#e07820' }
+    },
+    {
+      label: 'Ocean', dot: '#0369a1',
+      simple:  { co:'#0369a1', div:'#bae6fd', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0369a1' },
+      darkpro: { wbg:'#071e38', hbg:'#0c2744', hacc:'#06b6d4', co:'#06b6d4', fbg:'#0c2744', fbd:'#06b6d4', ftx:'#06b6d4' },
+      brand:   { hg1:'#0c4a6e', hg2:'#0369a1', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0c4a6e' },
+      banner:  { wbg:'#071e38', hbg:'#0c2744', hacc:'#06b6d4', fbg:'#0c2744', fbd:'#06b6d4', ftx:'#06b6d4' }
+    },
+    {
+      label: 'Forest', dot: '#166534',
+      simple:  { co:'#166534', div:'#bbf7d0', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#166534' },
+      darkpro: { wbg:'#0a150e', hbg:'#122018', hacc:'#ca8a04', co:'#ca8a04', fbg:'#122018', fbd:'#ca8a04', ftx:'#ca8a04' },
+      brand:   { hg1:'#14532d', hg2:'#166534', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#14532d' },
+      banner:  { wbg:'#0a150e', hbg:'#122018', hacc:'#ca8a04', fbg:'#122018', fbd:'#ca8a04', ftx:'#ca8a04' }
+    },
+    {
+      label: 'Crimson', dot: '#991b1b',
+      simple:  { co:'#991b1b', div:'#fecdd3', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#991b1b' },
+      darkpro: { wbg:'#1a0808', hbg:'#2a0e0e', hacc:'#dc2626', co:'#dc2626', fbg:'#2a0e0e', fbd:'#dc2626', ftx:'#dc2626' },
+      brand:   { hg1:'#7f1d1d', hg2:'#991b1b', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#7f1d1d' },
+      banner:  { wbg:'#1a0808', hbg:'#2a0e0e', hacc:'#dc2626', fbg:'#2a0e0e', fbd:'#dc2626', ftx:'#dc2626' }
+    }
+  ];
+
+  var LAYOUTS     = ['simple', 'darkpro', 'brand', 'banner'];
+  var LAYOUT_NAMES = ['Clean &amp; Simple', 'Dark Professional', 'Brand Header', 'Dark Logo Banner'];
+
+  function styleToLayout(s)  { return (s - 1) % 4; }
+  function styleToPalette(s) { return Math.floor((s - 1) / 4); }
+
+  function tyDiv(c, border, dark) {
+    var bdr = dark
+      ? 'border-top:2px solid ' + border + ';'
+      : 'border-top:1px solid ' + border + ';';
+    return '<div style="background:' + c.fbg + ';' + bdr + 'padding:18px 30px;text-align:center;">' +
+      '<div style="font-size:13px;font-weight:700;color:' + c.ftx + ';">Thank you for your business!</div>' +
+    '</div>';
+  }
+
+  function miniHtml(styleId) {
+    var li  = styleToLayout(styleId);
+    var pi  = styleToPalette(styleId);
+    var pal = PALETTES[pi];
+    var layout = LAYOUTS[li];
+    var c = pal[layout];
+
+    if (layout === 'simple') {
+      return '<div style="background:#fff;font-family:Arial,sans-serif;">' +
+        '<div style="text-align:center;padding:28px 20px 6px;font-size:14px;color:#aaa;font-style:italic;">[logo]</div>' +
+        '<div style="text-align:center;font-size:14px;font-weight:700;color:' + c.co + ';padding-bottom:18px;font-style:italic;">[companyname]</div>' +
+        '<div style="height:2px;background:' + c.div + ';margin:0 30px 20px;"></div>' +
+        '<div style="padding:0 30px 20px;font-size:14px;color:#aaa;line-height:1.7;font-style:italic;">[alert text]</div>' +
+        tyDiv(c, c.fbd, false) +
+      '</div>';
+    }
+    if (layout === 'darkpro') {
+      return '<div style="background:' + c.wbg + ';font-family:Arial,sans-serif;">' +
+        '<div style="background:' + c.hbg + ';padding:26px 20px 18px;text-align:center;border-bottom:2px solid ' + c.hacc + ';">' +
+          '<div style="font-size:14px;color:#aaa;margin-bottom:8px;font-style:italic;">[logo]</div>' +
+          '<div style="font-size:14px;font-weight:700;color:' + c.co + ';font-style:italic;">[companyname]</div>' +
+        '</div>' +
+        '<div style="padding:26px 30px;font-size:14px;color:#aaa;line-height:1.7;font-style:italic;">[alert text]</div>' +
+        tyDiv(c, c.fbd, true) +
+      '</div>';
+    }
+    if (layout === 'brand') {
+      return '<div style="background:#fff;font-family:Arial,sans-serif;">' +
+        '<div style="background:linear-gradient(135deg,' + c.hg1 + ',' + c.hg2 + ');padding:28px 20px 20px;text-align:center;">' +
+          '<div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:8px;font-style:italic;">[logo]</div>' +
+          '<div style="font-size:14px;font-weight:700;color:#fff;font-style:italic;">[companyname]</div>' +
+        '</div>' +
+        '<div style="padding:28px 30px 20px;font-size:14px;color:#aaa;line-height:1.7;font-style:italic;">[alert text]</div>' +
+        tyDiv(c, c.fbd, false) +
+      '</div>';
+    }
+    // banner
+    return '<div style="background:' + c.wbg + ';font-family:Arial,sans-serif;">' +
+      '<div style="background:' + c.hbg + ';padding:22px 16px;text-align:center;border-bottom:2px solid ' + c.hacc + ';">' +
+        '<div style="font-size:14px;color:#aaa;font-style:italic;">[logo — full width]</div>' +
+      '</div>' +
+      '<div style="padding:26px 30px;font-size:14px;color:#aaa;line-height:1.7;font-style:italic;">[alert text]</div>' +
+      tyDiv(c, c.fbd, true) +
+    '</div>';
+  }
+
+  function buildGrid() {
+    var container = document.getElementById('picker-groups');
+    for (var pi = 0; pi < PALETTES.length; pi++) {
+      var pal = PALETTES[pi];
+      var section = document.createElement('div');
+      section.className = 'palette-section';
+      var labelEl = document.createElement('div');
+      labelEl.className = 'palette-label';
+      labelEl.innerHTML = '<span class="palette-dot" style="background:' + pal.dot + ';"></span>' + pal.label;
+      section.appendChild(labelEl);
+      var grid = document.createElement('div');
+      grid.className = 'template-grid';
+      for (var li = 0; li < LAYOUTS.length; li++) {
+        var styleId = pi * 4 + li + 1;
+        var card = document.createElement('div');
+        card.className = 'tmpl-card';
+        card.setAttribute('data-style', String(styleId));
+        card.onclick = (function(id) { return function() { selectStyle(id); }; })(styleId);
+        card.innerHTML =
+          '<div class="tmpl-preview"><div class="tmpl-scale">' + miniHtml(styleId) + '</div></div>' +
+          '<div class="tmpl-label">' + LAYOUT_NAMES[li] + '</div>';
+        grid.appendChild(card);
+      }
+      section.appendChild(grid);
+      container.appendChild(section);
+    }
+  }
 
   var chosenStyle = 0;
   var info = {};
@@ -267,53 +257,85 @@
     document.getElementById('picker-step').style.display = 'block';
   }
 
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  function logoHtml(imgCls, phCls) {
-    if (info.company_logo) return '<div class="' + imgCls + '"><img src="' + esc(info.company_logo) + '"/></div>';
-    var isLarge = phCls === 'ps4-logo-ph';
-    return '<div class="' + phCls + '" style="font-style:italic;color:#aaa;font-size:' + (isLarge ? '16' : '14') + 'px;">[your logo fills header here]</div>';
-  }
+  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
   function renderPreview() {
+    var li     = styleToLayout(chosenStyle);
+    var pi     = styleToPalette(chosenStyle);
+    var pal    = PALETTES[pi];
+    var layout = LAYOUTS[li];
+    var c      = pal[layout];
+
     var co  = info.company_name  ? esc(info.company_name)  : '<span style="color:#aaa;font-style:italic;">[companyname]</span>';
     var msg = info.alert_message ? esc(info.alert_message) : '<span style="color:#aaa;font-style:italic;">[alert text]</span>';
-    var sf  = info.signoff_name  ? esc(info.signoff_name)  : (info.company_name ? esc(info.company_name) : '<span style="color:#aaa;font-style:italic;">[companyname]</span>');
-    var html = '';
 
-    if (chosenStyle === 1) {
-      html = '<div class="ps1-wrap">' +
-        '<div class="ps1-logo">' + logoHtml('ps1-logo','ps1-logo-ph') + '</div>' +
-        '<div class="ps1-co">' + co + '</div>' +
-        '<div class="ps1-div"></div>' +
-        '<div class="ps1-body">' + msg + '</div>' +
-        '<div class="ps1-footer"><div class="ty">Thank you for your business!</div></div>' +
+    var logoSm = '';
+    var logoLg = '';
+    if (info.company_logo) {
+      logoSm = '<img src="' + esc(info.company_logo) + '" style="max-height:70px;max-width:200px;object-fit:contain;display:block;margin:0 auto;"/>';
+      logoLg = '<img src="' + esc(info.company_logo) + '" style="max-height:130px;max-width:90%;width:auto;object-fit:contain;display:block;margin:0 auto;"/>';
+    } else {
+      logoSm = '<span style="color:#aaa;font-style:italic;font-size:14px;">[your logo fills header here]</span>';
+      logoLg = '<span style="color:#aaa;font-style:italic;font-size:16px;">[your logo fills header here]</span>';
+    }
+
+    var tyFull = '';
+    if (layout === 'simple' || layout === 'brand') {
+      tyFull = '<div style="background:' + c.fbg + ';border-top:1px solid ' + c.fbd + ';padding:22px 40px;text-align:center;">' +
+        '<div style="font-size:14px;font-weight:700;color:' + c.ftx + ';">Thank you for your business!</div>' +
       '</div>';
-    } else if (chosenStyle === 2) {
-      html = '<div class="ps2-wrap">' +
-        '<div class="ps2-header">' + logoHtml('ps2-logo','ps2-logo-ph') + '<div class="ps2-co">' + co + '</div></div>' +
-        '<div class="ps2-body">' + msg + '</div>' +
-        '<div class="ps2-footer"><div class="ty">Thank you for your business!</div></div>' +
+    } else {
+      tyFull = '<div style="background:' + c.fbg + ';border-top:2px solid ' + c.fbd + ';padding:22px 40px;text-align:center;">' +
+        '<div style="font-size:14px;font-weight:700;color:' + c.ftx + ';">Thank you for your business!</div>' +
       '</div>';
-    } else if (chosenStyle === 3) {
-      html = '<div class="ps3-wrap">' +
-        '<div class="ps3-header">' + logoHtml('ps3-logo','ps3-logo-ph') + '<div class="ps3-co">' + co + '</div></div>' +
-        '<div class="ps3-body">' + msg + '</div>' +
-        '<div class="ps3-footer"><div class="ty">Thank you for your business!</div></div>' +
-      '</div>';
-    } else if (chosenStyle === 4) {
-      html = '<div class="ps4-wrap">' +
-        '<div class="ps4-header">' + logoHtml('ps4-logo','ps4-logo-ph') + '</div>' +
-        '<div class="ps4-body">' + msg + '</div>' +
-        '<div class="ps4-footer"><div class="ty">Thank you for your business!</div></div>' +
-      '</div>';
+    }
+
+    var html = '';
+    if (layout === 'simple') {
+      html =
+        '<div style="background:#fff;font-family:Arial,sans-serif;">' +
+          '<div style="text-align:center;padding:32px 20px 8px;">' + logoSm + '</div>' +
+          '<div style="text-align:center;font-size:20px;font-weight:700;color:' + c.co + ';padding-bottom:20px;">' + co + '</div>' +
+          '<div style="height:2px;background:' + c.div + ';margin:0 40px 24px;"></div>' +
+          '<div style="padding:0 40px 28px;font-size:15px;color:#444;line-height:1.8;white-space:pre-wrap;">' + msg + '</div>' +
+          tyFull +
+        '</div>';
+    } else if (layout === 'darkpro') {
+      html =
+        '<div style="background:' + c.wbg + ';font-family:Arial,sans-serif;">' +
+          '<div style="background:' + c.hbg + ';padding:30px 20px 22px;text-align:center;border-bottom:2px solid ' + c.hacc + ';">' +
+            '<div style="margin-bottom:10px;">' + logoSm + '</div>' +
+            '<div style="font-size:22px;font-weight:700;color:' + c.co + ';">' + co + '</div>' +
+          '</div>' +
+          '<div style="padding:28px 40px;font-size:15px;color:#ddd;line-height:1.8;white-space:pre-wrap;">' + msg + '</div>' +
+          tyFull +
+        '</div>';
+    } else if (layout === 'brand') {
+      html =
+        '<div style="background:#fff;font-family:Arial,sans-serif;">' +
+          '<div style="background:linear-gradient(135deg,' + c.hg1 + ',' + c.hg2 + ');padding:32px 20px 24px;text-align:center;">' +
+            '<div style="margin-bottom:10px;">' + logoSm + '</div>' +
+            '<div style="font-size:22px;font-weight:700;color:#fff;">' + co + '</div>' +
+          '</div>' +
+          '<div style="padding:30px 40px 24px;font-size:15px;color:#333;line-height:1.8;white-space:pre-wrap;">' + msg + '</div>' +
+          tyFull +
+        '</div>';
+    } else {
+      html =
+        '<div style="background:' + c.wbg + ';font-family:Arial,sans-serif;">' +
+          '<div style="background:' + c.hbg + ';padding:24px 20px;text-align:center;border-bottom:2px solid ' + c.hacc + ';">' +
+            logoLg +
+          '</div>' +
+          '<div style="padding:28px 40px;font-size:15px;color:#ddd;line-height:1.8;white-space:pre-wrap;">' + msg + '</div>' +
+          tyFull +
+        '</div>';
     }
     document.getElementById('preview-outer').innerHTML = html;
   }
 
   async function saveStyle() {
     var { data: sess } = await sb.auth.getSession();
-    var uid = sess?.session?.user?.id;
+    var uid = sess && sess.session ? sess.session.user.id : null;
     if (!uid) return;
     var { error } = await sb.from('alert_email_settings').upsert({ user_id: uid, template_style: chosenStyle }, { onConflict: 'user_id' });
     if (error) { alert('Error saving: ' + error.message); return; }
@@ -327,8 +349,9 @@
   }
 
   async function init() {
+    buildGrid();
     var { data: sess } = await sb.auth.getSession();
-    var uid = sess?.session?.user?.id;
+    var uid = sess && sess.session ? sess.session.user.id : null;
     if (!uid) return;
 
     var { data } = await sb.from('alert_email_settings').select('*').eq('user_id', uid).single();
@@ -336,6 +359,11 @@
       info = data;
       if (data.template_style) {
         chosenStyle = data.template_style;
+        // highlight selected card
+        var allCards = document.querySelectorAll('.tmpl-card');
+        allCards.forEach(function(card) {
+          if (parseInt(card.getAttribute('data-style')) === chosenStyle) card.classList.add('active');
+        });
         document.getElementById('picker-step').style.display = 'none';
         document.getElementById('preview-step').style.display = 'block';
         renderPreview();
