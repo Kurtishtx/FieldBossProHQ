@@ -13,9 +13,6 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
     ? `<img src="${e(info.company_logo)}" style="max-height:80px;max-width:220px;object-fit:contain;" alt=""/>`
     : "";
   const co   = e(info?.company_name || "");
-  const sf   = e(info?.signoff_name || info?.company_name || "");
-  const foot = [e(info?.company_address || ""), e(info?.company_phone || ""), e(info?.company_website || "")]
-    .filter(Boolean).join(" &bull; ");
   const bodyHtml = bodyText.split(/\n\n+/).map((p: string) =>
     "<p style='margin:0 0 16px;'>" + p.split(/\n/).map((l: string) => e(l)).join("<br/>") + "</p>"
   ).join("");
@@ -28,7 +25,7 @@ ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
 ${co ? `<div style="color:#fff;font-size:22px;font-weight:700;">${co}</div>` : ""}
 </td></tr>
 <tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
-${foot ? `<tr><td style="background:#1a1a2e;padding:14px 32px;text-align:center;font-size:11px;color:#aaa;">${foot}</td></tr>` : ""}
+<tr><td style="background:#1a1a2e;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#fff;">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 
@@ -41,7 +38,7 @@ ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
 ${co ? `<div style="color:#fff;font-size:24px;font-weight:800;">${co}</div>` : ""}
 </td></tr>
 <tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
-${foot ? `<tr><td style="background:#f0e8fa;padding:14px 32px;text-align:center;font-size:11px;color:#7a5c8e;">${foot}</td></tr>` : ""}
+<tr><td style="background:#f0e8fa;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#3d1060;">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 
@@ -56,7 +53,7 @@ ${foot ? `<tr><td style="background:#f0e8fa;padding:14px 32px;text-align:center;
 ${bigLogo}
 </td></tr>
 <tr><td style="padding:32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
-${foot ? `<tr><td style="background:#1a1a1a;border-top:2px solid #e07820;padding:14px 32px;text-align:center;font-size:11px;color:#888;">${foot}</td></tr>` : ""}
+<tr><td style="background:#1a1a1a;border-top:2px solid #e07820;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#e07820;">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 
@@ -69,7 +66,7 @@ ${logo ? `<div style="margin-bottom:10px;">${logo}</div>` : ""}
 ${co ? `<div style="font-size:20px;font-weight:700;color:#222;">${co}</div>` : ""}
 </td></tr>
 <tr><td style="padding:32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
-${foot ? `<tr><td style="background:#f9f9f9;padding:14px 32px;text-align:center;font-size:11px;color:#aaa;border-top:1px solid #eee;">${foot}</td></tr>` : ""}
+<tr><td style="background:#f9f9f9;padding:14px 32px;text-align:center;font-size:13px;font-weight:700;color:#5b2d8e;border-top:1px solid #eee;">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
