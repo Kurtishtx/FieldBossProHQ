@@ -20,39 +20,48 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
     { sCo:"#5b2d8e", sDiv:"#ede7f6", sFbg:"#f9f4ff", sFbd:"#ede7f6", sFtx:"#5b2d8e",
       dWbg:"#0e0e0e", dHbg:"#1a1a1a", dAcc:"#e07820", dCo:"#e07820", dFtx:"#e07820",
       bHg1:"#3d1060", bHg2:"#6b21a8", bFbg:"#f5f5f5", bFbd:"#ddd",  bFtx:"#3d1060",
-      nWbg:"#0e0e0e", nHbg:"#1a1a1a", nAcc:"#e07820", nFtx:"#e07820" },
+      nWbg:"#0e0e0e", nHbg:"#1a1a1a", nAcc:"#e07820", nFtx:"#e07820",
+      nbHbg:"#5b2d8e", nbCo:"#fff" },
     { sCo:"#0369a1", sDiv:"#bae6fd", sFbg:"#f0f9ff", sFbd:"#bae6fd", sFtx:"#0369a1",
       dWbg:"#071e38", dHbg:"#0c2744", dAcc:"#06b6d4", dCo:"#06b6d4", dFtx:"#06b6d4",
       bHg1:"#0c4a6e", bHg2:"#0369a1", bFbg:"#f0f9ff", bFbd:"#bae6fd", bFtx:"#0c4a6e",
-      nWbg:"#071e38", nHbg:"#0c2744", nAcc:"#06b6d4", nFtx:"#06b6d4" },
+      nWbg:"#071e38", nHbg:"#0c2744", nAcc:"#06b6d4", nFtx:"#06b6d4",
+      nbHbg:"#0369a1", nbCo:"#fff" },
     { sCo:"#166534", sDiv:"#bbf7d0", sFbg:"#f0fdf4", sFbd:"#bbf7d0", sFtx:"#166534",
       dWbg:"#0a150e", dHbg:"#122018", dAcc:"#ca8a04", dCo:"#ca8a04", dFtx:"#ca8a04",
       bHg1:"#14532d", bHg2:"#166534", bFbg:"#f0fdf4", bFbd:"#bbf7d0", bFtx:"#14532d",
-      nWbg:"#0a150e", nHbg:"#122018", nAcc:"#ca8a04", nFtx:"#ca8a04" },
+      nWbg:"#0a150e", nHbg:"#122018", nAcc:"#ca8a04", nFtx:"#ca8a04",
+      nbHbg:"#166534", nbCo:"#fff" },
     { sCo:"#991b1b", sDiv:"#fecdd3", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#7f1d1d",
       dWbg:"#1a0808", dHbg:"#2a0e0e", dAcc:"#dc2626", dCo:"#dc2626", dFtx:"#dc2626",
       bHg1:"#7f1d1d", bHg2:"#991b1b", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#7f1d1d",
-      nWbg:"#1a0808", nHbg:"#2a0e0e", nAcc:"#dc2626", nFtx:"#dc2626" },
+      nWbg:"#1a0808", nHbg:"#2a0e0e", nAcc:"#dc2626", nFtx:"#dc2626",
+      nbHbg:"#991b1b", nbCo:"#fff" },
     { sCo:"#334155", sDiv:"#cbd5e1", sFbg:"#f8fafc", sFbd:"#cbd5e1", sFtx:"#334155",
       dWbg:"#0f172a", dHbg:"#1e293b", dAcc:"#64748b", dCo:"#94a3b8", dFtx:"#94a3b8",
       bHg1:"#1e293b", bHg2:"#334155", bFbg:"#f8fafc", bFbd:"#cbd5e1", bFtx:"#334155",
-      nWbg:"#0f172a", nHbg:"#1e293b", nAcc:"#64748b", nFtx:"#94a3b8" },
+      nWbg:"#0f172a", nHbg:"#1e293b", nAcc:"#64748b", nFtx:"#94a3b8",
+      nbHbg:"#334155", nbCo:"#fff" },
     { sCo:"#92400e", sDiv:"#fde68a", sFbg:"#fffbeb", sFbd:"#fde68a", sFtx:"#92400e",
       dWbg:"#1a0e00", dHbg:"#291600", dAcc:"#f59e0b", dCo:"#f59e0b", dFtx:"#f59e0b",
       bHg1:"#78350f", bHg2:"#b45309", bFbg:"#fffbeb", bFbd:"#fde68a", bFtx:"#78350f",
-      nWbg:"#1a0e00", nHbg:"#291600", nAcc:"#f59e0b", nFtx:"#f59e0b" },
+      nWbg:"#1a0e00", nHbg:"#291600", nAcc:"#f59e0b", nFtx:"#f59e0b",
+      nbHbg:"#b45309", nbCo:"#fff" },
     { sCo:"#1d4ed8", sDiv:"#bfdbfe", sFbg:"#eff6ff", sFbd:"#bfdbfe", sFtx:"#ca8a04",
       dWbg:"#080d1f", dHbg:"#0d1640", dAcc:"#3b82f6", dCo:"#fbbf24", dFtx:"#fbbf24",
       bHg1:"#1e3a8a", bHg2:"#1d4ed8", bFbg:"#eff6ff", bFbd:"#bfdbfe", bFtx:"#ca8a04",
-      nWbg:"#080d1f", nHbg:"#0d1640", nAcc:"#3b82f6", nFtx:"#fbbf24" },
+      nWbg:"#080d1f", nHbg:"#0d1640", nAcc:"#3b82f6", nFtx:"#fbbf24",
+      nbHbg:"#1d4ed8", nbCo:"#fbbf24" },
     { sCo:"#065f46", sDiv:"#a7f3d0", sFbg:"#ecfdf5", sFbd:"#a7f3d0", sFtx:"#ea580c",
       dWbg:"#020e08", dHbg:"#041f12", dAcc:"#10b981", dCo:"#f97316", dFtx:"#f97316",
       bHg1:"#064e3b", bHg2:"#065f46", bFbg:"#ecfdf5", bFbd:"#a7f3d0", bFtx:"#ea580c",
-      nWbg:"#020e08", nHbg:"#041f12", nAcc:"#10b981", nFtx:"#f97316" },
+      nWbg:"#020e08", nHbg:"#041f12", nAcc:"#10b981", nFtx:"#f97316",
+      nbHbg:"#065f46", nbCo:"#f97316" },
     { sCo:"#4338ca", sDiv:"#c7d2fe", sFbg:"#eef2ff", sFbd:"#c7d2fe", sFtx:"#db2777",
       dWbg:"#0d0a2e", dHbg:"#1a1550", dAcc:"#6366f1", dCo:"#f472b6", dFtx:"#f472b6",
       bHg1:"#312e81", bHg2:"#4338ca", bFbg:"#eef2ff", bFbd:"#c7d2fe", bFtx:"#db2777",
-      nWbg:"#0d0a2e", nHbg:"#1a1550", nAcc:"#6366f1", nFtx:"#f472b6" },
+      nWbg:"#0d0a2e", nHbg:"#1a1550", nAcc:"#6366f1", nFtx:"#f472b6",
+      nbHbg:"#4338ca", nbCo:"#f472b6" },
   ];
 
   const p = P[pi];
@@ -104,6 +113,18 @@ ${co ? `<div style="font-size:22px;font-weight:800;color:#fff;">${co}</div>` : "
 </td></tr>
 <tr><td style="padding:28px 32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
 <tr><td style="background:${p.bFbg};border-top:1px solid ${p.bFbd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.bFtx};">Thank you for your business!</td></tr>
+</table></td></tr></table></body></html>`;
+  }
+
+  if (li === 4) {  // Name Banner (company name full-width, no logo)
+    return `<!DOCTYPE html><html><body style="margin:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" style="padding:30px 0"><tr><td align="center">
+<table width="600" style="background:#fff;border-radius:8px;overflow:hidden;">
+<tr><td style="background:${p.nbHbg};padding:36px 40px;text-align:center;">
+${co ? `<div style="font-size:30px;font-weight:800;color:${p.nbCo};letter-spacing:.01em;">${co}</div>` : ""}
+</td></tr>
+<tr><td style="padding:28px 32px;font-size:15px;color:#333;line-height:1.7;">${bodyHtml}</td></tr>
+<tr><td style="background:${p.sFbg};border-top:1px solid ${p.sFbd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.sFtx};">Thank you for your business!</td></tr>
 </table></td></tr></table></body></html>`;
   }
 

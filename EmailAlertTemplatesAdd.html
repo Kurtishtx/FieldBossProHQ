@@ -113,82 +113,90 @@
     { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
   );
 
-  // 9 palettes × 4 layouts = 36 styles
-  // Style id = (paletteIndex * 4) + (layoutIndex + 1)
-  // 1-4=Purple, 5-8=Ocean, 9-12=Forest, 13-16=Crimson, 17-20=Slate, 21-24=Amber
-  // 25-28=Blue+Gold, 29-32=Emerald+Orange, 33-36=Indigo+Pink
+  // 9 palettes × 5 layouts = 45 styles
+  // Styles 1-36: pi*4 + li + 1  (4 layouts per group, backward-compat)
+  // Styles 37-45: 37 + pi       (name banner, one per palette)
 
   var PALETTES = [
     {
       label: 'Purple', dot: '#5b2d8e',
-      simple:  { co:'#5b2d8e', div:'#ede7f6', fbg:'#f9f4ff', fbd:'#ede7f6', ftx:'#5b2d8e' },
-      darkpro: { wbg:'#0e0e0e', hbg:'#1a1a1a', hacc:'#e07820', co:'#e07820', fbg:'#1a1a1a', fbd:'#e07820', ftx:'#e07820' },
-      brand:   { hg1:'#3d1060', hg2:'#6b21a8', fbg:'#f5f5f5', fbd:'#ddd', ftx:'#3d1060' },
-      banner:  { wbg:'#0e0e0e', hbg:'#1a1a1a', hacc:'#e07820', fbg:'#1a1a1a', fbd:'#e07820', ftx:'#e07820' }
+      simple:      { co:'#5b2d8e', div:'#ede7f6', fbg:'#f9f4ff', fbd:'#ede7f6', ftx:'#5b2d8e' },
+      darkpro:     { wbg:'#0e0e0e', hbg:'#1a1a1a', hacc:'#e07820', co:'#e07820', fbg:'#1a1a1a', fbd:'#e07820', ftx:'#e07820' },
+      brand:       { hg1:'#3d1060', hg2:'#6b21a8', fbg:'#f5f5f5', fbd:'#ddd', ftx:'#3d1060' },
+      banner:      { wbg:'#0e0e0e', hbg:'#1a1a1a', hacc:'#e07820', fbg:'#1a1a1a', fbd:'#e07820', ftx:'#e07820' },
+      namebanner:  { hbg:'#5b2d8e', co:'#fff', fbg:'#f9f4ff', fbd:'#ede7f6', ftx:'#5b2d8e' }
     },
     {
       label: 'Ocean', dot: '#0369a1',
-      simple:  { co:'#0369a1', div:'#bae6fd', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0369a1' },
-      darkpro: { wbg:'#071e38', hbg:'#0c2744', hacc:'#06b6d4', co:'#06b6d4', fbg:'#0c2744', fbd:'#06b6d4', ftx:'#06b6d4' },
-      brand:   { hg1:'#0c4a6e', hg2:'#0369a1', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0c4a6e' },
-      banner:  { wbg:'#071e38', hbg:'#0c2744', hacc:'#06b6d4', fbg:'#0c2744', fbd:'#06b6d4', ftx:'#06b6d4' }
+      simple:      { co:'#0369a1', div:'#bae6fd', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0369a1' },
+      darkpro:     { wbg:'#071e38', hbg:'#0c2744', hacc:'#06b6d4', co:'#06b6d4', fbg:'#0c2744', fbd:'#06b6d4', ftx:'#06b6d4' },
+      brand:       { hg1:'#0c4a6e', hg2:'#0369a1', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0c4a6e' },
+      banner:      { wbg:'#071e38', hbg:'#0c2744', hacc:'#06b6d4', fbg:'#0c2744', fbd:'#06b6d4', ftx:'#06b6d4' },
+      namebanner:  { hbg:'#0369a1', co:'#fff', fbg:'#f0f9ff', fbd:'#bae6fd', ftx:'#0369a1' }
     },
     {
       label: 'Forest', dot: '#166534',
-      simple:  { co:'#166534', div:'#bbf7d0', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#166534' },
-      darkpro: { wbg:'#0a150e', hbg:'#122018', hacc:'#ca8a04', co:'#ca8a04', fbg:'#122018', fbd:'#ca8a04', ftx:'#ca8a04' },
-      brand:   { hg1:'#14532d', hg2:'#166534', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#14532d' },
-      banner:  { wbg:'#0a150e', hbg:'#122018', hacc:'#ca8a04', fbg:'#122018', fbd:'#ca8a04', ftx:'#ca8a04' }
+      simple:      { co:'#166534', div:'#bbf7d0', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#166534' },
+      darkpro:     { wbg:'#0a150e', hbg:'#122018', hacc:'#ca8a04', co:'#ca8a04', fbg:'#122018', fbd:'#ca8a04', ftx:'#ca8a04' },
+      brand:       { hg1:'#14532d', hg2:'#166534', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#14532d' },
+      banner:      { wbg:'#0a150e', hbg:'#122018', hacc:'#ca8a04', fbg:'#122018', fbd:'#ca8a04', ftx:'#ca8a04' },
+      namebanner:  { hbg:'#166534', co:'#fff', fbg:'#f0fdf4', fbd:'#bbf7d0', ftx:'#166534' }
     },
     {
       label: 'Crimson', dot: '#991b1b',
-      simple:  { co:'#991b1b', div:'#fecdd3', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#991b1b' },
-      darkpro: { wbg:'#1a0808', hbg:'#2a0e0e', hacc:'#dc2626', co:'#dc2626', fbg:'#2a0e0e', fbd:'#dc2626', ftx:'#dc2626' },
-      brand:   { hg1:'#7f1d1d', hg2:'#991b1b', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#7f1d1d' },
-      banner:  { wbg:'#1a0808', hbg:'#2a0e0e', hacc:'#dc2626', fbg:'#2a0e0e', fbd:'#dc2626', ftx:'#dc2626' }
+      simple:      { co:'#991b1b', div:'#fecdd3', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#991b1b' },
+      darkpro:     { wbg:'#1a0808', hbg:'#2a0e0e', hacc:'#dc2626', co:'#dc2626', fbg:'#2a0e0e', fbd:'#dc2626', ftx:'#dc2626' },
+      brand:       { hg1:'#7f1d1d', hg2:'#991b1b', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#7f1d1d' },
+      banner:      { wbg:'#1a0808', hbg:'#2a0e0e', hacc:'#dc2626', fbg:'#2a0e0e', fbd:'#dc2626', ftx:'#dc2626' },
+      namebanner:  { hbg:'#991b1b', co:'#fff', fbg:'#fff1f2', fbd:'#fecdd3', ftx:'#7f1d1d' }
     },
     {
       label: 'Slate', dot: '#475569',
-      simple:  { co:'#334155', div:'#cbd5e1', fbg:'#f8fafc', fbd:'#cbd5e1', ftx:'#334155' },
-      darkpro: { wbg:'#0f172a', hbg:'#1e293b', hacc:'#64748b', co:'#94a3b8', fbg:'#1e293b', fbd:'#64748b', ftx:'#94a3b8' },
-      brand:   { hg1:'#1e293b', hg2:'#334155', fbg:'#f8fafc', fbd:'#cbd5e1', ftx:'#334155' },
-      banner:  { wbg:'#0f172a', hbg:'#1e293b', hacc:'#64748b', fbg:'#1e293b', fbd:'#64748b', ftx:'#94a3b8' }
+      simple:      { co:'#334155', div:'#cbd5e1', fbg:'#f8fafc', fbd:'#cbd5e1', ftx:'#334155' },
+      darkpro:     { wbg:'#0f172a', hbg:'#1e293b', hacc:'#64748b', co:'#94a3b8', fbg:'#1e293b', fbd:'#64748b', ftx:'#94a3b8' },
+      brand:       { hg1:'#1e293b', hg2:'#334155', fbg:'#f8fafc', fbd:'#cbd5e1', ftx:'#334155' },
+      banner:      { wbg:'#0f172a', hbg:'#1e293b', hacc:'#64748b', fbg:'#1e293b', fbd:'#64748b', ftx:'#94a3b8' },
+      namebanner:  { hbg:'#334155', co:'#fff', fbg:'#f8fafc', fbd:'#cbd5e1', ftx:'#334155' }
     },
     {
       label: 'Amber', dot: '#d97706',
-      simple:  { co:'#92400e', div:'#fde68a', fbg:'#fffbeb', fbd:'#fde68a', ftx:'#92400e' },
-      darkpro: { wbg:'#1a0e00', hbg:'#291600', hacc:'#f59e0b', co:'#f59e0b', fbg:'#291600', fbd:'#f59e0b', ftx:'#f59e0b' },
-      brand:   { hg1:'#78350f', hg2:'#b45309', fbg:'#fffbeb', fbd:'#fde68a', ftx:'#78350f' },
-      banner:  { wbg:'#1a0e00', hbg:'#291600', hacc:'#f59e0b', fbg:'#291600', fbd:'#f59e0b', ftx:'#f59e0b' }
+      simple:      { co:'#92400e', div:'#fde68a', fbg:'#fffbeb', fbd:'#fde68a', ftx:'#92400e' },
+      darkpro:     { wbg:'#1a0e00', hbg:'#291600', hacc:'#f59e0b', co:'#f59e0b', fbg:'#291600', fbd:'#f59e0b', ftx:'#f59e0b' },
+      brand:       { hg1:'#78350f', hg2:'#b45309', fbg:'#fffbeb', fbd:'#fde68a', ftx:'#78350f' },
+      banner:      { wbg:'#1a0e00', hbg:'#291600', hacc:'#f59e0b', fbg:'#291600', fbd:'#f59e0b', ftx:'#f59e0b' },
+      namebanner:  { hbg:'#b45309', co:'#fff', fbg:'#fffbeb', fbd:'#fde68a', ftx:'#92400e' }
     },
     {
       label: 'Blue &amp; Gold', dot: '#1d4ed8',
-      simple:  { co:'#1d4ed8', div:'#bfdbfe', fbg:'#eff6ff', fbd:'#bfdbfe', ftx:'#ca8a04' },
-      darkpro: { wbg:'#080d1f', hbg:'#0d1640', hacc:'#3b82f6', co:'#fbbf24', fbg:'#0d1640', fbd:'#3b82f6', ftx:'#fbbf24' },
-      brand:   { hg1:'#1e3a8a', hg2:'#1d4ed8', fbg:'#eff6ff', fbd:'#bfdbfe', ftx:'#ca8a04' },
-      banner:  { wbg:'#080d1f', hbg:'#0d1640', hacc:'#3b82f6', fbg:'#0d1640', fbd:'#3b82f6', ftx:'#fbbf24' }
+      simple:      { co:'#1d4ed8', div:'#bfdbfe', fbg:'#eff6ff', fbd:'#bfdbfe', ftx:'#ca8a04' },
+      darkpro:     { wbg:'#080d1f', hbg:'#0d1640', hacc:'#3b82f6', co:'#fbbf24', fbg:'#0d1640', fbd:'#3b82f6', ftx:'#fbbf24' },
+      brand:       { hg1:'#1e3a8a', hg2:'#1d4ed8', fbg:'#eff6ff', fbd:'#bfdbfe', ftx:'#ca8a04' },
+      banner:      { wbg:'#080d1f', hbg:'#0d1640', hacc:'#3b82f6', fbg:'#0d1640', fbd:'#3b82f6', ftx:'#fbbf24' },
+      namebanner:  { hbg:'#1d4ed8', co:'#fbbf24', fbg:'#eff6ff', fbd:'#bfdbfe', ftx:'#ca8a04' }
     },
     {
       label: 'Emerald &amp; Orange', dot: '#065f46',
-      simple:  { co:'#065f46', div:'#a7f3d0', fbg:'#ecfdf5', fbd:'#a7f3d0', ftx:'#ea580c' },
-      darkpro: { wbg:'#020e08', hbg:'#041f12', hacc:'#10b981', co:'#f97316', fbg:'#041f12', fbd:'#10b981', ftx:'#f97316' },
-      brand:   { hg1:'#064e3b', hg2:'#065f46', fbg:'#ecfdf5', fbd:'#a7f3d0', ftx:'#ea580c' },
-      banner:  { wbg:'#020e08', hbg:'#041f12', hacc:'#10b981', fbg:'#041f12', fbd:'#10b981', ftx:'#f97316' }
+      simple:      { co:'#065f46', div:'#a7f3d0', fbg:'#ecfdf5', fbd:'#a7f3d0', ftx:'#ea580c' },
+      darkpro:     { wbg:'#020e08', hbg:'#041f12', hacc:'#10b981', co:'#f97316', fbg:'#041f12', fbd:'#10b981', ftx:'#f97316' },
+      brand:       { hg1:'#064e3b', hg2:'#065f46', fbg:'#ecfdf5', fbd:'#a7f3d0', ftx:'#ea580c' },
+      banner:      { wbg:'#020e08', hbg:'#041f12', hacc:'#10b981', fbg:'#041f12', fbd:'#10b981', ftx:'#f97316' },
+      namebanner:  { hbg:'#065f46', co:'#f97316', fbg:'#ecfdf5', fbd:'#a7f3d0', ftx:'#ea580c' }
     },
     {
       label: 'Indigo &amp; Pink', dot: '#4338ca',
-      simple:  { co:'#4338ca', div:'#c7d2fe', fbg:'#eef2ff', fbd:'#c7d2fe', ftx:'#db2777' },
-      darkpro: { wbg:'#0d0a2e', hbg:'#1a1550', hacc:'#6366f1', co:'#f472b6', fbg:'#1a1550', fbd:'#6366f1', ftx:'#f472b6' },
-      brand:   { hg1:'#312e81', hg2:'#4338ca', fbg:'#eef2ff', fbd:'#c7d2fe', ftx:'#db2777' },
-      banner:  { wbg:'#0d0a2e', hbg:'#1a1550', hacc:'#6366f1', fbg:'#1a1550', fbd:'#6366f1', ftx:'#f472b6' }
+      simple:      { co:'#4338ca', div:'#c7d2fe', fbg:'#eef2ff', fbd:'#c7d2fe', ftx:'#db2777' },
+      darkpro:     { wbg:'#0d0a2e', hbg:'#1a1550', hacc:'#6366f1', co:'#f472b6', fbg:'#1a1550', fbd:'#6366f1', ftx:'#f472b6' },
+      brand:       { hg1:'#312e81', hg2:'#4338ca', fbg:'#eef2ff', fbd:'#c7d2fe', ftx:'#db2777' },
+      banner:      { wbg:'#0d0a2e', hbg:'#1a1550', hacc:'#6366f1', fbg:'#1a1550', fbd:'#6366f1', ftx:'#f472b6' },
+      namebanner:  { hbg:'#4338ca', co:'#f472b6', fbg:'#eef2ff', fbd:'#c7d2fe', ftx:'#db2777' }
     }
   ];
 
-  var LAYOUTS     = ['simple', 'darkpro', 'brand', 'banner'];
-  var LAYOUT_NAMES = ['Clean &amp; Simple', 'Dark Professional', 'Brand Header', 'Dark Logo Banner'];
+  var LAYOUTS      = ['simple', 'darkpro', 'brand', 'banner', 'namebanner'];
+  var LAYOUT_NAMES = ['Clean &amp; Simple', 'Dark Professional', 'Brand Header', 'Dark Logo Banner', 'Name Banner'];
 
-  function styleToLayout(s)  { return (s - 1) % 4; }
-  function styleToPalette(s) { return Math.floor((s - 1) / 4); }
+  function styleToLayout(s)  { return s >= 37 ? 4 : (s - 1) % 4; }
+  function styleToPalette(s) { return s >= 37 ? s - 37 : Math.floor((s - 1) / 4); }
 
   function tyDiv(c, border, dark) {
     var bdr = dark
@@ -235,6 +243,15 @@
         tyDiv(c, c.fbd, false) +
       '</div>';
     }
+    if (layout === 'namebanner') {
+      return '<div style="background:#fff;font-family:Arial,sans-serif;">' +
+        '<div style="background:' + c.hbg + ';padding:32px 20px;text-align:center;">' +
+          '<div style="font-size:20px;font-weight:800;color:' + c.co + ';letter-spacing:.02em;font-style:italic;">[companyname — full width]</div>' +
+        '</div>' +
+        '<div style="padding:26px 30px;font-size:14px;color:#aaa;line-height:1.7;font-style:italic;">[alert text]</div>' +
+        tyDiv(c, c.fbd, false) +
+      '</div>';
+    }
     // banner
     return '<div style="background:' + c.wbg + ';font-family:Arial,sans-serif;">' +
       '<div style="background:' + c.hbg + ';padding:22px 16px;text-align:center;border-bottom:2px solid ' + c.hacc + ';">' +
@@ -258,7 +275,7 @@
       var grid = document.createElement('div');
       grid.className = 'template-grid';
       for (var li = 0; li < LAYOUTS.length; li++) {
-        var styleId = pi * 4 + li + 1;
+        var styleId = li < 4 ? (pi * 4 + li + 1) : (37 + pi);
         var card = document.createElement('div');
         card.className = 'tmpl-card';
         card.setAttribute('data-style', String(styleId));
@@ -316,7 +333,7 @@
     }
 
     var tyFull = '';
-    if (layout === 'simple' || layout === 'brand') {
+    if (layout === 'simple' || layout === 'brand' || layout === 'namebanner') {
       tyFull = '<div style="background:' + c.fbg + ';border-top:1px solid ' + c.fbd + ';padding:22px 40px;text-align:center;">' +
         '<div style="font-size:14px;font-weight:700;color:' + c.ftx + ';">Thank you for your business!</div>' +
       '</div>';
@@ -327,7 +344,16 @@
     }
 
     var html = '';
-    if (layout === 'simple') {
+    if (layout === 'namebanner') {
+      html =
+        '<div style="background:#fff;font-family:Arial,sans-serif;">' +
+          '<div style="background:' + c.hbg + ';padding:36px 40px;text-align:center;">' +
+            '<div style="font-size:28px;font-weight:800;color:' + c.co + ';letter-spacing:.01em;">' + co + '</div>' +
+          '</div>' +
+          '<div style="padding:28px 40px;font-size:15px;color:#444;line-height:1.8;white-space:pre-wrap;">' + msg + '</div>' +
+          tyFull +
+        '</div>';
+    } else if (layout === 'simple') {
       html =
         '<div style="background:#fff;font-family:Arial,sans-serif;">' +
           '<div style="text-align:center;padding:32px 20px 8px;">' + logoSm + '</div>' +
