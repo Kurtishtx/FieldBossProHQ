@@ -10,11 +10,20 @@ const cors = {
 function buildEmailHtml(style: number, info: any, bodyText: string): string {
   const e = (s: string) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-  // 36 styles: 9 palettes × 4 layouts
-  // within each group of 4: 1=simple, 2=darkpro, 3=brand, 4=banner
-  // dCo/dFtx/nFtx let dual-color palettes use different colors for text vs borders
-  const li = (style - 1) % 4;
-  const pi = Math.floor((style - 1) / 4);
+  // Styles 1-36:  9 original palettes × 4 layouts  → li=(s-1)%4,  pi=floor((s-1)/4)
+  // Styles 37-45: name banner for original palettes → li=4, pi=s-37
+  // Styles 46-90: 9 new palettes × 5 layouts       → li=(s-46)%5, pi=9+floor((s-46)/5)
+  let li: number, pi: number;
+  if (style >= 46) {
+    li = (style - 46) % 5;
+    pi = 9 + Math.floor((style - 46) / 5);
+  } else if (style >= 37) {
+    li = 4;
+    pi = style - 37;
+  } else {
+    li = (style - 1) % 4;
+    pi = Math.floor((style - 1) / 4);
+  }
 
   const P: any[] = [
     { sCo:"#5b2d8e", sDiv:"#ede7f6", sFbg:"#f9f4ff", sFbd:"#ede7f6", sFtx:"#5b2d8e",
@@ -62,6 +71,52 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
       bHg1:"#312e81", bHg2:"#4338ca", bFbg:"#eef2ff", bFbd:"#c7d2fe", bFtx:"#db2777",
       nWbg:"#0d0a2e", nHbg:"#1a1550", nAcc:"#6366f1", nFtx:"#f472b6",
       nbHbg:"#4338ca", nbCo:"#f472b6" },
+    // ── 9 new palettes (styles 46-90) ─────────────────────────────────────
+    { sCo:"#d97706", sDiv:"#fde68a", sFbg:"#fffde7", sFbd:"#fde68a", sFtx:"#d97706",
+      dWbg:"#0a0a0a", dHbg:"#1c1c1c", dAcc:"#eab308", dCo:"#eab308", dFtx:"#eab308",
+      bHg1:"#111111", bHg2:"#252525", bFbg:"#fffde7", bFbd:"#fde68a", bFtx:"#92400e",
+      nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#eab308", nFtx:"#eab308",
+      nbHbg:"#111111", nbCo:"#eab308" },
+    { sCo:"#1d4ed8", sDiv:"#bfdbfe", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#dc2626",
+      dWbg:"#080c1f", dHbg:"#0d1640", dAcc:"#dc2626", dCo:"#60a5fa", dFtx:"#60a5fa",
+      bHg1:"#991b1b", bHg2:"#dc2626", bFbg:"#eff6ff", bFbd:"#bfdbfe", bFtx:"#1d4ed8",
+      nWbg:"#080c1f", nHbg:"#0d1640", nAcc:"#dc2626", nFtx:"#f87171",
+      nbHbg:"#1d4ed8", nbCo:"#fff" },
+    { sCo:"#7c3aed", sDiv:"#e9d5ff", sFbg:"#fff7ed", sFbd:"#fed7aa", sFtx:"#ea580c",
+      dWbg:"#0d0020", dHbg:"#1e0a3c", dAcc:"#f97316", dCo:"#f97316", dFtx:"#f97316",
+      bHg1:"#1e0a3c", bHg2:"#3b0764", bFbg:"#fff7ed", bFbd:"#fed7aa", bFtx:"#c2410c",
+      nWbg:"#0d0020", nHbg:"#1e0a3c", nAcc:"#f97316", nFtx:"#f97316",
+      nbHbg:"#1e0a3c", nbCo:"#f97316" },
+    { sCo:"#6d28d9", sDiv:"#ede9fe", sFbg:"#fefce8", sFbd:"#fde68a", sFtx:"#a16207",
+      dWbg:"#0d0020", dHbg:"#1e0a3c", dAcc:"#eab308", dCo:"#eab308", dFtx:"#eab308",
+      bHg1:"#1e0a3c", bHg2:"#3b0764", bFbg:"#fefce8", bFbd:"#fde68a", bFtx:"#92400e",
+      nWbg:"#0d0020", nHbg:"#1e0a3c", nAcc:"#eab308", nFtx:"#eab308",
+      nbHbg:"#1e0a3c", nbCo:"#eab308" },
+    { sCo:"#7c3aed", sDiv:"#ddd6fe", sFbg:"#eff6ff", sFbd:"#bfdbfe", sFtx:"#1d4ed8",
+      dWbg:"#06061e", dHbg:"#0f0a30", dAcc:"#3b82f6", dCo:"#a78bfa", dFtx:"#93c5fd",
+      bHg1:"#4c1d95", bHg2:"#1d4ed8", bFbg:"#f5f3ff", bFbd:"#ddd6fe", bFtx:"#1d4ed8",
+      nWbg:"#06061e", nHbg:"#0f0a30", nAcc:"#7c3aed", nFtx:"#a78bfa",
+      nbHbg:"#4c1d95", nbCo:"#93c5fd" },
+    { sCo:"#1e40af", sDiv:"#bfdbfe", sFbg:"#f0f4ff", sFbd:"#ef4444", sFtx:"#dc2626",
+      dWbg:"#060c1f", dHbg:"#0d1a40", dAcc:"#ef4444", dCo:"#fff", dFtx:"#fca5a5",
+      bHg1:"#1e3a8a", bHg2:"#1d4ed8", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#dc2626",
+      nWbg:"#060c1f", nHbg:"#0d1a40", nAcc:"#ef4444", nFtx:"#fca5a5",
+      nbHbg:"#1d4ed8", nbCo:"#fff" },
+    { sCo:"#b91c1c", sDiv:"#fecdd3", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#991b1b",
+      dWbg:"#0a0a0a", dHbg:"#1a0505", dAcc:"#dc2626", dCo:"#f87171", dFtx:"#f87171",
+      bHg1:"#111111", bHg2:"#1f0606", bFbg:"#fff1f2", bFbd:"#fecdd3", bFtx:"#b91c1c",
+      nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#dc2626", nFtx:"#f87171",
+      nbHbg:"#111111", nbCo:"#ef4444" },
+    { sCo:"#111111", sDiv:"#d1d5db", sFbg:"#f3f4f6", sFbd:"#d1d5db", sFtx:"#374151",
+      dWbg:"#0a0a0a", dHbg:"#1a1a1a", dAcc:"#e5e7eb", dCo:"#fff", dFtx:"#f3f4f6",
+      bHg1:"#111111", bHg2:"#374151", bFbg:"#f9fafb", bFbd:"#e5e7eb", bFtx:"#111111",
+      nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#e5e7eb", nFtx:"#f3f4f6",
+      nbHbg:"#111111", nbCo:"#fff" },
+    { sCo:"#6d28d9", sDiv:"#ddd6fe", sFbg:"#f0fdf4", sFbd:"#bbf7d0", sFtx:"#166534",
+      dWbg:"#060a0e", dHbg:"#100a28", dAcc:"#22c55e", dCo:"#a78bfa", dFtx:"#86efac",
+      bHg1:"#4c1d95", bHg2:"#6d28d9", bFbg:"#f0fdf4", bFbd:"#bbf7d0", bFtx:"#166534",
+      nWbg:"#060a0e", nHbg:"#100a28", nAcc:"#16a34a", nFtx:"#4ade80",
+      nbHbg:"#4c1d95", nbCo:"#4ade80" },
   ];
 
   const p = P[pi];
