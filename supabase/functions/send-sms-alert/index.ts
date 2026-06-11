@@ -84,7 +84,8 @@ function buildEmailHtml(style: number, info: any, bodyText: string): string {
       dWbg:"#0a0a0a", dHbg:"#1c1c1c", dAcc:"#eab308", dCo:"#eab308", dFtx:"#eab308",
       bHg1:"#111111", bHg2:"#252525", bFbg:"#fffde7", bFbd:"#fde68a", bFtx:"#92400e",
       nWbg:"#0a0a0a", nHbg:"#111111", nAcc:"#eab308", nFtx:"#eab308",
-      nbHbg:"#111111", nbCo:"#eab308", nbdBg:"#0a0a0a", nbdFbg:"#1c1c1c", nbdBd:"#eab308", nbdTx:"#eab308" },
+      nbHbg:"#111111", nbCo:"#eab308", nbdBg:"#0a0a0a", nbdFbg:"#1c1c1c", nbdBd:"#eab308", nbdTx:"#eab308",
+      nbdHbg:"#eab308", nbdCo:"#111111" },
     { sCo:"#1d4ed8", sDiv:"#bfdbfe", sFbg:"#fff1f2", sFbd:"#fecdd3", sFtx:"#dc2626",
       dWbg:"#080c1f", dHbg:"#0d1640", dAcc:"#dc2626", dCo:"#60a5fa", dFtx:"#60a5fa",
       bHg1:"#991b1b", bHg2:"#dc2626", bFbg:"#eff6ff", bFbd:"#bfdbfe", bFtx:"#1d4ed8",
@@ -192,11 +193,13 @@ ${co ? `<div style="font-size:30px;font-weight:800;color:${p.nbCo};letter-spacin
   }
 
   if (li === 5) {  // Name Banner (Dark) — same header, dark body/footer
+    const nbdHbg = p.nbdHbg || p.nbHbg;
+    const nbdCo  = p.nbdCo  || p.nbCo;
     return `<!DOCTYPE html><html><body style="margin:0;background:${p.nbdBg};font-family:'Segoe UI',Arial,sans-serif;">
 <table width="100%" style="padding:30px 0"><tr><td align="center">
 <table width="600" style="background:${p.nbdBg};border-radius:8px;overflow:hidden;">
-<tr><td style="background:${p.nbHbg};padding:36px 40px;text-align:center;">
-${co ? `<div style="font-size:30px;font-weight:800;color:${p.nbCo};letter-spacing:.01em;">${co}</div>` : ""}
+<tr><td style="background:${nbdHbg};padding:36px 40px;text-align:center;">
+${co ? `<div style="font-size:30px;font-weight:800;color:${nbdCo};letter-spacing:.01em;">${co}</div>` : ""}
 </td></tr>
 <tr><td style="padding:28px 32px;font-size:15px;color:#ddd;line-height:1.7;">${bodyHtml}</td></tr>
 <tr><td style="background:${p.nbdFbg};border-top:2px solid ${p.nbdBd};padding:18px 32px;text-align:center;font-size:13px;font-weight:700;color:${p.nbdTx};">Thank you for your business!</td></tr>
