@@ -888,6 +888,16 @@
     <button class="show-more-btn">Show More</button>
   </div>
 
+  <!-- Office Notes -->
+  <div class="sec" id="office-notes-sec" style="margin-bottom:10px; display:none;">
+    <div class="details-hdr">
+      <span>Office Notes</span>
+    </div>
+    <div class="details-body open" style="padding:12px 16px;">
+      <p id="office-notes-text" style="margin:0; font-size:13px; color:#333; white-space:pre-wrap; line-height:1.6;"></p>
+    </div>
+  </div>
+
   <!-- Details / Custom Fields -->
   <div class="sec" style="margin-bottom:10px;">
     <div class="details-hdr">
@@ -1076,6 +1086,15 @@
     }
 
     loadTags();
+    // Office Notes
+    var notesSec  = document.getElementById('office-notes-sec');
+    var notesText = document.getElementById('office-notes-text');
+    if (prop.notes && prop.notes.trim()) {
+      notesText.textContent = prop.notes.trim();
+      notesSec.style.display = '';
+    } else {
+      notesSec.style.display = 'none';
+    }
     loadDetailsGrid();
     loadAreaTreated();
     loadPackageCards();
