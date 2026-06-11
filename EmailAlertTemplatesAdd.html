@@ -14,80 +14,66 @@
       display: flex; align-items: center; gap: 14px;
       padding: 0 20px; height: 52px;
       position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,.25);
     }
     .btn-back { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 5px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
     .btn-back:hover { background: rgba(255,255,255,.2); }
     .topbar-title { font-size: 16px; font-weight: 700; }
 
     /* ── Picker step ── */
-    #picker-step { padding: 24px 24px 48px; }
-    .picker-hdr { margin-bottom: 20px; }
-    .picker-hdr h2 { font-size: 21px; font-weight: 800; color: #111; margin-bottom: 4px; }
-    .picker-hdr p  { font-size: 13px; color: #888; }
+    #picker-step { padding: 28px 24px; }
+    .picker-hdr { margin-bottom: 22px; }
+    .picker-hdr h2 { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 4px; }
+    .picker-hdr p  { font-size: 13px; color: #777; }
 
-    /* ── Filter bar ── */
-    .filter-bar {
-      display: flex; gap: 8px; flex-wrap: wrap;
-      margin-bottom: 16px; padding-bottom: 18px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    .filter-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border-radius: 20px;
-      border: 1.5px solid #ddd; background: #fff;
-      font-size: 12.5px; font-weight: 600; color: #555;
-      cursor: pointer; transition: all .14s;
-      white-space: nowrap; line-height: 1;
-    }
-    .filter-btn:hover { border-color: #aaa; color: #111; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
-    .filter-btn.active { background: #0d1b2a; border-color: #0d1b2a; color: #fff; box-shadow: 0 2px 8px rgba(13,27,42,.3); }
-    .filter-btn .cnt {
-      font-size: 10.5px; font-weight: 700;
-      background: rgba(0,0,0,.1); border-radius: 10px;
-      padding: 1px 6px; min-width: 20px; text-align: center;
-    }
-    .filter-btn.active .cnt { background: rgba(255,255,255,.2); }
-
-    .visible-count { font-size: 12px; color: #999; margin-bottom: 18px; font-style: italic; }
-
-    /* ── Template grid ── */
-    .template-grid { display: flex; gap: 18px; flex-wrap: wrap; }
+    .template-grid { display: flex; gap: 20px; flex-wrap: wrap; }
 
     .tmpl-card {
-      flex: 0 0 218px; border: 2px solid #e0e0e0; border-radius: 10px;
+      flex: 0 0 220px; border: 2px solid #ddd; border-radius: 10px;
       overflow: hidden; cursor: pointer; background: #fff;
-      transition: border-color .15s, box-shadow .15s, transform .12s;
-      position: relative;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .tmpl-card:hover { border-color: #5b2d8e; box-shadow: 0 6px 22px rgba(91,45,142,.22); transform: translateY(-3px); }
-    .tmpl-card.selected { border-color: #e07820; box-shadow: 0 6px 22px rgba(224,120,32,.32); }
-    .tmpl-card.hidden { display: none; }
+    .tmpl-card:hover { border-color: #5b2d8e; box-shadow: 0 4px 16px rgba(91,45,142,.2); }
 
     .tmpl-preview { height: 280px; overflow: hidden; pointer-events: none; position: relative; }
-    .tmpl-preview > div { transform-origin: top left; transform: scale(.55); width: 182%; }
+    .tmpl-preview > * { transform-origin: top left; transform: scale(.55); width: 182%; }
 
-    /* Overlay badges */
-    .tmpl-badges {
-      position: absolute; top: 8px; right: 8px; z-index: 3;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
-      pointer-events: none;
-    }
-    .badge {
-      font-size: 9.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase;
-      padding: 3px 7px; border-radius: 3px; line-height: 1.3;
-    }
-    .badge-layout  { background: rgba(0,0,0,.58); color: #fff; }
-    .badge-nofooter{ background: rgba(20,10,0,.65); color: #ffd060; }
-    .badge-selected{ background: #e07820; color: #fff; display: none; }
-    .tmpl-card.selected .badge-selected { display: block; }
+    .tmpl-label { padding: 10px 14px; font-size: 13px; font-weight: 700; color: #333; border-top: 1px solid #eee; background: #fafafa; text-align: center; }
 
-    .tmpl-label {
-      padding: 9px 13px; font-size: 12.5px; font-weight: 700; color: #333;
-      border-top: 1px solid #eeeeee; background: #fafafa;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .tmpl-num { font-size: 11px; color: #bbb; font-weight: 500; }
+    /* ── Mini email styles ── */
+    .s1-wrap { background: #fff; font-family: Arial, sans-serif; }
+    .s1-logo { text-align: center; padding: 28px 20px 6px; font-size: 14px; color: #aaa; font-style: italic; }
+    .s1-co { text-align: center; font-size: 14px; font-weight: 700; color: #5b2d8e; padding-bottom: 18px; font-style: italic; }
+    .s1-div { height: 2px; background: #ede7f6; margin: 0 30px 20px; }
+    .s1-body { padding: 0 30px 20px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
+    .s1-footer { background: #f9f4ff; border-top: 1px solid #ede7f6; padding: 18px 30px; text-align: center; }
+    .s1-footer .ty { font-size: 13px; font-weight: 700; color: #5b2d8e; }
+    .s1-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
+
+    .s2-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .s2-header { background: #1a1a1a; padding: 26px 20px 18px; text-align: center; border-bottom: 2px solid #e07820; }
+    .s2-logo { font-size: 14px; color: #aaa; margin-bottom: 8px; font-style: italic; }
+    .s2-co { font-size: 14px; font-weight: 700; color: #e07820; font-style: italic; }
+    .s2-body { padding: 26px 30px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
+    .s2-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 18px 30px; text-align: center; }
+    .s2-footer .ty { font-size: 13px; font-weight: 700; color: #e07820; }
+    .s2-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
+
+    .s3-wrap { background: #fff; font-family: Arial, sans-serif; }
+    .s3-header { background: linear-gradient(135deg, #3d1060, #6b21a8); padding: 28px 20px 20px; text-align: center; }
+    .s3-logo { font-size: 14px; color: rgba(255,255,255,.6); margin-bottom: 8px; font-style: italic; }
+    .s3-co { font-size: 14px; font-weight: 700; color: #fff; font-style: italic; }
+    .s3-body { padding: 28px 30px 20px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
+    .s3-footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 18px 30px; text-align: center; }
+    .s3-footer .ty { font-size: 13px; font-weight: 700; color: #3d1060; }
+    .s3-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
+
+    .s4-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .s4-header { background: #1a1a1a; padding: 22px 16px; text-align: center; border-bottom: 2px solid #e07820; }
+    .s4-logo { font-size: 14px; color: #aaa; font-style: italic; }
+    .s4-body { padding: 26px 30px; font-size: 14px; color: #aaa; line-height: 1.7; font-style: italic; }
+    .s4-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 18px 30px; text-align: center; }
+    .s4-footer .ty { font-size: 13px; font-weight: 700; color: #e07820; }
+    .s4-footer .co { font-size: 12px; color: #aaa; margin-top: 4px; font-style: italic; }
 
     /* ── Preview step ── */
     #preview-step { display: none; }
@@ -95,30 +81,60 @@
     .preview-header {
       background: #fff; border-bottom: 1px solid #e0e0e0;
       padding: 16px 24px;
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      display: flex; align-items: flex-start; justify-content: space-between;
     }
     .preview-header h2 { font-size: 20px; font-weight: 800; color: #111; }
     .preview-header p  { font-size: 12.5px; color: #777; margin-top: 3px; }
-    .btn-change { background: #fff; border: 1.5px solid #333; color: #222; border-radius: 5px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .btn-change { background: #fff; border: 1.5px solid #333; color: #222; border-radius: 5px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .btn-change:hover { background: #f5f5f5; }
 
-    .preview-meta {
-      display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
-      margin: 12px 24px 0; font-size: 12.5px; color: #555;
-    }
-    .preview-meta strong { color: #111; font-size: 13px; }
-    .meta-pill {
-      padding: 3px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 600;
-      background: #eee; color: #444; border: 1px solid #ddd;
-    }
-    .meta-pill.nofooter { background: #fffbe6; color: #b8860b; border-color: #f5e48e; }
+    .info-bar { background: #fffbea; border: 1px solid #f5e48e; border-radius: 5px; margin: 14px 24px 0; padding: 9px 14px; font-size: 12.5px; color: #7a6000; }
 
-    .info-bar { background: #fffbea; border: 1px solid #f5e48e; border-radius: 5px; margin: 12px 24px 0; padding: 9px 14px; font-size: 12.5px; color: #7a6000; }
+    .preview-wrap { margin: 16px 24px 30px; }
+    .preview-outer { max-width: 600px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.12); }
 
-    .preview-wrap { margin: 18px 24px 32px; }
-    .preview-outer { max-width: 600px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 16px rgba(0,0,0,.14); }
+    /* Full-size preview email styles */
+    .ps1-wrap { background: #fff; font-family: Arial, sans-serif; }
+    .ps1-logo { text-align: center; padding: 32px 20px 8px; }
+    .ps1-logo img { max-height: 70px; max-width: 200px; object-fit: contain; }
+    .ps1-logo-ph { font-size: 42px; }
+    .ps1-co { text-align: center; font-size: 20px; font-weight: 700; color: #5b2d8e; padding-bottom: 20px; }
+    .ps1-div { height: 2px; background: #ede7f6; margin: 0 40px 24px; }
+    .ps1-body { padding: 0 40px 28px; font-size: 15px; color: #444; line-height: 1.8; white-space: pre-wrap; }
+    .ps1-footer { background: #f9f4ff; border-top: 1px solid #ede7f6; padding: 22px 40px; text-align: center; }
+    .ps1-footer .ty { font-size: 14px; font-weight: 700; color: #5b2d8e; }
+    .ps1-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
 
-    .save-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 24px 24px; }
+    .ps2-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .ps2-header { background: #1a1a1a; padding: 30px 20px 22px; text-align: center; border-bottom: 2px solid #e07820; }
+    .ps2-logo img { max-height: 70px; max-width: 200px; object-fit: contain; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+    .ps2-logo-ph { font-size: 40px; margin-bottom: 10px; }
+    .ps2-co { font-size: 22px; font-weight: 700; color: #e07820; }
+    .ps2-body { padding: 28px 40px; font-size: 15px; color: #ddd; line-height: 1.8; white-space: pre-wrap; }
+    .ps2-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 22px 40px; text-align: center; }
+    .ps2-footer .ty { font-size: 14px; font-weight: 700; color: #e07820; }
+    .ps2-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
+
+    .ps3-wrap { background: #fff; font-family: Arial, sans-serif; }
+    .ps3-header { background: linear-gradient(135deg, #3d1060, #6b21a8); padding: 32px 20px 24px; text-align: center; }
+    .ps3-logo img { max-height: 70px; max-width: 200px; object-fit: contain; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+    .ps3-logo-ph { font-size: 40px; margin-bottom: 10px; }
+    .ps3-co { font-size: 22px; font-weight: 700; color: #fff; }
+    .ps3-body { padding: 30px 40px 24px; font-size: 15px; color: #333; line-height: 1.8; white-space: pre-wrap; }
+    .ps3-footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 22px 40px; text-align: center; }
+    .ps3-footer .ty { font-size: 14px; font-weight: 700; color: #3d1060; }
+    .ps3-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
+
+    .ps4-wrap { background: #0e0e0e; font-family: Arial, sans-serif; }
+    .ps4-header { background: #1a1a1a; padding: 24px 20px; text-align: center; border-bottom: 2px solid #e07820; }
+    .ps4-logo img { max-height: 130px; max-width: 90%; width: auto; object-fit: contain; display: block; margin: 0 auto; }
+    .ps4-logo-ph { font-size: 40px; color: #aaa; font-style: italic; font-size: 14px; }
+    .ps4-body { padding: 28px 40px; font-size: 15px; color: #ddd; line-height: 1.8; white-space: pre-wrap; }
+    .ps4-footer { background: #1a1a1a; border-top: 2px solid #e07820; padding: 22px 40px; text-align: center; }
+    .ps4-footer .ty { font-size: 14px; font-weight: 700; color: #e07820; }
+    .ps4-footer .co { font-size: 13px; color: #888; margin-top: 5px; }
+
+    .save-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 24px 20px; }
     .btn-save { background: #e07820; color: #fff; border: none; border-radius: 4px; padding: 10px 28px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-save:hover { background: #c96a10; }
     .save-msg { font-size: 13px; color: #2e7d32; font-weight: 600; display: none; }
@@ -136,22 +152,67 @@
 <!-- ── STEP 1: PICKER ── -->
 <div id="picker-step">
   <div class="picker-hdr">
-    <h2>Choose an Alert Email Template</h2>
-    <p>Pick the design your clients see when an alert is sent — 70 styles available</p>
+    <h2>Choose an Alert Email Layout</h2>
+    <p>Select the design for your alert email</p>
   </div>
 
-  <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all"         onclick="setFilter('all')">All <span class="cnt">70</span></button>
-    <button class="filter-btn"        data-filter="logo-full"   onclick="setFilter('logo-full')">Logo Banner <span class="cnt">12</span></button>
-    <button class="filter-btn"        data-filter="name-only"   onclick="setFilter('name-only')">Name Only <span class="cnt">12</span></button>
-    <button class="filter-btn"        data-filter="stacked"     onclick="setFilter('stacked')">Stacked <span class="cnt">12</span></button>
-    <button class="filter-btn"        data-filter="logo-left"   onclick="setFilter('logo-left')">Logo &#8592; Name <span class="cnt">12</span></button>
-    <button class="filter-btn"        data-filter="name-left"   onclick="setFilter('name-left')">Name &#8594; Logo <span class="cnt">12</span></button>
-    <button class="filter-btn"        data-filter="logo-center" onclick="setFilter('logo-center')">Logo Center <span class="cnt">10</span></button>
-  </div>
+  <div class="template-grid">
 
-  <div class="visible-count" id="visible-count">Showing all 70 templates</div>
-  <div class="template-grid" id="template-grid"></div>
+    <div class="tmpl-card" onclick="selectStyle(1)">
+      <div class="tmpl-preview">
+        <div class="s1-wrap">
+          <div class="s1-logo">[logo]</div>
+          <div class="s1-co">[companyname]</div>
+          <div class="s1-div"></div>
+          <div class="s1-body">[alert text]</div>
+          <div class="s1-footer"><div class="ty">Thank you,</div><div class="co">[companyname]</div></div>
+        </div>
+      </div>
+      <div class="tmpl-label">Clean &amp; Simple</div>
+    </div>
+
+    <div class="tmpl-card" onclick="selectStyle(2)">
+      <div class="tmpl-preview">
+        <div class="s2-wrap">
+          <div class="s2-header">
+            <div class="s2-logo">[logo]</div>
+            <div class="s2-co">[companyname]</div>
+          </div>
+          <div class="s2-body">[alert text]</div>
+          <div class="s2-footer"><div class="ty">Thank you for your business!</div><div class="co">[companyname]</div></div>
+        </div>
+      </div>
+      <div class="tmpl-label">Dark Professional</div>
+    </div>
+
+    <div class="tmpl-card" onclick="selectStyle(3)">
+      <div class="tmpl-preview">
+        <div class="s3-wrap">
+          <div class="s3-header">
+            <div class="s3-logo">[logo]</div>
+            <div class="s3-co">[companyname]</div>
+          </div>
+          <div class="s3-body">[alert text]</div>
+          <div class="s3-footer"><div class="ty">Thank you,</div><div class="co">[companyname]</div></div>
+        </div>
+      </div>
+      <div class="tmpl-label">Brand Header</div>
+    </div>
+
+    <div class="tmpl-card" onclick="selectStyle(4)">
+      <div class="tmpl-preview">
+        <div class="s4-wrap">
+          <div class="s4-header">
+            <div class="s4-logo">[logo — full width]</div>
+          </div>
+          <div class="s4-body">[alert text]</div>
+          <div class="s4-footer"><div class="ty">Thank you for your business!</div><div class="co">[companyname]</div></div>
+        </div>
+      </div>
+      <div class="tmpl-label">Dark Logo Banner</div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ── STEP 2: PREVIEW ── -->
@@ -159,14 +220,13 @@
 
   <div class="preview-header">
     <div>
-      <h2 id="preview-title">Your Alert Email Template</h2>
+      <h2>Your Alert Email Template</h2>
       <p>Showing with your saved business info filled in</p>
     </div>
-    <button class="btn-change" onclick="changeTemplate()">&#8592; Change</button>
+    <button class="btn-change" onclick="changeTemplate()">&#8592; Change Template</button>
   </div>
 
-  <div class="preview-meta" id="preview-meta"></div>
-  <div class="info-bar">&#9432; Client names and dates show sample data — real values fill in when an actual alert fires.</div>
+  <div class="info-bar">&#9432; Client and alert fields show sample data — real values fill in when an actual alert is sent.</div>
 
   <div class="preview-wrap">
     <div class="preview-outer" id="preview-outer"></div>
@@ -181,396 +241,109 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── Supabase client ─────────────────────────────────────────────────────────
-var sb = supabase.createClient(
-  'https://knjdbgroiyhvqwrpqzcx.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
-  { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
-);
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
+  );
 
-// ── Template config (mirrors edge function TMPLS array) ─────────────────────
-var TEMPLATES = [
-  // logo-full (1-12) — full-width logo banner
-  {name:"Dark Orange",    layout:"logo-full",  footer:true,  headerBg:"#1a1a1a",headerText:"#e07820",accent:"#e07820",bodyBg:"#0e0e0e",bodyText:"#ddd",footerBg:"#1a1a1a",footerText:"#e07820",outerBg:"#0e0e0e",border:"#333"},
-  {name:"Dark Navy Gold", layout:"logo-full",  footer:true,  headerBg:"#1a1a2e",headerText:"#f5a623",accent:"#f5a623",bodyBg:"#0d1020",bodyText:"#ddd",footerBg:"#1a1a2e",footerText:"#f5a623",outerBg:"#0d1020",border:"#2a2a4e"},
-  {name:"Dark Cobalt",    layout:"logo-full",  footer:true,  headerBg:"#0a1628",headerText:"#4a9eff",accent:"#4a9eff",bodyBg:"#071420",bodyText:"#ccd",footerBg:"#0a1628",footerText:"#4a9eff",outerBg:"#050e18",border:"#1a2a40"},
-  {name:"Dark Cyan",      layout:"logo-full",  footer:true,  headerBg:"#0a2428",headerText:"#00d4ff",accent:"#00d4ff",bodyBg:"#071c22",bodyText:"#cde",footerBg:"#0a2428",footerText:"#00d4ff",outerBg:"#051218",border:"#1a3438"},
-  {name:"Dark Forest",    layout:"logo-full",  footer:true,  headerBg:"#0a2018",headerText:"#66bb6a",accent:"#66bb6a",bodyBg:"#071810",bodyText:"#cdc",footerBg:"#0a2018",footerText:"#66bb6a",outerBg:"#040e08",border:"#1a3020"},
-  {name:"Dark Crimson",   layout:"logo-full",  footer:true,  headerBg:"#280a0a",headerText:"#e03030",accent:"#e03030",bodyBg:"#1e0808",bodyText:"#dcc",footerBg:"#280a0a",footerText:"#e03030",outerBg:"#160404",border:"#401010"},
-  {name:"Dark Violet",    layout:"logo-full",  footer:true,  headerBg:"#1a0a2e",headerText:"#ce93d8",accent:"#ce93d8",bodyBg:"#130820",bodyText:"#dcd",footerBg:"#1a0a2e",footerText:"#ce93d8",outerBg:"#0d0518",border:"#2a1040"},
-  {name:"Charcoal",       layout:"logo-full",  footer:true,  headerBg:"#2a2a2a",headerText:"#cccccc",accent:"#aaaaaa",bodyBg:"#1e1e1e",bodyText:"#ccc",footerBg:"#2a2a2a",footerText:"#cccccc",outerBg:"#181818",border:"#404040"},
-  {name:"Midnight Navy",  layout:"logo-full",  footer:true,  headerBg:"#0a1f44",headerText:"#90caf9",accent:"#90caf9",bodyBg:"#071428",bodyText:"#ccd",footerBg:"#0a1f44",footerText:"#90caf9",outerBg:"#050e1e",border:"#1a2f5e"},
-  {name:"Dark Teal Pure", layout:"logo-full",  footer:false, headerBg:"#0a3d3d",headerText:"#4dd0e1",accent:"#4dd0e1",bodyBg:"#071e1e",bodyText:"#cdd",footerBg:"",       footerText:"",       outerBg:"#041818",border:"#1a4d4d"},
-  {name:"Gold Rush",      layout:"logo-full",  footer:false, headerBg:"#1c1400",headerText:"#ffd700",accent:"#ffd700",bodyBg:"#141000",bodyText:"#edc",footerBg:"",       footerText:"",       outerBg:"#0e0c00",border:"#2c2200"},
-  {name:"Dark Maroon",    layout:"logo-full",  footer:true,  headerBg:"#3a0a14",headerText:"#ff6b6b",accent:"#ff6b6b",bodyBg:"#280610",bodyText:"#dcc",footerBg:"#3a0a14",footerText:"#ff6b6b",outerBg:"#1e0408",border:"#500a18"},
-  // name-only (13-24) — company name only, no logo
-  {name:"Bold Black",     layout:"name-only",  footer:true,  headerBg:"#111111",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#111111",footerText:"#ffffff",outerBg:"#f0f0f0",border:"#ddd"},
-  {name:"Rich Purple",    layout:"name-only",  footer:true,  headerBg:"#5b2d8e",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#5b2d8e",footerText:"#ffffff",outerBg:"#f0eaf9",border:"#e0d0f5"},
-  {name:"Deep Navy",      layout:"name-only",  footer:true,  headerBg:"#003366",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#003366",footerText:"#ffffff",outerBg:"#eef2f7",border:"#dce8f5"},
-  {name:"Forest",         layout:"name-only",  footer:true,  headerBg:"#1b5e20",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#1b5e20",footerText:"#ffffff",outerBg:"#e8f5e9",border:"#d5edd7"},
-  {name:"Crimson",        layout:"name-only",  footer:true,  headerBg:"#b71c1c",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#b71c1c",footerText:"#ffffff",outerBg:"#ffeaea",border:"#ffd5d5"},
-  {name:"Teal",           layout:"name-only",  footer:true,  headerBg:"#004d40",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#004d40",footerText:"#ffffff",outerBg:"#e0f2f1",border:"#c8ece9"},
-  {name:"Slate",          layout:"name-only",  footer:true,  headerBg:"#283593",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#283593",footerText:"#ffffff",outerBg:"#e8eaf6",border:"#d5d9f5"},
-  {name:"Leather",        layout:"name-only",  footer:true,  headerBg:"#4e342e",headerText:"#f5e6c8",accent:"",bodyBg:"#fdf6ee",bodyText:"#3d2010",footerBg:"#4e342e",footerText:"#f5e6c8",outerBg:"#f0e5d0",border:"#e0c8a0"},
-  {name:"Graphite",       layout:"name-only",  footer:true,  headerBg:"#37474f",headerText:"#eceff1",accent:"",bodyBg:"#f5f5f5",bodyText:"#333",footerBg:"#37474f",footerText:"#eceff1",outerBg:"#e8e8e8",border:"#d0d5d8"},
-  {name:"Cobalt Bold",    layout:"name-only",  footer:true,  headerBg:"#1565c0",headerText:"#ffffff",accent:"",bodyBg:"#f5f9ff",bodyText:"#333",footerBg:"#1565c0",footerText:"#ffffff",outerBg:"#e3f2fd",border:"#c0dff8"},
-  {name:"Emerald Name",   layout:"name-only",  footer:true,  headerBg:"#2e7d32",headerText:"#ffffff",accent:"",bodyBg:"#f5fff5",bodyText:"#333",footerBg:"#2e7d32",footerText:"#ffffff",outerBg:"#e8f5e9",border:"#d0ebd1"},
-  {name:"Noir Name",      layout:"name-only",  footer:false, headerBg:"#0d0d0d",headerText:"#ffffff",accent:"",bodyBg:"#0d0d0d",bodyText:"#ccc",footerBg:"",footerText:"",outerBg:"#050505",border:"#2a2a2a"},
-  // stacked (25-36) — logo above company name, centered
-  {name:"Orange Blaze",   layout:"stacked",    footer:true,  headerBg:"#e07820",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#e07820",footerText:"#ffffff",outerBg:"#fce8cc",border:"#f5d0a0"},
-  {name:"Royal Purple",   layout:"stacked",    footer:true,  headerBg:"#6a1b9a",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#6a1b9a",footerText:"#ffffff",outerBg:"#f5eaff",border:"#e4cbff"},
-  {name:"Emerald",        layout:"stacked",    footer:true,  headerBg:"#2e7d32",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#2e7d32",footerText:"#ffffff",outerBg:"#e8f5e9",border:"#d0ebd1"},
-  {name:"Cobalt",         layout:"stacked",    footer:true,  headerBg:"#1565c0",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#1565c0",footerText:"#ffffff",outerBg:"#e3f2fd",border:"#c0dff8"},
-  {name:"Burgundy Gold",  layout:"stacked",    footer:true,  headerBg:"#4a1020",headerText:"#f5a623",accent:"",bodyBg:"#fdf5f0",bodyText:"#3d2010",footerBg:"#4a1020",footerText:"#f5a623",outerBg:"#f0e0d0",border:"#e0c0a0"},
-  {name:"Dark Charcoal",  layout:"stacked",    footer:true,  headerBg:"#212121",headerText:"#f5f5f5",accent:"",bodyBg:"#f5f5f5",bodyText:"#333",footerBg:"#212121",footerText:"#f5f5f5",outerBg:"#e0e0e0",border:"#cccccc"},
-  {name:"Steel Blue",     layout:"stacked",    footer:true,  headerBg:"#1e3a5f",headerText:"#ffffff",accent:"",bodyBg:"#edf2fa",bodyText:"#333",footerBg:"#1e3a5f",footerText:"#ffffff",outerBg:"#d8e5f5",border:"#c0d0ea"},
-  {name:"Warm Amber",     layout:"stacked",    footer:true,  headerBg:"#ff8f00",headerText:"#ffffff",accent:"",bodyBg:"#fff8e1",bodyText:"#333",footerBg:"#ff8f00",footerText:"#ffffff",outerBg:"#ffe8a0",border:"#ffd060"},
-  {name:"Midnight Stack", layout:"stacked",    footer:true,  headerBg:"#0d0d1a",headerText:"#e0e0ff",accent:"",bodyBg:"#f0f0f5",bodyText:"#333",footerBg:"#0d0d1a",footerText:"#e0e0ff",outerBg:"#dcdcea",border:"#c0c0d5"},
-  {name:"Pine Green",     layout:"stacked",    footer:true,  headerBg:"#1b4332",headerText:"#ffffff",accent:"",bodyBg:"#e8f5e9",bodyText:"#1b3020",footerBg:"#1b4332",footerText:"#ffffff",outerBg:"#d5edd7",border:"#b5d8b8"},
-  {name:"Onyx Stack",     layout:"stacked",    footer:false, headerBg:"#1a1a1a",headerText:"#e07820",accent:"#e07820",bodyBg:"#0e0e0e",bodyText:"#ddd",footerBg:"",footerText:"",outerBg:"#0a0a0a",border:"#2a2a2a"},
-  {name:"Slate Stack",    layout:"stacked",    footer:false, headerBg:"#37474f",headerText:"#eceff1",accent:"",bodyBg:"#eceff1",bodyText:"#333",footerBg:"",footerText:"",outerBg:"#cfd8dc",border:"#b0bec5"},
-  // logo-left (37-48) — logo on left, company name on right
-  {name:"Black Split",    layout:"logo-left",  footer:true,  headerBg:"#111111",headerText:"#ffffff",accent:"",bodyBg:"#ffffff",bodyText:"#333",footerBg:"#111111",footerText:"#ffffff",outerBg:"#f0f0f0",border:"#ddd"},
-  {name:"Navy Split",     layout:"logo-left",  footer:true,  headerBg:"#0a1f44",headerText:"#ffffff",accent:"",bodyBg:"#eef2f7",bodyText:"#333",footerBg:"#0a1f44",footerText:"#ffffff",outerBg:"#dce8f5",border:"#c0d5f0"},
-  {name:"Purple Split",   layout:"logo-left",  footer:true,  headerBg:"#5b2d8e",headerText:"#ffffff",accent:"",bodyBg:"#f5eaf9",bodyText:"#333",footerBg:"#5b2d8e",footerText:"#ffffff",outerBg:"#e8d8f5",border:"#d5c0f0"},
-  {name:"Forest Split",   layout:"logo-left",  footer:true,  headerBg:"#1b5e20",headerText:"#ffffff",accent:"",bodyBg:"#e8f5e9",bodyText:"#333",footerBg:"#1b5e20",footerText:"#ffffff",outerBg:"#d5edd7",border:"#b5d8b8"},
-  {name:"Orange Split",   layout:"logo-left",  footer:true,  headerBg:"#e07820",headerText:"#ffffff",accent:"",bodyBg:"#fff8f0",bodyText:"#333",footerBg:"#e07820",footerText:"#ffffff",outerBg:"#fce8cc",border:"#f5d0a0"},
-  {name:"Dark Split",     layout:"logo-left",  footer:true,  headerBg:"#1a1a2e",headerText:"#f5a623",accent:"",bodyBg:"#0d1020",bodyText:"#ccc",footerBg:"#1a1a2e",footerText:"#f5a623",outerBg:"#0a0c18",border:"#2a2a4e"},
-  {name:"Teal Split",     layout:"logo-left",  footer:true,  headerBg:"#00695c",headerText:"#ffffff",accent:"",bodyBg:"#e0f2f1",bodyText:"#333",footerBg:"#00695c",footerText:"#ffffff",outerBg:"#c8ece9",border:"#a0d8d5"},
-  {name:"Slate Clean",    layout:"logo-left",  footer:false, headerBg:"#37474f",headerText:"#eceff1",accent:"",bodyBg:"#eceff1",bodyText:"#333",footerBg:"",footerText:"",outerBg:"#dde2e5",border:"#c5cdd1"},
-  {name:"Brown Split",    layout:"logo-left",  footer:true,  headerBg:"#4e342e",headerText:"#f5e6c8",accent:"",bodyBg:"#fdf6ee",bodyText:"#3d2010",footerBg:"#4e342e",footerText:"#f5e6c8",outerBg:"#f0e0c8",border:"#e0c8a0"},
-  {name:"Red Split",      layout:"logo-left",  footer:true,  headerBg:"#b71c1c",headerText:"#ffffff",accent:"",bodyBg:"#fff5f5",bodyText:"#333",footerBg:"#b71c1c",footerText:"#ffffff",outerBg:"#ffd5d5",border:"#ffb0b0"},
-  {name:"Blue Split",     layout:"logo-left",  footer:true,  headerBg:"#1565c0",headerText:"#ffffff",accent:"",bodyBg:"#e3f2fd",bodyText:"#333",footerBg:"#1565c0",footerText:"#ffffff",outerBg:"#c0dff8",border:"#a0ccf5"},
-  {name:"Minimal Split",  layout:"logo-left",  footer:false, headerBg:"#f5f5f5",headerText:"#333333",accent:"",bodyBg:"#ffffff",bodyText:"#444",footerBg:"",footerText:"",outerBg:"#e0e0e0",border:"#cccccc"},
-  // name-left (49-60) — company name on left, logo on right
-  {name:"Clean White",    layout:"name-left",  footer:true,  headerBg:"#ffffff",headerText:"#222222",accent:"",bodyBg:"#f9f9f9",bodyText:"#333",footerBg:"#f0f0f0",footerText:"#555555",outerBg:"#e8e8e8",border:"#ddd"},
-  {name:"Light Navy",     layout:"name-left",  footer:true,  headerBg:"#eef2f7",headerText:"#003366",accent:"",bodyBg:"#f5f8ff",bodyText:"#333",footerBg:"#dce8f5",footerText:"#003366",outerBg:"#ccd5e8",border:"#b5c8e5"},
-  {name:"Light Purple",   layout:"name-left",  footer:true,  headerBg:"#f5eaf9",headerText:"#5b2d8e",accent:"",bodyBg:"#f9f5ff",bodyText:"#333",footerBg:"#e8d8f5",footerText:"#5b2d8e",outerBg:"#d8c5f0",border:"#c5a8e5"},
-  {name:"Light Green",    layout:"name-left",  footer:true,  headerBg:"#e8f5e9",headerText:"#1b5e20",accent:"",bodyBg:"#f5fff5",bodyText:"#333",footerBg:"#d5edd7",footerText:"#1b5e20",outerBg:"#c5e0c8",border:"#a8d0a8"},
-  {name:"Light Orange",   layout:"name-left",  footer:true,  headerBg:"#fff8f0",headerText:"#e07820",accent:"",bodyBg:"#fff8f0",bodyText:"#333",footerBg:"#fce8cc",footerText:"#e07820",outerBg:"#f5d8a0",border:"#e8c080"},
-  {name:"Lavender",       layout:"name-left",  footer:true,  headerBg:"#ede7f6",headerText:"#5b2d8e",accent:"",bodyBg:"#f9f5ff",bodyText:"#333",footerBg:"#d8c8f5",footerText:"#5b2d8e",outerBg:"#c8b0f0",border:"#b090e0"},
-  {name:"Light Steel",    layout:"name-left",  footer:true,  headerBg:"#eceff1",headerText:"#37474f",accent:"",bodyBg:"#f5f5f5",bodyText:"#333",footerBg:"#dde2e5",footerText:"#37474f",outerBg:"#cdd5d9",border:"#b5c0c5"},
-  {name:"Mint",           layout:"name-left",  footer:true,  headerBg:"#e0f2f1",headerText:"#004d40",accent:"",bodyBg:"#f0fafa",bodyText:"#333",footerBg:"#c8ece9",footerText:"#004d40",outerBg:"#b0d8d5",border:"#90c8c5"},
-  {name:"Warm Cream",     layout:"name-left",  footer:true,  headerBg:"#fdf6ee",headerText:"#4e342e",accent:"",bodyBg:"#fdf6ee",bodyText:"#4e342e",footerBg:"#f0dfc8",footerText:"#4e342e",outerBg:"#e5c8a0",border:"#d0b080"},
-  {name:"Sky Blue",       layout:"name-left",  footer:true,  headerBg:"#e3f2fd",headerText:"#1565c0",accent:"",bodyBg:"#f0f8ff",bodyText:"#333",footerBg:"#c0dff8",footerText:"#1565c0",outerBg:"#a0ccf5",border:"#80b8f0"},
-  {name:"Rose",           layout:"name-left",  footer:true,  headerBg:"#fce4ec",headerText:"#880e4f",accent:"",bodyBg:"#fff5f8",bodyText:"#333",footerBg:"#f8bbd0",footerText:"#880e4f",outerBg:"#f0a0c0",border:"#e88ab0"},
-  {name:"Modern Clean",   layout:"name-left",  footer:false, headerBg:"#ffffff",headerText:"#111111",accent:"",bodyBg:"#f8f8f8",bodyText:"#333",footerBg:"",footerText:"",outerBg:"#e5e5e5",border:"#dddddd"},
-  // logo-center (61-70) — logo centered, no company name
-  {name:"Dark Center",    layout:"logo-center",footer:true,  headerBg:"#1a1a1a",headerText:"",accent:"#e07820",bodyBg:"#0e0e0e",bodyText:"#ddd",footerBg:"#1a1a1a",footerText:"#e07820",outerBg:"#0e0e0e",border:"#333"},
-  {name:"Navy Center",    layout:"logo-center",footer:true,  headerBg:"#1a1a2e",headerText:"",accent:"#f5a623",bodyBg:"#0d1020",bodyText:"#ddd",footerBg:"#1a1a2e",footerText:"#f5a623",outerBg:"#0d1020",border:"#2a2a4e"},
-  {name:"Purple Center",  layout:"logo-center",footer:true,  headerBg:"#2d0a5e",headerText:"",accent:"#c084fc",bodyBg:"#1a0a38",bodyText:"#dcd",footerBg:"#2d0a5e",footerText:"#c084fc",outerBg:"#140828",border:"#3a1570"},
-  {name:"Teal Center",    layout:"logo-center",footer:true,  headerBg:"#003a3a",headerText:"",accent:"#4dd0e1",bodyBg:"#002828",bodyText:"#cdd",footerBg:"#003a3a",footerText:"#4dd0e1",outerBg:"#001e1e",border:"#1a5050"},
-  {name:"Red Center",     layout:"logo-center",footer:true,  headerBg:"#3a0a0a",headerText:"",accent:"#ff6b6b",bodyBg:"#280808",bodyText:"#dcc",footerBg:"#3a0a0a",footerText:"#ff6b6b",outerBg:"#1e0606",border:"#500a0a"},
-  {name:"Forest Center",  layout:"logo-center",footer:true,  headerBg:"#0a2810",headerText:"",accent:"#66bb6a",bodyBg:"#071e0a",bodyText:"#cdc",footerBg:"#0a2810",footerText:"#66bb6a",outerBg:"#051408",border:"#1a4020"},
-  {name:"Steel Center",   layout:"logo-center",footer:true,  headerBg:"#1e2a38",headerText:"",accent:"#90caf9",bodyBg:"#141e2a",bodyText:"#ccd",footerBg:"#1e2a38",footerText:"#90caf9",outerBg:"#0d1620",border:"#2e3a4e"},
-  {name:"Gold Dark",      layout:"logo-center",footer:true,  headerBg:"#1c1800",headerText:"",accent:"#ffd700",bodyBg:"#141400",bodyText:"#edc",footerBg:"#1c1800",footerText:"#ffd700",outerBg:"#0e0e00",border:"#2c2800"},
-  {name:"Clean Center",   layout:"logo-center",footer:false, headerBg:"#ffffff",headerText:"",accent:"#e0e0e0",bodyBg:"#f5f5f5",bodyText:"#333",footerBg:"",footerText:"",outerBg:"#e8e8e8",border:"#dddddd"},
-  {name:"Noir",           layout:"logo-center",footer:false, headerBg:"#0a0a0a",headerText:"",accent:"#333333",bodyBg:"#0a0a0a",bodyText:"#ccc",footerBg:"",footerText:"",outerBg:"#050505",border:"#1a1a1a"},
-];
+  var chosenStyle = 0;
+  var info = {};
 
-// ── Layout display labels ───────────────────────────────────────────────────
-var LAYOUT_LABELS = {
-  'logo-full':   'Logo Banner',
-  'name-only':   'Name Only',
-  'stacked':     'Stacked',
-  'logo-left':   'Logo ← Name',
-  'name-left':   'Name → Logo',
-  'logo-center': 'Logo Center',
-};
-
-// ── State ───────────────────────────────────────────────────────────────────
-var chosenStyle = 0;
-var info = {};
-var activeFilter = 'all';
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// Returns true if hex color is light (perceived luminance > 128)
-function isLight(hex) {
-  if (!hex || hex.length < 4) return true;
-  var c = hex.replace('#','');
-  if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
-  if (c.length < 6) return true;
-  var r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
-  return (0.299*r + 0.587*g + 0.114*b) > 128;
-}
-
-// ── Navigation ──────────────────────────────────────────────────────────────
-function goBack() {
-  if (window.parent && window.parent.loadPage) window.parent.loadPage('emailalerttemplateslist');
-  else window.location.href = 'EmailAlertTemplatesList.html';
-}
-
-function selectStyle(n) {
-  chosenStyle = n;
-  document.getElementById('picker-step').style.display = 'none';
-  document.getElementById('preview-step').style.display = 'block';
-  renderPreview();
-  document.querySelectorAll('.tmpl-card').forEach(function(el) { el.classList.remove('selected'); });
-  var c = document.getElementById('card-' + n);
-  if (c) c.classList.add('selected');
-}
-
-function changeTemplate() {
-  document.getElementById('preview-step').style.display = 'none';
-  document.getElementById('picker-step').style.display = 'block';
-}
-
-// ── Filter ──────────────────────────────────────────────────────────────────
-function setFilter(f) {
-  activeFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.getAttribute('data-filter') === f);
-  });
-  var visible = 0;
-  document.querySelectorAll('.tmpl-card').forEach(function(card) {
-    var show = (f === 'all' || card.getAttribute('data-layout') === f);
-    card.classList.toggle('hidden', !show);
-    if (show) visible++;
-  });
-  var countEl = document.getElementById('visible-count');
-  if (countEl) {
-    if (f === 'all') {
-      countEl.textContent = 'Showing all 70 templates';
-    } else {
-      var label = LAYOUT_LABELS[f] || f;
-      countEl.textContent = 'Showing ' + visible + ' — ' + label;
-    }
-  }
-}
-
-// ── Mini card builder ───────────────────────────────────────────────────────
-function buildMiniCard(cfg) {
-  var hBg   = cfg.headerBg;
-  var light = isLight(hBg);
-  var hTxt  = cfg.headerText || (light ? '#222222' : '#ffffff');
-  var bBg   = cfg.bodyBg;
-
-  // Placeholder colors that work on both light and dark headers
-  var logoBg    = light ? 'rgba(0,0,0,.07)'  : 'rgba(255,255,255,.11)';
-  var logoColor = light ? 'rgba(0,0,0,.38)'  : 'rgba(255,255,255,.42)';
-  var accentLine = cfg.accent || (light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.2)');
-
-  function logoBox(pad) {
-    return '<div style="display:inline-block;background:' + logoBg + ';border-radius:3px;padding:' + (pad||'6px 14px') + ';font-size:11px;font-style:italic;color:' + logoColor + ';min-width:50px;text-align:center;">[logo]</div>';
-  }
-
-  var hdrInner = '';
-  switch (cfg.layout) {
-    case 'logo-full':
-      hdrInner = '<div style="padding:12px 0 4px;text-align:center;">'
-               + '<div style="background:' + logoBg + ';border-radius:4px;padding:14px 24px;font-size:12px;font-style:italic;color:' + logoColor + ';display:inline-block;min-width:130px;">[ logo banner ]</div>'
-               + '</div>';
-      break;
-    case 'name-only':
-      hdrInner = '<div style="font-size:21px;font-weight:800;color:' + hTxt + ';text-align:center;letter-spacing:-.5px;padding:4px 0;">Company Name</div>';
-      break;
-    case 'stacked':
-      hdrInner = '<div style="text-align:center;">'
-               + logoBox('6px 18px')
-               + '<div style="margin-top:9px;font-size:14px;font-weight:700;color:' + hTxt + ';">Company Name</div>'
-               + '</div>';
-      break;
-    case 'logo-left':
-      hdrInner = '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
-               + '<td style="width:44%;vertical-align:middle;padding-right:8px;">' + logoBox() + '</td>'
-               + '<td style="vertical-align:middle;text-align:right;"><span style="font-size:12.5px;font-weight:700;color:' + hTxt + ';">Company Name</span></td>'
-               + '</tr></table>';
-      break;
-    case 'name-left':
-      hdrInner = '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
-               + '<td style="vertical-align:middle;"><span style="font-size:12.5px;font-weight:700;color:' + hTxt + ';">Company Name</span></td>'
-               + '<td style="width:44%;vertical-align:middle;text-align:right;padding-left:8px;">' + logoBox() + '</td>'
-               + '</tr></table>';
-      break;
-    default: // logo-center
-      hdrInner = '<div style="text-align:center;">'
-               + '<div style="background:' + logoBg + ';border-radius:4px;padding:13px 26px;font-size:12px;font-style:italic;color:' + logoColor + ';display:inline-block;">[ logo ]</div>'
-               + '</div>';
-      break;
-  }
-
-  var isFull   = cfg.layout === 'logo-full';
-  var isSide   = cfg.layout === 'logo-left' || cfg.layout === 'name-left';
-  var hPad     = isFull ? '8px 0 0' : '16px 18px';
-  var hAlign   = isSide ? 'left' : 'center';
-  var hBord    = cfg.accent ? 'border-bottom:3px solid ' + cfg.accent + ';' : '';
-  var cBord    = cfg.border ? 'border:1px solid ' + cfg.border + ';' : '';
-  var lineClr  = isLight(bBg) ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.18)';
-
-  var bodyHtml = '<div style="height:9px;background:' + lineClr + ';border-radius:2px;margin-bottom:8px;"></div>'
-               + '<div style="height:9px;background:' + lineClr + ';border-radius:2px;margin-bottom:8px;width:88%;"></div>'
-               + '<div style="height:9px;background:' + lineClr + ';border-radius:2px;width:70%;"></div>';
-
-  var footHtml = '';
-  if (cfg.footer && cfg.footerBg) {
-    var fBord = cfg.accent ? 'border-top:3px solid ' + cfg.accent + ';' : '';
-    footHtml = '<div style="background:' + cfg.footerBg + ';padding:10px 18px;text-align:center;font-size:10px;font-weight:700;color:' + cfg.footerText + ';' + fBord + '">Thank you for your business!</div>';
-  }
-
-  return '<div style="background:' + bBg + ';border-radius:6px;overflow:hidden;' + cBord + 'font-family:Arial,sans-serif;">'
-       + '<div style="background:' + hBg + ';padding:' + hPad + ';text-align:' + hAlign + ';' + hBord + '">' + hdrInner + '</div>'
-       + '<div style="padding:20px;">' + bodyHtml + '</div>'
-       + footHtml
-       + '</div>';
-}
-
-// ── Render picker grid ──────────────────────────────────────────────────────
-function renderGrid() {
-  var grid = document.getElementById('template-grid');
-  var html = '';
-  TEMPLATES.forEach(function(cfg, i) {
-    var n = i + 1;
-    var ll = LAYOUT_LABELS[cfg.layout] || cfg.layout;
-    html += '<div class="tmpl-card" id="card-' + n + '" data-layout="' + cfg.layout + '" onclick="selectStyle(' + n + ')">'
-          + '<div class="tmpl-preview"><div>' + buildMiniCard(cfg) + '</div></div>'
-          + '<div class="tmpl-badges">'
-          + '  <span class="badge badge-selected">&#10003; Selected</span>'
-          + '  <span class="badge badge-layout">' + ll + '</span>'
-          + (cfg.footer ? '' : '  <span class="badge badge-nofooter">No Footer</span>')
-          + '</div>'
-          + '<div class="tmpl-label"><span>' + esc(cfg.name) + '</span><span class="tmpl-num">#' + n + '</span></div>'
-          + '</div>';
-  });
-  grid.innerHTML = html;
-}
-
-// ── Full preview renderer ───────────────────────────────────────────────────
-function renderPreview() {
-  if (chosenStyle < 1 || chosenStyle > TEMPLATES.length) return;
-  var cfg = TEMPLATES[chosenStyle - 1];
-
-  // Update title + meta
-  var titleEl = document.getElementById('preview-title');
-  if (titleEl) titleEl.textContent = cfg.name;
-
-  var metaEl = document.getElementById('preview-meta');
-  if (metaEl) {
-    var ll = LAYOUT_LABELS[cfg.layout] || cfg.layout;
-    var nfBadge = cfg.footer ? '' : '<span class="meta-pill nofooter">No Footer</span>';
-    metaEl.innerHTML = '<span>Template <strong>#' + chosenStyle + '</strong></span>'
-                     + '<span class="meta-pill">' + ll + '</span>'
-                     + nfBadge;
-  }
-
-  var co     = info.company_name ? esc(info.company_name) : '<span style="color:#aaa;font-style:italic;">[Company Name]</span>';
-  var rawMsg = info.alert_message || 'Hello [Client Name],\n\nYour service has been scheduled for [Date]. Our team will arrive and take care of everything for you.\n\nIf you have any questions please don\'t hesitate to reach out.';
-  var msgHtml = rawMsg.split(/\n\n+/).map(function(p) {
-    return '<p style="margin:0 0 14px;">' + p.split(/\n/).map(function(l) { return esc(l); }).join('<br/>') + '</p>';
-  }).join('');
-
-  var logoSrc = info.company_logo || '';
-  var light   = isLight(cfg.headerBg);
-  var htc     = cfg.headerText || (light ? '#222222' : '#ffffff');
-  var phColor = light ? 'rgba(0,0,0,.22)' : 'rgba(255,255,255,.32)';
-
-  var hdr = '';
-  switch (cfg.layout) {
-    case 'logo-full':
-      hdr = logoSrc
-        ? '<img src="' + esc(logoSrc) + '" style="display:block;width:100%;max-height:160px;object-fit:contain;" alt=""/>'
-        : '<div style="padding:34px;text-align:center;font-style:italic;color:' + phColor + ';font-size:15px;">[Your logo fills this banner]</div>';
-      break;
-    case 'name-only':
-      hdr = '<div style="color:' + htc + ';font-size:26px;font-weight:800;letter-spacing:-.3px;padding:6px 0;">' + co + '</div>';
-      break;
-    case 'stacked':
-      hdr = (logoSrc
-        ? '<div style="margin-bottom:10px;"><img src="' + esc(logoSrc) + '" style="max-height:75px;max-width:80%;object-fit:contain;" alt=""/></div>'
-        : '<div style="margin-bottom:10px;font-style:italic;color:' + phColor + ';font-size:13px;">[logo]</div>')
-        + '<div style="color:' + htc + ';font-size:19px;font-weight:700;">' + co + '</div>';
-      break;
-    case 'logo-left':
-      hdr = '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
-          + '<td style="width:44%;vertical-align:middle;">'
-          + (logoSrc
-              ? '<img src="' + esc(logoSrc) + '" style="max-height:65px;max-width:150px;object-fit:contain;display:block;" alt=""/>'
-              : '<span style="font-style:italic;color:' + phColor + ';font-size:13px;">[logo]</span>')
-          + '</td><td style="vertical-align:middle;text-align:right;">'
-          + '<div style="color:' + htc + ';font-size:17px;font-weight:700;">' + co + '</div>'
-          + '</td></tr></table>';
-      break;
-    case 'name-left':
-      hdr = '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
-          + '<td style="vertical-align:middle;">'
-          + '<div style="color:' + htc + ';font-size:17px;font-weight:700;">' + co + '</div>'
-          + '</td><td style="width:44%;vertical-align:middle;text-align:right;">'
-          + (logoSrc
-              ? '<img src="' + esc(logoSrc) + '" style="max-height:65px;max-width:150px;object-fit:contain;display:block;margin-left:auto;" alt=""/>'
-              : '<span style="font-style:italic;color:' + phColor + ';font-size:13px;">[logo]</span>')
-          + '</td></tr></table>';
-      break;
-    default: // logo-center
-      var accentClr = cfg.accent || phColor;
-      hdr = logoSrc
-        ? '<img src="' + esc(logoSrc) + '" style="max-height:110px;max-width:85%;object-fit:contain;" alt=""/>'
-        : '<div style="font-style:italic;color:' + accentClr + ';font-size:14px;padding:10px 0;">[Your logo centered here]</div>';
-      break;
-  }
-
-  var isFull  = cfg.layout === 'logo-full';
-  var isSide  = cfg.layout === 'logo-left' || cfg.layout === 'name-left';
-  var hPad    = isFull ? '0' : '24px 32px';
-  var hAlign  = isSide ? 'left' : 'center';
-  var hBorder = cfg.accent ? 'border-bottom:3px solid ' + cfg.accent + ';' : '';
-  var fBorder = cfg.accent ? 'border-top:3px solid ' + cfg.accent + ';' : '';
-  var cBorder = cfg.border ? 'border:1px solid ' + cfg.border + ';' : '';
-  var footRow = (cfg.footer && cfg.footerBg)
-    ? '<div style="background:' + cfg.footerBg + ';padding:18px 32px;text-align:center;font-size:14px;font-weight:700;color:' + cfg.footerText + ';' + fBorder + '">Thank you for your business!</div>'
-    : '';
-
-  var html = '<div style="background:' + cfg.outerBg + ';padding:22px 0;font-family:\'Segoe UI\',Arial,sans-serif;">'
-           + '<div style="max-width:560px;margin:0 auto;background:' + cfg.bodyBg + ';border-radius:8px;overflow:hidden;' + cBorder + '">'
-           + '<div style="background:' + cfg.headerBg + ';padding:' + hPad + ';text-align:' + hAlign + ';' + hBorder + '">' + hdr + '</div>'
-           + '<div style="padding:28px 32px;font-size:15px;color:' + cfg.bodyText + ';line-height:1.7;">' + msgHtml + '</div>'
-           + footRow
-           + '</div></div>';
-
-  document.getElementById('preview-outer').innerHTML = html;
-}
-
-// ── Save ────────────────────────────────────────────────────────────────────
-async function saveStyle() {
-  var sess = await sb.auth.getSession();
-  var uid = sess.data?.session?.user?.id;
-  if (!uid) return;
-  var result = await sb.from('alert_email_settings').upsert({ user_id: uid, template_style: chosenStyle }, { onConflict: 'user_id' });
-  if (result.error) { alert('Error saving: ' + result.error.message); return; }
-  var el = document.getElementById('save-msg');
-  el.classList.add('show');
-  setTimeout(function() {
-    el.classList.remove('show');
+  function goBack() {
     if (window.parent && window.parent.loadPage) window.parent.loadPage('emailalerttemplateslist');
-    else window.history.back();
-  }, 1500);
-}
+    else window.location.href = 'EmailAlertTemplatesList.html';
+  }
 
-// ── Init ────────────────────────────────────────────────────────────────────
-async function init() {
-  renderGrid();
+  function selectStyle(n) {
+    chosenStyle = n;
+    document.getElementById('picker-step').style.display = 'none';
+    document.getElementById('preview-step').style.display = 'block';
+    renderPreview();
+  }
 
-  var sess = await sb.auth.getSession();
-  var uid = sess.data?.session?.user?.id;
-  if (!uid) return;
+  function changeTemplate() {
+    document.getElementById('preview-step').style.display = 'none';
+    document.getElementById('picker-step').style.display = 'block';
+  }
 
-  var result = await sb.from('alert_email_settings').select('*').eq('user_id', uid).single();
-  if (result.data) {
-    info = result.data;
-    if (result.data.template_style) {
-      chosenStyle = result.data.template_style;
-      document.getElementById('picker-step').style.display = 'none';
-      document.getElementById('preview-step').style.display = 'block';
-      renderPreview();
-      var c = document.getElementById('card-' + chosenStyle);
-      if (c) c.classList.add('selected');
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function logoHtml(imgCls, phCls) {
+    if (info.company_logo) return '<div class="' + imgCls + '"><img src="' + esc(info.company_logo) + '"/></div>';
+    var isLarge = phCls === 'ps4-logo-ph';
+    return '<div class="' + phCls + '" style="font-style:italic;color:#aaa;font-size:' + (isLarge ? '16' : '14') + 'px;">[your logo fills header here]</div>';
+  }
+
+  function renderPreview() {
+    var co  = info.company_name  ? esc(info.company_name)  : '<span style="color:#aaa;font-style:italic;">[companyname]</span>';
+    var msg = info.alert_message ? esc(info.alert_message) : '<span style="color:#aaa;font-style:italic;">[alert text]</span>';
+    var sf  = info.signoff_name  ? esc(info.signoff_name)  : (info.company_name ? esc(info.company_name) : '<span style="color:#aaa;font-style:italic;">[companyname]</span>');
+    var html = '';
+
+    if (chosenStyle === 1) {
+      html = '<div class="ps1-wrap">' +
+        '<div class="ps1-logo">' + logoHtml('ps1-logo','ps1-logo-ph') + '</div>' +
+        '<div class="ps1-co">' + co + '</div>' +
+        '<div class="ps1-div"></div>' +
+        '<div class="ps1-body">' + msg + '</div>' +
+        '<div class="ps1-footer"><div class="ty">Thank you,</div><div class="co">' + sf + '</div></div>' +
+      '</div>';
+    } else if (chosenStyle === 2) {
+      html = '<div class="ps2-wrap">' +
+        '<div class="ps2-header">' + logoHtml('ps2-logo','ps2-logo-ph') + '<div class="ps2-co">' + co + '</div></div>' +
+        '<div class="ps2-body">' + msg + '</div>' +
+        '<div class="ps2-footer"><div class="ty">Thank you for your business!</div><div class="co">' + sf + '</div></div>' +
+      '</div>';
+    } else if (chosenStyle === 3) {
+      html = '<div class="ps3-wrap">' +
+        '<div class="ps3-header">' + logoHtml('ps3-logo','ps3-logo-ph') + '<div class="ps3-co">' + co + '</div></div>' +
+        '<div class="ps3-body">' + msg + '</div>' +
+        '<div class="ps3-footer"><div class="ty">Thank you,</div><div class="co">' + sf + '</div></div>' +
+      '</div>';
+    } else if (chosenStyle === 4) {
+      html = '<div class="ps4-wrap">' +
+        '<div class="ps4-header">' + logoHtml('ps4-logo','ps4-logo-ph') + '</div>' +
+        '<div class="ps4-body">' + msg + '</div>' +
+        '<div class="ps4-footer"><div class="ty">Thank you for your business!</div><div class="co">' + sf + '</div></div>' +
+      '</div>';
+    }
+    document.getElementById('preview-outer').innerHTML = html;
+  }
+
+  async function saveStyle() {
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    if (!uid) return;
+    var { error } = await sb.from('alert_email_settings').upsert({ user_id: uid, template_style: chosenStyle }, { onConflict: 'user_id' });
+    if (error) { alert('Error saving: ' + error.message); return; }
+    var el = document.getElementById('save-msg');
+    el.classList.add('show');
+    setTimeout(function() {
+      el.classList.remove('show');
+      if (window.parent && window.parent.loadPage) window.parent.loadPage('emailalerttemplateslist');
+      else window.history.back();
+    }, 1500);
+  }
+
+  async function init() {
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    if (!uid) return;
+
+    var { data } = await sb.from('alert_email_settings').select('*').eq('user_id', uid).single();
+    if (data) {
+      info = data;
+      if (data.template_style) {
+        chosenStyle = data.template_style;
+        document.getElementById('picker-step').style.display = 'none';
+        document.getElementById('preview-step').style.display = 'block';
+        renderPreview();
+      }
     }
   }
-}
 
-init();
+  init();
 </script>
 </body>
 </html>
