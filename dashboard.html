@@ -1170,12 +1170,6 @@
     alerttemplatesall:       'Email Alert Templates',
   };
 
-  // Restore page from URL hash on load (after pageFiles/pageTitles are ready)
-  (function() {
-    var hash = window.location.hash.replace('#', '');
-    if (hash) loadPage(hash);
-  })();
-
   // ── Global Search ──
   var _searchTimer = null;
   function globalSearchInput() {
