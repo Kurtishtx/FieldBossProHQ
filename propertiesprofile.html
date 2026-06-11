@@ -1622,9 +1622,10 @@
           d.name + ' (' + (d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2)) + ')' +
           '</option>';
       }).join('');
-    /* store row index on the modal element itself — no global variable risk */
+    /* store row index and source context on the modal element */
     var overlay = document.getElementById('disc-modal-overlay');
     overlay.setAttribute('data-target-row', rowIndex);
+    overlay.setAttribute('data-source', 'add');
     /* restore previously saved discount for this row, or pre-fill from rate input */
     var saved = rowDiscountData[rowIndex];
     var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
@@ -1676,23 +1677,29 @@
     var discType  = opt.getAttribute('data-disc-type');
     var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
     var expiry    = document.getElementById('disc-expiry-input').value || '';
-    var targetRow = parseInt(document.getElementById('disc-modal-overlay').getAttribute('data-target-row'));
-    var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var overlay   = document.getElementById('disc-modal-overlay');
+    var targetRow = parseInt(overlay.getAttribute('data-target-row'));
+    var source    = overlay.getAttribute('data-source') || 'add';
+
+    var isEdit = source === 'edit';
+    var rateSelector = isEdit ? '#pkg-edit-rows .pke-rate' : '#pkg-modal-rows .pkg-rate-input';
+    var btnSelector  = isEdit ? '#pkg-edit-rows .pke-disc-btn' : '#pkg-modal-rows .pkg-disc-btn';
+    var dataStore    = isEdit ? pkeRowDiscountData : rowDiscountData;
+
+    var rateInputs = document.querySelectorAll(rateSelector);
     var inp = rateInputs[targetRow];
     if (!inp) { closeDiscountModal(); return; }
-    /* save discount info — rate input stays as original price */
-    rowDiscountData[targetRow] = {
+
+    dataStore[targetRow] = {
       discountId:    opt.value,
       discountType:  discType,
       discountValue: discValue,
       expiry:        expiry
     };
-    /* flash green to confirm */
     inp.style.transition = 'background .3s';
     inp.style.background = '#d4edda';
     setTimeout(function() { inp.style.background = ''; }, 1200);
-    /* mark the % button dark to show a discount is active */
-    var discBtns = document.querySelectorAll('#pkg-modal-rows .pkg-disc-btn');
+    var discBtns = document.querySelectorAll(btnSelector);
     if (discBtns[targetRow]) {
       discBtns[targetRow].style.background = '#555';
       discBtns[targetRow].style.color = '#fff';
@@ -1933,6 +1940,7 @@
         '</td>' +
         '<td style="padding:7px 4px; text-align:center; white-space:nowrap;">' +
           '<button onclick="pkeFillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;">&#8595;</button>' +
+          ' <button class="pke-disc-btn" title="Apply discount" onclick="pkeOpenDiscountModal(' + i + ')" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:2px;">%</button>' +
         '</td>' +
       '</tr>';
     }).join('');
@@ -1940,6 +1948,43 @@
     document.getElementById('pkg-edit-overlay').style.display = 'flex';
     var scrollEl = document.getElementById('pkg-edit-scroll');
     if (scrollEl) scrollEl.scrollTop = 0;
+  }
+
+  var pkeRowDiscountData = {};
+
+  async function pkeOpenDiscountModal(rowIndex) {
+    if (!discountList.length) {
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid2 = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      var { data } = await sb.from('discounts').select('*').eq('user_id', uid2).order('name');
+      discountList = data || [];
+    }
+    var sel = document.getElementById('disc-type-select');
+    sel.innerHTML = '<option value="">Please Select</option>' +
+      discountList.map(function(d) {
+        return '<option value="' + d.id + '" data-disc-type="' + (d.type || '') + '" data-disc-val="' + (d.value || 0) + '">' +
+          d.name + ' (' + (d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2)) + ')' +
+          '</option>';
+      }).join('');
+    var overlay = document.getElementById('disc-modal-overlay');
+    overlay.setAttribute('data-target-row', rowIndex);
+    overlay.setAttribute('data-source', 'edit');
+    var saved = pkeRowDiscountData[rowIndex];
+    var rateInputs = document.querySelectorAll('#pkg-edit-rows .pke-rate');
+    var currentRate = rateInputs[rowIndex] ? parseFloat(rateInputs[rowIndex].value) || 0 : 0;
+    if (saved) {
+      document.getElementById('disc-base-rate').value = saved.baseRate || currentRate.toFixed(2);
+      document.getElementById('disc-rate-input').value = saved.discountAmount || '';
+      document.getElementById('disc-expiry-input').value = saved.expiry || '';
+      sel.value = saved.discountId || '';
+      updateDiscountPreview();
+    } else {
+      document.getElementById('disc-base-rate').value = currentRate > 0 ? currentRate.toFixed(2) : '';
+      document.getElementById('disc-rate-input').value = '';
+      document.getElementById('disc-preview').textContent = '';
+      document.getElementById('disc-expiry-input').value = '';
+    }
+    overlay.style.display = 'flex';
   }
 
   function pkeToggleMissed(btn, rowIndex) {
