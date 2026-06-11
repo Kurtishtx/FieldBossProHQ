@@ -88,6 +88,52 @@ serve(async (req: Request) => {
       sent_at:    new Date().toISOString(),
     });
 
+    // Fire text_received employee alert
+    try {
+      const { data: alertRow } = await supabase
+        .from("alert_settings")
+        .select("message, recipients")
+        .eq("user_id", userId)
+        .eq("alert_type", "text_received")
+        .single();
+
+      if (alertRow?.recipients && alertRow?.message) {
+        const phones: string[] = JSON.parse(alertRow.recipients);
+        if (phones.length > 0) {
+          const { data: voip } = await supabase
+            .from("twilio_settings")
+            .select("account_sid, auth_token, phone_number")
+            .eq("user_id", userId)
+            .single();
+
+          if (voip?.account_sid && voip?.auth_token && voip?.phone_number) {
+            const displayName = clientName || from;
+            const alertMsg = alertRow.message
+              .replace(/\[clientname\]/g, displayName)
+              .replace(/\[message\]/g, body);
+
+            const didClean = voip.phone_number.replace(/\D/g, "");
+
+            for (const phone of phones) {
+              let dstClean = phone.replace(/\D/g, "");
+              if (dstClean.length === 10) dstClean = "1" + dstClean;
+              const url =
+                `https://voip.ms/api/v1/rest.php` +
+                `?api_username=${encodeURIComponent(voip.account_sid)}` +
+                `&api_password=${encodeURIComponent(voip.auth_token)}` +
+                `&method=sendSMS` +
+                `&did=${didClean}` +
+                `&dst=${dstClean}` +
+                `&message=${encodeURIComponent(alertMsg)}`;
+              await fetch(url);
+            }
+          }
+        }
+      }
+    } catch (alertErr) {
+      console.error("text_received alert error:", alertErr);
+    }
+
     return new Response("ok", { status: 200 });
   } catch (err) {
     console.error(err);
