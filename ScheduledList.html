@@ -175,6 +175,7 @@
     .table-wrap { overflow-x:auto; background:#fff; }
     table.data-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:auto; }
     .data-table thead th { background:#e8e4f0; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
+    .area-sep { border-left: 3px solid #e07820 !important; }
     .data-table thead th:hover { background:#ddd8ec; }
     .data-table thead th .sort-arrow { font-size:10px; margin-left:3px; }
     .data-table .totals-row td { background:#130520; color:#fff; padding:5px 8px; font-weight:600; border-right:1px solid #555; }
@@ -568,7 +569,7 @@
         <th id="th-service" onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
         <th id="th-lastsvc" onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
         <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
-        <th id="th-arealawn"     style="display:none;">Lawn Sq Ft</th>
+        <th id="th-arealawn"     style="display:none;" class="area-sep">Lawn Sq Ft</th>
         <th id="th-areainsect"   style="display:none;">Lawn Insect Sq Ft</th>
         <th id="th-areaflower"   style="display:none;">Flower Bed(s) Sq Ft</th>
         <th id="th-areamosquito" style="display:none;">Mosquito Sq Ft</th>
@@ -579,7 +580,7 @@
       <tr class="totals-row" id="totals-row">
         <td colspan="5" style="text-align:right; padding-right:12px;"></td>
         <td id="total-amt">$0.00</td>
-        <td id="total-arealawn"     style="text-align:right;display:none;"></td>
+        <td id="total-arealawn"     style="text-align:right;display:none;" class="area-sep"></td>
         <td id="total-areainsect"   style="text-align:right;display:none;"></td>
         <td id="total-areaflower"   style="text-align:right;display:none;"></td>
         <td id="total-areamosquito" style="text-align:right;display:none;"></td>
@@ -1003,13 +1004,16 @@
       }).join('');
 
       var assocAreas = getCatalogAreas(svc);
+      var firstAreaCell = true;
       var areaCells = AREA_COL_KEYS.map(function(k) {
         if (activeAreaCols.indexOf(k) < 0) return '';
         var areaDataKey = AREA_DATA_KEYS[k];
         var areaMap = areaTreatedByProperty[svc.property_id] || {};
         var val = areaMap[areaDataKey];
         var relevant = assocAreas === undefined ? !!val : assocAreas === null ? false : !!assocAreas[areaDataKey];
-        return '<td style="text-align:right;">' + (relevant && val ? Number(val).toLocaleString() : '') + '</td>';
+        var sepClass = firstAreaCell ? ' class="area-sep"' : '';
+        firstAreaCell = false;
+        return '<td' + sepClass + ' style="text-align:right;">' + (relevant && val ? Number(val).toLocaleString() : '') + '</td>';
       }).join('');
 
       var tr = document.createElement('tr');
