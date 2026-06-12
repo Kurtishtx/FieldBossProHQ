@@ -704,7 +704,6 @@
       .not('dispatched', 'is', true);
     if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
     services = data || [];
-    console.log('[services] loaded', services.length, '| null-dispatched:', services.filter(function(s){return s.dispatched===null;}).length);
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     await loadCfValues(propIds);
     await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadInvoiceNameMap(services)]);
@@ -824,8 +823,6 @@
   /* ── Render table ── */
   function renderTable() {
     var filtered = services.slice();
-    var _di = function(arr,label){var li=arr.filter(function(s){return s.service&&s.service.indexOf('Insect')>=0;});if(li.length)console.log('[dbg]',label,li.map(function(s){return s.service+'|disp='+s.dispatched+'|start='+s.start_date+'|psid='+s.package_service_id;}));else console.log('[dbg]',label,'0 Insect rows');};
-    _di(filtered,'start');
 
     /* service filter */
     if (activeServiceFilter.length) {
@@ -858,7 +855,6 @@
       if (s.scheduled_date && s.scheduled_date > refDateStr) return false;
       return true;
     });
-    _di(filtered,'after-date');
 
     /* min days filter — hide services dispatched less than min_days ago (uses selected date as reference) */
     if (document.getElementById('use-min-days').checked) {
@@ -869,10 +865,8 @@
         var lastDate = lastDispatchMap[key];
         if (!lastDate) return true;
         var daysSince = (refDate - new Date(lastDate + 'T00:00:00')) / (1000 * 60 * 60 * 24);
-        if (s.service && s.service.indexOf('Insect') >= 0) console.log('[dbg-mdays]',s.service,'lastDate='+lastDate,'daysSince='+Math.round(daysSince),'minDays='+minDays,'pass='+(daysSince>=minDays));
         return daysSince >= minDays;
       });
-      _di(filtered,'after-mindays');
 
       /* Package sequential filter — for package services, only show the earliest
          undispatched step per property+package so only 1 service from each package
@@ -899,7 +893,6 @@
           : String(s.property_id) + '_pkgfallback';
         return s.package_service_id === pkgGroupMin[gKey];
       });
-      _di(filtered,'after-sequential');
 
       /* Master package dependency filter — hide services whose package requires a master
          package until that master package also has a currently-due service on the property.
@@ -937,10 +930,8 @@
           var activePkgs = activePkgsByProp[s.property_id] || {};
           return !!activePkgs[masterPkgId];
         });
-        _di(filtered,'after-master');
       }
     }
-    _di(filtered,'final');
 
     /* sort */
     filtered.sort(function(a, b) {
