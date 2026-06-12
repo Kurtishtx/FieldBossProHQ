@@ -211,6 +211,8 @@
   async function sendEstimateAlert(estimateId, uid) {
     if (!uid) return;
     try {
+      var { data: toggleRow } = await sb.from('alert_toggles').select('sms_enabled').eq('user_id', uid).eq('alert_type', 'estimate_sent').single();
+      if (!toggleRow || !toggleRow.sms_enabled) return;
       var { data: alertRow } = await sb.from('alert_settings').select('enabled, message').eq('user_id', uid).eq('alert_type', 'estimate_sent').single();
       if (!alertRow || !alertRow.enabled || !alertRow.message) return;
       fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {

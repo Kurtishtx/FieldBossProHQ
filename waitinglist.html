@@ -1886,7 +1886,16 @@
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
       if (!uid) { console.error('[sendAlert] No session — alert not sent'); return; }
 
-      // Read alert settings client-side to bypass edge function's unreliable DB lookup
+      var { data: toggleRow } = await sb.from('alert_toggles')
+        .select('sms_enabled')
+        .eq('user_id', uid)
+        .eq('alert_type', alertType)
+        .single();
+      if (!toggleRow || !toggleRow.sms_enabled) {
+        console.log('[sendAlert] Alert toggled off for', alertType, '— skipping');
+        return;
+      }
+
       var { data: alertRow } = await sb.from('alert_settings')
         .select('enabled, message')
         .eq('user_id', uid)

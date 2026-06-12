@@ -586,11 +586,19 @@
     if (error) { alert('Error saving: ' + error.message); return; }
 
     if (!editId && newServiceId && uid) {
-      await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g' },
-        body: JSON.stringify({ alert_type: 'scheduled', service_ids: [newServiceId], user_id: uid })
-      }).catch(function(e) { console.error('SMS alert error:', e); });
+      try {
+        var { data: schedToggle } = await sb.from('alert_toggles').select('sms_enabled').eq('user_id', uid).eq('alert_type', 'scheduled').single();
+        if (schedToggle && schedToggle.sms_enabled) {
+          var { data: schedAlert } = await sb.from('alert_settings').select('enabled, message').eq('user_id', uid).eq('alert_type', 'scheduled').single();
+          if (schedAlert && schedAlert.enabled && schedAlert.message) {
+            fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g' },
+              body: JSON.stringify({ alert_type: 'scheduled', service_ids: [newServiceId], user_id: uid, alert_message: schedAlert.message })
+            }).catch(function(e) { console.error('SMS alert error:', e); });
+          }
+        }
+      } catch(e) { console.error('SMS alert error:', e); }
     }
 
     if (window.parent !== window) {
