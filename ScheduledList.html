@@ -1982,13 +1982,21 @@
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
       if (!uid) { console.error('[sendAlert] No session — alert not sent'); return; }
+      var { data: toggleRow } = await sb.from('alert_toggles')
+        .select('sms_enabled')
+        .eq('user_id', uid)
+        .eq('alert_type', alertType)
+        .single();
+      if (!toggleRow || !toggleRow.sms_enabled) {
+        console.log('[sendAlert] Alert toggled off for', alertType, '— skipping');
+        return;
+      }
       var { data: alertRow } = await sb.from('alert_settings')
         .select('enabled, message')
         .eq('user_id', uid)
         .eq('alert_type', alertType)
         .single();
-      console.log('[sendAlert] alert_type:', alertType, 'alertRow:', JSON.stringify(alertRow));
-      if (!alertRow || !alertRow.enabled || !alertRow.message) {
+      if (!alertRow || !alertRow.message) {
         console.log('[sendAlert] Alert not configured for', alertType, '— skipping');
         return;
       }
