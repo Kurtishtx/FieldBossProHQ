@@ -798,8 +798,13 @@
     if (activeCoreColumns.indexOf('service') >= 0) cells.push('<th id="th-service" onclick="sortBy(\'service\')">Service <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('lastsvc') >= 0) cells.push('<th id="th-lastsvc" onclick="sortBy(\'lastsvc\')">Last Svc <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('amount') >= 0) cells.push('<th id="amt-th" onclick="sortBy(\'amount\')">Amt <span class="sort-arrow">&#9650;</span></th>');
+    var firstAreaTh = true;
     AREA_COL_KEYS.forEach(function(k) {
-      if (activeAreaCols.indexOf(k) >= 0) cells.push('<th id="th-' + k + '">' + areaLabels[k] + '</th>');
+      if (activeAreaCols.indexOf(k) >= 0) {
+        var sepClass = firstAreaTh ? ' class="area-sep"' : '';
+        firstAreaTh = false;
+        cells.push('<th id="th-' + k + '"' + sepClass + '>' + areaLabels[k] + '</th>');
+      }
     });
     if (activeCoreColumns.indexOf('truck')  >= 0) cells.push('<th id="th-truck">Truck</th>');
     activeCustomCols.forEach(function(key) {
