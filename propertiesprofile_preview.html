@@ -69,35 +69,45 @@
 
     /* ── Hero banner ── */
     .hero {
-      background: linear-gradient(135deg, #1a2540 0%, #0f3460 60%, #1a3a2a 100%);
-      padding: 0; border-bottom: 3px solid #e07820;
+      background: #111827;
+      border-bottom: 3px solid #e07820;
       display: flex; align-items: stretch;
     }
-    .hero-left {
-      flex: 1; padding: 24px 28px;
-      display: flex; flex-direction: column; justify-content: center;
+    /* col 1 — address */
+    .hero-c-addr {
+      padding: 16px 20px; border-right: 1px solid rgba(255,255,255,.07);
+      display: flex; flex-direction: column; justify-content: center; min-width: 170px;
     }
-    .hero-left h2 { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 6px; }
-    .hero-city { font-size: 15px; color: rgba(255,255,255,.6); margin-bottom: 14px; }
-    .hero-contacts { display: flex; gap: 24px; flex-wrap: wrap; }
-    .hero-contact { display: flex; flex-direction: column; gap: 2px; }
-    .hero-contact .lbl { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .5px; }
-    .hero-contact .val { font-size: 13px; color: rgba(255,255,255,.85); font-weight: 500; }
-    .hero-contact a { color: #7ec8f5; text-decoration: none; font-weight: 600; }
-    .hero-contact a:hover { color: #fff; text-decoration: underline; }
-    .hero-right {
-      display: flex; flex-direction: column; border-left: 1px solid rgba(255,255,255,.1);
+    .hca-street { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .hca-city   { font-size: 12px; color: rgba(255,255,255,.45); margin-bottom: 6px; }
+    .hca-map    { font-size: 11px; color: rgba(255,255,255,.3); }
+    /* col 2 — client/phone/email */
+    .hero-c-left {
+      padding: 16px 24px; border-right: 1px solid rgba(255,255,255,.07);
+      display: flex; flex-direction: column; justify-content: center; gap: 8px;
     }
-    .hero-stat {
-      flex: 1; padding: 20px 28px; text-align: center;
-      display: flex; flex-direction: column; justify-content: center;
-      border-bottom: 1px solid rgba(255,255,255,.08); min-width: 150px;
+    /* col 3 — added/state */
+    .hero-c-right {
+      flex: 1; padding: 16px 24px; border-right: 1px solid rgba(255,255,255,.07);
+      display: flex; flex-direction: column; justify-content: center; gap: 8px;
     }
-    .hero-stat:last-child { border-bottom: none; }
-    .hero-stat:first-child { background: rgba(224,120,32,.25); }
-    .hero-stat-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
-    .hero-stat-val { font-size: 22px; font-weight: 800; color: #fff; }
-    .hero-stat:first-child .hero-stat-val { color: #e07820; }
+    .hrow { display: flex; align-items: baseline; gap: 6px; font-size: 13px; color: rgba(255,255,255,.75); }
+    .hrow .lbl { color: rgba(255,255,255,.4); font-size: 12px; min-width: 46px; }
+    .hrow a { color: #7ec8f5; text-decoration: none; font-weight: 600; }
+    .hrow a:hover { color: #fff; }
+    /* col 4 — financial */
+    .hero-c-fin { display: flex; flex-direction: column; min-width: 160px; }
+    .hfin-owed {
+      flex: 1; background: #e8b800; padding: 14px 22px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .hfin-lbl { font-size: 9px; font-weight: 800; color: rgba(0,0,0,.55); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 3px; }
+    .hfin-val { font-size: 26px; font-weight: 800; color: #000; line-height: 1; }
+    .hfin-prepay {
+      background: #1c2540; padding: 7px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: rgba(255,255,255,.5);
+    }
 
     /* ── Tabs ── */
     .page-tabs {
@@ -619,48 +629,34 @@
 
 <!-- Hero banner -->
 <div class="hero">
-  <div class="hero-left">
-    <h2 id="display-address">—</h2>
-    <div class="hero-city" id="display-city"></div>
-    <div class="hero-contacts">
-      <div class="hero-contact">
-        <span class="lbl">Client</span>
-        <span class="val"><a id="display-client" href="#">—</a></span>
-      </div>
-      <div class="hero-contact">
-        <span class="lbl">Phone</span>
-        <span class="val" id="display-phone">—</span>
-      </div>
-      <div class="hero-contact">
-        <span class="lbl">Email</span>
-        <span class="val" id="display-email">—</span>
-      </div>
-      <div class="hero-contact">
-        <span class="lbl">State</span>
-        <span class="val" id="display-state">—</span>
-      </div>
-      <div class="hero-contact">
-        <span class="lbl">Added</span>
-        <span class="val" id="display-added">—</span>
-      </div>
-      <div class="hero-contact">
-        <span class="lbl">Map Code</span>
-        <span class="val" id="display-mapcode">—</span>
-      </div>
-    </div>
+  <!-- col 1: address -->
+  <div class="hero-c-addr">
+    <div class="hca-street" id="display-address">—</div>
+    <div class="hca-city" id="display-city"></div>
+    <div class="hca-map">Map Code: <span id="display-mapcode">—</span></div>
   </div>
-  <div class="hero-right">
-    <div class="hero-stat">
-      <div class="hero-stat-label">Total Owed</div>
-      <div class="hero-stat-val" id="total-owed-val">$0.00</div>
+  <!-- col 2: client / phone / email -->
+  <div class="hero-c-left">
+    <div class="hrow"><span class="lbl">Client:</span><a id="display-client" href="#">—</a></div>
+    <div class="hrow"><span class="lbl">Phone:</span><span id="display-phone">—</span></div>
+    <div class="hrow"><span class="lbl">Email:</span><span id="display-email">—</span></div>
+  </div>
+  <!-- col 3: added / state -->
+  <div class="hero-c-right">
+    <div class="hrow"><span class="lbl">Added:</span><span id="display-added">—</span></div>
+    <div class="hrow"><span class="lbl">State:</span><span id="display-state">—</span></div>
+  </div>
+  <!-- col 4: financials -->
+  <div class="hero-c-fin">
+    <div class="hfin-owed">
+      <div class="hfin-lbl">Total Owed</div>
+      <div class="hfin-val" id="total-owed-val">$0.00</div>
     </div>
-    <div class="hero-stat">
-      <div class="hero-stat-label">Prepayments</div>
-      <div class="hero-stat-val" id="owed-prepay-val">$0.00</div>
+    <div class="hfin-prepay">
+      <span>Prepayments</span><span id="owed-prepay-val">$0.00</span>
     </div>
   </div>
 </div>
-<!-- hidden element kept for JS compat -->
 <span id="display-sales-tax" style="display:none;"></span>
 <span id="display-addr2" style="display:none;"></span>
 
