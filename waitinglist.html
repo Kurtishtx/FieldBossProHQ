@@ -444,21 +444,21 @@
         <th onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
         <th onclick="sortBy('due')">Due Date <span class="sort-arrow">&#9650;</span></th>
         <th onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
+        <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
         <th id="th-arealawn"     style="display:none;">Lawn Sq Ft</th>
         <th id="th-areainsect"   style="display:none;">Lawn Insect Sq Ft</th>
         <th id="th-areaflower"   style="display:none;">Flower Bed(s) Sq Ft</th>
         <th id="th-areamosquito" style="display:none;">Mosquito Sq Ft</th>
-        <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
       </tr>
     </thead>
     <tbody id="table-body">
       <tr class="totals-row" id="totals-row">
         <td colspan="6" style="text-align:right; padding-right:12px;"></td>
+        <td id="total-amt">$0.00</td>
         <td id="total-arealawn"     style="text-align:right;display:none;"></td>
         <td id="total-areainsect"   style="text-align:right;display:none;"></td>
         <td id="total-areaflower"   style="text-align:right;display:none;"></td>
         <td id="total-areamosquito" style="text-align:right;display:none;"></td>
-        <td id="total-amt">$0.00</td>
       </tr>
       <tr class="empty-row" id="empty-row">
         <td colspan="7">No waiting services found.</td>
@@ -1054,8 +1054,8 @@
       tr.style.cursor = 'pointer';
       tr.innerHTML =
         '<td class="cb-cell"><input type="checkbox" class="row-cb" data-id="' + svc.id + '" data-prop-id="' + svc.property_id + '" onchange="loadMarkers()"/></td>' +
-        orderCell + clientCell + serviceCell + dueCell + lastSvcCell +
-        areaCells + customCells + amtCell;
+        orderCell + clientCell + serviceCell + dueCell + lastSvcCell + amtCell +
+        areaCells + customCells;
       tr.addEventListener('click', function(ev) {
         if (ev.target.type === 'checkbox') return;
         var cb = tr.querySelector('.row-cb');
