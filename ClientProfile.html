@@ -11,17 +11,18 @@
     /* ── Top bar ── */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 16px; background: #fff; border-bottom: 1px solid #ccc;
+      padding: 9px 20px; background: #130520; border-bottom: 1px solid #1e0a35;
+      margin: 8px 16px; border-radius: 10px;
     }
-    .topbar-left { display: flex; align-items: center; gap: 8px; }
-    .topbar-left h1 { font-size: 18px; font-weight: 700; color: #111; }
-    .topbar-left a { color: #444; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .topbar-left h1 { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); }
+    .topbar-left a { color: #e07820; text-decoration: none; font-size: 12px; font-weight: 700; }
     .topbar-left a:hover { text-decoration: underline; }
     .gear-btn {
-      background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;
-      padding: 2px 7px; cursor: pointer; font-size: 14px; color: #555;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 4px;
+      padding: 3px 8px; cursor: pointer; font-size: 13px; color: #ccc;
     }
-    .gear-btn:hover { background: #ddd; }
+    .gear-btn:hover { background: rgba(255,255,255,.15); }
 
     /* ── Split buttons ── */
     .btn-group { display: flex; }
@@ -54,61 +55,68 @@
     .dropdown { position: relative; display: inline-flex; }
     .dropdown + .dropdown { margin-left: 0; }
     .dropdown-menu {
-      display: none; position: absolute; top: 100%; right: 0; z-index: 200;
-      background: #fff; border: 1px solid #ccc;
-      box-shadow: 0 4px 12px rgba(0,0,0,.2); min-width: 200px; padding: 4px 0;
+      display: none; position: absolute; top: calc(100% + 4px); right: 0; z-index: 200;
+      background: #1a0a30; border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5); min-width: 200px; padding: 4px 0; border-radius: 8px; overflow: hidden;
     }
     .dropdown-menu.show { display: block; }
     .dropdown-menu .dd-title {
-      padding: 6px 14px 4px; font-weight: 700; font-size: 12.5px;
-      color: #333; border-bottom: 1px solid #eee;
+      padding: 7px 14px 5px; font-weight: 700; font-size: 11px;
+      color: rgba(255,255,255,.4); border-bottom: 1px solid rgba(255,255,255,.08); text-transform: uppercase; letter-spacing: .5px;
     }
     .dropdown-menu a {
-      display: block; padding: 7px 14px; color: #444;
+      display: block; padding: 9px 14px; color: rgba(255,255,255,.75);
       text-decoration: none; font-size: 13px; cursor: pointer;
     }
-    .dropdown-menu a:hover { background: #f5f5f5; }
+    .dropdown-menu a:hover { background: rgba(255,255,255,.07); color: #e07820; }
 
     /* ── Page layout ── */
-    .page { max-width: 1200px; margin: 0 auto; padding: 12px; }
+    .page { padding: 0; }
 
     /* ── Client info card ── */
     .client-card {
-      background: #f5f5f5; border: 1px solid #ccc; padding: 12px 16px;
-      display: flex; gap: 30px; margin-bottom: 10px; font-size: 13px;
+      background: linear-gradient(135deg, #130520 0%, #1e0a35 60%, #130520 100%);
+      border-bottom: 3px solid #e07820;
+      display: flex; align-items: stretch; gap: 0; font-size: 13px;
+      margin: 12px 16px; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
     }
-    .client-card-col { flex: 1; line-height: 1.8; font-size: 13px; }
-    .client-card-col a { color: #444; text-decoration: none; }
+    .client-card-col {
+      flex: 1; line-height: 1.9; font-size: 13px; color: #fff;
+      padding: 14px 20px; border-right: 1px solid rgba(255,255,255,.07);
+    }
+    .client-card-col a { color: #fff; text-decoration: none; }
     .client-card-col a:hover { text-decoration: underline; }
-    .revenue-col { display: flex; flex-direction: column; min-width: 160px; }
+    .revenue-col { display: flex; flex-direction: column; min-width: 200px; }
     .revenue-box {
-      background: #130520; color: #fff; text-align: center;
-      padding: 18px 20px 10px; font-size: 26px; font-weight: 700; flex: 1;
+      background: #e8b800; color: #000; text-align: center;
+      padding: 18px 20px 10px; font-size: 32px; font-weight: 800; flex: 1;
     }
-    .revenue-box .rev-label { font-size: 13px; font-weight: 400; margin-top: 4px; }
+    .revenue-box .rev-label { font-size: 12px; font-weight: 700; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
 
     /* ── Tags ── */
     .tags-row {
-      background: #fff; border: 1px solid #ccc; padding: 7px 10px;
-      display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin-bottom: 10px;
+      background: #0d031a; border-bottom: 1px solid rgba(255,255,255,.08); padding: 8px 24px;
+      display: flex; flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin: 2px 16px; border-radius: 10px;
     }
     .tag-select-row { display: flex; align-items: center; gap: 6px; }
     .tag-select-box {
       display: flex; align-items: center; justify-content: space-between;
-      border: 1px solid #bbb; padding: 4px 10px; font-size: 13px; cursor: pointer;
-      min-width: 220px; background: #fff; border-radius: 2px; user-select: none;
+      border: 1px solid rgba(255,255,255,.15); padding: 4px 10px; font-size: 13px; cursor: pointer;
+      min-width: 180px; background: rgba(255,255,255,.07); border-radius: 6px; user-select: none; color: rgba(255,255,255,.7);
     }
-    .tag-select-box:hover { border-color: #999; }
+    .tag-select-box:hover { border-color: rgba(255,255,255,.3); }
     .tag-apply-btn {
-      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
-      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+      background: #e07820; color: #fff; border: none; padding: 5px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 6px; font-weight: 600;
     }
-    .tag-apply-btn:hover { background: #ddd; }
+    .tag-apply-btn:hover { background: #c96a10; }
     .tag-create-btn {
-      background: #e8e8e8; border: 1px solid #bbb; padding: 4px 14px;
-      font-size: 13px; cursor: pointer; border-radius: 2px; color: #333;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); padding: 4px 12px;
+      font-size: 13px; cursor: pointer; border-radius: 6px; color: rgba(255,255,255,.6);
     }
-    .tag-create-btn:hover { background: #ddd; }
+    .tag-create-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
     .tag-chip {
       display: inline-flex; align-items: center; gap: 5px;
       background: #e07820; color: #fff; border-radius: 3px;
@@ -171,32 +179,33 @@
     .create-tag-cancel:hover { text-decoration: underline; }
 
     /* ── Sections ── */
-    .sec { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
+    .sec { background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .sec-hdr {
-      background: #130520; color: #fff; padding: 6px 10px;
-      font-size: 13px; font-weight: 600;
+      background: rgba(0,0,0,.2); color: #fff; padding: 13px 18px;
+      font-size: 14px; font-weight: 700;
       display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.08);
     }
     .sec-hdr .hdr-links a {
-      color: #9dd4ff; text-decoration: none; font-size: 12px; font-weight: 400; margin-left: 6px;
+      color: #e07820; text-decoration: none; font-size: 12px; font-weight: 600; margin-left: 8px;
     }
-    .sec-hdr .hdr-links a:hover { text-decoration: underline; }
+    .sec-hdr .hdr-links a:hover { color: #ffaa55; }
     .sec-hdr .tab-links { display: flex; align-items: center; }
     .sec-hdr .tab-links a {
-      color: #e07820; font-size: 12.5px; font-weight: 600;
-      padding: 0 6px; border-left: 1px solid #777; text-decoration: none;
+      color: rgba(255,255,255,.4); font-size: 12px; font-weight: 600;
+      padding: 0 8px; border-left: 1px solid rgba(255,255,255,.12); text-decoration: none;
     }
     .sec-hdr .tab-links a:first-child { border-left: none; }
-    .sec-hdr .tab-links a.active { color: #fff; }
-    .sec-hdr .tab-links a:hover { text-decoration: underline; }
+    .sec-hdr .tab-links a.active { color: #e07820; }
+    .sec-hdr .tab-links a:hover { color: #fff; }
 
-    .add-btn-wrap { position: relative; margin: 8px; }
+    .add-btn-wrap { position: relative; margin: 10px 12px; }
     .add-btn {
       display: block; width: 100%;
-      padding: 7px; background: #130520; border: none;
-      color: #fff; font-size: 13px; cursor: pointer; text-align: center; border-radius: 2px;
+      padding: 9px; background: transparent; border: 2px dashed #e07820;
+      color: #e07820; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; border-radius: 8px;
     }
-    .add-btn:hover { background: #1a0828; }
+    .add-btn:hover { background: rgba(224,120,32,.08); }
     .svc-popup {
       display: none; position: absolute; top: calc(100% + 2px); left: 0;
       z-index: 300; background: #fff; border: 1px solid #ccc;
@@ -249,15 +258,16 @@
     .props-empty {
       padding: 24px 14px; color: #aaa; font-size: 13px; text-align: center; font-style: italic;
     }
-    .panels-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .panel { flex: 1; background: #fff; border: 1px solid #ccc; }
+    .panels-row { display: flex; gap: 10px; margin: 8px 16px; }
+    .panel { flex: 1; background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
     .panel-header {
-      background: #130520; color: #fff; padding: 5px 10px;
-      font-size: 13px; font-weight: 600; display: flex;
+      background: rgba(0,0,0,.2); color: #fff; padding: 13px 18px;
+      font-size: 14px; font-weight: 700; display: flex;
       align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    .panel-header a { color: #9dd4ff; text-decoration: none; font-size: 12.5px; }
-    .panel-header a:hover { text-decoration: underline; }
+    .panel-header a { color: #e07820; text-decoration: none; font-size: 12px; font-weight: 600; }
+    .panel-header a:hover { color: #ffaa55; }
     .panel-body { padding: 8px 10px; min-height: 60px; }
 
     /* ── 3-column row ── */
@@ -314,14 +324,14 @@
     .details-empty { padding: 14px 16px; color: #aaa; font-size: 13px; font-style: italic; }
 
     /* ── Attachments ── */
-    .attach-outer { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
-    .attach-tabs { display: flex; border-bottom: 1px solid #ccc; }
+    .attach-outer { background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
+    .attach-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.08); }
     .attach-tab {
-      padding: 6px 14px; border-right: 1px solid #ccc;
-      background: #e8e8e8; font-size: 12.5px; cursor: pointer; color: #333;
+      padding: 8px 16px; border-right: 1px solid rgba(255,255,255,.08);
+      background: transparent; font-size: 13px; cursor: pointer; color: rgba(255,255,255,.5); font-weight: 600;
     }
-    .attach-tab.active { background: #fff; font-weight: 600; }
-    .attach-tab:hover { background: #f5f5f5; }
+    .attach-tab.active { background: rgba(255,255,255,.07); color: #fff; }
+    .attach-tab:hover { background: rgba(255,255,255,.05); color: #fff; }
     .attach-meta {
       display: flex; align-items: center; justify-content: space-between;
       padding: 6px 10px; font-size: 12.5px; border-bottom: 1px solid #eee;
@@ -468,9 +478,9 @@
       <div id="display-city"></div>
     </div>
     <div class="client-card-col">
-      <div><span style="color:#888;font-size:12px;">Cell: </span><span id="display-cell"></span></div>
-      <div><span style="color:#888;font-size:12px;">Home: </span><span id="display-home"></span></div>
-      <div><span style="color:#888;font-size:12px;">Email: </span><a href="#" id="display-email"></a></div>
+      <div><span style="color:rgba(255,255,255,.55);font-size:12px;">Cell: </span><span id="display-cell"></span></div>
+      <div><span style="color:rgba(255,255,255,.55);font-size:12px;">Home: </span><span id="display-home"></span></div>
+      <div><span style="color:rgba(255,255,255,.55);font-size:12px;">Email: </span><a href="#" id="display-email"></a></div>
     </div>
     <div class="client-card-col">
       <div>Client Since: <span id="display-since"></span></div>
