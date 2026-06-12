@@ -348,6 +348,15 @@
     }
     .pg-btn.active { background: #f5c800; color: #111; }
 
+    /* ── Tab bar ── */
+    .page-tabs-bar { background: #130520; border-bottom: 3px solid #e07820; margin: 2px 16px; border-radius: 10px; overflow: hidden; }
+    .page-tabs { display: flex; align-items: flex-end; justify-content: center; gap: 0; }
+    .page-tab { padding: 11px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.5); border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -3px; transition: color .15s; }
+    .page-tab:hover { color: rgba(255,255,255,.9); }
+    .page-tab.active { color: #fff; border-bottom-color: #e07820; background: rgba(255,255,255,.07); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     /* ── Card modal ── */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.45);
@@ -529,79 +538,93 @@
     </div>
   </div>
 
-  <!-- Properties + Contacts panels -->
-  <div class="panels-row">
-    <div class="panel">
-      <div class="panel-header">
-        <span>Related Properties &ndash; <a href="#" onclick="addProperty(event)">(Add Property)</a></span>
-        <a href="#">All</a>
-      </div>
-      <div class="panel-body" id="props-list">
-        <div id="props-empty" class="props-empty">No properties found for this client.</div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">
-        <span>Contacts &ndash; <a href="#" onclick="openContactModal(event)">(Add Contact)</a></span>
-        <a href="#">All</a>
-      </div>
-      <div class="panel-body" id="contacts-list">
-        <div id="contacts-empty" class="props-empty">No contacts added yet.</div>
-      </div>
+  <!-- Tab bar -->
+  <div class="page-tabs-bar">
+    <div class="page-tabs">
+      <button class="page-tab active" onclick="showClientTab('properties',this)">Properties</button>
+      <button class="page-tab" onclick="showClientTab('activity',this)">Activity</button>
+      <button class="page-tab" onclick="showClientTab('attachments',this)">Attachments</button>
     </div>
   </div>
 
-  <!-- Activity -->
-  <div class="sec" style="margin-bottom:10px;">
-    <div class="sec-hdr">
-      <span>Activity</span>
-      <div class="tab-links">
-        <a href="#" class="active">All History</a>
-        <a href="#">Past Visits</a>
-        <a href="#">Future Visits</a>
-        <a href="#">Transactions</a>
-        <a href="#">Estimates</a>
-      </div>
-    </div>
-    <div class="activity-filter">
-      <span class="filter-count">Filter by: (0/17) items</span>
-      <button class="refresh-btn">&#8635;</button>
-      <input type="text" placeholder="Date range..."/>
-      <div class="sort-area">
-        sorted: <strong>Newest to Oldest &#9660;</strong>
-        <span class="updated">Updated: (now)</span>
-      </div>
-    </div>
-    <div class="note-box">Add a Note...</div>
-    <hr class="divider"/>
-    <div class="no-records">No records found</div>
-    <button class="show-more-btn">Show More</button>
-  </div>
-
-
-<!-- Attachments -->
-  <div class="attach-outer">
-    <div class="attach-tabs">
-      <div class="attach-tab active">Attachments</div>
-      <div class="attach-tab">Mobile Attachments</div>
-      <div class="attach-tab">All</div>
-    </div>
-    <div class="attach-meta">
-      <span>Total: &nbsp;0</span>
-      <span style="display:flex;align-items:center;gap:6px;">
-        Page Size:
-        <input type="text" value="10" style="width:36px;border:1px solid #bbb;padding:2px 4px;font-size:12px;"/>
-        <div class="pg-btns">
-          <button class="pg-btn">&#9664;&#9664;</button>
-          <button class="pg-btn">&#9664;</button>
-          <button class="pg-btn active">1</button>
-          <button class="pg-btn">&#9654;</button>
-          <button class="pg-btn">&#9654;&#9654;</button>
+  <!-- TAB: Properties + Contacts -->
+  <div class="tab-panel active" id="tab-properties">
+    <div class="panels-row">
+      <div class="panel">
+        <div class="panel-header">
+          <span>Related Properties &ndash; <a href="#" onclick="addProperty(event)">(Add Property)</a></span>
+          <a href="#">All</a>
         </div>
-      </span>
+        <div class="panel-body" id="props-list">
+          <div id="props-empty" class="props-empty">No properties found for this client.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span>Contacts &ndash; <a href="#" onclick="openContactModal(event)">(Add Contact)</a></span>
+          <a href="#">All</a>
+        </div>
+        <div class="panel-body" id="contacts-list">
+          <div id="contacts-empty" class="props-empty">No contacts added yet.</div>
+        </div>
+      </div>
     </div>
-    <div class="no-records">No records to display.</div>
-    <button class="upload-btn">Upload</button>
+  </div>
+
+  <!-- TAB: Activity -->
+  <div class="tab-panel" id="tab-activity">
+    <div class="sec" style="margin-bottom:10px;">
+      <div class="sec-hdr">
+        <span>Activity</span>
+        <div class="tab-links">
+          <a href="#" class="active">All History</a>
+          <a href="#">Past Visits</a>
+          <a href="#">Future Visits</a>
+          <a href="#">Transactions</a>
+          <a href="#">Estimates</a>
+        </div>
+      </div>
+      <div class="activity-filter">
+        <span class="filter-count">Filter by: (0/17) items</span>
+        <button class="refresh-btn">&#8635;</button>
+        <input type="text" placeholder="Date range..."/>
+        <div class="sort-area">
+          sorted: <strong>Newest to Oldest &#9660;</strong>
+          <span class="updated">Updated: (now)</span>
+        </div>
+      </div>
+      <div class="note-box">Add a Note...</div>
+      <hr class="divider"/>
+      <div class="no-records">No records found</div>
+      <button class="show-more-btn">Show More</button>
+    </div>
+  </div>
+
+  <!-- TAB: Attachments -->
+  <div class="tab-panel" id="tab-attachments">
+    <div class="attach-outer" style="margin:8px 16px;">
+      <div class="attach-tabs">
+        <div class="attach-tab active">Attachments</div>
+        <div class="attach-tab">Mobile Attachments</div>
+        <div class="attach-tab">All</div>
+      </div>
+      <div class="attach-meta">
+        <span>Total: &nbsp;0</span>
+        <span style="display:flex;align-items:center;gap:6px;">
+          Page Size:
+          <input type="text" value="10" style="width:36px;border:1px solid #bbb;padding:2px 4px;font-size:12px;"/>
+          <div class="pg-btns">
+            <button class="pg-btn">&#9664;&#9664;</button>
+            <button class="pg-btn">&#9664;</button>
+            <button class="pg-btn active">1</button>
+            <button class="pg-btn">&#9654;</button>
+            <button class="pg-btn">&#9654;&#9654;</button>
+          </div>
+        </span>
+      </div>
+      <div class="no-records">No records to display.</div>
+      <button class="upload-btn">Upload</button>
+    </div>
   </div>
 
 </div>
@@ -674,6 +697,16 @@
     </div>
   </div>
 </div>
+
+<script>
+function showClientTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.page-tab').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.stripe.com/v3/"></script>
