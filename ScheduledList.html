@@ -548,7 +548,6 @@
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-order"   checked onchange="toggleCoreCol('order',this.checked)"/>   Order</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-client"  checked onchange="toggleCoreCol('client',this.checked)"/>  Client</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-service" checked onchange="toggleCoreCol('service',this.checked)"/> Service</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="core-cb-scheddate" checked onchange="toggleCoreCol('scheddate',this.checked)"/> Sched Date</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-truck"   checked onchange="toggleCoreCol('truck',this.checked)"/>   Truck</label></div>
@@ -569,7 +568,6 @@
         <th id="th-order" onclick="sortBy('order')">Order <span class="sort-arrow">&#9650;</span></th>
         <th id="th-client" onclick="sortBy('client')">Client <span class="sort-arrow">&#9650;</span></th>
         <th id="th-service" onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
-        <th id="th-scheddate" onclick="sortBy('scheddate')">Sched Date <span class="sort-arrow">&#9650;</span></th>
         <th id="th-lastsvc" onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
         <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
         <th id="th-arealawn"     style="display:none;" class="area-sep">Lawn Sq Ft</th>
@@ -581,7 +579,7 @@
     </thead>
     <tbody id="table-body">
       <tr class="totals-row" id="totals-row">
-        <td colspan="6" style="text-align:right; padding-right:12px;"></td>
+        <td colspan="5" style="text-align:right; padding-right:12px;"></td>
         <td id="total-amt">$0.00</td>
         <td id="total-arealawn"     style="text-align:right;display:none;" class="area-sep"></td>
         <td id="total-areainsect"   style="text-align:right;display:none;"></td>
@@ -728,7 +726,7 @@
     return m && m[def.key] !== undefined ? String(m[def.key]) : '';
   }
 
-  var CORE_COLS = ['order','client','service','scheddate','lastsvc','amount','truck'];
+  var CORE_COLS = ['order','client','service','lastsvc','amount','truck'];
   var activeCoreColumns = CORE_COLS.slice();
   var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
   var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
@@ -798,7 +796,6 @@
     if (activeCoreColumns.indexOf('order')   >= 0) cells.push('<th id="th-order"   onclick="sortBy(\'order\')">Order <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('client')  >= 0) cells.push('<th id="th-client"  onclick="sortBy(\'client\')">Client <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('service') >= 0) cells.push('<th id="th-service" onclick="sortBy(\'service\')">Service <span class="sort-arrow">&#9650;</span></th>');
-    if (activeCoreColumns.indexOf('scheddate') >= 0) cells.push('<th id="th-scheddate" onclick="sortBy(\'scheddate\')">Sched Date <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('lastsvc') >= 0) cells.push('<th id="th-lastsvc" onclick="sortBy(\'lastsvc\')">Last Svc <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('amount') >= 0) cells.push('<th id="amt-th" onclick="sortBy(\'amount\')">Amt <span class="sort-arrow">&#9650;</span></th>');
     var firstAreaTh = true;
@@ -817,7 +814,7 @@
     tr.innerHTML = cells.join('');
 
     var colspanCount = 1;
-    ['order','client','service','scheddate','lastsvc'].forEach(function(col) {
+    ['order','client','service','lastsvc'].forEach(function(col) {
       if (activeCoreColumns.indexOf(col) >= 0) colspanCount++;
     });
     var totalsFirstTd = document.querySelector('#totals-row td:first-child');
@@ -939,7 +936,6 @@
       if (sortCol === 'order') { av = a.route_order ? parseInt(a.route_order) : 9999; bv = b.route_order ? parseInt(b.route_order) : 9999; }
       else if (sortCol === 'client') { av = a.client_name || ''; bv = b.client_name || ''; }
       else if (sortCol === 'service') { av = a.service || ''; bv = b.service || ''; }
-      else if (sortCol === 'scheddate') { av = a.scheduled_date || ''; bv = b.scheduled_date || ''; }
       else if (sortCol === 'amount') { av = parseFloat(a.amount) || 0; bv = parseFloat(b.amount) || 0; }
       else { av = 0; bv = 0; }
       if (av < bv) return -sortDir;
@@ -1003,9 +999,6 @@
       var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span>' + skipNote + '</td>' : '';
       var displaySvc = resolvedServiceName(svc);
       var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
-      var schedDateRaw = svc.scheduled_date || '';
-      var schedDateFmt = schedDateRaw ? (function() { var d = new Date(schedDateRaw + 'T00:00:00'); return (d.getMonth()+1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(-2); })() : '';
-      var schedDateCell = activeCoreColumns.indexOf('scheddate') >= 0 ? '<td style="white-space:nowrap;">' + schedDateFmt + '</td>' : '';
       var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';
       var truckCell = activeCoreColumns.indexOf('truck') >= 0 ? '<td>' + (svc.trucks ? svc.trucks.name : '') + '</td>' : '';
       var amtCell = activeCoreColumns.indexOf('amount') >= 0 ? '<td>$' + amt.toFixed(2) + '</td>' : '';
@@ -1033,7 +1026,7 @@
       tr.dataset.id = svc.id;
       tr.innerHTML =
         '<td class="cb-cell"><input type="checkbox" class="row-cb" data-id="' + svc.id + '" data-prop-id="' + svc.property_id + '" onchange="loadMarkers()"/></td>' +
-        orderCell + clientCell + serviceCell + schedDateCell + lastSvcCell + amtCell +
+        orderCell + clientCell + serviceCell + lastSvcCell + amtCell +
         areaCells + truckCell + customCells;
       tbody.insertBefore(tr, emptyRow);
     });
