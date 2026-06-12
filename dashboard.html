@@ -633,6 +633,26 @@
     </div>
   </div>
 
+  <!-- Package renewal banner (shown Dec 30+, dismissed per year via localStorage) -->
+  <div id="pkg-renewal-banner" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; box-shadow:0 8px 40px rgba(0,0,0,.4); max-width:440px; width:90vw; overflow:hidden; font-family:'Segoe UI',Arial,sans-serif;">
+      <div style="background:#130520; color:#fff; padding:16px 20px; display:flex; align-items:center; gap:12px;">
+        <span style="font-size:26px;">&#128197;</span>
+        <div>
+          <div style="font-size:16px; font-weight:700;">Package Renewal Time</div>
+          <div style="font-size:12px; color:#ccc; margin-top:2px;">New year is approaching</div>
+        </div>
+      </div>
+      <div style="padding:22px 24px;">
+        <p style="font-size:14px; color:#333; line-height:1.6; margin-bottom:18px;">Your package plans are ready to renew for the upcoming year. Head to <strong>Package Plans</strong> to renew each package — it only takes one click per package.</p>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button onclick="dismissRenewalBanner(); loadPage('packageplans');" style="background:#e07820; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer;">Go to Package Plans</button>
+          <button onclick="dismissRenewalBanner()" style="background:none; border:1px solid #ccc; color:#555; padding:10px 18px; font-size:14px; border-radius:4px; cursor:pointer;">OK, Got It</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Welcome / home screen -->
   <div class="content-area" id="home-screen">
     <div class="welcome-banner" id="welcome-banner">
@@ -842,6 +862,24 @@
       }
     }).catch(function() {}); /* silent — runs in background */
   });
+
+  /* Package renewal banner — show on Dec 30+ each year until dismissed */
+  (function checkRenewalBanner() {
+    var now = new Date();
+    var month = now.getMonth(); /* 0-based, 11 = December */
+    var day   = now.getDate();
+    if (month !== 11 || day < 30) return; /* only Dec 30+ */
+    var year = now.getFullYear();
+    var dismissedKey = 'pkg_renewal_dismissed_' + year;
+    if (localStorage.getItem(dismissedKey)) return;
+    document.getElementById('pkg-renewal-banner').style.display = 'flex';
+  })();
+
+  function dismissRenewalBanner() {
+    var year = new Date().getFullYear();
+    localStorage.setItem('pkg_renewal_dismissed_' + year, '1');
+    document.getElementById('pkg-renewal-banner').style.display = 'none';
+  }
 
   /* sign out and redirect if refresh token becomes invalid */
   sbMain.auth.onAuthStateChange(function(event) {

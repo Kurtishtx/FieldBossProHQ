@@ -196,6 +196,7 @@
         <th>Renewal Date</th>
         <th>Active</th>
         <th>Subscribers</th>
+        <th id="renew-th" style="display:none;">Renew</th>
       </tr>
     </thead>
     <tbody id="pkg-tbody"></tbody>
@@ -257,6 +258,11 @@
   /* ── Data ── */
   var packages = [];
   var subscriberCounts = {}; /* pkgId -> count of distinct properties */
+
+  /* show renew column Dec 30+ */
+  var _now = new Date();
+  var isRenewalSeason = (_now.getMonth() === 11 && _now.getDate() >= 30);
+  if (isRenewalSeason) document.getElementById('renew-th').style.display = '';
 
   async function loadPackages() {
     var { data, error } = await sb.from('Packages').select('*').order('name', { ascending: true });
@@ -322,7 +328,8 @@
         '<td>' + (p.end_date || '') + '</td>' +
         '<td>' + (p.renewal_date || '') + '</td>' +
         '<td>' + (p.active ? 'Active' : 'Inactive') + '</td>' +
-        '<td><button onclick="event.stopPropagation();openSubModal(\'' + p.id + '\',\'' + (p.name||'').replace(/'/g,"\\'") + '\')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 12px;font-size:12.5px;font-weight:700;cursor:pointer;">' + subCount + ' ' + (subCount === 1 ? 'Client' : 'Clients') + '</button></td>';
+        '<td><button onclick="event.stopPropagation();openSubModal(\'' + p.id + '\',\'' + (p.name||'').replace(/'/g,"\\'") + '\')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 12px;font-size:12.5px;font-weight:700;cursor:pointer;">' + subCount + ' ' + (subCount === 1 ? 'Client' : 'Clients') + '</button></td>' +
+        '<td style="display:' + (isRenewalSeason ? '' : 'none') + ';"><button id="renew-btn-' + p.id + '" onclick="event.stopPropagation();renewPackage(\'' + p.id + '\',\'' + (p.name||'').replace(/'/g,"\\'") + '\')" style="background:#27a567;color:#fff;border:none;border-radius:3px;padding:3px 14px;font-size:12.5px;font-weight:700;cursor:pointer;">Renew</button></td>';
       tr.addEventListener('click', function(e) {
         if (e.target.type === 'checkbox') return;
         window.location.href = 'PackagePlansAdd.html?id=' + p.id;
@@ -444,6 +451,68 @@
 
   function closeSubModal() { document.getElementById('sub-overlay').style.display = 'none'; }
   document.getElementById('sub-overlay').addEventListener('click', function(e) { if (e.target === this) closeSubModal(); });
+
+  async function renewPackage(pkgId, pkgName) {
+    var nextYear = new Date().getFullYear() + 1;
+    if (!confirm('Renew "' + pkgName + '" for ' + nextYear + '? This will create new service records for all subscribed properties with dates moved forward one year.')) return;
+
+    var btn = document.getElementById('renew-btn-' + pkgId);
+    if (btn) { btn.textContent = 'Working…'; btn.disabled = true; }
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    var { data: psRows } = await sb.from('package_services').select('id, name, service_name, min_days, default_rate, start_date, end_date').eq('package_id', pkgId);
+    if (!psRows || !psRows.length) { alert('No services found in this package.'); if (btn) { btn.textContent = 'Renew'; btn.disabled = false; } return; }
+
+    var psIds = psRows.map(function(r) { return r.id; });
+    var psMap = {};
+    psRows.forEach(function(r) { psMap[r.id] = r; });
+
+    var { data: svcRows } = await sb.from('Services')
+      .select('id, property_id, customer_id, client_name, address, service, amount, min_days, package_service_id, start_date, end_date, truck_id, assigned_to')
+      .in('package_service_id', psIds)
+      .not('property_id', 'is', null);
+    if (!svcRows || !svcRows.length) { alert('No subscribers found for this package.'); if (btn) { btn.textContent = 'Renew'; btn.disabled = false; } return; }
+
+    var alreadyRenewed = svcRows.some(function(s) { return s.start_date && s.start_date.startsWith(String(nextYear)); });
+    if (alreadyRenewed) {
+      alert('This package has already been renewed for ' + nextYear + '.');
+      if (btn) { btn.textContent = 'Renewed ✓'; btn.style.background = '#aaa'; btn.disabled = true; }
+      return;
+    }
+
+    function bumpYear(dateStr) {
+      if (!dateStr) return null;
+      var parts = dateStr.split('-');
+      return parts.length === 3 ? (parseInt(parts[0]) + 1) + '-' + parts[1] + '-' + parts[2] : null;
+    }
+
+    var seen = {}, inserts = [];
+    svcRows.forEach(function(s) {
+      var key = s.property_id + '_' + s.package_service_id;
+      if (seen[key]) return;
+      seen[key] = true;
+      var tmpl = psMap[s.package_service_id] || {};
+      inserts.push({
+        user_id: uid, property_id: s.property_id, customer_id: s.customer_id || null,
+        client_name: s.client_name || '', address: s.address || '',
+        service: s.service || tmpl.service_name || tmpl.name || '',
+        amount: s.amount != null ? s.amount : (tmpl.default_rate || 0),
+        min_days: s.min_days != null ? s.min_days : (tmpl.min_days || 0),
+        package_service_id: s.package_service_id,
+        start_date: bumpYear(s.start_date || tmpl.start_date),
+        end_date:   bumpYear(s.end_date   || tmpl.end_date),
+        dispatched: false, status: 'pending',
+        truck_id: s.truck_id || null, assigned_to: s.assigned_to || null
+      });
+    });
+
+    var { error } = await sb.from('Services').insert(inserts);
+    if (error) { alert('Error renewing: ' + error.message); if (btn) { btn.textContent = 'Renew'; btn.disabled = false; } return; }
+    if (btn) { btn.textContent = 'Renewed ✓'; btn.style.background = '#aaa'; btn.disabled = true; }
+    alert('"' + pkgName + '" renewed for ' + nextYear + ' — ' + inserts.length + ' service records created.');
+  }
 
   loadPackages();
 </script>
