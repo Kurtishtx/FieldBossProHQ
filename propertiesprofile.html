@@ -1836,8 +1836,8 @@ function showPropTab(name, btn) {
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ✎</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
             '<span style="font-weight:700;color:#222;">' + g.name + ' (' + (pkgTotalCount[pid] || g.svcs.length) + ')</span>' +
-            '<span><strong>Rate:</strong> ' + rateDisplay + '</span>' +
-            (startDisplay ? '<span><strong>Start:</strong> ' + startDisplay + '</span>' : '') +
+            '<span style="color:#444;"><strong>Rate:</strong> ' + rateDisplay + '</span>' +
+            (startDisplay ? '<span style="color:#444;"><strong>Start:</strong> ' + startDisplay + '</span>' : '') +
           '</div>' +
         '</div>';
     });
@@ -1852,8 +1852,8 @@ function showPropTab(name, btn) {
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Service</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
             '<span style="font-weight:700;color:#222;">' + (r.service || '—') + '</span>' +
-            '<span><strong>Rate:</strong> $' + amount.toFixed(2) + '</span>' +
-            (start ? '<span><strong>Start:</strong> ' + start + '</span>' : '') +
+            '<span style="color:#444;"><strong>Rate:</strong> $' + amount.toFixed(2) + '</span>' +
+            (start ? '<span style="color:#444;"><strong>Start:</strong> ' + start + '</span>' : '') +
           '</div>' +
         '</div>';
     });
