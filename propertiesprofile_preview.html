@@ -202,10 +202,10 @@
     }
     .add-btn:hover { background: rgba(224,120,32,.2); border-color: #e07820; }
 
-    /* ── Two-column services layout ── */
-    .services-layout { display: flex; gap: 16px; align-items: flex-start; }
-    .services-main { flex: 1; min-width: 0; }
-    .services-side { flex: 0 0 230px; }
+    /* ── Services layout — side panel hidden, full width ── */
+    .services-layout { display: block; }
+    .services-main { width: 100%; }
+    .services-side { display: none; }
 
     /* ── Activity ── */
     .activity-filter { display: flex; align-items: center; gap: 8px; padding: 10px 14px; flex-wrap: wrap; }
