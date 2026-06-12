@@ -6,12 +6,12 @@
   <title>Property Profile</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #1c3354; color: #e0e4f0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #1a2035; color: #e0e4f0; }
 
     /* ── Top bar ── */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 20px; background: #0f2038; border-bottom: 1px solid #1a3256;
+      padding: 9px 20px; background: #12192b; border-bottom: 1px solid #1e2d47;
     }
     .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .topbar-left h1 { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); }
@@ -58,7 +58,7 @@
     .dropdown { position: relative; display: inline-flex; }
     .dropdown-menu {
       display: none; position: absolute; top: calc(100% + 4px); right: 0; z-index: 200;
-      background: #1e3a64; border: 1px solid rgba(255,255,255,.12);
+      background: #1e2540; border: 1px solid rgba(255,255,255,.12);
       box-shadow: 0 8px 32px rgba(0,0,0,.5); min-width: 200px; padding: 4px 0;
       border-radius: 8px; overflow: hidden;
     }
@@ -69,7 +69,7 @@
 
     /* ── Hero banner ── */
     .hero {
-      background: linear-gradient(135deg, #1a3a5c 0%, #1e4a7a 60%, #1a4a5c 100%);
+      background: linear-gradient(135deg, #1a2540 0%, #0f3460 60%, #1a3a2a 100%);
       border-bottom: 3px solid #e07820;
       display: flex; align-items: stretch;
     }
@@ -103,13 +103,13 @@
     .hfin-lbl { font-size: 9px; font-weight: 800; color: rgba(0,0,0,.55); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 2px; }
     .hfin-val { font-size: 24px; font-weight: 800; color: #000; line-height: 1; }
     .hfin-prepay {
-      background: #1c2540; padding: 6px 12px;
+      background: #151c30; padding: 6px 12px;
       display: flex; justify-content: space-between; align-items: center;
       font-size: 12px; color: rgba(255,255,255,.5);
     }
 
     /* ── Tabs ── */
-    .page-tabs-bar { background: #162d50; border-bottom: 3px solid #e07820; }
+    .page-tabs-bar { background: #1c2a45; border-bottom: 3px solid #e07820; }
     .page-tabs {
       display: flex; align-items: flex-end; justify-content: center; gap: 0;
     }
@@ -128,7 +128,7 @@
 
     /* ── Tags ── */
     .tags-row {
-      background: #132840; border-bottom: 1px solid rgba(255,255,255,.08); padding: 8px 24px;
+      background: #151c30; border-bottom: 1px solid rgba(255,255,255,.08); padding: 8px 24px;
       display: flex; flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap;
     }
     .tag-select-row { display: flex; align-items: center; gap: 6px; }
@@ -151,7 +151,7 @@
     .tag-chip-remove:hover { opacity: 1; }
     .tag-dropdown {
       display: none; position: absolute; top: calc(100% + 4px); left: 0;
-      z-index: 300; background: #1e3a64; border: 1px solid rgba(255,255,255,.12);
+      z-index: 300; background: #1e2540; border: 1px solid rgba(255,255,255,.12);
       box-shadow: 0 8px 32px rgba(0,0,0,.5); min-width: 280px; max-height: 280px;
       overflow-y: auto; border-radius: 8px;
     }
@@ -179,7 +179,7 @@
     .create-tag-cancel:hover { color: #333; }
 
     /* ── Card (replaces .sec) ── */
-    .sec { background: #1e3a64; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
+    .sec { background: #1e2540; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .sec-hdr {
       padding: 13px 18px; font-size: 14px; font-weight: 700; color: #fff;
       display: flex; align-items: center; justify-content: space-between;
@@ -235,7 +235,7 @@
     .details-empty { padding: 14px 16px; color: rgba(255,255,255,.3); font-size: 13px; font-style: italic; }
 
     /* ── Attachments ── */
-    .attach-outer { background: #1e3a64; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
+    .attach-outer { background: #1e2540; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .attach-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.08); }
     .attach-tab { padding: 9px 16px; border-right: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.2); font-size: 12.5px; cursor: pointer; color: rgba(255,255,255,.4); }
     .attach-tab.active { background: transparent; font-weight: 700; color: #fff; border-bottom: 2px solid #e07820; }
