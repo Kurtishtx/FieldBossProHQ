@@ -917,8 +917,6 @@
         if (st === 'rescheduled' && activeStatusFilter.indexOf('scheduled') >= 0) return true;
         return activeStatusFilter.indexOf(st) >= 0;
       });
-    } else {
-      filtered = filtered.filter(function(s) { return s.status !== 'completed'; });
     }
     if (activeTruckFilter.length) {
       filtered = filtered.filter(function(s) { return activeTruckFilter.indexOf(s.truck_id) >= 0; });
