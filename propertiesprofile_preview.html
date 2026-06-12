@@ -1,0 +1,2932 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Property Profile</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #12131f; color: #e0e0f0; }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: #1c1e2e; border-bottom: 3px solid #e07820;
+      position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .topbar-left h1 { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -.3px; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: #e07820; text-decoration: none; font-size: 12px; font-weight: 700;
+      border: 2px solid #e07820; border-radius: 20px; padding: 3px 12px;
+      transition: background .15s;
+    }
+    .back-link:hover { background: rgba(224,120,32,.15); }
+    .topbar-left a.edit-link {
+      color: #a0a8c8; text-decoration: none; font-size: 12px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.15); border-radius: 20px; padding: 3px 12px;
+    }
+    .topbar-left a.edit-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .gear-btn {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 6px;
+      padding: 4px 9px; cursor: pointer; font-size: 14px; color: #ccc;
+    }
+    .gear-btn:hover { background: rgba(255,255,255,.14); }
+
+    /* ── Split buttons ── */
+    .btn-group { display: flex; align-items: stretch; }
+    .btn-main-outline {
+      background: transparent; color: #e07820; border: 2px solid #e07820;
+      padding: 7px 18px; font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; border-radius: 8px 0 0 8px; border-right: none;
+      transition: background .15s;
+    }
+    .btn-main-outline:hover { background: rgba(224,120,32,.15); }
+    .btn-caret-outline {
+      background: transparent; color: #e07820; border: 2px solid #e07820;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 8px 8px 0;
+    }
+    .btn-caret-outline:hover { background: rgba(224,120,32,.15); }
+    .btn-main {
+      background: #e07820; color: #fff; border: none;
+      border-right: 1px solid rgba(255,255,255,.25);
+      padding: 7px 18px; font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; border-radius: 8px 0 0 8px;
+    }
+    .btn-main:hover { background: #c96a10; }
+    .btn-caret {
+      background: #e07820; color: #fff; border: none;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 0 8px 8px 0;
+    }
+    .btn-caret:hover { background: #c96a10; }
+
+    /* ── Dropdown ── */
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown + .dropdown { margin-left: 0; }
+    .dropdown-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 200;
+      background: #252840; border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5); min-width: 200px; padding: 6px 0;
+      border-radius: 10px; overflow: hidden;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-menu .dd-title {
+      padding: 8px 14px 6px; font-weight: 700; font-size: 11px;
+      color: #a0a8c8; border-bottom: 1px solid rgba(255,255,255,.08);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .dropdown-menu a {
+      display: block; padding: 9px 14px; color: #d0d8f0;
+      text-decoration: none; font-size: 13px; cursor: pointer;
+    }
+    .dropdown-menu a:hover { background: rgba(255,255,255,.07); color: #fff; }
+
+    /* ── Page layout ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 16px; }
+
+    /* ── Property info card ── */
+    .prop-card {
+      background: linear-gradient(135deg, #1e2240 0%, #2a1545 100%);
+      border: 1px solid rgba(224,120,32,.3);
+      border-radius: 14px; padding: 20px 24px;
+      display: flex; gap: 32px; margin-bottom: 14px; font-size: 13px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+    .prop-card-col { flex: 1; line-height: 2; font-size: 14px; color: #d0d8f0; }
+    .prop-card-col .col-name { font-weight: 800; font-size: 17px; color: #fff; margin-bottom: 2px; }
+    .prop-card-col a { color: #7dbfff; text-decoration: none; }
+    .prop-card-col a:hover { text-decoration: underline; }
+    .prop-card-col .col-label { color: #8890b0; font-size: 13px; }
+
+    .status-col { display: flex; flex-direction: column; min-width: 180px; }
+    .status-box {
+      background: rgba(0,0,0,.25); color: #fff; text-align: center;
+      padding: 16px 20px 12px; flex: 1; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .status-box .status-badge {
+      display: inline-block; background: #27a567; color: #fff;
+      border-radius: 20px; padding: 4px 16px; font-size: 14px; font-weight: 700;
+    }
+    .status-box .status-badge.inactive { background: #555; }
+    .status-box .status-label { font-size: 12px; font-weight: 400; margin-top: 6px; color: #a0a8c8; }
+    .status-detail {
+      background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.08); border-top: none;
+      padding: 6px 10px; font-size: 12px; border-radius: 0 0 10px 10px;
+    }
+    .status-detail .sd-row { display: flex; justify-content: space-between; padding: 2px 0; color: #a0a8c8; }
+
+    /* ── Tags ── */
+    .tags-row {
+      background: #1c1e2e; border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+      padding: 10px 14px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin-bottom: 14px;
+    }
+    .tag-select-row { display: flex; align-items: center; gap: 8px; }
+    .tag-select-box {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid rgba(255,255,255,.15); padding: 5px 12px; font-size: 13px; cursor: pointer;
+      min-width: 220px; background: rgba(255,255,255,.06); border-radius: 6px;
+      color: #c0c8e0; user-select: none;
+    }
+    .tag-select-box:hover { border-color: rgba(255,255,255,.3); }
+    .tag-apply-btn {
+      background: #e07820; border: none; padding: 5px 16px;
+      font-size: 13px; cursor: pointer; border-radius: 6px; color: #fff; font-weight: 700;
+    }
+    .tag-apply-btn:hover { background: #c96a10; }
+    .tag-create-btn {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); padding: 5px 14px;
+      font-size: 13px; cursor: pointer; border-radius: 6px; color: #c0c8e0;
+    }
+    .tag-create-btn:hover { background: rgba(255,255,255,.13); color: #fff; }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(224,120,32,.25); color: #e07820; border: 1px solid rgba(224,120,32,.4);
+      border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 600;
+    }
+    .tag-chip-remove {
+      background: none; border: none; color: rgba(224,120,32,.7);
+      cursor: pointer; font-size: 13px; padding: 0; line-height: 1;
+    }
+    .tag-chip-remove:hover { color: #e07820; }
+    .tag-dropdown {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0;
+      z-index: 300; background: #252840; border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5); min-width: 280px; max-height: 280px;
+      overflow-y: auto; border-radius: 10px;
+    }
+    .tag-dropdown.show { display: block; }
+    .tag-filter-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.2); position: sticky; top: 0;
+    }
+    .tag-filter-row label { color: #8890b0; font-size: 12px; white-space: nowrap; }
+    .tag-filter-row input {
+      flex: 1; border: 1px solid rgba(255,255,255,.15); padding: 4px 8px; font-size: 12px;
+      background: rgba(255,255,255,.08); outline: none; border-radius: 4px; color: #e0e0f0;
+    }
+    .tag-filter-clear { color: #8890b0; cursor: pointer; font-size: 15px; }
+    .tag-dd-item { padding: 9px 14px; font-size: 13px; cursor: pointer; color: #c0c8e0; }
+    .tag-dd-item:hover, .tag-dd-item.selected { background: rgba(255,255,255,.07); }
+    .tag-dd-item.selected { font-weight: 600; color: #e07820; }
+    .tag-dd-empty { padding: 12px 14px; color: #8890b0; font-size: 12px; font-style: italic; }
+
+    /* Create Tag modal */
+    .create-tag-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      z-index: 1100; align-items: center; justify-content: center;
+    }
+    .create-tag-overlay.show { display: flex; }
+    .create-tag-box {
+      background: #1c1e2e; border: 1px solid rgba(255,255,255,.12);
+      padding: 28px 32px; min-width: 340px;
+      box-shadow: 0 16px 60px rgba(0,0,0,.6); border-radius: 14px;
+    }
+    .create-tag-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 18px; color: #fff; }
+    .create-tag-box input {
+      width: 100%; border: 1px solid rgba(255,255,255,.15); padding: 9px 12px;
+      font-size: 13px; font-family: inherit; outline: none; border-radius: 6px;
+      margin-bottom: 16px; background: rgba(255,255,255,.06); color: #e0e0f0;
+    }
+    .create-tag-box input:focus { border-color: #e07820; }
+    .create-tag-actions { display: flex; align-items: center; gap: 12px; }
+    .create-tag-save {
+      background: #e07820; color: #fff; border: none;
+      padding: 9px 28px; font-size: 13px; font-weight: 700;
+      border-radius: 8px; cursor: pointer;
+    }
+    .create-tag-save:hover { background: #c96a10; }
+    .create-tag-cancel { color: #8890b0; font-size: 13px; cursor: pointer; }
+    .create-tag-cancel:hover { color: #fff; }
+
+    /* ── Sections ── */
+    .sec {
+      background: #1c1e2e; border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; margin-bottom: 14px; overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,.25);
+    }
+    .sec-hdr {
+      background: rgba(0,0,0,.25); color: #fff; padding: 12px 16px;
+      font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      border-left: 4px solid #e07820;
+    }
+    .sec-hdr .hdr-links a {
+      color: #7dbfff; text-decoration: none; font-size: 12px; font-weight: 500; margin-left: 8px;
+    }
+    .sec-hdr .hdr-links a:hover { color: #fff; }
+    .sec-hdr .tab-links { display: flex; align-items: center; }
+    .sec-hdr .tab-links a {
+      color: #8890b0; font-size: 12px; font-weight: 600;
+      padding: 0 8px; border-left: 1px solid rgba(255,255,255,.15); text-decoration: none;
+    }
+    .sec-hdr .tab-links a:first-child { border-left: none; }
+    .sec-hdr .tab-links a.active { color: #e07820; }
+    .sec-hdr .tab-links a:hover { color: #fff; }
+
+    .add-btn-wrap { position: relative; margin: 10px; }
+    .add-btn {
+      display: block; width: 100%;
+      padding: 9px; background: rgba(224,120,32,.12);
+      border: 2px dashed rgba(224,120,32,.4);
+      color: #e07820; font-size: 13px; font-weight: 700; cursor: pointer;
+      text-align: center; border-radius: 8px; transition: all .15s;
+    }
+    .add-btn:hover { background: rgba(224,120,32,.2); border-color: #e07820; }
+
+    /* ── 3-column row ── */
+    .main-row { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+    .col-jobs { flex: 1; min-width: 0; }
+    .col-accounting { flex: 1; min-width: 0; }
+    .col-right { flex: 0 0 200px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── Activity ── */
+    .activity-filter {
+      display: flex; align-items: center; gap: 8px; padding: 10px 14px; flex-wrap: wrap;
+    }
+    .activity-filter .filter-count { color: #8890b0; font-size: 12px; cursor: pointer; }
+    .activity-filter .refresh-btn {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 6px;
+      width: 28px; height: 28px; cursor: pointer; font-size: 15px; color: #a0a8c8;
+    }
+    .activity-filter input[type="text"] {
+      border: 1px solid rgba(255,255,255,.15); padding: 4px 10px; font-size: 12px;
+      height: 30px; min-width: 220px; background: rgba(255,255,255,.06);
+      color: #e0e0f0; border-radius: 6px; outline: none;
+    }
+    .sort-area { margin-left: auto; text-align: right; font-size: 12px; }
+    .sort-area strong { cursor: pointer; color: #c0c8e0; }
+    .sort-area .updated { font-size: 11px; color: #6888a0; display: block; }
+    .note-box {
+      margin: 10px 14px; border: 1px dashed rgba(224,120,32,.3); background: rgba(224,120,32,.05);
+      padding: 11px 14px; color: #8890b0; font-style: italic; font-size: 13px; border-radius: 8px;
+    }
+    .no-records { padding: 12px 14px; font-size: 13px; color: #6888a0; }
+    .divider { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 0 14px; }
+    .show-more-btn {
+      display: block; width: 100%; padding: 10px; background: rgba(255,255,255,.04);
+      border: none; cursor: pointer; font-size: 13px; text-align: center;
+      color: #8890b0; border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .show-more-btn:hover { background: rgba(255,255,255,.07); color: #fff; }
+
+    /* ── Details / Custom Fields ── */
+    .details-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; background: rgba(0,0,0,.25); color: #fff; font-weight: 700;
+      font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.08);
+      border-left: 4px solid #e07820;
+    }
+    .details-body { display: none; border-top: 1px solid rgba(255,255,255,.06); }
+    .details-body.open { display: block; }
+    .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px 0 8px; }
+    .details-cell { display: flex; align-items: baseline; gap: 10px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .details-cell .dl { color: #8890b0; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+    .details-cell .dv-text {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; font-weight: 600; color: #e0e0f0;
+      font-family: inherit; width: 100%; min-width: 0;
+      border-bottom: 1px solid transparent;
+    }
+    .details-cell .dv-text:focus { border-bottom-color: #e07820; }
+    .details-cell .dv-check { width: 15px; height: 15px; accent-color: #e07820; cursor: pointer; }
+    .details-empty { padding: 14px 16px; color: #6888a0; font-size: 13px; font-style: italic; }
+
+    /* ── Attachments ── */
+    .attach-outer {
+      background: #1c1e2e; border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; margin-bottom: 14px; overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,.25);
+    }
+    .attach-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .attach-tab {
+      padding: 8px 16px; border-right: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.2); font-size: 12.5px; cursor: pointer; color: #8890b0;
+    }
+    .attach-tab.active { background: rgba(224,120,32,.1); font-weight: 700; color: #e07820; }
+    .attach-tab:hover { background: rgba(255,255,255,.05); color: #fff; }
+    .attach-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,.06); color: #8890b0;
+    }
+    .upload-btn {
+      margin: 10px 12px; padding: 5px 16px; border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.07); font-size: 12.5px; cursor: pointer; border-radius: 6px; color: #c0c8e0;
+    }
+    .upload-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .pg-btns { display: flex; gap: 3px; align-items: center; }
+    .pg-btn {
+      padding: 3px 9px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
+      cursor: pointer; font-size: 12px; border-radius: 4px; color: #a0a8c8;
+    }
+    .pg-btn.active { background: #e07820; border-color: #e07820; color: #fff; }
+    #pkg-modal-rows input[type="number"]::-webkit-outer-spin-button,
+    #pkg-modal-rows input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    #pkg-modal-rows input[type="number"] { -moz-appearance: textfield; }
+    .btn-map-toggle { background:#111; border:3px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
+    .btn-map-toggle:hover { background:#1a0828; }
+
+    /* ── Measurement Panel ── */
+    #measure-panel {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .measure-hdr {
+      background: #1a2b3c;
+      color: #fff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .measure-hdr-title { font-size: 14px; font-weight: 700; }
+    .measure-draw-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-draw {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+      border-radius: 3px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    .btn-draw:hover { background: rgba(255,255,255,.22); }
+    .btn-draw.active { background: #e07820; border-color: #e07820; }
+    .btn-measure-close {
+      background: none;
+      border: 1px solid rgba(255,255,255,.4);
+      color: #fff;
+      border-radius: 3px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-measure-close:hover { background: rgba(255,255,255,.15); }
+    .measure-body { padding: 12px 16px; }
+    .measure-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+    .measure-table th {
+      background: #f5f5f5;
+      border-bottom: 2px solid #ddd;
+      padding: 6px 6px;
+      text-align: left;
+      font-weight: 700;
+      color: #333;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .measure-table td { padding: 6px 6px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    .measure-table tr:last-child td { border-bottom: none; }
+    .measure-color-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 2px solid rgba(0,0,0,.2);
+      cursor: pointer;
+    }
+    .measure-label-input {
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 4px 7px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 70px;
+    }
+    .measure-label-input:focus { outline: none; border-color: #e07820; }
+    .btn-measure-del {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      color: #c0392b;
+      cursor: pointer;
+      padding: 3px 8px;
+      font-size: 12px;
+    }
+    .btn-measure-del:hover { background: #fdecea; }
+    .measure-totals {
+      display: flex;
+      gap: 24px;
+      padding: 10px 0 4px;
+      border-top: 2px solid #eee;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+    .measure-total-item { display: flex; flex-direction: column; gap: 2px; }
+    .measure-total-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .4px; }
+    .measure-total-val { font-size: 18px; font-weight: 800; color: #1a2b3c; }
+    .measure-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 0 0;
+      gap: 8px;
+    }
+    .btn-measure-save {
+      background: #e07820;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 22px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .btn-measure-save:hover { background: #c96a18; }
+    .measure-empty { color: #aaa; font-size: 13px; padding: 12px 0; text-align: center; }
+    .btn-mode {
+      font-size: 14px; font-weight: 800; font-family: inherit;
+      border: 2px solid; border-radius: 4px;
+      width: 32px; height: 32px; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .btn-mode-add      { background: #e8f8ee; color: #1a7a3c; border-color: #1a7a3c; }
+    .btn-mode-subtract { background: #fdecea; color: #c0392b; border-color: #c0392b; }
+    .btn-mode-exclude  { background: #f0f0f0; color: #888;    border-color: #bbb; }
+    .color-picker-row { display: flex; gap: 5px; flex-wrap: wrap; padding: 6px 0; }
+    .color-swatch {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,.2);
+      cursor: pointer;
+      transition: transform .1s;
+    }
+    .color-swatch:hover { transform: scale(1.2); }
+    .color-swatch.selected { border-color: #111; border-width: 3px; }
+    .sync-box { border:1px solid #ccc; border-radius:4px; background:#fff; font-size:12px; }
+    .sync-box-hdr { display:flex; justify-content:space-between; align-items:center; padding:6px 8px; cursor:pointer; user-select:none; border-bottom:1px solid #eee; }
+    .sync-box-hdr:hover { background:#f9f9f9; }
+    .sync-box-hdr span { font-size:12px; color:#555; }
+    .sync-box-checks { padding:5px 8px; max-height:120px; overflow-y:auto; display:none; border-bottom:1px solid #eee; }
+    .sync-box-checks label { display:flex; align-items:center; gap:6px; padding:3px 2px; cursor:pointer; border-radius:3px; }
+    .sync-box-checks label:hover { background:#f5f5f5; }
+    .sync-box-field { padding:5px 6px; }
+    .sync-box-field select { width:100%; border:1px solid #ccc; border-radius:3px; padding:5px 6px; font-size:12px; font-family:inherit; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM&libraries=drawing,geometry"></script>
+</head>
+<body>
+
+<!-- Discount modal (launched from % button in Add Package rows) -->
+<div id="disc-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1200; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:420px; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,.45); overflow:hidden; font-family:'Segoe UI',Arial,sans-serif;">
+    <div style="background:#130520; color:#fff; padding:14px 18px; display:flex; align-items:center; justify-content:space-between;">
+      <span style="font-size:15px; font-weight:700;">Add/Edit Discounts</span>
+      <button onclick="closeDiscountModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer; line-height:1;">&#10005;</button>
+    </div>
+    <div style="padding:20px 22px;">
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Base Rate ($)</label>
+        <input type="number" id="disc-base-rate" step="0.01" min="0" placeholder="0.00" oninput="updateDiscountPreview()" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Discount Type</label>
+        <select id="disc-type-select" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;" onchange="onDiscountTypeChange()">
+          <option value="">Please Select</option>
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Discount Amount</label>
+        <input type="number" id="disc-rate-input" step="0.01" min="0" placeholder="0.00" oninput="updateDiscountPreview()" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
+      </div>
+      <div id="disc-preview" style="margin-bottom:14px; font-size:13px; color:#27a567; font-weight:700; min-height:20px;"></div>
+      <div style="margin-bottom:6px;">
+        <label style="font-size:12px; font-weight:700; color:#666; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;">Discount Expiration</label>
+        <input type="date" id="disc-expiry-input" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;"/>
+      </div>
+    </div>
+    <div style="padding:14px 22px 20px; display:flex; gap:10px; border-top:1px solid #eee;">
+      <button onclick="applyDiscountModal()" style="background:#e07820; color:#fff; border:none; padding:9px 26px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer;">Apply</button>
+      <button onclick="closeDiscountModal()" style="background:#f0f0f0; color:#444; border:1px solid #ccc; padding:9px 20px; font-size:14px; border-radius:4px; cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Package Plan modal -->
+<div id="pkg-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1050; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:96vw; max-width:1300px; border-radius:4px; box-shadow:0 8px 40px rgba(0,0,0,.4); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
+    <div style="background:#130520; color:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+      <span style="font-size:15px; font-weight:700;">Add Package Plan</span>
+      <button onclick="closePkgModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer; line-height:1;">&#10005;</button>
+    </div>
+    <!-- Tab bar -->
+    <div style="display:flex; border-bottom:2px solid #ddd; background:#f8f8f8; flex-shrink:0;">
+      <button id="pkg-tab-btn-services" onclick="switchPkgTab('services')"
+        style="padding:10px 22px; background:none; border:none; border-bottom:3px solid #e07820; font-size:13px; font-weight:700; color:#e07820; cursor:pointer; margin-bottom:-2px;">Services</button>
+      <button id="pkg-tab-btn-notes" onclick="switchPkgTab('notes')"
+        style="padding:10px 22px; background:none; border:none; border-bottom:3px solid transparent; font-size:13px; font-weight:700; color:#888; cursor:pointer; margin-bottom:-2px;">Notes</button>
+    </div>
+    <!-- Services tab -->
+    <div id="pkg-tab-services" style="padding:20px 20px 10px; overflow-y:auto; flex:1;">
+      <label style="font-size:13px; font-weight:600; color:#333; display:block; margin-bottom:6px;">Select Package</label>
+      <select id="pkg-modal-select" style="width:100%; border:1px solid #ccc; border-radius:3px; padding:7px 10px; font-size:13px; font-family:inherit;">
+        <option value="">-- Choose a package --</option>
+      </select>
+      <div id="pkg-modal-preview" style="margin-top:14px; display:none;">
+        <div style="font-size:12px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">Services in this package</div>
+        <div id="pkg-modal-scroll" style="max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:3px;">
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+            <thead><tr style="background:#f0f0f0;">
+              <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:40px;">Inc</th>
+              <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:36px;">#</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Name on Invoice</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Service</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Start</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">End</th>
+              <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Min Days</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Missed</th>
+              <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Rate</th>
+              <th style="padding:5px 4px; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:58px;"></th>
+            </tr></thead>
+            <tbody id="pkg-modal-rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Notes tab -->
+    <div id="pkg-tab-notes" style="display:none; padding:16px 20px; overflow-y:auto; flex:1;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#555; color:#fff;">
+            <th style="padding:8px 6px; width:32px;"></th>
+            <th style="padding:8px 10px; text-align:left;">Route Sheet Note</th>
+            <th style="padding:8px 10px; text-align:left; width:170px;">Note Type</th>
+            <th style="padding:8px 10px; text-align:left; width:130px;">Start Date</th>
+            <th style="padding:8px 10px; text-align:left; width:130px;">End Date</th>
+          </tr>
+        </thead>
+        <tbody id="pkg-notes-rows"></tbody>
+      </table>
+      <button onclick="pkgAddNoteRow(null)" style="margin-top:10px; background:#f0f0f0; border:1px solid #bbb; border-radius:3px; padding:6px 16px; font-size:13px; cursor:pointer; font-family:inherit;">Add Note</button>
+    </div>
+    <div style="padding:12px 20px 18px; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; border-top:1px solid #eee;">
+      <button onclick="closePkgModal()" style="background:#f0f0f0; border:1px solid #bbb; border-radius:3px; padding:7px 20px; font-size:13px; cursor:pointer;">Cancel</button>
+      <button onclick="confirmAddPackage()" style="background:#e07820; color:#fff; border:none; border-radius:3px; padding:7px 24px; font-size:13px; font-weight:700; cursor:pointer;">Add Services to Property</button>
+    </div>
+  </div>
+</div>
+
+<!-- Package Edit Modal -->
+<div id="pkg-edit-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1050; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:96vw; max-width:1300px; border-radius:4px; box-shadow:0 8px 40px rgba(0,0,0,.4); overflow:hidden; max-height:90vh; display:flex; flex-direction:column;">
+    <div style="background:#130520; color:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+      <span id="pkg-edit-title" style="font-size:15px; font-weight:700;">Edit Package</span>
+      <button onclick="closePkgEditModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer; line-height:1;">&#10005;</button>
+    </div>
+    <!-- Tab bar -->
+    <div style="display:flex; border-bottom:2px solid #ddd; background:#f8f8f8; flex-shrink:0;">
+      <button id="pke-tab-btn-services" onclick="switchPkeTab('services')"
+        style="padding:10px 22px; background:none; border:none; border-bottom:3px solid #e07820; font-size:13px; font-weight:700; color:#e07820; cursor:pointer; margin-bottom:-2px;">Services</button>
+      <button id="pke-tab-btn-notes" onclick="switchPkeTab('notes')"
+        style="padding:10px 22px; background:none; border:none; border-bottom:3px solid transparent; font-size:13px; font-weight:700; color:#888; cursor:pointer; margin-bottom:-2px;">Notes</button>
+    </div>
+    <!-- Services tab -->
+    <div id="pke-tab-services" style="overflow-y:auto; flex:1; padding:16px;">
+      <div id="pkg-edit-scroll" style="max-height:420px; overflow-y:auto; border:1px solid #ddd; border-radius:3px;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <thead><tr style="background:#f0f0f0;">
+            <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:40px;">Inc</th>
+            <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:36px;">#</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Name on Invoice</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Service</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Start</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">End</th>
+            <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Min Days</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Missed</th>
+            <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1;">Rate</th>
+            <th style="padding:5px 4px; border-bottom:1px solid #ddd; position:sticky; top:0; background:#f0f0f0; z-index:1; width:58px;"></th>
+          </tr></thead>
+          <tbody id="pkg-edit-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Notes tab -->
+    <div id="pke-tab-notes" style="display:none; padding:16px 20px; overflow-y:auto; flex:1;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#555; color:#fff;">
+            <th style="padding:8px 6px; width:32px;"></th>
+            <th style="padding:8px 10px; text-align:left;">Route Sheet Note</th>
+            <th style="padding:8px 10px; text-align:left; width:170px;">Note Type</th>
+            <th style="padding:8px 10px; text-align:left; width:130px;">Start Date</th>
+            <th style="padding:8px 10px; text-align:left; width:130px;">End Date</th>
+          </tr>
+        </thead>
+        <tbody id="pke-notes-rows"></tbody>
+      </table>
+      <button onclick="pkeAddNoteRow(null)" style="margin-top:10px; background:#f0f0f0; border:1px solid #bbb; border-radius:3px; padding:6px 16px; font-size:13px; cursor:pointer; font-family:inherit;">Add Note</button>
+    </div>
+    <div style="padding:12px 16px 16px; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; border-top:1px solid #eee;">
+      <button onclick="closePkgEditModal()" style="background:#f0f0f0; border:1px solid #bbb; border-radius:3px; padding:7px 20px; font-size:13px; cursor:pointer;">Cancel</button>
+      <button onclick="savePkgEdit()" style="background:#e07820; color:#fff; border:none; border-radius:3px; padding:7px 24px; font-size:13px; font-weight:700; cursor:pointer;">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Service add modal overlay -->
+<div id="service-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:860px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="service-modal-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Jobs/Services popup modal -->
+<div id="jobs-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:900; align-items:flex-start; justify-content:center; padding-top:60px;">
+  <div style="background:#fff; width:96vw; max-width:1100px; max-height:80vh; display:flex; flex-direction:column; border-radius:4px; box-shadow:0 8px 40px rgba(0,0,0,.4); overflow:hidden;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid #eee;">
+      <h2 id="jobs-modal-title" style="font-size:22px; font-weight:800; color:#111;">All Upcoming</h2>
+      <button onclick="closeJobsModal()" style="background:none; border:1px solid #bbb; border-radius:3px; padding:2px 9px; font-size:18px; cursor:pointer; color:#555; line-height:1.4;">&#10005;</button>
+    </div>
+    <div style="overflow:auto; flex:1;">
+      <table id="jobs-modal-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead id="jobs-modal-thead"></thead>
+        <tbody id="jobs-modal-tbody"></tbody>
+      </table>
+      <div id="jobs-modal-empty" style="display:none; padding:20px; color:#aaa; font-style:italic;">No records found.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Property edit modal overlay -->
+<div id="prop-edit-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:95vw; max-width:1120px; height:92vh; position:relative; border-radius:4px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <iframe id="prop-edit-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1 id="prop-title">Property Profile</h1>
+    <span>&#8211;</span>
+    <a class="back-link" id="back-link" href="#" onclick="goBack(event)">&#8592; Client</a>
+    <a class="edit-link" href="#" onclick="openPropEditModal(event)">Edit</a>
+  </div>
+  <div style="display:flex; gap:6px; align-items:stretch;">
+    <button class="btn-map-toggle" id="map-toggle-btn" onclick="togglePropMap()" style="display:none;">Show Map</button>
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main-outline" onclick="sendText()">Send</button>
+        <button class="btn-caret-outline" onclick="toggleDropdown('send-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="send-menu">
+        <a href="#" onclick="sendText();return false;">Text</a>
+        <a href="#">Email</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <div class="btn-group">
+        <button class="btn-main">More</button>
+        <button class="btn-caret" onclick="toggleDropdown('more-menu')">&#9660;</button>
+      </div>
+      <div class="dropdown-menu" id="more-menu">
+        <div class="dd-title">More Options</div>
+        <a href="#">Show Property on Map</a>
+        <a href="#" onclick="openMeasureMode();return false;">Property Measurements</a>
+        <a href="#">Add Job</a>
+        <a href="#">Add Estimate</a>
+        <a href="#">Fill Out Form</a>
+        <a href="#">View Audit Trail</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Property info card -->
+  <div class="prop-card">
+    <div class="prop-card-col">
+      <div class="col-name" id="display-address">—</div>
+      <div id="display-addr2"></div>
+      <div id="display-city"></div>
+      <div><span class="col-label">Map Code: </span><span id="display-mapcode"></span></div>
+    </div>
+    <div class="prop-card-col">
+      <div><span class="col-label">Client: </span><a id="display-client" href="#">—</a></div>
+      <div><span class="col-label">Phone: </span><span id="display-phone"></span></div>
+      <div><span class="col-label">Email: </span><span id="display-email"></span></div>
+    </div>
+    <div class="prop-card-col">
+      <div><span class="col-label">Added: </span><span id="display-added"></span></div>
+      <div><span class="col-label">State: </span><span id="display-state"></span></div>
+      <div><span class="col-label">Sales Tax: </span><span id="display-sales-tax">—</span></div>
+    </div>
+    <div class="status-col">
+      <div class="status-box" style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div style="background:#f5c800;border-radius:8px;padding:12px 24px;text-align:center;width:100%;box-sizing:border-box;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#111;margin-bottom:4px;">Total Owed</div>
+          <div id="total-owed-val" style="font-size:28px;font-weight:700;color:#111;">$0.00</div>
+        </div>
+        <div style="width:100%;font-size:12.5px;">
+          <div style="display:flex;justify-content:space-between;padding:3px 0;opacity:.85;"><span>Prepayments</span><span id="owed-prepay-val">$0.00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map + Measure layout container -->
+  <div id="map-measure-container" style="display:flex; flex-direction:column; margin-bottom:8px;">
+
+  <!-- Measurement Panel (moves to left column in measure mode) -->
+  <div id="measure-panel" style="display:none; width:380px; flex-shrink:0; overflow-y:auto; border:1px solid #ccc; border-radius:4px 0 0 4px; border-right:none;">
+    <div class="measure-hdr" style="flex-direction:column; align-items:stretch; gap:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="measure-hdr-title">&#9634; Property Measurements</span>
+        <button class="btn-measure-close" id="measure-collapse-btn" onclick="toggleMeasurePanel()" title="Collapse">&#9650;</button>
+      </div>
+      <div class="measure-draw-btns" style="flex-direction:column; gap:6px;">
+        <button class="btn-draw" id="btn-draw-area" onclick="setDrawMode('polygon')" style="width:100%; text-align:left; padding:8px 12px;">&#11041; Draw Area (sq ft)</button>
+        <button class="btn-draw" id="btn-draw-line" onclick="setDrawMode('polyline')" style="width:100%; text-align:left; padding:8px 12px;">&#8213; Draw Line (linear ft)</button>
+        <button class="btn-draw" id="btn-draw-stop" onclick="setDrawMode(null)" style="display:none; width:100%; text-align:left; padding:8px 12px;">&#9632; Stop Drawing</button>
+      </div>
+      <span style="color:#fff; font-size:11px;">Click a button again to draw another area or line</span>
+    </div>
+    <div class="measure-body">
+      <!-- Sync to Areas Treated -->
+      <div style="border-bottom:2px solid #eee; padding:12px 0 10px; margin-bottom:8px;">
+        <div style="font-size:12px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;">Sync to Areas Treated on Save</div>
+
+        <div style="display:flex; flex-direction:row; gap:8px;">
+          <!-- Sq Ft -->
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Sq Ft</div>
+            <div style="position:relative; margin-bottom:4px;" onmouseleave="closeSyncDrop('sync-sqft-drop-1')">
+              <button onclick="toggleSyncDrop('sync-sqft-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-sqft-lbl-1">Measurement...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-sqft-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:150px;overflow-y:auto;padding:4px 0;"></div>
+            </div>
+            <div style="position:relative;" onmouseleave="closeSyncDrop('sync-sqft-field-drop-1')">
+              <button onclick="toggleSyncDrop('sync-sqft-field-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-sqft-field-lbl-1">Save to area field...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-sqft-field-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:200px;overflow-y:auto;padding:4px 0;">
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="lawn_care" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Lawn Care</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="lawn_insect" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Lawn Insect</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="flower_beds" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Flower Beds</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="mosquito" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Mosquito</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="pest_control" onchange="_updateFieldLbl('sync-sqft-field-drop-1','sync-sqft-field-lbl-1')"/> Pest Control</label>
+              </div>
+            </div>
+          </div>
+          <!-- Linear Ft -->
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Linear Ft</div>
+            <div style="position:relative; margin-bottom:4px;" onmouseleave="closeSyncDrop('sync-lin-drop-1')">
+              <button onclick="toggleSyncDrop('sync-lin-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-lin-lbl-1">Measurement...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-lin-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:150px;overflow-y:auto;padding:4px 0;"></div>
+            </div>
+            <div style="position:relative;" onmouseleave="closeSyncDrop('sync-lin-field-drop-1')">
+              <button onclick="toggleSyncDrop('sync-lin-field-drop-1',this)" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer;color:#555;">
+                <span id="sync-lin-field-lbl-1">Save to area field...</span><span>&#8964;</span>
+              </button>
+              <div id="sync-lin-field-drop-1" class="sync-drop" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;background:#fff;border:1px solid #ccc;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:500;max-height:200px;overflow-y:auto;padding:4px 0;">
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="mosquito_linear_ft" onchange="_updateFieldLbl('sync-lin-field-drop-1','sync-lin-field-lbl-1')"/> Mosquito Linear</label>
+                <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''"><input type="checkbox" value="pest_control_linear_ft" onchange="_updateFieldLbl('sync-lin-field-drop-1','sync-lin-field-lbl-1')"/> Pest Control Linear</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="measure-empty" class="measure-empty">Click "Draw Area" or "Draw Line" on the map above to start measuring.</div>
+      <table class="measure-table" id="measure-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Color</th>
+            <th>Label</th>
+            <th>Type</th>
+            <th title="+  adds to total&#10;-  deducts from total&#10;0  not counted">+/-/0</th>
+            <th>Measurement</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="measure-tbody"></tbody>
+      </table>
+      <div class="measure-totals" id="measure-totals" style="display:none;">
+        <div class="measure-total-item">
+          <span class="measure-total-label">Total Sq Ft</span>
+          <span class="measure-total-val" id="total-sqft">0</span>
+        </div>
+        <div class="measure-total-item">
+          <span class="measure-total-label">Total Linear Ft</span>
+          <span class="measure-total-val" id="total-linearft">0</span>
+        </div>
+      </div>
+
+      <div class="measure-footer">
+        <button class="btn-measure-save" onclick="saveMeasurements()">Save Measurements</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Map -->
+  <div id="prop-map" style="width:100%; height:355px; background:#e8e8e8; display:none;"></div>
+
+  </div><!-- end map-measure-container -->
+
+  <!-- Tags -->
+  <div class="tags-row" id="tags-row">
+    <div class="tag-select-row">
+      <div style="position:relative;">
+        <div class="tag-select-box" onclick="toggleTagDropdown(event)">
+          <span id="tag-select-label">Select Tag</span>
+          <span>&#9660;</span>
+        </div>
+        <div class="tag-dropdown" id="tag-dropdown">
+          <div class="tag-filter-row">
+            <label>Filter:</label>
+            <input type="text" id="tag-filter" placeholder="Enter keywords" oninput="filterTagList()"/>
+            <span class="tag-filter-clear" onclick="clearTagFilter()">&#10005;</span>
+          </div>
+          <div id="tag-dd-list"><div class="tag-dd-empty">Loading...</div></div>
+        </div>
+      </div>
+      <button class="tag-apply-btn" onclick="applySelectedTag()">Apply</button>
+      <button class="tag-create-btn" onclick="showCreateTagModal()">Create Tag</button>
+    </div>
+    <div id="tag-chips-row" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;"></div>
+  </div>
+
+  <!-- Create Tag modal -->
+  <div class="create-tag-overlay" id="create-tag-overlay" onclick="if(event.target===this)hideCreateTagModal()">
+    <div class="create-tag-box">
+      <h3>Create Tag</h3>
+      <input type="text" id="new-tag-name" placeholder="Tag name" autocomplete="off"/>
+      <div class="create-tag-actions">
+        <button class="create-tag-save" onclick="saveNewTag()">Save</button>
+        <span class="create-tag-cancel" onclick="hideCreateTagModal()">Cancel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs / Open Estimates / Right col -->
+  <div class="main-row">
+    <div class="col-jobs">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span>Services</span>
+          <span class="hdr-links">
+            <a href="#" class="jobs-tab-link" data-filter="all" onclick="loadJobsPanel('all',event)">All Services</a> |
+            <a href="#" class="jobs-tab-link" data-filter="upcoming" onclick="loadJobsPanel('upcoming',event)">All Upcoming</a> |
+            <a href="#" class="jobs-tab-link" data-filter="history" onclick="loadJobsPanel('history',event)">All History</a>
+          </span>
+        </div>
+        <div class="add-btn-wrap" style="position:relative;">
+          <button class="add-btn" onclick="toggleServiceMenu(event)">&#10010; &nbsp;Add A Service</button>
+          <div id="service-menu" style="display:none; position:absolute; top:100%; left:8px; right:8px; background:#fff; border:4px solid #e07820; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:300; padding:4px 0;">
+            <a href="#" onclick="event.preventDefault(); openPkgModal();" style="display:block; padding:10px 14px; color:#444; text-decoration:none; font-size:13px; font-weight:700; border-bottom:2px solid #f5c800;" onmouseover="this.style.background='#fff5ec'" onmouseout="this.style.background=''">Add Package Plan</a>
+            <a href="#" onclick="event.preventDefault(); openServiceModal();" style="display:block; padding:10px 14px; color:#444; text-decoration:none; font-size:13px; font-weight:700;" onmouseover="this.style.background='#fff5ec'" onmouseout="this.style.background=''">Add A One Time Service</a>
+          </div>
+        </div>
+        <div id="pkg-cards" style="padding:4px 8px 2px;"></div>
+      </div>
+    </div>
+    <div class="col-accounting">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span>Invoices</span>
+          <span class="hdr-links"><a href="#" onclick="window.parent.loadPage&&window.parent.loadPage('invoices');return false;">All</a></span>
+        </div>
+        <div class="add-btn-wrap"><button class="add-btn" onclick="openAddInvoiceForProperty()">&#10010; &nbsp;Add Invoice</button></div>
+        <div id="property-invoices-list" style="padding:4px 8px 4px;"></div>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span>Open Estimates</span>
+          <span class="hdr-links" style="font-weight:400;font-size:12px;" id="est-count-hdr">(0) <a href="#" onclick="showAllPropertyEstimates(event)">All</a></span>
+        </div>
+        <div class="add-btn-wrap"><button class="add-btn" onclick="addEstimate()">&#10010; Add an Estimate</button></div>
+        <div id="property-estimates-list" style="padding:4px 8px 4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="sec-hdr">
+      <span>Activity</span>
+      <div class="tab-links">
+        <a href="#" class="active">All History</a>
+        <a href="#">Past Visits</a>
+        <a href="#">Future Visits</a>
+        <a href="#">Future Events</a>
+        <a href="#">Estimates</a>
+      </div>
+    </div>
+    <div class="activity-filter">
+      <span class="filter-count">Filter by: (0/17) items</span>
+      <button class="refresh-btn">&#8635;</button>
+      <input type="text" placeholder="Date range..."/>
+      <div class="sort-area">
+        sorted: <strong>Newest to Oldest &#9660;</strong>
+        <span class="updated">Updated: (now)</span>
+      </div>
+    </div>
+    <div class="note-box">Add a Note...</div>
+    <hr class="divider"/>
+    <div class="no-records">No records found</div>
+    <button class="show-more-btn">Show More</button>
+  </div>
+
+  <!-- Office Notes -->
+  <div class="sec" id="office-notes-sec" style="margin-bottom:10px; display:none;">
+    <div class="details-hdr">
+      <span>Office Notes</span>
+    </div>
+    <div class="details-body open" style="padding:12px 16px;">
+      <p id="office-notes-text" style="margin:0; font-size:13px; color:#333; white-space:pre-wrap; line-height:1.6;"></p>
+    </div>
+  </div>
+
+  <!-- Details / Custom Fields -->
+  <div class="sec" style="margin-bottom:10px;">
+    <div class="details-hdr">
+      <span>Details</span>
+    </div>
+    <div class="details-body open" id="details-body">
+      <div class="details-grid" id="details-grid"></div>
+      <div class="details-empty" id="details-empty" style="display:none;">
+        No custom fields for Properties yet.
+        <a href="#" onclick="window.parent.loadPage('customfields');return false;" style="color:#444;">Add Custom Fields</a>
+      </div>
+      <div id="cf-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
+
+      <!-- Area Treated -->
+      <div style="background:rgba(0,0,0,.3);color:#e0e0f0;padding:8px 16px;font-size:13px;font-weight:700;border-top:1px solid rgba(255,255,255,.08);border-left:4px solid rgba(224,120,32,.5);">Area Treated</div>
+      <div class="details-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="details-cell">
+          <span class="dl">Lawn Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="lawn_care" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Lawn Insect Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="lawn_insect" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Flower Bed(s) Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="flower_beds" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Mosquito Control Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="mosquito" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Mosquito Control Linear Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="mosquito_linear_ft" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Pest Control Sq Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="pest_control" placeholder="—"/>
+        </div>
+        <div class="details-cell">
+          <span class="dl">Pest Control Linear Ft</span>
+          <input type="text" class="dv-text at-inp" data-at-key="pest_control_linear_ft" placeholder="—"/>
+        </div>
+      </div>
+      <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Attachments -->
+  <div class="attach-outer">
+    <div class="attach-tabs">
+      <div class="attach-tab active">Attachments</div>
+      <div class="attach-tab">Mobile Attachments</div>
+      <div class="attach-tab">All</div>
+    </div>
+    <div class="attach-meta">
+      <span>Total: &nbsp;0</span>
+      <span style="display:flex;align-items:center;gap:6px;">
+        Page Size:
+        <input type="text" value="10" style="width:36px;border:1px solid #bbb;padding:2px 4px;font-size:12px;"/>
+        <div class="pg-btns">
+          <button class="pg-btn">&#9664;&#9664;</button>
+          <button class="pg-btn">&#9664;</button>
+          <button class="pg-btn active">1</button>
+          <button class="pg-btn">&#9654;</button>
+          <button class="pg-btn">&#9654;&#9654;</button>
+        </div>
+      </span>
+    </div>
+    <div class="no-records">No records to display.</div>
+    <button class="upload-btn">Upload</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g"
+  );
+
+  var propId = new URLSearchParams(window.location.search).get('id');
+  var prop   = null;
+  var owner  = null;
+
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ── Load property record from Supabase ── */
+  async function initProperty() {
+    if (!propId) return;
+    var { data } = await sb.from('Properties').select('*').eq('id', propId).single();
+    prop = data;
+    if (!prop) return;
+
+    var addrLine = prop.address || '';
+    var cityLine = [prop.city, prop.state, prop.zip].filter(Boolean).join(', ');
+
+    document.getElementById('prop-title').textContent      = addrLine || 'Property Profile';
+    document.getElementById('display-address').textContent = addrLine;
+    document.getElementById('display-addr2').textContent   = prop.addr2 || '';
+    document.getElementById('display-city').textContent    = cityLine;
+    document.getElementById('display-mapcode').textContent = prop.map_code || '';
+
+    var _propLat = prop.lat ? parseFloat(prop.lat) : null;
+    var _propLng = prop.lng ? parseFloat(prop.lng) : null;
+    window._propMapInit = false;
+    window._propMapObj  = null;
+    window._propLat     = prop.lat ? parseFloat(prop.lat) : null;
+    window._propLng     = prop.lng ? parseFloat(prop.lng) : null;
+
+    if (window._propLat && window._propLng) {
+      document.getElementById('map-toggle-btn').style.display = 'inline-block';
+    } else {
+      document.getElementById('map-toggle-btn').style.display = 'none';
+    }
+
+    window._initPropMap = function(zoom) {
+      var mapEl = document.getElementById('prop-map');
+      window._propMapInit = true;
+      window._propMapObj = new google.maps.Map(mapEl, {
+        center: { lat: window._propLat, lng: window._propLng },
+        zoom: zoom || 17,
+        mapTypeId: 'satellite',
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false
+      });
+      new google.maps.Marker({ position: { lat: window._propLat, lng: window._propLng }, map: window._propMapObj });
+    };
+
+    window.togglePropMap = function() {
+      var mapEl = document.getElementById('prop-map');
+      var btn = document.getElementById('map-toggle-btn');
+      var showing = mapEl.style.display !== 'none';
+      if (showing) {
+        mapEl.style.display = 'none';
+        btn.textContent = 'Show Map';
+      } else {
+        mapEl.style.display = 'block';
+        btn.textContent = 'Hide Map';
+        if (!window._propMapInit && window._propLat && window._propLng) window._initPropMap(17);
+      }
+    };
+    document.getElementById('display-state').textContent   = prop.state || '';
+
+    if (prop.created_at) {
+      document.getElementById('display-added').textContent = new Date(prop.created_at).toLocaleDateString();
+    }
+
+    var badge = document.getElementById('status-badge');
+    if (prop.active === false) { badge.textContent = 'Inactive'; badge.classList.add('inactive'); }
+
+    if (prop.sales_tax_id) {
+      var { data: taxData } = await sb.from('sales_taxes').select('name, tax_rate').eq('id', prop.sales_tax_id).single();
+      if (taxData) {
+        document.getElementById('display-sales-tax').textContent =
+          taxData.name + ' (' + (parseFloat(taxData.tax_rate) * 100).toFixed(2) + '%)';
+      }
+    }
+
+    if (prop.customer_id) {
+      var { data: clientData } = await sb.from('Clients').select('*').eq('id', prop.customer_id).single();
+      owner = clientData;
+    }
+
+    if (owner) {
+      var clientEl = document.getElementById('display-client');
+      clientEl.textContent = owner.name || '';
+      clientEl.onclick = function(e) {
+        e.preventDefault();
+        if (window.parent && window.parent.loadPage) {
+          window.parent.loadPage('clientprofile?id=' + owner.id);
+        } else {
+          window.location.href = 'ClientProfile.html?id=' + owner.id;
+        }
+      };
+
+      document.getElementById('display-phone').textContent = owner.phone || '';
+      document.getElementById('display-email').textContent = owner.email || '';
+
+      var backLink = document.getElementById('back-link');
+      backLink.textContent = '← ' + (owner.name || 'Client');
+      backLink.href = 'ClientProfile.html?id=' + owner.id;
+    }
+
+    loadTags();
+    // Office Notes
+    var notesSec  = document.getElementById('office-notes-sec');
+    var notesText = document.getElementById('office-notes-text');
+    if (prop.notes && prop.notes.trim()) {
+      notesText.textContent = prop.notes.trim();
+      notesSec.style.display = '';
+    } else {
+      notesSec.style.display = 'none';
+    }
+    loadDetailsGrid();
+    loadAreaTreated();
+    loadPackageCards();
+    loadPropertyInvoices();
+    loadPropertyEstimates();
+    loadTotalOwed();
+  }
+  initProperty();
+
+  function openPropEditModal(e) {
+    if (e) e.preventDefault();
+    var overlay = document.getElementById('prop-edit-overlay');
+    var iframe  = document.getElementById('prop-edit-iframe');
+    iframe.src  = 'PropertiesAdd.html?id=' + propId;
+    overlay.style.display = 'flex';
+  }
+
+  function closePropertyModal(saved) {
+    var overlay = document.getElementById('prop-edit-overlay');
+    var iframe  = document.getElementById('prop-edit-iframe');
+    overlay.style.display = 'none';
+    iframe.src = '';
+    if (saved) window.location.reload();
+  }
+
+  document.getElementById('prop-edit-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePropertyModal(false);
+  });
+
+  function sendText() {
+    var phone = owner ? (owner.phone || owner.mobile || owner.cell || '') : '';
+    var name  = owner ? (owner.name || '') : '';
+    if (!phone) { alert('No phone number on file for this client.'); return; }
+    var params = 'phone=' + encodeURIComponent(phone) + '&name=' + encodeURIComponent(name);
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('texts?' + params);
+    } else {
+      window.location.href = 'Texts.html?' + params;
+    }
+  }
+
+  function goBack(e) {
+    e.preventDefault();
+    if (owner) {
+      if (window.parent && window.parent.loadPage) {
+        window.parent.loadPage('clientprofile?id=' + owner.id);
+      } else {
+        window.location.href = 'ClientProfile.html?id=' + owner.id;
+      }
+    } else {
+      window.history.back();
+    }
+  }
+
+  /* ── Tags ── */
+  var allTags = [];
+  var propTagNames = [];
+  var selectedTagName = null;
+
+  async function loadTags() {
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    if (prop && prop.property_tags) {
+      propTagNames = Array.isArray(prop.property_tags) ? prop.property_tags : [];
+    }
+    renderTagChips();
+  }
+
+  function renderTagChips() {
+    var chipsRow = document.getElementById('tag-chips-row');
+    chipsRow.innerHTML = '';
+    propTagNames.forEach(function(name) {
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.innerHTML = escHtml(name) + '<button class="tag-chip-remove" onclick="removeTag(\'' + name.replace(/'/g,"\\'") + '\')">&#10005;</button>';
+      chipsRow.appendChild(chip);
+    });
+    chipsRow.style.display = propTagNames.length ? 'flex' : 'none';
+  }
+
+  function toggleTagDropdown(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('tag-dropdown');
+    var showing = dd.classList.toggle('show');
+    if (showing) { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+  }
+
+  function buildTagList(filter) {
+    var list = document.getElementById('tag-dd-list');
+    var filtered = allTags.filter(function(t) {
+      return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
+    });
+    if (!filtered.length) {
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      return;
+    }
+    list.innerHTML = '';
+    filtered.forEach(function(t) {
+      var item = document.createElement('div');
+      item.className = 'tag-dd-item' + (selectedTagName === t.name ? ' selected' : '');
+      item.textContent = t.name;
+      item.onclick = function(e) {
+        e.stopPropagation();
+        selectedTagName = t.name;
+        document.getElementById('tag-select-label').textContent = t.name;
+        document.getElementById('tag-dropdown').classList.remove('show');
+      };
+      list.appendChild(item);
+    });
+  }
+
+  function filterTagList() { buildTagList(document.getElementById('tag-filter').value); }
+  function clearTagFilter() { document.getElementById('tag-filter').value = ''; buildTagList(''); }
+
+  async function applySelectedTag() {
+    if (!selectedTagName) { alert('Please select a tag first.'); return; }
+    if (propTagNames.indexOf(selectedTagName) !== -1) return;
+    propTagNames.push(selectedTagName);
+    renderTagChips();
+    var { error } = await sb.from('Properties').update({ property_tags: propTagNames }).eq('id', propId);
+    if (error) { alert('Tag save failed: ' + error.message); return; }
+    selectedTagName = null;
+    document.getElementById('tag-select-label').textContent = 'Select Tag';
+  }
+
+  async function removeTag(name) {
+    propTagNames = propTagNames.filter(function(n){ return n !== name; });
+    renderTagChips();
+    var { error } = await sb.from('Properties').update({ property_tags: propTagNames }).eq('id', propId);
+    if (error) alert('Tag save failed: ' + error.message);
+  }
+
+  function showCreateTagModal() {
+    document.getElementById('tag-dropdown').classList.remove('show');
+    document.getElementById('new-tag-name').value = '';
+    document.getElementById('create-tag-overlay').classList.add('show');
+    setTimeout(function(){ document.getElementById('new-tag-name').focus(); }, 50);
+  }
+
+  function hideCreateTagModal() { document.getElementById('create-tag-overlay').classList.remove('show'); }
+
+  async function saveNewTag() {
+    var name = document.getElementById('new-tag-name').value.trim();
+    if (!name) { document.getElementById('new-tag-name').focus(); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('tags').insert({ name: name, active: true, user_id: uid });
+    if (error) { alert('Error: ' + error.message); return; }
+    var { data } = await sb.from('tags').select('id,name').eq('active', true).order('name');
+    allTags = data || [];
+    hideCreateTagModal();
+  }
+
+  document.getElementById('new-tag-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') saveNewTag();
+    if (e.key === 'Escape') hideCreateTagModal();
+  });
+
+  /* ── Services popup modal ── */
+  function closeJobsModal() {
+    document.getElementById('jobs-modal-overlay').style.display = 'none';
+  }
+  document.getElementById('jobs-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeJobsModal();
+  });
+
+  async function loadJobsPanel(filter, e) {
+    if (e) e.preventDefault();
+
+    var titles = { all: 'All Services', upcoming: 'All Upcoming', history: 'All History' };
+    document.getElementById('jobs-modal-title').textContent = titles[filter] || 'Services';
+    document.getElementById('jobs-modal-overlay').style.display = 'flex';
+
+    var thead = document.getElementById('jobs-modal-thead');
+    var tbody = document.getElementById('jobs-modal-tbody');
+    var empty = document.getElementById('jobs-modal-empty');
+    tbody.innerHTML = '<tr><td colspan="10" style="padding:16px;color:#aaa;">Loading...</td></tr>';
+    empty.style.display = 'none';
+
+    var th = 'style="padding:10px 12px;text-align:left;white-space:nowrap;font-weight:600;font-size:13px;"';
+    var thr = 'style="padding:10px 12px;text-align:right;white-space:nowrap;font-weight:600;font-size:13px;"';
+    var thc = 'style="padding:10px 12px;text-align:center;white-space:nowrap;font-weight:600;font-size:13px;"';
+
+    if (filter === 'upcoming') {
+      thead.innerHTML = '<tr style="background:#555;color:#fff;">' +
+        '<th ' + thc + ' style="width:36px;padding:10px 8px;"></th>' +
+        '<th ' + th + '>Type</th><th ' + th + '>Service</th>' +
+        '<th ' + th + '>Date of Service</th><th ' + th + '>Description</th>' +
+        '<th ' + th + '>Assigned to</th>' +
+        '<th ' + thr + '>Amount</th>' +
+        '<th ' + thc + ' style="width:50px;">Priority</th></tr>';
+    } else if (filter === 'history') {
+      thead.innerHTML = '<tr style="background:#555;color:#fff;">' +
+        '<th ' + thc + ' style="width:36px;padding:10px 8px;"></th>' +
+        '<th ' + th + '>Type</th><th ' + th + '>Service</th>' +
+        '<th ' + th + '>Date of Service</th><th ' + th + '>Description</th>' +
+        '<th ' + th + '>Assigned to</th><th ' + thr + '>Men</th>' +
+        '<th ' + thr + '>Time</th><th ' + thr + '>Amount</th></tr>';
+    } else {
+      thead.innerHTML = '<tr style="background:#555;color:#fff;">' +
+        '<th ' + th + '>Service</th><th ' + thr + '>Rate</th>' +
+        '<th ' + th + '>Effective</th><th ' + th + '>Terminated</th>' +
+        '<th ' + thc + '>Start/Pause</th><th ' + th + '>Status</th>' +
+        '<th ' + thc + '>Audit</th><th style="width:36px;"></th></tr>';
+    }
+
+    var query = sb.from('Services').select('*').eq('property_id', propId);
+    if (filter === 'upcoming') query = query.or('status.is.null,status.eq.pending,status.eq.scheduled');
+    if (filter === 'history')  query = query.eq('dispatched', true);
+    var { data: recs } = await query.order('scheduled_date', { ascending: true });
+    recs = recs || [];
+    tbody.innerHTML = '';
+    if (!recs.length) { empty.style.display = ''; return; }
+
+    /* batch-fetch service_name from package_services for package rows */
+    var pkgSvcNameMap = {};
+    var pkgSvcIds = recs.map(function(r) { return r.package_service_id; }).filter(Boolean);
+    if (pkgSvcIds.length) {
+      var { data: pkgSvcRows } = await sb.from('package_services').select('id, service_name').in('id', pkgSvcIds);
+      (pkgSvcRows || []).forEach(function(r) { pkgSvcNameMap[r.id] = r.service_name; });
+    }
+
+    var auditIcon    = '<span style="font-size:17px;color:#666;cursor:pointer;" title="Audit">&#128100;</span>';
+    var waitingIcon  = '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#2272c3;border-radius:50%;color:#fff;font-size:12px;font-weight:900;line-height:1;" title="Waiting List">W</span>';
+    var scheduledIcon= '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#e07820;border-radius:50%;border:2px solid #000;color:#000;font-size:12px;font-weight:900;line-height:1;" title="Scheduled">S</span>';
+    var lockIcon     = '<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#666;border-radius:3px;color:#fff;font-size:14px;line-height:1;">&#128274;</span>';
+
+    recs.forEach(function(j) {
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #eee';
+      var td = 'style="padding:9px 12px;"';
+      var tdr = 'style="padding:9px 12px;text-align:right;"';
+      var tdc = 'style="padding:9px 12px;text-align:center;"';
+      var dateStr = j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric'}) : '—';
+      var amtStr  = '$' + parseFloat(j.amount || j.price || 0).toFixed(2);
+      var typeStr = j.job_type === 'one_time' ? 'One Time' : (j.job_type || '—');
+      var delBtn  = '<button onclick="deleteService(\'' + j.id + '\',this)" style="background:none;border:none;cursor:pointer;padding:0;font-size:20px;color:#cc2222;line-height:1;">&#10006;</button>';
+
+      if (filter === 'upcoming') {
+        var rowIcon = j.status === 'scheduled' ? scheduledIcon : waitingIcon;
+
+        /* build period display */
+        var todayISO = (function(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
+        var fmtISO = function(iso){ if(!iso) return ''; var p=iso.split('-'); return p[1]+'/'+p[2]+'/'+p[0]; };
+        var isOverdue = !!(j.end_date && j.end_date < todayISO);
+        var periodStr;
+        if (j.start_date || j.end_date) {
+          periodStr = (j.start_date ? fmtISO(j.start_date) : '') + (j.start_date && j.end_date ? ' – ' : '') + (j.end_date ? fmtISO(j.end_date) : '');
+          if (isOverdue) periodStr += ' <span style="color:#cc2222;font-weight:700;">⚠ Late</span>';
+        } else {
+          periodStr = dateStr;
+        }
+
+        if (isOverdue) { tr.style.background = '#fff0f0'; tr.style.borderLeft = '3px solid #cc2222'; }
+        tr.style.cursor = 'pointer';
+        tr.innerHTML =
+          '<td ' + tdc + '>' + rowIcon + '</td>' +
+          '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
+          '<td ' + td + '>' + escHtml((j.package_service_id && pkgSvcNameMap[j.package_service_id]) ? pkgSvcNameMap[j.package_service_id] : (j.service || j.name || '—')) + '</td>' +
+          '<td ' + td + '>' + periodStr + '</td>' +
+          '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +
+          '<td ' + tdr + '>' + amtStr + '</td>' +
+          '<td ' + tdc + '>' + delBtn + '</td>';
+        tr.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          openServiceModal(j.id);
+        });
+      } else if (filter === 'history') {
+        tr.innerHTML =
+          '<td ' + tdc + '>' + lockIcon + '</td>' +
+          '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
+          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + td + '>' + dateStr + '</td>' +
+          '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +
+          '<td ' + tdr + '>' + (j.men_count || '—') + '</td>' +
+          '<td ' + tdr + '>' + (j.time_spent || '—') + '</td>' +
+          '<td ' + tdr + '>' + amtStr + '</td>';
+      } else {
+        var statusText  = j.dispatched ? 'Canceled' : 'Running';
+        var statusColor = j.dispatched ? '#888' : '#27a567';
+        tr.style.cursor = 'pointer';
+        tr.innerHTML =
+          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + tdr + '>' + amtStr + '</td>' +
+          '<td ' + td + '>' + dateStr + '</td>' +
+          '<td ' + td + '>—</td>' +
+          '<td ' + tdc + '>' + pauseIcon + '</td>' +
+          '<td ' + td + '><span style="color:' + statusColor + ';font-weight:600;">' + statusText + '</span></td>' +
+          '<td ' + tdc + '>' + auditIcon + '</td>' +
+          '<td ' + tdc + '>' + delBtn + '</td>';
+        tr.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          openServiceModal(j.id);
+        });
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function deleteService(id, btn) {
+    if (!confirm('Delete this service?')) return;
+    var { error, count } = await sb.from('Services').delete().eq('id', id).select();
+    if (error) { alert('Error: ' + error.message); return; }
+    btn.closest('tr').remove();
+  }
+
+  /* ── Service modal ── */
+  function openServiceModal(id) {
+    var src = 'ServiceAdd.html?entityType=property&propertyId=' + propId;
+    if (id) src += '&id=' + id;
+    document.getElementById('service-modal-iframe').src = src;
+    document.getElementById('service-modal-overlay').style.display = 'flex';
+    document.getElementById('service-menu').style.display = 'none';
+  }
+  function closeServiceModal(saved) {
+    document.getElementById('service-modal-overlay').style.display = 'none';
+    document.getElementById('service-modal-iframe').src = '';
+    if (saved) window.location.reload();
+  }
+  document.getElementById('service-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeServiceModal(false);
+  });
+
+  /* ── Package Plan modal ── */
+  var allPackages = [];
+  var pkgServiceRows = [];
+
+  function switchPkgTab(tab) {
+    document.getElementById('pkg-tab-services').style.display = tab === 'services' ? 'block' : 'none';
+    document.getElementById('pkg-tab-notes').style.display   = tab === 'notes'    ? 'block' : 'none';
+    var sBtn = document.getElementById('pkg-tab-btn-services');
+    var nBtn = document.getElementById('pkg-tab-btn-notes');
+    sBtn.style.borderBottomColor = tab === 'services' ? '#e07820' : 'transparent';
+    sBtn.style.color = tab === 'services' ? '#e07820' : '#888';
+    nBtn.style.borderBottomColor = tab === 'notes' ? '#e07820' : 'transparent';
+    nBtn.style.color = tab === 'notes' ? '#e07820' : '#888';
+  }
+
+  var pkgNoteServices = ['Master Note']; // refreshed when package is selected
+
+  function buildNoteTypeOptions(selectedType) {
+    return pkgNoteServices.map(function(s) {
+      return '<option' + (s === selectedType ? ' selected' : '') + '>' + s + '</option>';
+    }).join('');
+  }
+
+  function refreshNoteTypeDropdowns() {
+    document.querySelectorAll('.pkg-note-type').forEach(function(sel) {
+      var cur = sel.value;
+      sel.innerHTML = buildNoteTypeOptions(cur);
+    });
+  }
+
+  function pkgAddNoteRow(data) {
+    var tbody = document.getElementById('pkg-notes-rows');
+    var tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #eee';
+    var noteVal  = (data && data.note)       || '';
+    var typeVal  = (data && data.type)       || 'Master Note';
+    var startVal = (data && data.start_date) || '';
+    var endVal   = (data && data.end_date)   || '';
+    tr.innerHTML =
+      '<td style="padding:6px 6px; text-align:center; vertical-align:middle;">' +
+        '<button onclick="this.closest(\'tr\').remove()" style="background:none;border:none;color:#c00;font-size:17px;cursor:pointer;line-height:1;font-weight:700;">&#10005;</button>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<input type="text" class="pkg-note-text" placeholder="Type something" value="' + noteVal.replace(/"/g,'&quot;') + '" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:13px;font-family:inherit;"/>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<select class="pkg-note-type" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;">' +
+          buildNoteTypeOptions(typeVal) +
+        '</select>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<input type="date" class="pkg-note-start" value="' + startVal + '" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;"/>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<input type="date" class="pkg-note-end" value="' + endVal + '" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;"/>' +
+      '</td>';
+    tbody.appendChild(tr);
+  }
+
+  function pkgGetNotes() {
+    return Array.from(document.querySelectorAll('#pkg-notes-rows tr')).map(function(tr) {
+      return {
+        note:       (tr.querySelector('.pkg-note-text')  || {}).value || '',
+        type:       (tr.querySelector('.pkg-note-type')  || {}).value || 'Master Note',
+        start_date: (tr.querySelector('.pkg-note-start') || {}).value || null,
+        end_date:   (tr.querySelector('.pkg-note-end')   || {}).value || null,
+      };
+    }).filter(function(n) { return n.note.trim(); });
+  }
+
+  async function openPkgModal() {
+    document.getElementById('service-menu').style.display = 'none';
+    var overlay = document.getElementById('pkg-modal-overlay');
+    overlay.style.display = 'flex';
+    if (!allPackages.length) {
+      var { data } = await sb.from('Packages').select('id, name').eq('active', true).order('name');
+      allPackages = data || [];
+      var sel = document.getElementById('pkg-modal-select');
+      sel.innerHTML = '<option value="">-- Choose a package --</option>' +
+        allPackages.map(function(p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join('');
+    }
+    document.getElementById('pkg-modal-preview').style.display = 'none';
+    document.getElementById('pkg-modal-rows').innerHTML = '';
+    // Load existing property notes
+    document.getElementById('pkg-notes-rows').innerHTML = '';
+    var existingNotes = (prop && Array.isArray(prop.property_notes)) ? prop.property_notes : [];
+    existingNotes.forEach(function(n) { pkgAddNoteRow(n); });
+    switchPkgTab('services');
+  }
+
+  function closePkgModal() {
+    document.getElementById('pkg-modal-overlay').style.display = 'none';
+    document.getElementById('pkg-modal-select').value = '';
+    document.getElementById('pkg-modal-preview').style.display = 'none';
+    document.getElementById('pkg-modal-rows').innerHTML = '';
+    document.getElementById('pkg-notes-rows').innerHTML = '';
+    pkgServiceRows = [];
+    pkgNoteServices = ['Master Note'];
+    rowDiscountData = {};
+  }
+
+  document.getElementById('pkg-modal-select').addEventListener('change', async function() {
+    var pkgId = this.value;
+    document.getElementById('pkg-modal-preview').style.display = 'none';
+    pkgServiceRows = [];
+    if (!pkgId) return;
+    var { data } = await sb.from('package_services').select('*').eq('package_id', pkgId).order('id');
+    pkgServiceRows = data || [];
+    // Update note type dropdown options with service names
+    pkgNoteServices = ['Master Note'].concat(
+      pkgServiceRows.map(function(r) { return r.service_name || r.name || ''; }).filter(Boolean)
+    );
+    refreshNoteTypeDropdowns();
+    var tbody = document.getElementById('pkg-modal-rows');
+    if (!pkgServiceRows.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="padding:10px; color:#aaa; font-style:italic;">No services in this package.</td></tr>';
+    } else {
+      var today = new Date(); today.setHours(0,0,0,0);
+      function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
+      tbody.innerHTML = pkgServiceRows.map(function(r, i) {
+        var isPast = r.end_date && new Date(r.end_date + 'T00:00:00') < today;
+        var checked = isPast ? '' : 'checked';
+        var rowBg = isPast ? '#fff8f0' : (i % 2 === 0 ? '#ffffff' : '#f5f7fa');
+        var missedCell = isPast
+          ? '<button class="pkg-schedule-btn" data-row="' + i + '" onclick="pkgToggleMissed(this,' + i + ')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;">Schedule</button>'
+          : '';
+        return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; opacity:' + (isPast ? '0.75' : '1') + ';" class="pkg-modal-row" data-row="' + i + '">' +
+          '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="checkbox" class="pkg-inc-cb" data-row="' + i + '" ' + checked + (isPast ? ' data-past="1"' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:#e07820;"/></td>' +
+          '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;">' + (r.name || '—') + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;">' + (r.service_name || '—') + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;">' + fmtDate(r.start_date) + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap; color:' + (isPast ? '#c0392b' : 'inherit') + '; font-weight:' + (isPast ? '700' : 'normal') + ';">' + fmtDate(r.end_date) + '</td>' +
+          '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' + (r.min_days || 0) + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;" class="pkg-missed-cell-' + i + '">' + missedCell + '</td>' +
+          '<td style="padding:7px 8px; text-align:left; white-space:nowrap;">' +
+            '<input type="number" data-row="' + i + '" class="pkg-rate-input" step="0.01" min="0" value="' + (r.default_rate ? parseFloat(r.default_rate).toFixed(2) : '') + '" style="width:75px; text-align:left; border:1px solid #ccc; border-radius:3px; padding:3px 5px; font-size:12.5px; font-family:inherit;"/>' +
+          '</td>' +
+          '<td style="padding:7px 4px; text-align:center; white-space:nowrap;">' +
+            '<button onclick="fillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;">&#8595;</button>' +
+            ' <button class="pkg-disc-btn" title="Apply discount" onclick="openDiscountModal(' + i + ')" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:2px;">%</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+    /* revert Schedule button if user unchecks a past row */
+    document.querySelectorAll('#pkg-modal-rows .pkg-inc-cb').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        if (!this.checked && this.dataset.past === '1') {
+          var idx = parseInt(this.dataset.row);
+          var cell = document.querySelector('.pkg-missed-cell-' + idx);
+          if (cell) {
+            cell.innerHTML = '<button class="pkg-schedule-btn" data-row="' + idx + '" onclick="pkgToggleMissed(this,' + idx + ')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;">Schedule</button>';
+          }
+          var tr = this.closest('tr');
+          if (tr) { tr.style.opacity = '0.75'; tr.style.background = '#fff8f0'; }
+        }
+      });
+    });
+    document.getElementById('pkg-modal-preview').style.display = 'block';
+    var scrollEl = document.getElementById('pkg-modal-scroll');
+    if (scrollEl) scrollEl.scrollTop = 0;
+  });
+
+  function pkgToggleMissed(btn, rowIndex) {
+    /* When user clicks Schedule on a past service, check its checkbox and mark Added */
+    var cb = document.querySelector('.pkg-inc-cb[data-row="' + rowIndex + '"]');
+    if (cb) cb.checked = true;
+    var tr = btn.closest('tr');
+    if (tr) { tr.style.opacity = '1'; tr.style.background = '#f0fff4'; }
+    btn.textContent = 'Added';
+    btn.style.background = '#27a567';
+    btn.onclick = null;
+    btn.style.cursor = 'default';
+  }
+
+  /* ── Discount modal ── */
+  var discountList = [];
+  var discountTargetRow = -1;
+  var rowDiscountData = {}; /* saved discount info per row index */
+
+  async function openDiscountModal(rowIndex) {
+    discountTargetRow = rowIndex;
+    /* load discounts if not yet loaded */
+    if (!discountList.length) {
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      var { data } = await sb.from('discounts').select('*').eq('user_id', uid).order('name');
+      discountList = data || [];
+    }
+    /* populate dropdown */
+    var sel = document.getElementById('disc-type-select');
+    sel.innerHTML = '<option value="">Please Select</option>' +
+      discountList.map(function(d) {
+        return '<option value="' + d.id + '" data-disc-type="' + (d.type || '') + '" data-disc-val="' + (d.value || 0) + '">' +
+          d.name + ' (' + (d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2)) + ')' +
+          '</option>';
+      }).join('');
+    /* store row index and source context on the modal element */
+    var overlay = document.getElementById('disc-modal-overlay');
+    overlay.setAttribute('data-target-row', rowIndex);
+    overlay.setAttribute('data-source', 'add');
+    /* restore previously saved discount for this row, or pre-fill from rate input */
+    var saved = rowDiscountData[rowIndex];
+    var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var currentRate = rateInputs[rowIndex] ? parseFloat(rateInputs[rowIndex].value) || 0 : 0;
+    if (saved) {
+      document.getElementById('disc-base-rate').value = saved.baseRate;
+      document.getElementById('disc-rate-input').value = saved.discountAmount;
+      document.getElementById('disc-expiry-input').value = saved.expiry || '';
+      /* restore dropdown selection */
+      var sel = document.getElementById('disc-type-select');
+      sel.value = saved.discountId || '';
+      updateDiscountPreview();
+    } else {
+      document.getElementById('disc-base-rate').value = currentRate > 0 ? currentRate.toFixed(2) : '';
+      document.getElementById('disc-rate-input').value = '';
+      document.getElementById('disc-preview').textContent = '';
+      document.getElementById('disc-expiry-input').value = '';
+    }
+    overlay.style.display = 'flex';
+  }
+
+  function onDiscountTypeChange() {
+    var sel = document.getElementById('disc-type-select');
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) { document.getElementById('disc-rate-input').value = ''; document.getElementById('disc-preview').textContent = ''; return; }
+    var discValue = parseFloat(opt.getAttribute('data-disc-val')) || 0;
+    document.getElementById('disc-rate-input').value = discValue;
+    updateDiscountPreview();
+  }
+
+  function updateDiscountPreview() {
+    var sel = document.getElementById('disc-type-select');
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) { document.getElementById('disc-preview').textContent = ''; return; }
+    var discType  = opt.getAttribute('data-disc-type');
+    var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
+    var baseRate  = parseFloat(document.getElementById('disc-base-rate').value) || 0;
+    var newRate = discType === 'Percent'
+      ? baseRate - (baseRate * discValue / 100)
+      : baseRate - discValue;
+    if (newRate < 0) newRate = 0;
+    document.getElementById('disc-preview').textContent = 'Final rate: $' + newRate.toFixed(2) + ' (' + (discType === 'Percent' ? discValue + '% off $' + baseRate.toFixed(2) : '$' + discValue.toFixed(2) + ' off') + ')';
+  }
+
+  function applyDiscountModal() {
+    var sel = document.getElementById('disc-type-select');
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) { alert('Please select a discount type.'); return; }
+    var discType  = opt.getAttribute('data-disc-type');
+    var discValue = parseFloat(document.getElementById('disc-rate-input').value) || 0;
+    var expiry    = document.getElementById('disc-expiry-input').value || '';
+    var overlay   = document.getElementById('disc-modal-overlay');
+    var targetRow = parseInt(overlay.getAttribute('data-target-row'));
+    var source    = overlay.getAttribute('data-source') || 'add';
+
+    var isEdit = source === 'edit';
+    var rateSelector = isEdit ? '#pkg-edit-rows .pke-rate' : '#pkg-modal-rows .pkg-rate-input';
+    var btnSelector  = isEdit ? '#pkg-edit-rows .pke-disc-btn' : '#pkg-modal-rows .pkg-disc-btn';
+    var dataStore    = isEdit ? pkeRowDiscountData : rowDiscountData;
+
+    var rateInputs = document.querySelectorAll(rateSelector);
+    var inp = rateInputs[targetRow];
+    if (!inp) { closeDiscountModal(); return; }
+
+    dataStore[targetRow] = {
+      discountId:    opt.value,
+      discountType:  discType,
+      discountValue: discValue,
+      expiry:        expiry
+    };
+    inp.style.transition = 'background .3s';
+    inp.style.background = '#d4edda';
+    setTimeout(function() { inp.style.background = ''; }, 1200);
+    var discBtns = document.querySelectorAll(btnSelector);
+    if (discBtns[targetRow]) {
+      discBtns[targetRow].style.background = '#555';
+      discBtns[targetRow].style.color = '#fff';
+      discBtns[targetRow].style.borderColor = '#555';
+      discBtns[targetRow].title = 'Discount applied — click to change';
+    }
+    closeDiscountModal();
+  }
+
+  function closeDiscountModal() {
+    document.getElementById('disc-modal-overlay').style.display = 'none';
+    discountTargetRow = -1;
+  }
+
+  function fillRateBelow(rowIndex) {
+    var inputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var val = inputs[rowIndex] ? inputs[rowIndex].value : '';
+    inputs.forEach(function(inp, i) { if (i > rowIndex) inp.value = val; });
+  }
+
+  async function confirmAddPackage() {
+    if (!pkgServiceRows.length) { alert('Please select a package with services.'); return; }
+    if (!prop) { alert('Property not loaded yet.'); return; }
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var clientName = (owner && (owner.name || ((owner.first_name || '') + ' ' + (owner.last_name || '')).trim())) || ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim() || prop.company_name || '';
+    var rateInputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var checkboxes = document.querySelectorAll('#pkg-modal-rows .pkg-inc-cb');
+    var inserts = [];
+    pkgServiceRows.forEach(function(r, i) {
+      var cb = checkboxes[i];
+      if (cb && !cb.checked) return; /* skip unchecked (past/excluded) rows */
+      var rate = rateInputs[i] ? parseFloat(rateInputs[i].value) || 0 : (r.default_rate || 0);
+      var disc = rowDiscountData[i] || null;
+      var rec = {
+        user_id: uid,
+        property_id: propId,
+        customer_id: prop.customer_id || null,
+        client_name: clientName,
+        address: prop.address || '',
+        service: r.service_name || r.name || '',
+        amount: rate,
+        min_days: r.min_days || 0,
+        package_service_id: r.id,
+        start_date: r.start_date || null,
+        end_date: r.end_date || null,
+        dispatched: false,
+        status: 'pending'
+      };
+      if (disc && disc.discountType)  rec.discount_type = disc.discountType;
+      if (disc && disc.discountValue) rec.discount_value = disc.discountValue;
+      if (disc && disc.expiry)        rec.discount_expires_at = disc.expiry;
+      inserts.push(rec);
+    });
+    if (!inserts.length) { alert('No services selected. Check at least one service to add.'); return; }
+    var { error } = await sb.from('Services').insert(inserts);
+    if (error) { alert('Error adding services: ' + error.message); return; }
+    // Save property notes
+    var notes = pkgGetNotes();
+    await sb.from('Properties').update({ property_notes: notes }).eq('id', propId);
+    if (prop) prop.property_notes = notes;
+    closePkgModal();
+    window.location.reload();
+  }
+
+  /* ── Waiting list cards (packages + individual services) ── */
+  var pkgEditStore = {};
+
+  async function loadPackageCards() {
+    var container = document.getElementById('pkg-cards');
+    if (!container || !propId) return;
+    pkgEditStore = {};
+
+    var { data: svcRows } = await sb.from('Services')
+      .select('id, service, amount, base_rate, discount_expires_at, start_date, end_date, min_days, package_service_id')
+      .eq('property_id', propId)
+      .neq('dispatched', true);
+
+    /* revert any expired discounts */
+    var today = new Date(); today.setHours(0,0,0,0);
+    var expiredIds = (svcRows || []).filter(function(r) {
+      return r.discount_expires_at && r.base_rate != null && new Date(r.discount_expires_at) < today;
+    });
+    if (expiredIds.length) {
+      await Promise.all(expiredIds.map(function(r) {
+        return sb.from('Services').update({ amount: r.base_rate, discount_expires_at: null, base_rate: null }).eq('id', r.id);
+      }));
+      expiredIds.forEach(function(r) { r.amount = r.base_rate; r.discount_expires_at = null; r.base_rate = null; });
+    }
+
+    if (!svcRows || !svcRows.length) { container.innerHTML = ''; return; }
+
+    /* resolve package names for services that have a package_service_id */
+    var psIds = svcRows.map(function(r) { return r.package_service_id; })
+      .filter(function(v, i, a) { return v && a.indexOf(v) === i; });
+
+    var psMap = {}, pkgMap = {};
+    if (psIds.length) {
+      var { data: psRows } = await sb.from('package_services').select('id, package_id').in('id', psIds);
+      (psRows || []).forEach(function(r) { psMap[r.id] = r.package_id; });
+      var pkgIds = Object.values(psMap).filter(function(v, i, a) { return v && a.indexOf(v) === i; });
+      if (pkgIds.length) {
+        var { data: pkgRows } = await sb.from('Packages').select('id, name').in('id', pkgIds);
+        (pkgRows || []).forEach(function(p) { pkgMap[p.id] = p.name; });
+      }
+      /* fetch total service count per package from template */
+      var pkgTotalCount = {};
+      if (pkgIds.length) {
+        var { data: allPsRows } = await sb.from('package_services').select('id, package_id').in('package_id', pkgIds);
+        (allPsRows || []).forEach(function(r) {
+          pkgTotalCount[r.package_id] = (pkgTotalCount[r.package_id] || 0) + 1;
+        });
+      }
+    }
+
+    /* group package services by package; individual services stay separate */
+    var groups = {}, oneSvcs = [];
+    svcRows.forEach(function(r) {
+      var pkgId = psMap[r.package_service_id];
+      if (pkgId) {
+        if (!groups[pkgId]) groups[pkgId] = { name: pkgMap[pkgId] || 'Package', svcs: [] };
+        groups[pkgId].svcs.push(r);
+      } else {
+        oneSvcs.push(r);
+      }
+    });
+
+    var html = '';
+
+    /* package cards */
+    Object.keys(groups).forEach(function(pid) {
+      var g = groups[pid];
+      var amounts = g.svcs.map(function(r) { return parseFloat(r.amount) || 0; });
+      var allSame = amounts.every(function(a) { return a === amounts[0]; });
+      var rateDisplay = allSame ? '$' + amounts[0].toFixed(2) : 'Varies';
+      var start = g.svcs.map(function(r) { return r.start_date; }).filter(Boolean).sort()[0] || '';
+      var startDisplay = start ? new Date(start + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+      var svcIds = g.svcs.map(function(r) { return r.id; }).join(',');
+      pkgEditStore[pid] = { name: g.name, svcs: g.svcs, pkgId: pid };
+      html +=
+        '<div data-pkedit="' + pid + '" style="position:relative;border-left:5px solid #3a9a3a;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;" onmouseover="this.style.background=\'#f9fdf9\'" onmouseout="this.style.background=\'#fff\'">' +
+          '<button onclick="event.stopPropagation();deletePkgServices(\'' + svcIds + '\',\'' + g.name + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete package services">&#10005;</button>' +
+          '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ✎</div>' +
+          '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
+            '<span style="font-weight:700;color:#222;">' + g.name + ' (' + (pkgTotalCount[pid] || g.svcs.length) + ')</span>' +
+            '<span><strong>Rate:</strong> ' + rateDisplay + '</span>' +
+            (startDisplay ? '<span><strong>Start:</strong> ' + startDisplay + '</span>' : '') +
+          '</div>' +
+        '</div>';
+    });
+
+    /* individual service cards */
+    oneSvcs.forEach(function(r) {
+      var amount = parseFloat(r.amount) || 0;
+      var start = r.start_date ? new Date(r.start_date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
+      html +=
+        '<div style="position:relative;border-left:5px solid #5588cc;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);">' +
+          '<button onclick="deleteOneService(\'' + r.id + '\',\'' + (r.service || '').replace(/'/g,'\\\'') + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete service">&#10005;</button>' +
+          '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Service</div>' +
+          '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
+            '<span style="font-weight:700;color:#222;">' + (r.service || '—') + '</span>' +
+            '<span><strong>Rate:</strong> $' + amount.toFixed(2) + '</span>' +
+            (start ? '<span><strong>Start:</strong> ' + start + '</span>' : '') +
+          '</div>' +
+        '</div>';
+    });
+
+    container.innerHTML = html;
+    container.querySelectorAll('[data-pkedit]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var pid = el.getAttribute('data-pkedit');
+        var entry = pkgEditStore[pid];
+        if (entry) openPkgEditModal(entry.svcs, entry.name, entry.pkgId);
+      });
+    });
+  }
+
+  var pkeContext = {}; /* holds tmplRows + prop info for save */
+
+  async function openPkgEditModal(svcs, name, pkgId) {
+    document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
+
+    var svcMap = {};
+    svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
+
+    var commonRate = 0;
+    svcs.forEach(function(s) { if (s.amount) commonRate = parseFloat(s.amount) || 0; });
+
+    var tmplRows = [];
+    if (pkgId) {
+      var { data: tr } = await sb.from('package_services')
+        .select('id, service_name, name, min_days, start_date, end_date, default_rate')
+        .eq('package_id', pkgId)
+        .order('id', { ascending: true });
+      tmplRows = tr || [];
+    }
+    if (!tmplRows.length) {
+      tmplRows = svcs.map(function(s) {
+        return { id: s.package_service_id, service_name: s.service, name: s.service, min_days: s.min_days, start_date: s.start_date, end_date: s.end_date, default_rate: s.amount };
+      });
+    }
+
+    pkeContext = { tmplRows: tmplRows, pkgId: pkgId };
+
+    /* Load notes */
+    pkeNoteServices = ['Master Note'].concat(
+      tmplRows.map(function(r) { return r.service_name || r.name || ''; }).filter(Boolean)
+    );
+    document.getElementById('pke-notes-rows').innerHTML = '';
+    var existingNotes = (prop && Array.isArray(prop.property_notes)) ? prop.property_notes : [];
+    existingNotes.forEach(function(n) { pkeAddNoteRow(n); });
+    switchPkeTab('services');
+
+    var today = new Date(); today.setHours(0,0,0,0);
+    function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
+
+    var tbody = document.getElementById('pkg-edit-rows');
+    tbody.innerHTML = tmplRows.map(function(tmpl, i) {
+      var svc = svcMap[tmpl.id] || {};
+      var hasSvc = !!svc.id;
+      var isPast = tmpl.end_date && new Date(tmpl.end_date + 'T00:00:00') < today;
+      var checked = (hasSvc && !isPast) ? 'checked' : '';
+      var rate = hasSvc ? (svc.amount != null ? svc.amount : tmpl.default_rate || commonRate) : (tmpl.default_rate || commonRate);
+      var minDays = hasSvc ? (svc.min_days != null ? svc.min_days : tmpl.min_days || 0) : (tmpl.min_days || 0);
+      var startDate = hasSvc ? (svc.start_date || tmpl.start_date || '') : (tmpl.start_date || '');
+      var endDate   = hasSvc ? (svc.end_date   || tmpl.end_date   || '') : (tmpl.end_date   || '');
+      var svcName   = tmpl.name || tmpl.service_name || '—';
+      var rowBg  = isPast ? '#fff8f0' : (i % 2 === 0 ? '#ffffff' : '#f5f7fa');
+      var opacity = (isPast && !hasSvc) ? '0.75' : '1';
+      var missedCell = isPast
+        ? '<button class="pke-schedule-btn" data-row="' + i + '" onclick="pkeToggleMissed(this,' + i + ')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;">Schedule</button>'
+        : '';
+      return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; opacity:' + opacity + ';" data-row="' + i + '"' +
+          (hasSvc ? ' data-svcid="' + svc.id + '"' : '') + '>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' +
+          '<input type="checkbox" class="pke-inc-cb" data-row="' + i + '" ' + checked + (isPast && !hasSvc ? ' data-past="1"' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:#e07820;"/>' +
+        '</td>' +
+        '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
+        '<td style="padding:7px 10px; white-space:nowrap;">' + svcName + '</td>' +
+        '<td style="padding:7px 10px; white-space:nowrap;">' + (tmpl.service_name || svcName) + '</td>' +
+        '<td style="padding:7px 10px; white-space:nowrap;">' + fmtDate(startDate) + '</td>' +
+        '<td style="padding:7px 10px; white-space:nowrap; color:' + (isPast ? '#c0392b' : 'inherit') + '; font-weight:' + (isPast ? '700' : 'normal') + ';">' + fmtDate(endDate) + '</td>' +
+        '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' + minDays + '</td>' +
+        '<td style="padding:7px 10px; white-space:nowrap;" class="pke-missed-cell-' + i + '">' + missedCell + '</td>' +
+        '<td style="padding:7px 8px; text-align:left; white-space:nowrap;">' +
+          '<input type="number" class="pke-rate" data-row="' + i + '" step="0.01" min="0" value="' + (rate ? parseFloat(rate).toFixed(2) : '') + '" style="width:75px;text-align:left;border:1px solid #ccc;border-radius:3px;padding:3px 5px;font-size:12.5px;font-family:inherit;"/>' +
+        '</td>' +
+        '<td style="padding:7px 4px; text-align:center; white-space:nowrap;">' +
+          '<button onclick="pkeFillRateBelow(' + i + ')" title="Copy price to all rows below" style="background:#1a6fc4;border:2px solid #1a6fc4;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#fff;font-size:13px;padding:0;vertical-align:middle;line-height:1;">&#8595;</button>' +
+          ' <button class="pke-disc-btn" title="Apply discount" onclick="pkeOpenDiscountModal(' + i + ')" style="background:#f0f0f0;border:1px solid #ccc;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#555;font-size:11px;font-weight:700;padding:0;vertical-align:middle;line-height:1;margin-left:2px;">%</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+
+    document.getElementById('pkg-edit-overlay').style.display = 'flex';
+    var scrollEl = document.getElementById('pkg-edit-scroll');
+    if (scrollEl) scrollEl.scrollTop = 0;
+  }
+
+  var pkeRowDiscountData = {};
+
+  async function pkeOpenDiscountModal(rowIndex) {
+    if (!discountList.length) {
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid2 = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      var { data } = await sb.from('discounts').select('*').eq('user_id', uid2).order('name');
+      discountList = data || [];
+    }
+    var sel = document.getElementById('disc-type-select');
+    sel.innerHTML = '<option value="">Please Select</option>' +
+      discountList.map(function(d) {
+        return '<option value="' + d.id + '" data-disc-type="' + (d.type || '') + '" data-disc-val="' + (d.value || 0) + '">' +
+          d.name + ' (' + (d.type === 'Percent' ? d.value + '%' : '$' + parseFloat(d.value).toFixed(2)) + ')' +
+          '</option>';
+      }).join('');
+    var overlay = document.getElementById('disc-modal-overlay');
+    overlay.setAttribute('data-target-row', rowIndex);
+    overlay.setAttribute('data-source', 'edit');
+    var saved = pkeRowDiscountData[rowIndex];
+    var rateInputs = document.querySelectorAll('#pkg-edit-rows .pke-rate');
+    var currentRate = rateInputs[rowIndex] ? parseFloat(rateInputs[rowIndex].value) || 0 : 0;
+    if (saved) {
+      document.getElementById('disc-base-rate').value = saved.baseRate || currentRate.toFixed(2);
+      document.getElementById('disc-rate-input').value = saved.discountAmount || '';
+      document.getElementById('disc-expiry-input').value = saved.expiry || '';
+      sel.value = saved.discountId || '';
+      updateDiscountPreview();
+    } else {
+      document.getElementById('disc-base-rate').value = currentRate > 0 ? currentRate.toFixed(2) : '';
+      document.getElementById('disc-rate-input').value = '';
+      document.getElementById('disc-preview').textContent = '';
+      document.getElementById('disc-expiry-input').value = '';
+    }
+    overlay.style.display = 'flex';
+  }
+
+  function pkeToggleMissed(btn, rowIndex) {
+    var cb = document.querySelector('.pke-inc-cb[data-row="' + rowIndex + '"]');
+    if (cb) cb.checked = true;
+    var tr = btn.closest('tr');
+    if (tr) { tr.style.opacity = '1'; tr.style.background = '#f0fff4'; tr.dataset.newschedule = '1'; }
+    btn.textContent = 'Added';
+    btn.style.background = '#27a567';
+    btn.onclick = null;
+    btn.style.cursor = 'default';
+  }
+
+  function pkeFillRateBelow(rowIndex) {
+    var inputs = document.querySelectorAll('#pkg-edit-rows .pke-rate');
+    var srcVal = inputs[rowIndex] ? inputs[rowIndex].value : '';
+    for (var i = rowIndex + 1; i < inputs.length; i++) inputs[i].value = srcVal;
+  }
+
+  var pkeNoteServices = ['Master Note'];
+
+  function switchPkeTab(tab) {
+    document.getElementById('pke-tab-services').style.display = tab === 'services' ? 'block' : 'none';
+    document.getElementById('pke-tab-notes').style.display   = tab === 'notes'    ? 'block' : 'none';
+    var sBtn = document.getElementById('pke-tab-btn-services');
+    var nBtn = document.getElementById('pke-tab-btn-notes');
+    sBtn.style.borderBottomColor = tab === 'services' ? '#e07820' : 'transparent';
+    sBtn.style.color = tab === 'services' ? '#e07820' : '#888';
+    nBtn.style.borderBottomColor = tab === 'notes' ? '#e07820' : 'transparent';
+    nBtn.style.color = tab === 'notes' ? '#e07820' : '#888';
+  }
+
+  function buildPkeNoteTypeOptions(selectedType) {
+    return pkeNoteServices.map(function(s) {
+      return '<option' + (s === selectedType ? ' selected' : '') + '>' + s + '</option>';
+    }).join('');
+  }
+
+  function pkeAddNoteRow(data) {
+    var tbody = document.getElementById('pke-notes-rows');
+    var tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #eee';
+    var noteVal  = (data && data.note)       || '';
+    var typeVal  = (data && data.type)       || 'Master Note';
+    var startVal = (data && data.start_date) || '';
+    var endVal   = (data && data.end_date)   || '';
+    tr.innerHTML =
+      '<td style="padding:6px 6px; text-align:center; vertical-align:middle;">' +
+        '<button onclick="this.closest(\'tr\').remove()" style="background:none;border:none;color:#c00;font-size:17px;cursor:pointer;line-height:1;font-weight:700;">&#10005;</button>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<input type="text" class="pke-note-text" placeholder="Type something" value="' + noteVal.replace(/"/g,'&quot;') + '" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 8px;font-size:13px;font-family:inherit;"/>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<select class="pke-note-type" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;">' +
+          buildPkeNoteTypeOptions(typeVal) +
+        '</select>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<input type="date" class="pke-note-start" value="' + startVal + '" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;"/>' +
+      '</td>' +
+      '<td style="padding:6px 10px;">' +
+        '<input type="date" class="pke-note-end" value="' + endVal + '" style="width:100%;border:1px solid #ccc;border-radius:3px;padding:5px 6px;font-size:13px;font-family:inherit;"/>' +
+      '</td>';
+    tbody.appendChild(tr);
+  }
+
+  function pkeGetNotes() {
+    return Array.from(document.querySelectorAll('#pke-notes-rows tr')).map(function(tr) {
+      return {
+        note:       (tr.querySelector('.pke-note-text')  || {}).value || '',
+        type:       (tr.querySelector('.pke-note-type')  || {}).value || 'Master Note',
+        start_date: (tr.querySelector('.pke-note-start') || {}).value || null,
+        end_date:   (tr.querySelector('.pke-note-end')   || {}).value || null,
+      };
+    }).filter(function(n) { return n.note.trim(); });
+  }
+
+  function closePkgEditModal() {
+    document.getElementById('pkg-edit-overlay').style.display = 'none';
+    document.getElementById('pke-notes-rows').innerHTML = '';
+    pkeNoteServices = ['Master Note'];
+    pkeContext = {};
+  }
+
+  async function savePkgEdit() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var rows = document.querySelectorAll('#pkg-edit-rows tr[data-row]');
+    var updates = [];
+    var inserts = [];
+
+    rows.forEach(function(row) {
+      var rowIdx  = parseInt(row.dataset.row);
+      var svcId   = row.dataset.svcid;
+      var newSched = row.dataset.newschedule === '1';
+      var rateInput = row.querySelector('.pke-rate');
+      var rate = rateInput ? (parseFloat(rateInput.value) || 0) : 0;
+
+      if (svcId) {
+        updates.push(sb.from('Services').update({ amount: rate }).eq('id', svcId));
+      } else if (newSched && pkeContext.tmplRows && pkeContext.tmplRows[rowIdx]) {
+        var tmpl = pkeContext.tmplRows[rowIdx];
+        var clientName = (owner && (owner.name || ((owner.first_name || '') + ' ' + (owner.last_name || '')).trim())) || '';
+        inserts.push({
+          user_id: uid, property_id: propId, customer_id: prop ? (prop.customer_id || null) : null,
+          client_name: clientName, address: prop ? (prop.address || '') : '',
+          service: tmpl.service_name || tmpl.name || '',
+          amount: rate, min_days: tmpl.min_days || 0,
+          package_service_id: tmpl.id,
+          start_date: tmpl.start_date || null, end_date: tmpl.end_date || null,
+          dispatched: false, status: 'pending'
+        });
+      }
+    });
+
+    await Promise.all(updates);
+    if (inserts.length) await sb.from('Services').insert(inserts);
+    var notes = pkeGetNotes();
+    await sb.from('Properties').update({ property_notes: notes }).eq('id', propId);
+    if (prop) prop.property_notes = notes;
+    closePkgEditModal();
+    loadPackageCards();
+  }
+
+  async function deletePkgServices(svcIdsStr, pkgName) {
+    if (!confirm('Delete all ' + pkgName + ' package services from this property? This cannot be undone.')) return;
+    var ids = svcIdsStr.split(',').map(function(id) { return id.trim(); }).filter(Boolean);
+    if (!ids.length) return;
+    var { error } = await sb.from('Services').delete().in('id', ids);
+    if (error) { alert('Error deleting: ' + error.message); return; }
+    loadPackageCards();
+  }
+
+  async function deleteOneService(svcId, svcName) {
+    if (!confirm('Delete "' + svcName + '" from this property? This cannot be undone.')) return;
+    var { error } = await sb.from('Services').delete().eq('id', svcId);
+    if (error) { alert('Error deleting: ' + error.message); return; }
+    loadPackageCards();
+  }
+
+  /* ── Service menu ── */
+  function toggleServiceMenu(e) {
+    e.stopPropagation();
+    var menu = document.getElementById('service-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  /* ── Dropdowns ── */
+  function toggleDropdown(id) {
+    var menu = document.getElementById(id);
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+      if (m.id !== id) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.add-btn-wrap')) {
+      var sm = document.getElementById('service-menu');
+      if (sm) sm.style.display = 'none';
+    }
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.classList.remove('show'); });
+    }
+    if (!e.target.closest('.tag-select-row')) {
+      document.getElementById('tag-dropdown').classList.remove('show');
+    }
+  });
+
+  /* ── Activity tabs ── */
+  document.querySelectorAll('.tab-links a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.tab-links a').forEach(function(l) { l.classList.remove('active'); });
+      link.classList.add('active');
+    });
+  });
+
+  /* ── Attachment tabs ── */
+  document.querySelectorAll('.attach-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.attach-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+
+  /* ── Details / Custom Fields (Property type) ── */
+  async function loadDetailsGrid() {
+    var grid  = document.getElementById('details-grid');
+    var empty = document.getElementById('details-empty');
+    var { data: fieldRows } = await sb.from('custom_fields').select('*')
+      .eq('active', true).order('display_order');
+    var fields = fieldRows || [];
+
+    if (!fields.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+
+    var saved = (prop && prop.custom_fields) ? prop.custom_fields : {};
+    grid.innerHTML = '';
+    fields.forEach(function(f) {
+      var val  = saved[f.key] !== undefined ? saved[f.key] : '';
+      var cell = document.createElement('div');
+      cell.className = 'details-cell';
+      var inp;
+      if (f.type === 'Checkbox') {
+        inp = '<input type="checkbox" class="dv-check" data-key="' + cfEscAttr(f.key) + '"' + (val ? ' checked' : '') + '/>';
+      } else if (f.type === 'Number') {
+        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+      } else if (f.type === 'Date') {
+        inp = '<input type="date" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '"/>';
+      } else {
+        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+      }
+      cell.innerHTML = '<span class="dl">' + escHtml(f.name) + '</span>' + inp;
+      grid.appendChild(cell);
+    });
+
+    grid.addEventListener('change', saveCfValues);
+    grid.addEventListener('input',  saveCfValues);
+  }
+
+  function cfEscAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
+
+  var cfSaveTimer;
+  function saveCfValues() {
+    clearTimeout(cfSaveTimer);
+    cfSaveTimer = setTimeout(async function() {
+      if (!propId) return;
+      var values = {};
+      document.querySelectorAll('#details-grid [data-key]').forEach(function(i) {
+        values[i.dataset.key] = i.type === 'checkbox' ? i.checked : i.value;
+      });
+      var { error } = await sb.from('Properties').update({ custom_fields: values }).eq('id', propId);
+      var msg = document.getElementById('cf-saved-msg');
+      if (error) { msg.textContent = 'Error saving'; return; }
+      if (prop) prop.custom_fields = values;
+      msg.textContent = 'Saved';
+      setTimeout(function() { msg.textContent = ''; }, 1500);
+    }, 600);
+  }
+
+  /* ── Area Treated ── */
+  function loadAreaTreated() {
+    var at = (prop && prop.area_treated) ? prop.area_treated : {};
+    document.querySelectorAll('.at-inp').forEach(function(inp) {
+      inp.value = at[inp.dataset.atKey] || '';
+    });
+    document.querySelectorAll('.at-inp').forEach(function(inp) {
+      inp.addEventListener('change', saveAreaTreated);
+      inp.addEventListener('input',  saveAreaTreated);
+    });
+  }
+
+  var atSaveTimer;
+  function saveAreaTreated() {
+    clearTimeout(atSaveTimer);
+    atSaveTimer = setTimeout(async function() {
+      if (!propId) return;
+      var values = {};
+      document.querySelectorAll('.at-inp').forEach(function(inp) {
+        values[inp.dataset.atKey] = inp.value;
+      });
+      var { error } = await sb.from('Properties').update({ area_treated: values }).eq('id', propId);
+      var msg = document.getElementById('at-saved-msg');
+      if (error) { msg.textContent = 'Error saving'; return; }
+      if (prop) prop.area_treated = values;
+      msg.textContent = 'Saved';
+      setTimeout(function() { msg.textContent = ''; }, 1500);
+    }, 600);
+  }
+
+  /* ── Property Invoices ── */
+  async function loadPropertyInvoices() {
+    if (!propId) return;
+    var container = document.getElementById('property-invoices-list');
+    if (!container) return;
+    var { data } = await sb.from('Invoices')
+      .select('id, inv_num, date, inv_total, inv_bal, client_name, service_lines')
+      .eq('property_id', propId)
+      .eq('deleted', false)
+      .order('date', { ascending: false })
+      .limit(10);
+    if (!data || !data.length) {
+      container.innerHTML = '<div style="padding:6px 4px;color:#aaa;font-size:12.5px;font-style:italic;">No invoices yet.</div>';
+      return;
+    }
+    container.innerHTML = data.map(function(inv) {
+      var bal  = parseFloat(inv.inv_bal)   || 0;
+      var tot  = parseFloat(inv.inv_total) || 0;
+      var paid = bal === 0 && tot > 0;
+      var color = paid ? '#27a567' : '#e07820';
+      var label = paid ? 'Paid' : 'Open';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 4px;border-bottom:1px solid #f0f0f0;font-size:12.5px;">' +
+        '<div>' +
+          '<span style="font-weight:700;color:#2272c3;cursor:pointer;">Inv #' + (inv.inv_num || inv.id) + '</span>' +
+          '<span style="color:#888;margin-left:6px;">' + (inv.date || '') + '</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="color:' + color + ';font-weight:600;font-size:11.5px;">' + label + '</span>' +
+          '<span style="font-weight:700;">$' + tot.toFixed(2) + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function addEstimate() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateadd?property_id=' + propId);
+    } else {
+      window.location.href = 'EstimateAdd.html?property_id=' + propId;
+    }
+  }
+
+  async function loadPropertyEstimates() {
+    var container = document.getElementById('property-estimates-list');
+    var hdrSpan   = document.getElementById('est-count-hdr');
+    if (!container) return;
+
+    var { data, error } = await sb.from('estimates')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      container.innerHTML = '<div style="padding:6px 4px;color:#cc2222;font-size:12.5px;">Error: ' + error.message + '</div>';
+      return;
+    }
+
+    var custId = prop && prop.customer_id ? prop.customer_id : null;
+    var all = (data || []).filter(function(e) {
+      if (propId && e.property_id === propId) return true;
+      if (custId && e.customer_id === custId) return true;
+      return false;
+    });
+
+    var open = all.filter(function(e) { return e.status !== 'closed' && e.status !== 'declined'; });
+
+    if (hdrSpan) {
+      hdrSpan.innerHTML = '(' + open.length + ') <a href="#" onclick="showAllPropertyEstimates(event)">All</a>';
+    }
+
+    if (!all.length) {
+      container.innerHTML = '<div style="padding:6px 4px;color:#aaa;font-size:12.5px;font-style:italic;">No estimates yet.</div>';
+      return;
+    }
+
+    var statusMap = {
+      draft:    { label: 'Draft',    color: '#888' },
+      sent:     { label: 'Sent',     color: '#2272c3' },
+      viewed:   { label: 'Viewed',   color: '#8e44ad' },
+      accepted: { label: 'Accepted', color: '#27a567' },
+      declined: { label: 'Declined', color: '#cc2222' },
+      closed:   { label: 'Closed',   color: '#555' },
+    };
+
+    container.innerHTML = all.map(function(est) {
+      var s   = statusMap[est.status] || { label: est.status || 'Draft', color: '#888' };
+      var amt = '$' + parseFloat(est.amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      var num = est.estimate_number ? '#' + est.estimate_number : 'Est';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid #f0f0f0;font-size:12.5px;cursor:pointer;" onclick="openEstimate(\'' + est.id + '\')">' +
+        '<span style="font-weight:700;color:#2272c3;">' + escHtml(num) + '</span>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="color:' + s.color + ';font-weight:600;font-size:11.5px;">' + s.label + '</span>' +
+          '<span style="font-weight:700;">' + amt + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openEstimate(id) {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateadd?id=' + id);
+    } else {
+      window.location.href = 'EstimateAdd.html?id=' + id;
+    }
+  }
+
+  function showAllPropertyEstimates(e) {
+    e.preventDefault();
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('estimateslist');
+    } else {
+      window.location.href = 'EstimatesList.html';
+    }
+  }
+
+  async function loadTotalOwed() {
+    if (!propId) return;
+    var { data } = await sb.from('Invoices')
+      .select('inv_bal')
+      .eq('property_id', propId)
+      .neq('deleted', true);
+    var owed = 0;
+    (data || []).forEach(function(inv) {
+      owed += parseFloat(inv.inv_bal) || 0;
+    });
+    document.getElementById('total-owed-val').textContent = '$' + owed.toFixed(2);
+  }
+
+  function openAddInvoiceForProperty() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('invoices');
+      setTimeout(function() {
+        var iframe = window.parent.document.getElementById('page-frame');
+        if (iframe && iframe.contentWindow && iframe.contentWindow.openAddInvoiceModal) {
+          var clientName = (prop && ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim()) || '';
+          var addr = [prop && prop.address, prop && prop.city].filter(Boolean).join(', ');
+          iframe.contentWindow.openAddInvoiceModal({ property_id: propId, client_name: clientName, address: addr });
+        }
+      }, 600);
+    }
+  }
+
+  /* ════════════════════════════════════════════
+     PROPERTY MEASUREMENTS
+  ════════════════════════════════════════════ */
+  var _measureMap      = null;
+  var _drawingManager  = null;
+  var _measureShapes   = [];   // { id, label, type, value, color, shape (google object) }
+  var _measureMode     = null; // 'polygon' | 'polyline' | null
+  var _measureNextId   = 1;
+
+  var MEASURE_COLORS = [
+    '#e07820','#1a7a3c','#1a2b3c','#c0392b',
+    '#8e44ad','#2980b9','#f5c800','#16a085'
+  ];
+
+  function _nextColor() {
+    return MEASURE_COLORS[(_measureShapes.length) % MEASURE_COLORS.length];
+  }
+
+  function toggleMeasurePanel() {
+    var panel = document.getElementById('measure-panel');
+    var mapEl = document.getElementById('prop-map');
+    var btn = document.getElementById('measure-collapse-btn');
+    var collapsed = panel.dataset.collapsed === '1';
+
+    var expandBtn = document.getElementById('measure-expand-float');
+    if (collapsed) {
+      // Expand
+      panel.dataset.collapsed = '0';
+      panel.style.display = '';
+      if (expandBtn) expandBtn.style.display = 'none';
+      btn.innerHTML = '&#9650;';
+      setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
+    } else {
+      // Collapse — hide panel entirely, map fills full width
+      panel.dataset.collapsed = '1';
+      panel.style.display = 'none';
+      // Show floating expand button on map
+      if (!expandBtn) {
+        expandBtn = document.createElement('button');
+        expandBtn.id = 'measure-expand-float';
+        expandBtn.innerHTML = '&#9660; Measurements';
+        expandBtn.style.cssText = 'position:absolute;top:10px;left:10px;z-index:999;background:#1a2b3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3);';
+        expandBtn.onclick = function() { toggleMeasurePanel(); };
+        document.getElementById('map-measure-container').style.position = 'relative';
+        document.getElementById('map-measure-container').appendChild(expandBtn);
+      } else {
+        expandBtn.style.display = '';
+      }
+      setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
+    }
+  }
+
+  function openMeasureMode() {
+    /* Close the dropdown */
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.style.display = 'none'; });
+
+    if (!window._propLat || !window._propLng) {
+      alert('This property has no coordinates saved. Edit the property and geocode the address first.');
+      return;
+    }
+
+    /* Switch to side-by-side layout */
+    var container = document.getElementById('map-measure-container');
+    container.style.flexDirection = 'row';
+    container.style.alignItems    = 'stretch';
+    container.style.borderRadius  = '4px';
+    container.style.overflow      = 'hidden';
+    container.style.border        = '1px solid #ccc';
+
+    /* Show and expand map */
+    var mapEl = document.getElementById('prop-map');
+    mapEl.style.display = 'block';
+    mapEl.style.flex    = '1';
+    mapEl.style.width   = 'auto';
+    mapEl.style.height  = '580px';
+    mapEl.style.borderRadius = '0';
+    document.getElementById('map-toggle-btn').textContent = 'Hide Map';
+
+    /* Init map if not yet created */
+    if (!window._propMapInit) window._initPropMap(19);
+
+    /* Zoom in for measuring */
+    if (window._propMapObj) {
+      window._propMapObj.setZoom(19);
+      google.maps.event.trigger(window._propMapObj, 'resize');
+    }
+
+    /* Show measurement panel */
+    document.getElementById('measure-panel').style.display = 'block';
+
+    /* Init drawing manager once using the shared map */
+    if (!_drawingManager && window.google && window.google.maps.drawing) {
+      _measureMap = window._propMapObj;
+
+      _drawingManager = new google.maps.drawing.DrawingManager({
+        drawingMode: null,
+        drawingControl: false,
+        polygonOptions:  { fillOpacity: 0.25, strokeWeight: 2, clickable: true, editable: true, zIndex: 1 },
+        polylineOptions: { strokeWeight: 3, clickable: true, editable: true, zIndex: 1 }
+      });
+      _drawingManager.setMap(_measureMap);
+
+      google.maps.event.addListener(_drawingManager, 'polygoncomplete', function(polygon) {
+        /* Stay in polygon mode so they can keep drawing more areas */
+        _drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+        var sqft = _calcSqFt(polygon);
+        var color = _nextColor();
+        _applyShapeColor(polygon, color);
+        var id = _measureNextId++;
+        _measureShapes.push({ id: id, label: 'Area ' + id, type: 'polygon', value: sqft, color: color, mode: 'add', shape: polygon });
+        google.maps.event.addListener(polygon.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polygon.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        renderMeasureTable();
+      });
+
+      google.maps.event.addListener(_drawingManager, 'polylinecomplete', function(polyline) {
+        /* Stay in polyline mode so they can keep drawing more lines */
+        _drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
+        var linearft = _calcLinearFt(polyline);
+        var color = _nextColor();
+        polyline.setOptions({ strokeColor: color });
+        var id = _measureNextId++;
+        _measureShapes.push({ id: id, label: 'Line ' + id, type: 'polyline', value: linearft, color: color, mode: 'add', shape: polyline });
+        google.maps.event.addListener(polyline.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polyline.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        renderMeasureTable();
+      });
+
+      /* Load saved measurements */
+      _loadSavedMeasurements();
+    }
+  }
+
+  function closeMeasureMode() {
+    setDrawMode(null);
+    document.getElementById('measure-panel').style.display = 'none';
+
+    /* Restore normal map layout */
+    var container = document.getElementById('map-measure-container');
+    container.style.flexDirection = 'column';
+    container.style.border        = 'none';
+    container.style.overflow      = 'visible';
+
+    var mapEl = document.getElementById('prop-map');
+    mapEl.style.flex         = '';
+    mapEl.style.width        = '100%';
+    mapEl.style.height       = '355px';
+    mapEl.style.borderRadius = '';
+    if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize');
+  }
+
+  function setDrawMode(mode) {
+    _measureMode = mode;
+    if (_drawingManager) {
+      _drawingManager.setDrawingMode(
+        mode === 'polygon'  ? google.maps.drawing.OverlayType.POLYGON  :
+        mode === 'polyline' ? google.maps.drawing.OverlayType.POLYLINE :
+        null
+      );
+    }
+    document.getElementById('btn-draw-area').classList.toggle('active', mode === 'polygon');
+    document.getElementById('btn-draw-line').classList.toggle('active', mode === 'polyline');
+    document.getElementById('btn-draw-stop').style.display = mode ? 'inline-block' : 'none';
+  }
+
+  function _calcSqFt(polygon) {
+    var area = google.maps.geometry.spherical.computeArea(polygon.getPath());
+    return Math.round(area * 10.7639 * 100) / 100;
+  }
+
+  function _calcLinearFt(polyline) {
+    var len = google.maps.geometry.spherical.computeLength(polyline.getPath());
+    return Math.round(len * 3.28084 * 100) / 100;
+  }
+
+  function _applyShapeColor(polygon, color) {
+    polygon.setOptions({ fillColor: color, strokeColor: color });
+  }
+
+  function _updateShapeValue(id) {
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (!m) return;
+    m.value = m.type === 'polygon' ? _calcSqFt(m.shape) : _calcLinearFt(m.shape);
+    renderMeasureTable();
+  }
+
+  function renderMeasureTable() {
+    var tbody  = document.getElementById('measure-tbody');
+    var table  = document.getElementById('measure-table');
+    var empty  = document.getElementById('measure-empty');
+    var totals = document.getElementById('measure-totals');
+
+    tbody.innerHTML = '';
+
+    if (!_measureShapes.length) {
+      table.style.display  = 'none';
+      totals.style.display = 'none';
+      empty.style.display  = 'block';
+      return;
+    }
+
+    table.style.display  = '';
+    totals.style.display = '';
+    empty.style.display  = 'none';
+
+    var totalSqFt = 0, totalLinFt = 0;
+
+    _measureShapes.forEach(function(m) {
+      var mode = m.mode || 'add';
+      if (m.type === 'polygon') {
+        if (mode === 'add')      totalSqFt += m.value;
+        if (mode === 'subtract') totalSqFt -= m.value;
+      }
+      if (m.type === 'polyline') {
+        if (mode === 'add')      totalLinFt += m.value;
+        if (mode === 'subtract') totalLinFt -= m.value;
+      }
+
+      var modeLabel = mode === 'add' ? '+' : mode === 'subtract' ? '&minus;' : '0';
+      var modeCls   = mode === 'add' ? 'btn-mode-add' : mode === 'subtract' ? 'btn-mode-subtract' : 'btn-mode-exclude';
+      var modeTitle = mode === 'add' ? 'Adds to total' : mode === 'subtract' ? 'Deducts from total' : 'Not counted';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' +
+          '<span class="measure-color-dot" style="background:' + m.color + ';" onclick="openColorPicker(' + m.id + ', this)"></span>' +
+        '</td>' +
+        '<td>' +
+          '<input class="measure-label-input" value="' + escHtml(m.label) + '" ' +
+            'onchange="updateMeasureLabel(' + m.id + ', this.value)" />' +
+        '</td>' +
+        '<td>' + (m.type === 'polygon' ? 'Area' : 'Line') + '</td>' +
+        '<td>' +
+          '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' — click to change">' + modeLabel + '</button>' +
+        '</td>' +
+        '<td><strong>' + m.value.toLocaleString() + '</strong> ' + (m.type === 'polygon' ? 'sq ft' : 'linear ft') + '</td>' +
+        '<td><button class="btn-measure-del" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>';
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('total-sqft').textContent     = totalSqFt.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    document.getElementById('total-linearft').textContent = totalLinFt.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+    /* Rebuild sync boxes */
+    var sqftItems = [{ id:'__total_sqft__', label:'Total Sq Ft (' + totalSqFt.toLocaleString(undefined,{maximumFractionDigits:2}) + ')' }];
+    _measureShapes.filter(function(m){return m.type==='polygon';}).forEach(function(m){
+      sqftItems.push({ id:String(m.id), label:escHtml(m.label)+' ('+m.value.toLocaleString(undefined,{maximumFractionDigits:2})+' sq ft)' });
+    });
+    var linItems = [{ id:'__total_linearft__', label:'Total Linear Ft (' + totalLinFt.toLocaleString(undefined,{maximumFractionDigits:2}) + ')' }];
+    _measureShapes.filter(function(m){return m.type==='polyline';}).forEach(function(m){
+      linItems.push({ id:String(m.id), label:escHtml(m.label)+' ('+m.value.toLocaleString(undefined,{maximumFractionDigits:2})+' linear ft)' });
+    });
+    var sqftFields = [{v:'',l:'Save to...'},{v:'lawn_care',l:'Lawn Care'},{v:'lawn_insect',l:'Lawn Insect'},{v:'flower_beds',l:'Flower Beds'},{v:'mosquito',l:'Mosquito'},{v:'pest_control',l:'Pest Control'}];
+    var linFields  = [{v:'',l:'Save to...'},{v:'mosquito_linear_ft',l:'Mosquito Linear'},{v:'pest_control_linear_ft',l:'Pest Control Linear'}];
+
+    _fillSyncDrop('sync-sqft-drop-1', 'sync-sqft-lbl-1', sqftItems);
+    _fillSyncDrop('sync-lin-drop-1',  'sync-lin-lbl-1',  linItems);
+  }
+
+  function updateMeasureLabel(id, val) {
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (m) m.label = val;
+  }
+
+  function _fillSyncDrop(dropId, lblId, items) {
+    var drop = document.getElementById(dropId);
+    var lbl  = document.getElementById(lblId);
+    if (!drop) return;
+    var prevChecked = {};
+    drop.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){ prevChecked[cb.value]=true; });
+    drop.innerHTML = items.map(function(item){
+      return '<label style="display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'\'">' +
+        '<input type="checkbox" value="'+item.id+'"'+(prevChecked[item.id]?' checked':'')+'/> '+item.label+'</label>';
+    }).join('');
+    drop.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        var n = drop.querySelectorAll('input:checked').length;
+        if (lbl) lbl.textContent = n ? n+' measurement'+(n>1?'s':'')+' selected' : 'Measurement...';
+      });
+    });
+    if (lbl) {
+      var n = Object.keys(prevChecked).length;
+      lbl.textContent = n ? n+' measurement'+(n>1?'s':'')+' selected' : 'Measurement...';
+    }
+  }
+
+  function closeSyncDrop(dropId) {
+    var drop = document.getElementById(dropId);
+    if (drop) drop.style.display = 'none';
+  }
+
+  function toggleSyncDrop(dropId, btn) {
+    document.querySelectorAll('.sync-drop').forEach(function(d){
+      if (d.id !== dropId) d.style.display = 'none';
+    });
+    var drop = document.getElementById(dropId);
+    if (drop) drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+    document.addEventListener('click', function handler(e) {
+      if (!btn.parentNode.contains(e.target)) {
+        drop.style.display = 'none';
+        document.removeEventListener('click', handler);
+      }
+    });
+  }
+
+  function _syncDropTotal(dropId, fieldDropId, sqftTotal, linTotal, toSave) {
+    var drop      = document.getElementById(dropId);
+    var fieldDrop = document.getElementById(fieldDropId);
+    if (!drop || !fieldDrop) return [];
+    var total = 0;
+    drop.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){
+      var v = cb.value;
+      if (v === '__total_sqft__')          total += sqftTotal;
+      else if (v === '__total_linearft__') total += linTotal;
+      else { var m = toSave.find(function(s){ return String(s.id)===v; }); if(m) total += m.value; }
+    });
+    var val = Math.round(total * 100) / 100;
+    var results = [];
+    fieldDrop.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){
+      results.push({ field: cb.value, val: val });
+    });
+    return results;
+  }
+
+  function _updateFieldLbl(dropId, lblId) {
+    var drop = document.getElementById(dropId);
+    var lbl  = document.getElementById(lblId);
+    if (!drop || !lbl) return;
+    var n = drop.querySelectorAll('input:checked').length;
+    lbl.textContent = n ? n + ' field' + (n > 1 ? 's' : '') + ' selected' : 'Save to area field...';
+  }
+
+  function toggleMeasureMode(id) {
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (!m) return;
+    var cycle = { add: 'subtract', subtract: 'exclude', exclude: 'add' };
+    m.mode = cycle[m.mode || 'add'] || 'add';
+    renderMeasureTable();
+  }
+
+  function deleteMeasure(id) {
+    var idx = _measureShapes.findIndex(function(s) { return s.id === id; });
+    if (idx < 0) return;
+    _measureShapes[idx].shape.setMap(null);
+    _measureShapes.splice(idx, 1);
+    renderMeasureTable();
+  }
+
+  function openColorPicker(id, dotEl) {
+    /* Remove any existing picker */
+    var existing = document.getElementById('inline-color-picker');
+    if (existing) { existing.remove(); if (existing._forId === id) return; }
+
+    var m = _measureShapes.find(function(s) { return s.id === id; });
+    if (!m) return;
+
+    var picker = document.createElement('div');
+    picker.id = 'inline-color-picker';
+    picker._forId = id;
+    picker.className = 'color-picker-row';
+    picker.style.cssText = 'position:absolute;background:#fff;border:1px solid #ccc;border-radius:4px;padding:6px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+
+    MEASURE_COLORS.forEach(function(c) {
+      var sw = document.createElement('span');
+      sw.className = 'color-swatch' + (c === m.color ? ' selected' : '');
+      sw.style.background = c;
+      sw.onclick = function() {
+        m.color = c;
+        if (m.type === 'polygon') _applyShapeColor(m.shape, c);
+        else m.shape.setOptions({ strokeColor: c });
+        renderMeasureTable();
+        picker.remove();
+      };
+      picker.appendChild(sw);
+    });
+
+    dotEl.parentNode.style.position = 'relative';
+    dotEl.parentNode.appendChild(picker);
+
+    setTimeout(function() {
+      document.addEventListener('click', function handler(e) {
+        if (!picker.contains(e.target) && e.target !== dotEl) {
+          picker.remove();
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 0);
+  }
+
+
+  async function saveMeasurements() {
+    if (!propId) return;
+    var toSave = _measureShapes.map(function(m) {
+      var paths = [];
+      m.shape.getPath().forEach(function(latLng) {
+        paths.push({ lat: latLng.lat(), lng: latLng.lng() });
+      });
+      return { id: m.id, label: m.label, type: m.type, value: m.value, color: m.color, mode: m.mode || 'add', paths: paths };
+    });
+    /* Build area_treated sync from the 4 dropdowns */
+    var { data: propRow } = await sb.from('Properties').select('area_treated').eq('id', propId).single();
+    var at = (propRow && propRow.area_treated) || {};
+
+    var sqftTotal = 0, linTotal = 0;
+    toSave.forEach(function(m) {
+      if (m.type === 'polygon'  && m.mode === 'add') sqftTotal += m.value;
+      if (m.type === 'polygon'  && m.mode === 'subtract') sqftTotal -= m.value;
+      if (m.type === 'polyline' && m.mode === 'add') linTotal += m.value;
+      if (m.type === 'polyline' && m.mode === 'subtract') linTotal -= m.value;
+    });
+
+    [['sync-sqft-drop-1','sync-sqft-field-drop-1'],
+     ['sync-lin-drop-1', 'sync-lin-field-drop-1']].forEach(function(pair) {
+      var results = _syncDropTotal(pair[0], pair[1], sqftTotal, linTotal, toSave);
+      results.forEach(function(r) { if (r.field) at[r.field] = String(r.val); });
+    });
+
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var { error } = await sb.from('Properties').update({ measurements: toSave, area_treated: at, user_id: uid }).eq('id', propId);
+    if (error) { alert('Error saving: ' + error.message); return; }
+    var btn = document.querySelector('.btn-measure-save');
+    btn.textContent = 'Saved ✓';
+    setTimeout(function() { btn.textContent = 'Save Measurements'; }, 2000);
+  }
+
+  function _loadSavedMeasurements() {
+    if (!prop || !prop.measurements || !prop.measurements.length) return;
+    prop.measurements.forEach(function(m) {
+      var paths = m.paths.map(function(p) { return new google.maps.LatLng(p.lat, p.lng); });
+      if (m.type === 'polygon') {
+        var polygon = new google.maps.Polygon({
+          paths: paths,
+          fillColor: m.color,
+          strokeColor: m.color,
+          fillOpacity: 0.25,
+          strokeWeight: 2,
+          editable: true,
+          map: _measureMap
+        });
+        var id = m.id;
+        _measureShapes.push({ id: id, label: m.label, type: 'polygon', value: m.value, color: m.color, mode: m.mode || 'add', shape: polygon });
+        google.maps.event.addListener(polygon.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polygon.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        if (m.id >= _measureNextId) _measureNextId = m.id + 1;
+      } else if (m.type === 'polyline') {
+        var polyline = new google.maps.Polyline({
+          path: paths,
+          strokeColor: m.color,
+          strokeWeight: 3,
+          editable: true,
+          map: _measureMap
+        });
+        var id = m.id;
+        _measureShapes.push({ id: id, label: m.label, type: 'polyline', value: m.value, color: m.color, mode: m.mode || 'add', shape: polyline });
+        google.maps.event.addListener(polyline.getPath(), 'set_at', function() { _updateShapeValue(id); });
+        google.maps.event.addListener(polyline.getPath(), 'insert_at', function() { _updateShapeValue(id); });
+        if (m.id >= _measureNextId) _measureNextId = m.id + 1;
+      }
+    });
+    renderMeasureTable();
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
+
