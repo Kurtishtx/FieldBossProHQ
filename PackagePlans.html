@@ -329,7 +329,7 @@
         '<td>' + (p.renewal_date || '') + '</td>' +
         '<td>' + (p.active ? 'Active' : 'Inactive') + '</td>' +
         '<td><button onclick="event.stopPropagation();openSubModal(\'' + p.id + '\',\'' + (p.name||'').replace(/'/g,"\\'") + '\')" style="background:#e07820;color:#fff;border:none;border-radius:3px;padding:3px 12px;font-size:12.5px;font-weight:700;cursor:pointer;">' + subCount + ' ' + (subCount === 1 ? 'Client' : 'Clients') + '</button></td>' +
-        '<td style="display:' + (isRenewalSeason ? '' : 'none') + ';"><button id="renew-btn-' + p.id + '" onclick="event.stopPropagation();renewPackage(\'' + p.id + '\',\'' + (p.name||'').replace(/'/g,"\\'") + '\')" style="background:#27a567;color:#fff;border:none;border-radius:3px;padding:3px 14px;font-size:12.5px;font-weight:700;cursor:pointer;">Renew</button></td>';
+        '<td style="display:' + (isRenewalSeason ? '' : 'none') + ';"><button id="renew-btn-' + p.id + '" onclick="event.stopPropagation();renewPackage(\'' + p.id + '\',\'' + (p.name||'').replace(/'/g,"\\'") + '\')" style="background:#e8c000;color:#000;border:2px solid #000;border-radius:3px;padding:3px 14px;font-size:12.5px;font-weight:700;cursor:pointer;">Renew</button></td>';
       tr.addEventListener('click', function(e) {
         if (e.target.type === 'checkbox') return;
         window.location.href = 'PackagePlansAdd.html?id=' + p.id;
