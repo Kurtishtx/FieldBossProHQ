@@ -869,6 +869,7 @@
         var lastDate = lastDispatchMap[key];
         if (!lastDate) return true;
         var daysSince = (refDate - new Date(lastDate + 'T00:00:00')) / (1000 * 60 * 60 * 24);
+        if (s.service && s.service.indexOf('Insect') >= 0) console.log('[dbg-mdays]',s.service,'lastDate='+lastDate,'daysSince='+Math.round(daysSince),'minDays='+minDays,'pass='+(daysSince>=minDays));
         return daysSince >= minDays;
       });
       _di(filtered,'after-mindays');
