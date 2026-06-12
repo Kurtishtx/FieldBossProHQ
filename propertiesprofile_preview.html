@@ -109,9 +109,10 @@
     }
 
     /* ── Tabs ── */
+    .page-tabs-bar { background: #1c2a45; border-bottom: 3px solid #e07820; }
     .page-tabs {
       display: flex; align-items: flex-end; gap: 0;
-      background: #1c2a45; border-bottom: 3px solid #e07820; padding: 0 20px;
+      max-width: 960px; margin: 0 auto; padding: 0 24px;
     }
     .page-tab {
       padding: 11px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.5);
@@ -800,13 +801,15 @@
 </div><!-- end hero wrapper — close nothing, hero was inline -->
 
 <!-- Tab navigation -->
-<div class="page-tabs">
-  <button class="page-tab active" onclick="showPropTab('services',this)">Services</button>
-  <button class="page-tab" onclick="showPropTab('invoices',this)">Invoices</button>
-  <button class="page-tab" onclick="showPropTab('estimates',this)">Estimates</button>
-  <button class="page-tab" onclick="showPropTab('activity',this)">Activity</button>
-  <button class="page-tab" onclick="showPropTab('details',this)">Details</button>
-  <button class="page-tab" onclick="showPropTab('attachments',this)">Attachments</button>
+<div class="page-tabs-bar">
+  <div class="page-tabs">
+    <button class="page-tab active" onclick="showPropTab('services',this)">Services</button>
+    <button class="page-tab" onclick="showPropTab('invoices',this)">Invoices</button>
+    <button class="page-tab" onclick="showPropTab('estimates',this)">Estimates</button>
+    <button class="page-tab" onclick="showPropTab('activity',this)">Activity</button>
+    <button class="page-tab" onclick="showPropTab('details',this)">Details</button>
+    <button class="page-tab" onclick="showPropTab('attachments',this)">Attachments</button>
+  </div>
 </div>
 
 <div class="page">
