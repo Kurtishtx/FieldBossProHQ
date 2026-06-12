@@ -896,9 +896,10 @@
 
       /* Master package dependency filter — hide services whose package requires a master
          package until that master package also has a currently-due service on the property.
-         Exception: if the property has no services from the master package at all, show normally. */
+         Exception: if the property has no pending services from the master package, show normally. */
       if (Object.keys(packageMasterMap).length) {
-        /* which package_ids are currently due (in filtered) per property */
+        console.log('[master-pkg] packageMasterMap:', JSON.stringify(packageMasterMap));
+        /* which package_ids are currently due (in filtered after sequential filter) per property */
         var activePkgsByProp = {};
         filtered.forEach(function(s) {
           if (!s.package_service_id) return;
@@ -907,27 +908,18 @@
           if (!activePkgsByProp[s.property_id]) activePkgsByProp[s.property_id] = {};
           activePkgsByProp[s.property_id][meta.package_id] = true;
         });
-        /* which package_ids does each property have enrolled (any dispatched state) */
-        var allPkgsByProp = {};
-        services.forEach(function(s) {
-          if (!s.package_service_id) return;
-          var meta = packageServiceMeta[s.package_service_id];
-          if (!meta || !meta.package_id) return;
-          if (!allPkgsByProp[s.property_id]) allPkgsByProp[s.property_id] = {};
-          allPkgsByProp[s.property_id][meta.package_id] = true;
-        });
+        console.log('[master-pkg] activePkgsByProp:', JSON.stringify(activePkgsByProp));
         filtered = filtered.filter(function(s) {
           if (!s.package_service_id) return true;
           var meta = packageServiceMeta[s.package_service_id];
           if (!meta || !meta.package_id) return true;
           var masterPkgId = packageMasterMap[meta.package_id];
           if (!masterPkgId) return true; /* no master dependency */
-          /* not enrolled in master package → show normally */
-          var propPkgs = allPkgsByProp[s.property_id] || {};
-          if (!propPkgs[masterPkgId]) return true;
-          /* enrolled in master → only show when master is also currently due */
+          /* check if master package is also currently due for this property */
           var activePkgs = activePkgsByProp[s.property_id] || {};
-          return !!activePkgs[masterPkgId];
+          var show = !!activePkgs[masterPkgId];
+          if (!show) console.log('[master-pkg] HIDING service', s.service, 'psid', s.package_service_id, 'pkg', meta.package_id, 'master', masterPkgId, 'activePkgs', JSON.stringify(activePkgs));
+          return show;
         });
       }
     }
