@@ -427,10 +427,10 @@
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-service" checked onchange="toggleCoreCol('service',this.checked)"/> Service</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      checked onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   checked onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   checked onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" checked onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
     </div>
   </div>
 </div>
@@ -603,7 +603,7 @@
   var activeCoreColumns = CORE_COLS.slice();
   var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
   var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
-  var activeAreaCols = AREA_COL_KEYS.slice();
+  var activeAreaCols = [];
   var activeCustomCols = [];
 
   async function loadColPrefs() {
