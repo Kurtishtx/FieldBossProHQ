@@ -596,7 +596,6 @@
   /* ── Filter engine ── */
   var availableTags = [];
   var activeFilters = [];
-  var tagFilteredPropertyIds = null;
 
   var FILTER_FIELDS = [
     { v:'city',   l:'City'   },
@@ -664,39 +663,11 @@
       if (field && val !== '') rules.push({ field: field, op: op, val: val });
     });
     activeFilters = rules;
-
-    var tagRules = rules.filter(function(r) { return r.field === 'tags'; });
-    if (tagRules.length) {
-      tagFilteredPropertyIds = null;
-      getUid().then(function(uid) {
-        if (!uid) { renderTable(); return; }
-        // Use server-side array filtering for each tag rule
-        var queries = tagRules.map(function(tf) {
-          if (tf.op === 'notcontains') {
-            return sb.from('Properties').select('id').eq('user_id', uid)
-              .not('property_tags', 'cs', JSON.stringify([tf.val]));
-          }
-          return sb.from('Properties').select('id').eq('user_id', uid)
-            .contains('property_tags', [tf.val]);
-        });
-        Promise.all(queries.map(function(q) { return q.then(function(r) { return (r.data || []).map(function(c) { return c.id; }); }); }))
-          .then(function(results) {
-            // Intersect all tag rule results
-            tagFilteredPropertyIds = results.reduce(function(acc, ids) {
-              return acc === null ? ids : acc.filter(function(id) { return ids.includes(id); });
-            }, null) || [];
-            renderTable();
-          });
-      });
-    } else {
-      tagFilteredPropertyIds = null;
-      renderTable();
-    }
+    renderTable();
   }
 
   function clearFilters() {
     activeFilters = [];
-    tagFilteredPropertyIds = null;
     document.getElementById('filter-rules').innerHTML = '';
     addFilterRule();
     renderTable();
@@ -771,10 +742,18 @@
     var emptyMsg = document.getElementById('empty-msg');
     tbody.innerHTML = '';
 
+    var tagRules    = activeFilters.filter(function(f) { return f.field === 'tags'; });
     var nonTagFilters = activeFilters.filter(function(f) { return f.field !== 'tags'; });
     var filtered = properties.filter(function(p) {
-      if (tagFilteredPropertyIds !== null) {
-        if (!tagFilteredPropertyIds.includes(p.id)) return false;
+      // Tag filter: check property_tags array directly
+      if (tagRules.length) {
+        var propTags = Array.isArray(p.property_tags) ? p.property_tags : [];
+        for (var i = 0; i < tagRules.length; i++) {
+          var tr = tagRules[i];
+          var hasTag = propTags.indexOf(tr.val) !== -1;
+          if (tr.op === 'contains'    && !hasTag) return false;
+          if (tr.op === 'notcontains' &&  hasTag) return false;
+        }
       }
       return nonTagFilters.every(function(f) {
         var raw = p[f.field];
