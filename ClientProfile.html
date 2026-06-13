@@ -890,9 +890,9 @@ function showClientTab(name, btn) {
     contacts.forEach(function(c) {
       var row = document.createElement('div');
       row.className = 'contact-row';
-      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0f0f0;cursor:pointer;';
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0f0f0;cursor:pointer;background:#fff;color:#333;';
       row.innerHTML =
-        '<div style="width:34px;height:34px;min-width:34px;background:#e8f0fe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;">&#128100;</div>' +
+        '<div style="width:36px;height:36px;min-width:36px;background:#f0f0f0;border:1px solid #ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;color:#555;">&#128100;</div>' +
         '<div style="flex:1;">' +
           '<div style="font-weight:600;color:#2272c3;">' + escHtml(c.name || (c.first_name + ' ' + c.last_name).trim()) + '</div>' +
           '<div style="font-size:12px;color:#666;">' + escHtml(c.contact_type || '') + (c.cell_phone ? ' &mdash; ' + escHtml(c.cell_phone) : '') + '</div>' +
