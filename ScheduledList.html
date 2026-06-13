@@ -14,13 +14,13 @@
     .page-clock { font-size:14px; color:#333; font-weight:500; }
     .avatar { width:34px; height:34px; border-radius:50%; background:#2272c3; color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
 
-    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#d4cfe0; border-bottom:1px solid #c4bdd4; flex-wrap:wrap; }
+    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#8e83aa; flex-wrap:wrap; margin:4px 16px; border-radius:8px; overflow:hidden; }
     .filter-bar strong { font-size:13px; color:#333; }
     .filter-tab { padding:3px 12px; border:1px solid #bbb; background:#fff; font-size:13px; cursor:pointer; border-radius:2px; color:#333; }
     .filter-tab:hover { background:#e8e8e8; }
     .filter-tab.active { background:#130520; color:#fff; border:2px solid #fff; font-weight:700; }
 
-    .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#e8e4f2; border-bottom:1px solid #d4cfe0; }
+    .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#a49ac0; margin:2px 16px; border-radius:8px; overflow:hidden; }
     .subfilter-bar.visible { display:flex; }
     .sf-x-btn { width:20px; height:20px; border-radius:3px; border:1px solid #aaa; background:#ddd; color:#555; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0; }
     .sf-x-btn:hover { background:#bbb; }
@@ -60,11 +60,11 @@
     .drp-quick-row a { color:#2272c3; cursor:pointer; }
     .drp-quick-row a:hover { text-decoration:underline; }
 
-    .toolbar { display:flex; align-items:center; gap:8px; padding:6px 10px; background:#fff; border-bottom:1px solid #ddd; }
-    .toolbar label { display:flex; align-items:center; gap:4px; font-size:13px; color:#333; }
+    .toolbar { display:flex; align-items:center; gap:8px; padding:6px 10px; background:#130520; margin:2px 16px; border-radius:8px; overflow:hidden; }
+    .toolbar label { display:flex; align-items:center; gap:4px; font-size:13px; color:#fff; }
     .toolbar-right { margin-left:auto; display:flex; gap:6px; }
         .btn-orange-outline {
-      background: #111;
+      background: #130520;
       border: 3px solid #e07820;
       color: #fff;
       font-weight: 700;
@@ -75,11 +75,11 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn-orange-outline:hover { background: #1a0828; }
-    .btn-print { background:#e07820; color:#fff; border:3px solid #111; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
-    .btn-print:hover { background:#c96a15; border-color:#111; }
-    .btn-map-toggle { background:#111; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
-    .btn-map-toggle:hover { background:#1a0828; }
+    .btn-orange-outline:hover { background: #1e0a35; }
+    .btn-print { background:#130520; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
+    .btn-print:hover { background:#1e0a35; }
+    .btn-map-toggle { background:#130520; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
+    .btn-map-toggle:hover { background:#1e0a35; }
     @media print {
       .filter-bar, .subfilter-bar, .toolbar, .map-section, .bottom-bar, .page-header,
       .sv-overlay, #sched-modal-overlay { display:none !important; }
@@ -88,9 +88,9 @@
     }
 
     .app-dropdown { position:relative; }
-    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:none; background:#130520; padding:7px 16px; font-size:13.5px; font-weight:700; min-width:160px; cursor:pointer; text-align:left; border-radius:6px; color:#fff; font-family:inherit; transition:background .15s; }
-    .app-btn:hover { background:#1a0828; }
-    .app-btn::after { content:'▼'; font-size:9px; color:#ccc; flex-shrink:0; }
+    .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08); padding:7px 16px; font-size:13.5px; font-weight:400; min-width:160px; cursor:pointer; text-align:left; border-radius:6px; color:rgba(255,255,255,.6); font-family:inherit; transition:background .15s; }
+    .app-btn:hover { background:rgba(255,255,255,.14); color:#fff; }
+    .app-btn::after { content:'▼'; font-size:9px; color:rgba(255,255,255,.5); flex-shrink:0; }
     .saved-filters-panel { display:none; position:absolute; top:100%; left:0; z-index:300; width:280px; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.2); }
     .saved-filters-panel.show { display:flex; flex-direction:column; }
     .sfp-body { overflow-y:auto; max-height:280px; padding:8px 10px; }
@@ -120,8 +120,8 @@
     .sv-modal-save { background:#e07820; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; }
     .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; }
 
-    .jobs-total { padding:5px 10px; font-size:13px; color:#fff; background:#130520; border-bottom:2px solid #fff; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#f3f3f3; border:1px solid #ddd; border-radius:12px; padding:4px 9px; font-size:12px; color:#222; font-weight:700; }
+    .jobs-total { padding:5px 10px; font-size:13px; color:#fff; background:#130520; display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
+    .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#130520; border:3px solid #fff; border-radius:12px; padding:4px 9px; font-size:12px; color:#fff; font-weight:700; }
     .jt-pill-count { background:#e07820; color:#fff; font-weight:700; border-radius:10px; padding:0 6px; font-size:11px; }
 
     .map-section { position:relative; width:100%; height:491px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
@@ -144,7 +144,7 @@
     .map-tool-btn:hover { background:#f0f0f0; }
     .map-tool-btn.active { background:#e8f0fe; border-color:#4a90d9; }
 
-    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#130520; border-top:2px solid #fff; border-bottom:1px solid #222; position:relative; }
+    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#130520; position:relative; margin:2px 16px 0; border-radius:8px 8px 0 0; }
     .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px 0 0 3px; }
     .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); padding:5px 8px; font-size:12px; cursor:pointer; border-radius:0 3px 3px 0; }
     .day-tabs { display:flex; gap:2px; margin-left:4px; }
@@ -172,7 +172,7 @@
     .col-panel-row label.locked input[type="checkbox"] { cursor:default; accent-color:#888888; opacity:1; }
     .col-panel-empty { padding:12px 14px; color:#888; font-size:12.5px; font-style:italic; line-height:1.6; }
 
-    .table-wrap { overflow-x:auto; background:#fff; }
+    .table-wrap { overflow-x:auto; background:#fff; margin:0 16px 0; }
     table.data-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:auto; }
     .data-table thead th { background:#e8e4f0; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
     .area-sep { border-left: 3px solid #130520 !important; }
@@ -190,7 +190,7 @@
     .icon-cell span { cursor:pointer; margin:0 2px; }
     .empty-row td { color:#999; font-style:italic; padding:14px 10px; text-align:center; }
 
-    .stats-panel { display:none; padding:8px 14px; background:#f9f9f9; border-bottom:1px solid #ddd; font-size:13px; }
+    .stats-panel { display:none; padding:8px 14px; background:#f9f9f9; font-size:13px; margin:2px 16px; border-radius:8px; }
     .stats-panel.visible { display:flex; gap:30px; flex-wrap:wrap; }
     .stat-item { display:flex; flex-direction:column; }
     .stat-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.4px; }
@@ -593,7 +593,7 @@
     </tbody>
   </table>
 </div>
-<div style="height:28px; background:#130520;"></div>
+<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <!-- Save View Modal -->
 <div class="sv-overlay" id="sv-overlay" onclick="closeSaveViewModal()">
@@ -958,12 +958,12 @@
       }
     });
     var pills = Object.keys(svcCounts).map(function(n) {
-      var sqft = svcSqFt[n] ? '<span style="font-size:11px;font-weight:700;color:#444;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
+      var sqft = svcSqFt[n] ? '<span style="font-size:11px;font-weight:700;color:#fff;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
       var bottom = '<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + sqft + '</span>';
       return '<span class="jt-pill">' + n + bottom + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
-    var totalPill = '<span class="jt-pill">Services Total<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:11px;font-weight:700;color:#444;">$' + preTotal.toFixed(2) + '</span></span></span>';
+    var totalPill = '<span class="jt-pill">Services Total<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:11px;font-weight:700;color:#fff;">$' + preTotal.toFixed(2) + '</span></span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + pills;
 
     var tbody = document.getElementById('table-body');
