@@ -83,6 +83,20 @@
   <code>CREATE TABLE IF NOT EXISTS alert_toggles (id uuid DEFAULT uuid_generate_v4() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, alert_type text NOT NULL, sms_enabled boolean DEFAULT false, email_enabled boolean DEFAULT false, UNIQUE(user_id, alert_type)); ALTER TABLE alert_toggles ENABLE ROW LEVEL SECURITY; CREATE POLICY "own" ON alert_toggles FOR ALL USING (auth.uid() = user_id);</code>
 </div>
 
+<div class="section-label">Client Alerts</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('reviewrequestalert')">&#11088;</div>
+  <div class="link-text" onclick="navigate('reviewrequestalert')">
+    <div class="link-name">Review Request Alert</div>
+    <div class="link-desc">Ask clients for a Google review after service or when a tag is added.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="review_request" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('reviewrequestalert')">&#8250;</div>
+</div>
+
 <div class="section-label">Client Service Alerts</div>
 
 <div class="link-item">
@@ -178,7 +192,7 @@
   <div class="link-arrow" onclick="navigate('estimatefollowup3')">&#8250;</div>
 </div>
 
-<div class="section-label">Billing Alerts</div>
+<div class="section-label">Client Billing Alerts</div>
 
 <div class="link-item">
   <div class="link-icon" onclick="navigate('paymentdeclinedalert')">&#128683;</div>
@@ -244,18 +258,6 @@
     <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="estimate_accepted" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('estimateacceptedalert')">&#8250;</div>
-</div>
-
-<div class="link-item">
-  <div class="link-icon" onclick="navigate('reviewrequestalert')">&#11088;</div>
-  <div class="link-text" onclick="navigate('reviewrequestalert')">
-    <div class="link-name">Review Request Alert</div>
-    <div class="link-desc">Ask clients for a Google review after service or when a tag is added.</div>
-  </div>
-  <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="review_request" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-  </div>
-  <div class="link-arrow" onclick="navigate('reviewrequestalert')">&#8250;</div>
 </div>
 
 <div class="link-item">
