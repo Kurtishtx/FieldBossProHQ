@@ -63,6 +63,7 @@ serve(async (req: Request) => {
           body: JSON.stringify({
             alert_type:    alert.alert_type,
             service_ids:   serviceIds,
+            estimate_id:   alert.estimate_id || undefined,
             user_id:       alert.user_id,
             alert_message: alert.alert_message || undefined,
             force_send:    true,
