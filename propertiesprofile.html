@@ -831,7 +831,7 @@
           </div>
           <div class="add-btn-wrap" style="position:relative;">
             <button class="add-btn" onclick="toggleServiceMenu(event)">&#10010; Add A Service</button>
-            <div id="service-menu" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:2px solid #e07820; box-shadow:0 6px 20px rgba(0,0,0,.12); z-index:300; padding:4px 0; border-radius:0 0 8px 8px;">
+            <div id="service-menu" style="display:none; position:fixed; background:#fff; border:2px solid #e07820; box-shadow:0 6px 20px rgba(0,0,0,.12); z-index:9999; padding:4px 0; border-radius:0 0 8px 8px;">
               <a href="#" onclick="event.preventDefault(); openPkgModal();" style="display:block; padding:10px 16px; color:#333; text-decoration:none; font-size:13px; font-weight:700; border-bottom:1px solid #f0f0f0;" onmouseover="this.style.background='#fff8f2'" onmouseout="this.style.background=''">Add Package Plan</a>
               <a href="#" onclick="event.preventDefault(); openServiceModal();" style="display:block; padding:10px 16px; color:#333; text-decoration:none; font-size:13px; font-weight:700;" onmouseover="this.style.background='#fff8f2'" onmouseout="this.style.background=''">Add One Time Service</a>
             </div>
@@ -2129,7 +2129,16 @@ function showPropTab(name, btn) {
   function toggleServiceMenu(e) {
     e.stopPropagation();
     var menu = document.getElementById('service-menu');
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    if (menu.style.display === 'none') {
+      var btn = e.currentTarget;
+      var r = btn.getBoundingClientRect();
+      menu.style.left  = r.left + 'px';
+      menu.style.top   = r.bottom + 'px';
+      menu.style.width = r.width + 'px';
+      menu.style.display = 'block';
+    } else {
+      menu.style.display = 'none';
+    }
   }
 
   /* ── Dropdowns ── */
