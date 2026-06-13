@@ -897,10 +897,24 @@ function showClientTab(name, btn) {
           '<div style="font-weight:600;color:#2272c3;">' + escHtml(c.name || (c.first_name + ' ' + c.last_name).trim()) + '</div>' +
           '<div style="font-size:12px;color:#666;">' + escHtml(c.contact_type || '') + (c.cell_phone ? ' &mdash; ' + escHtml(c.cell_phone) : '') + '</div>' +
         '</div>' +
-        '<span style="color:#bbb;font-size:18px;">&#8250;</span>';
+        '<button data-cid="' + c.id + '" style="background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:4px;line-height:1;" title="Delete contact">&#10005;</button>';
+      row.querySelector('button[data-cid]').addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteContact(c.id, row);
+      });
       row.addEventListener('click', function() { openContactModal(null, c.id); });
       list.insertBefore(row, empty);
     });
+  }
+
+  async function deleteContact(id, row) {
+    if (!confirm('Delete this contact?')) return;
+    await sb.from('Contacts').delete().eq('id', id);
+    row.remove();
+    var list = document.getElementById('contacts-list');
+    if (!list.querySelector('.contact-row')) {
+      document.getElementById('contacts-empty').style.display = '';
+    }
   }
 
   function editClient(e) {
