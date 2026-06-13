@@ -86,7 +86,7 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var SLOT = 1;
-  var DEFAULT_MSG = 'Hi [clientfirstname], just following up on the estimate we sent you. We\'d love to earn your business!\n\nFeel free to call us with any questions.\n\n[companyname]\n[companyphone]';
+  var DEFAULT_MSG = 'Hi [clientfirstname], just following up on the estimate we sent you. We\'d love to earn your business!\n\nWas there anything I can answer for you?\n\n[companyname]\n[companyphone]';
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();
