@@ -189,6 +189,11 @@
     min-height: 100dvh;
     border-radius: 0 !important;
   }
+
+  /* ── Property profile hero ── */
+  .hero-c-addr, .hero-c-left, .hero-c-right { display: none !important; }
+  .hero-c-fin { min-width: 0 !important; width: 100% !important; }
+  .hfin-prepay { width: 100% !important; box-sizing: border-box !important; }
 }
 
 @media (max-width: 480px) {
