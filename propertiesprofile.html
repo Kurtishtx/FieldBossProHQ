@@ -1723,9 +1723,21 @@ function showPropTab(name, btn) {
   }
 
   function fillRateBelow(rowIndex) {
-    var inputs = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
-    var val = inputs[rowIndex] ? inputs[rowIndex].value : '';
-    inputs.forEach(function(inp, i) { if (i > rowIndex) inp.value = val; });
+    var inputs   = document.querySelectorAll('#pkg-modal-rows .pkg-rate-input');
+    var discBtns = document.querySelectorAll('#pkg-modal-rows .pkg-disc-btn');
+    var val  = inputs[rowIndex] ? inputs[rowIndex].value : '';
+    var disc = rowDiscountData[rowIndex] || null;
+    inputs.forEach(function(inp, i) {
+      if (i <= rowIndex) return;
+      inp.value = val;
+      if (disc) {
+        rowDiscountData[i] = Object.assign({}, disc);
+        if (discBtns[i]) { discBtns[i].style.background = '#555'; discBtns[i].style.color = '#fff'; discBtns[i].style.borderColor = '#555'; discBtns[i].title = 'Discount applied — click to change'; }
+      } else {
+        delete rowDiscountData[i];
+        if (discBtns[i]) { discBtns[i].style.background = ''; discBtns[i].style.color = ''; discBtns[i].style.borderColor = ''; discBtns[i].title = 'Apply discount'; }
+      }
+    });
   }
 
   async function confirmAddPackage() {
