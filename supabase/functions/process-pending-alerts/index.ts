@@ -91,12 +91,12 @@ serve(async (req: Request) => {
         const alertType = `estimate_followup_${fu.slot}`;
         const { data: toggle } = await supabase
           .from("alert_toggles")
-          .select("sms_enabled")
+          .select("sms_enabled, email_enabled")
           .eq("user_id", fu.user_id)
           .eq("alert_type", alertType)
           .single();
 
-        if (!toggle?.sms_enabled) {
+        if (!toggle?.sms_enabled && !toggle?.email_enabled) {
           results.push({ source: "pending_estimate_followups", id: fu.id, skipped: true, reason: "toggle_off" });
           continue;
         }

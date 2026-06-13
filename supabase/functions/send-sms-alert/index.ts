@@ -225,6 +225,9 @@ function emailSubject(alertType: string, companyName: string): string {
     reschedule:                 `Your Service Has Been Rescheduled — ${n}`,
     completed:                  `Your Service is Complete — ${n}`,
     estimate_sent:              `Your Estimate — ${n}`,
+    estimate_followup_1:        `Following Up on Your Estimate — ${n}`,
+    estimate_followup_2:        `Following Up on Your Estimate — ${n}`,
+    estimate_followup_3:        `Following Up on Your Estimate — ${n}`,
     mobile_property_scheduled:  `You're Up Next — ${n}`,
   };
   return map[alertType] || `Alert from ${n}`;
