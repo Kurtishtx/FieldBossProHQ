@@ -673,11 +673,11 @@
         // Use server-side array filtering for each tag rule
         var queries = tagRules.map(function(tf) {
           if (tf.op === 'notcontains') {
-            return sb.from('Clients').select('id').eq('user_id', uid)
-              .not('client_tags', 'cs', JSON.stringify([tf.val]));
+            return sb.from('Properties').select('id').eq('user_id', uid)
+              .not('property_tags', 'cs', JSON.stringify([tf.val]));
           }
-          return sb.from('Clients').select('id').eq('user_id', uid)
-            .contains('client_tags', [tf.val]);
+          return sb.from('Properties').select('id').eq('user_id', uid)
+            .contains('property_tags', [tf.val]);
         });
         Promise.all(queries.map(function(q) { return q.then(function(r) { return (r.data || []).map(function(c) { return c.id; }); }); }))
           .then(function(results) {
@@ -774,8 +774,7 @@
     var nonTagFilters = activeFilters.filter(function(f) { return f.field !== 'tags'; });
     var filtered = properties.filter(function(p) {
       if (tagFilteredPropertyIds !== null) {
-        var cid = p.customer_id || p.client_id;
-        if (!tagFilteredPropertyIds.includes(cid)) return false;
+        if (!tagFilteredPropertyIds.includes(p.id)) return false;
       }
       return nonTagFilters.every(function(f) {
         var raw = p[f.field];
