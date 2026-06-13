@@ -6,13 +6,12 @@
   <title>Invoice Email Setup</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #d4cfe0; font-size: 13px; color: #222; }
 
-    .page-hdr { padding: 20px 24px 14px; }
-    .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
-    .page-hdr p { font-size: 13px; color: #777; margin-top: 4px; }
+    .page-hdr { background: #130520; margin: 8px 16px; border-radius: 10px; padding: 10px 24px; }
+    .page-hdr p { font-size: 13px; color: rgba(255,255,255,.6); }
 
-    .divider { border: none; border-top: 1px solid #eee; margin: 0 24px; }
+    .link-card { margin: 4px 16px 16px; border-radius: 10px; overflow: hidden; background: #fff; }
 
     .link-item {
       display: flex;
@@ -22,8 +21,10 @@
       border-bottom: 1px solid #eee;
       cursor: pointer;
       text-decoration: none;
+      background: #fff;
     }
-    .link-item:hover { background: #f5f9ff; }
+    .link-item:last-child { border-bottom: none; }
+    .link-item:hover { background: #f5f3fa; }
 
     .link-icon {
       width: 42px;
@@ -65,24 +66,24 @@
   <p>Configure how invoice emails look and what information they include.</p>
 </div>
 
-<hr class="divider"/>
-
-<div class="link-item" onclick="navigate('documentsadd')">
-  <div class="link-icon">&#9993;</div>
-  <div class="link-text">
-    <div class="link-name">Invoice Email Template</div>
-    <div class="link-desc">Choose and save the email template used when sending invoices to clients.</div>
+<div class="link-card">
+  <div class="link-item" onclick="navigate('documentsadd')">
+    <div class="link-icon">&#9993;</div>
+    <div class="link-text">
+      <div class="link-name">Invoice Email Template</div>
+      <div class="link-desc">Choose and save the email template used when sending invoices to clients.</div>
+    </div>
+    <div class="link-arrow">&#8250;</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
-</div>
 
-<div class="link-item" onclick="navigate('invoiceemailinfo')">
-  <div class="link-icon">&#128196;</div>
-  <div class="link-text">
-    <div class="link-name">Invoice Email Info</div>
-    <div class="link-desc">Customize the content, sender details, and additional fields included in invoice emails.</div>
+  <div class="link-item" onclick="navigate('invoiceemailinfo')">
+    <div class="link-icon">&#128196;</div>
+    <div class="link-text">
+      <div class="link-name">Invoice Email Info</div>
+      <div class="link-desc">Customize the content, sender details, and additional fields included in invoice emails.</div>
+    </div>
+    <div class="link-arrow">&#8250;</div>
   </div>
-  <div class="link-arrow">&#8250;</div>
 </div>
 
 <script>
