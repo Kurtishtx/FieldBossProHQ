@@ -9,24 +9,28 @@
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #fff;
+      background: #d4cfe0;
       font-size: 13px;
       color: #222;
     }
 
     /* ── Page header ── */
     .page-hdr {
-      padding: 20px 24px 14px;
+      padding: 10px 24px;
+      background: #130520;
+      margin: 8px 16px;
+      border-radius: 10px;
+      min-height: 20px;
     }
     .page-hdr h1 {
       font-size: 26px;
       font-weight: 800;
-      color: #111;
+      color: #fff;
     }
 
     /* ── Search bar ── */
     .search-wrap {
-      padding: 0 24px 18px;
+      padding: 0 16px 8px;
     }
     .search-box {
       display: flex;
@@ -51,7 +55,7 @@
     .search-box input::placeholder { color: #fff; }
 
     /* ── Section group ── */
-    .settings-group { margin-bottom: 0; }
+    .settings-group { margin: 4px 16px; border-radius: 10px; overflow: hidden; }
 
     .group-header {
       display: flex;
@@ -69,7 +73,7 @@
     .group-header .caret { font-size: 11px; transition: transform .2s; }
     .group-header.collapsed .caret { transform: rotate(-90deg); }
 
-    .group-body { display: block; }
+    .group-body { display: block; background: #fff; }
     .group-body.collapsed { display: none; }
 
     /* ── Setting item ── */
