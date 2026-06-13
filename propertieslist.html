@@ -165,83 +165,59 @@
     }
     .map-sat-toggle button:hover:not(.active) { background: #d4cfe0; color: #333; }
 
-    /* ── Filters bar ── */
-    .filters-bar {
-      background: #130520;
-      color: rgba(255,255,255,.8);
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      flex-shrink: 0;
-      user-select: none;
-      letter-spacing: .3px;
-      margin: 0 16px;
-      border-radius: 8px;
+    /* ── Main split layout ── */
+    .main-layout {
+      flex: 1; display: flex; overflow: hidden;
+      padding: 6px 16px 16px; gap: 10px;
     }
-    .filters-bar:hover { background: #1e0a35; }
 
-    .filters-row {
-      background: #1a0a30;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    /* ── Left sidebar ── */
+    .left-sidebar {
+      width: 200px; min-width: 200px;
+      background: #0a0118;
+      border-radius: 10px;
+      display: flex; flex-direction: column;
+      overflow-y: auto; flex-shrink: 0;
+    }
+    .sidebar-top {
+      padding: 12px; border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .sidebar-nav { display: flex; flex-direction: column; padding: 6px 0; }
+    .snav-item {
+      padding: 10px 16px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,.55); cursor: pointer;
+      border: none; background: none; text-align: left;
+      font-family: inherit; border-left: 3px solid transparent;
+      transition: all .15s;
+    }
+    .snav-item:hover { color: #fff; background: rgba(255,255,255,.05); }
+    .snav-item.active { color: #fff; background: rgba(255,255,255,.07); border-left-color: #e07820; font-weight: 700; }
+    .sidebar-results {
+      padding: 6px 14px 8px; font-size: 12px;
+      color: rgba(255,255,255,.35); border-top: 1px solid rgba(255,255,255,.06);
+      margin-top: auto;
+    }
+
+    /* ── Right content ── */
+    .right-content {
+      flex: 1; background: #fff; border-radius: 10px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .right-toolbar {
+      background: #130520; padding: 7px 14px;
+      display: flex; align-items: center; justify-content: space-between;
       flex-shrink: 0;
-      margin: 2px 16px;
-      border-radius: 8px;
     }
-    .btn-filter-action {
-      background: rgba(255,255,255,.1);
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 5px;
-      padding: 5px 14px;
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      color: rgba(255,255,255,.8);
-      font-weight: 500;
-      transition: background .15s;
-    }
-    .btn-filter-action:hover { background: rgba(255,255,255,.18); }
-    .btn-clear-filters {
-      margin-left: auto;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 5px;
-      padding: 5px 14px;
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      color: rgba(255,255,255,.6);
-      transition: background .15s;
-    }
-    .btn-clear-filters:hover { background: rgba(255,255,255,.15); }
 
     /* ── Results bar ── */
     .results-bar {
-      padding: 6px 24px;
-      font-size: 12.5px;
-      color: #666;
-      background: transparent;
-      flex-shrink: 0;
+      padding: 6px 14px; font-size: 12.5px;
+      color: #666; background: #f8f8f8;
+      border-bottom: 1px solid #eee; flex-shrink: 0;
     }
 
-    /* ── Toolbar ── */
-    .toolbar {
-      background: #130520;
-      padding: 7px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      margin: 4px 16px 0;
-      border-radius: 10px 10px 0 0;
-    }
+    /* ── Toolbar (kept for compat) ── */
+    .toolbar { display: none; }
     .actions-split { display: flex; align-items: stretch; position: relative; }
     .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
     .btn-green-main:hover { background: #d4ae00; }
@@ -339,19 +315,14 @@
     }
     .btn-columns:hover { background: rgba(255,255,255,.22); color: #fff; }
 
-    /* ── Filter pills ── */
-    .filter-tabs { display:flex; gap:4px; padding:8px 14px; background:#1a0a30; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap; flex-shrink:0; margin: 0 16px; }
-    .ftab { padding:5px 16px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); font-size:13px; font-family:inherit; cursor:pointer; border-radius:20px; color:rgba(255,255,255,.6); transition:background .15s; }
-    .ftab:hover { background:rgba(255,255,255,.12); color:#fff; }
-    .ftab.active { background:#e07820; color:#fff; border-color:#e07820; font-weight:700; }
+    /* ── Filter pills (hidden — moved to sidebar) ── */
+    .filter-tabs { display: none; }
 
     /* ── Table ── */
     .table-container {
       flex: 1;
       overflow-y: auto;
       background: #fff;
-      margin: 0 16px 16px;
-      border-radius: 0 0 10px 10px;
     }
     table {
       width: 100%;
@@ -425,71 +396,65 @@
   <div id="map" style="width:100%;height:100%;"></div>
 </div>
 
-<!-- Filters bar (BLACK) -->
-<div class="filters-bar" onclick="toggleFilters()">
-  <span>&#9783; Filters</span>
-  <span id="filters-arrow">&#9660;</span>
-</div>
-<div class="filters-row" id="filters-row" style="display:none">
-  <button class="btn-filter-action">Search</button>
-  <button class="btn-filter-action">Add Filter</button>
-  <button class="btn-clear-filters">Clear Filters</button>
-</div>
+<!-- Main split layout -->
+<div class="main-layout">
 
-<!-- Results count -->
-<div class="results-bar" id="results-bar">0 items in 1 pages</div>
+  <!-- Left sidebar -->
+  <div class="left-sidebar">
+    <div class="sidebar-top">
+      <div class="actions-split">
+        <button class="btn-green-main" style="border-radius:6px 0 0 6px;width:100%;">Actions</button>
+        <button class="btn-green-caret" onclick="toggleDropdown(event)" style="border-radius:0 6px 6px 0;">&#9660;</button>
+        <div class="actions-dropdown" id="actions-dropdown">
+          <div class="dropdown-header">Actions</div>
+          <button class="dropdown-item" onclick="openPropertyModal()">Add Property</button>
+          <button class="dropdown-item" onclick="makePropertiesActive(true)">Make Active</button>
+          <button class="dropdown-item" onclick="makePropertiesActive(false)">Make Inactive</button>
+          <button class="dropdown-item" onclick="deleteSelectedProperties()">Delete</button>
+        </div>
+      </div>
+      <div id="pagination-bar" style="display:none;flex-direction:column;align-items:center;gap:4px;margin-top:10px;font-size:13px;color:rgba(255,255,255,.6);">
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button onclick="goPage(-1)" style="background:rgba(255,255,255,.12);border:none;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;">&#9664;</button>
+          <span>Page <strong id="pg-current-num" style="color:#e8c000;">1</strong> of <strong id="pg-total-num" style="color:#fff;">1</strong></span>
+          <button onclick="goPage(1)" style="background:rgba(255,255,255,.12);border:none;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;">&#9654;</button>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="snav-item active" onclick="setTab(this)">Properties</button>
+      <button class="snav-item" onclick="setTab(this)">Former Properties</button>
+      <button class="snav-item" onclick="setTab(this)">Properties &amp; Former</button>
+      <button class="snav-item" onclick="setTab(this)">Active Properties</button>
+      <button class="snav-item" onclick="setTab(this)">All Properties</button>
+    </div>
+    <div class="sidebar-results" id="results-bar">0 properties</div>
+  </div>
 
-<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#130520;color:#fff;font-size:13px;">
-  <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> property(s)? This cannot be undone.</span>
-  <button onclick="confirmDeleteProperties()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
-  <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #aaa;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
-</div>
-
-<!-- Toolbar (medium grey) -->
-<div class="toolbar">
-  <div class="actions-split">
-    <button class="btn-green-main">Actions</button>
-    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
-    <div class="actions-dropdown" id="actions-dropdown">
-      <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="openPropertyModal()">Add Property</button>
-      <button class="dropdown-item" onclick="makePropertiesActive(true)">Make Active</button>
-      <button class="dropdown-item" onclick="makePropertiesActive(false)">Make Inactive</button>
-      <button class="dropdown-item" onclick="deleteSelectedProperties()">Delete</button>
+  <!-- Right content -->
+  <div class="right-content">
+    <div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 14px;background:#c0392b;color:#fff;font-size:13px;flex-shrink:0;">
+      <span>Delete <strong id="delete-confirm-count">0</strong> property(s)? Cannot be undone.</span>
+      <button onclick="confirmDeleteProperties()" style="background:#fff;color:#c0392b;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
+      <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;">Cancel</button>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+            <th>Property Name</th>
+            <th>Address</th>
+            <th>City</th>
+          </tr>
+        </thead>
+        <tbody id="property-tbody"></tbody>
+      </table>
+      <div class="empty-msg" id="empty-msg">No properties found.</div>
     </div>
   </div>
-  <div id="pagination-bar" style="display:none;align-items:center;gap:6px;font-size:13px;color:#ccc;">
-    <button onclick="goPage(-1)" style="background:rgba(255,255,255,.12);border:none;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;">&#9664;</button>
-    <span>Page <strong id="pg-current-num" style="color:#e8c000;">1</strong> of <strong id="pg-total-num" style="color:#fff;">1</strong></span>
-    <button onclick="goPage(1)" style="background:rgba(255,255,255,.12);border:none;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;">&#9654;</button>
-  </div>
-  </div>
 
-<!-- Filter pills -->
-<div class="filter-tabs">
-  <button class="ftab active" onclick="setTab(this)">Properties</button>
-  <button class="ftab" onclick="setTab(this)">Former Properties</button>
-  <button class="ftab" onclick="setTab(this)">Properties &amp; Former</button>
-  <button class="ftab" onclick="setTab(this)">Active Properties</button>
-  <button class="ftab" onclick="setTab(this)">All Properties</button>
 </div>
-
-<!-- Table -->
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th>Property Name</th>
-        <th>Address</th>
-        <th>City</th>
-      </tr>
-    </thead>
-    <tbody id="property-tbody"></tbody>
-  </table>
-  <div class="empty-msg" id="empty-msg">No properties found.</div>
-</div>
-<div style="height:28px;background:#130520;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -548,7 +513,7 @@
 
   /* ── Filter pills ── */
   function setTab(btn) {
-    document.querySelectorAll('.ftab').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.snav-item').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     renderTable();
   }
