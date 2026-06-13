@@ -6,7 +6,7 @@
   <title>Employees</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
 
     .page-topbar {
       display: flex; align-items: center; justify-content: space-between;
@@ -15,16 +15,17 @@
     .page-topbar-left h1 { font-size: 20px; font-weight: 700; color: #111; }
     .page-topbar-left .item-count { font-size: 13px; color: #666; margin-top: 3px; }
     .btn-add {
-      background: #e07820; color: #fff; border: none;
+      background: #130520; color: #fff; border: 3px solid #e07820;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
-      border-radius: 4px; cursor: pointer; white-space: nowrap;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
     }
-    .btn-add:hover { background: #c96a10; }
+    .btn-add:hover { background: #1e0a35; }
 
     .toolbar {
       background: #130520; display: flex; align-items: center;
-      padding: 7px 14px; gap: 6px;
+      padding: 7px 14px; gap: 6px; margin: 2px 16px 0; border-radius: 8px 8px 0 0;
     }
+    .table-wrap { background: #fff; margin: 0 16px; }
     .btn-actions { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none;
       padding: 5px 14px; font-size: 13px; font-weight: 700;
       border-radius: 3px 0 0 3px; cursor: pointer;
@@ -104,6 +105,7 @@
   </div>
 </div>
 
+<div class="table-wrap">
 <table>
   <thead>
     <tr>
@@ -117,8 +119,9 @@
   </thead>
   <tbody id="emp-tbody"></tbody>
 </table>
-<div style="height:28px;background:#130520;"></div>
 <div class="empty-msg" id="empty-msg" style="display:none;">No employees found.</div>
+</div>
+<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
