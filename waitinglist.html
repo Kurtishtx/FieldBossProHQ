@@ -973,12 +973,12 @@
       }
     });
     var pills = Object.keys(svcCounts).map(function(n) {
-      var sqft = svcSqFt[n] ? '<span style="font-size:11px;font-weight:700;color:#444;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
+      var sqft = svcSqFt[n] ? '<span style="font-size:11px;font-weight:700;color:#fff;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
       var bottom = '<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + sqft + '</span>';
       return '<span class="jt-pill">' + n + bottom + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
-    var totalPill = '<span class="jt-pill">Services Total<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:11px;font-weight:700;color:#444;">$' + preTotal.toFixed(2) + '</span></span></span>';
+    var totalPill = '<span class="jt-pill">Services Total<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:11px;font-weight:700;color:#fff;">$' + preTotal.toFixed(2) + '</span></span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + pills;
 
     var tbody = document.getElementById('table-body');
