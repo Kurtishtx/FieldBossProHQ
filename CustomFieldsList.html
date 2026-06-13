@@ -118,30 +118,11 @@
     }
     .dropdown-item:hover { background: #f5f5f5; }
 
-    /* ── Tabs ── */
-    .tabs-bar {
-      background: #130520;
-      padding: 0 10px;
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      flex-shrink: 0;
-      border-top: 1px solid #0d0318;
-    }
-    .tab-btn {
-      background: #bbb;
-      color: #111;
-      border: none;
-      border-radius: 4px 4px 0 0;
-      padding: 5px 16px;
-      font-size: 12.5px;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
-    }
-    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
-    .tab-btn:hover:not(.active) { background: #aaa; }
+    /* ── Filter pills ── */
+    .filter-tabs { display:flex; gap:4px; padding:8px 14px; background:#1a0a30; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap; flex-shrink:0; }
+    .ftab { padding:5px 16px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); font-size:13px; font-family:inherit; cursor:pointer; border-radius:20px; color:rgba(255,255,255,.6); transition:background .15s; }
+    .ftab:hover { background:rgba(255,255,255,.12); color:#fff; }
+    .ftab.active { background:#e07820; color:#fff; border-color:#e07820; font-weight:700; }
 
     /* ── Table ── */
     .table-container {
@@ -246,11 +227,10 @@
   </div>
 </div>
 
-<!-- Tabs -->
-<div class="tabs-bar">
-  <button class="tab-btn active" onclick="setTab(this,'active')">Active</button>
-  <button class="tab-btn" onclick="setTab(this,'inactive')">Inactive</button>
-  <button class="tab-btn" onclick="setTab(this,'all')">All</button>
+<div class="filter-tabs">
+  <button class="ftab active" onclick="setTab(this,'active')">Active</button>
+  <button class="ftab" onclick="setTab(this,'inactive')">Inactive</button>
+  <button class="ftab" onclick="setTab(this,'all')">All</button>
 </div>
 
 <!-- Table -->
@@ -289,7 +269,7 @@
   var allFields = [];
 
   function setTab(btn, tab) {
-    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.ftab').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     currentTab = tab;
     renderTable();
