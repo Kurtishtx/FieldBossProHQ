@@ -15,7 +15,9 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find all pending alerts that are now due
+    const results: any[] = [];
+
+    // ── 1. Process time-gated service/estimate alerts ──────────────────────
     const { data: pending, error: fetchErr } = await supabase
       .from("pending_sms_alerts")
       .select("*")
@@ -28,22 +30,9 @@ serve(async (req: Request) => {
       });
     }
 
-    if (!pending?.length) {
-      return new Response(JSON.stringify({ processed: 0 }), {
-        headers: { ...cors, "Content-Type": "application/json" },
-      });
-    }
+    for (const alert of (pending ?? [])) {
+      await supabase.from("pending_sms_alerts").update({ sent: true }).eq("id", alert.id);
 
-    const results: any[] = [];
-
-    for (const alert of pending) {
-      // Mark sent first to prevent double-send if cron overlaps
-      await supabase
-        .from("pending_sms_alerts")
-        .update({ sent: true })
-        .eq("id", alert.id);
-
-      // Parse service_ids (stored as JSON string)
       let serviceIds: string[] | null = null;
       try {
         serviceIds = typeof alert.service_ids === "string"
@@ -51,7 +40,6 @@ serve(async (req: Request) => {
           : alert.service_ids;
       } catch { serviceIds = null; }
 
-      // Call send-sms-alert with force_send to bypass the time check
       const res = await fetch(
         `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-sms-alert`,
         {
@@ -72,7 +60,82 @@ serve(async (req: Request) => {
       );
 
       const json = await res.json().catch(() => ({ error: "bad response" }));
-      results.push({ id: alert.id, user_id: alert.user_id, ...json });
+      results.push({ source: "pending_sms_alerts", id: alert.id, ...json });
+    }
+
+    // ── 2. Process estimate follow-ups ─────────────────────────────────────
+    const { data: followups, error: fuErr } = await supabase
+      .from("pending_estimate_followups")
+      .select("*")
+      .eq("sent", false)
+      .lte("send_at", new Date().toISOString());
+
+    if (!fuErr && followups?.length) {
+      for (const fu of followups) {
+        // Mark sent first to prevent double-send
+        await supabase.from("pending_estimate_followups").update({ sent: true }).eq("id", fu.id);
+
+        // Check estimate is still open (not accepted/declined/expired)
+        const { data: est } = await supabase
+          .from("estimates")
+          .select("status, client_id, lead_id")
+          .eq("id", fu.estimate_id)
+          .single();
+
+        if (!est || ["accepted", "declined", "expired"].includes(est.status ?? "")) {
+          results.push({ source: "pending_estimate_followups", id: fu.id, skipped: true, reason: est?.status ?? "not found" });
+          continue;
+        }
+
+        // Check toggle for this slot
+        const alertType = `estimate_followup_${fu.slot}`;
+        const { data: toggle } = await supabase
+          .from("alert_toggles")
+          .select("sms_enabled")
+          .eq("user_id", fu.user_id)
+          .eq("alert_type", alertType)
+          .single();
+
+        if (!toggle?.sms_enabled) {
+          results.push({ source: "pending_estimate_followups", id: fu.id, skipped: true, reason: "toggle_off" });
+          continue;
+        }
+
+        // Get follow-up message for this slot
+        const { data: setting } = await supabase
+          .from("estimate_followup_settings")
+          .select("message")
+          .eq("user_id", fu.user_id)
+          .eq("slot", fu.slot)
+          .single();
+
+        if (!setting?.message) {
+          results.push({ source: "pending_estimate_followups", id: fu.id, skipped: true, reason: "no_message" });
+          continue;
+        }
+
+        // Send via send-sms-alert with force_send
+        const res = await fetch(
+          `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-sms-alert`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+            },
+            body: JSON.stringify({
+              alert_type:    alertType,
+              estimate_id:   fu.estimate_id,
+              user_id:       fu.user_id,
+              alert_message: setting.message,
+              force_send:    true,
+            }),
+          }
+        );
+
+        const json = await res.json().catch(() => ({ error: "bad response" }));
+        results.push({ source: "pending_estimate_followups", id: fu.id, ...json });
+      }
     }
 
     return new Response(

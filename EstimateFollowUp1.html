@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Follow Up Alert 1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+    .page-hdr { padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
+    .content { padding: 20px 24px; max-width: 680px; }
+    .var-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .var-row label { font-size: 12.5px; font-weight: 600; color: #555; white-space: nowrap; }
+    .var-select { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; background: #fafafa; outline: none; cursor: pointer; }
+    .var-select:focus { border-color: #2272c3; background: #fff; }
+    .insert-btn { padding: 9px 18px; background: #2272c3; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .insert-btn:hover { background: #1a5ea0; }
+    textarea.msg-area { width: 100%; min-height: 180px; border: 1px solid #ddd; border-radius: 8px; padding: 14px; font-size: 14px; font-family: inherit; color: #222; resize: vertical; outline: none; line-height: 1.6; margin-bottom: 6px; }
+    textarea.msg-area:focus { border-color: #2272c3; }
+    .char-count { text-align: right; font-size: 12px; color: #888; margin-bottom: 18px; font-weight: 600; }
+    .char-count.warn { color: #e67e22; }
+    .char-count.over { color: #d9534f; }
+    .save-btn { padding: 10px 30px; background: #2272c3; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .save-btn:hover { background: #1a5ea0; }
+    .save-btn:disabled { background: #90b8e0; cursor: default; }
+    .save-btn.saved { background: #28a745; }
+    .status-msg { font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+    .status-msg.ok  { color: #28a745; }
+    .status-msg.err { color: #d9534f; }
+    .days-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 14px 16px; background: #f7f4ff; border: 1px solid #e0d8f0; border-radius: 8px; }
+    .days-input { width: 72px; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; font-size: 16px; font-family: inherit; font-weight: 700; outline: none; text-align: center; color: #130520; }
+    .days-input:focus { border-color: #2272c3; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+<div class="page-hdr">
+  <p>Automatic follow-up text sent to clients if their estimate is still open.</p>
+</div>
+<div class="content">
+
+  <div class="days-row">
+    <span style="font-size:13px; font-weight:600; color:#555; white-space:nowrap;">Send</span>
+    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="—"/>
+    <span style="font-size:13px; color:#222;">days after the estimate is sent &nbsp;(1–90). Leave blank to disable.</span>
+  </div>
+
+  <div class="var-row">
+    <label>Insert Variable</label>
+    <select class="var-select" id="var-select">
+      <option value="">— choose a variable to insert —</option>
+      <optgroup label="Client">
+        <option value="[clientname]">[clientname] — Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] — First name</option>
+        <option value="[clientlastname]">[clientlastname] — Last name</option>
+      </optgroup>
+      <optgroup label="Estimate">
+        <option value="[estimateamount]">[estimateamount] — Estimate total</option>
+        <option value="[estimatenumber]">[estimatenumber] — Estimate number</option>
+      </optgroup>
+      <optgroup label="Company">
+        <option value="[companyname]">[companyname] — Company name</option>
+        <option value="[companyphone]">[companyphone] — Company phone</option>
+        <option value="[companywebsite]">[companywebsite] — Company website</option>
+      </optgroup>
+    </select>
+    <button class="insert-btn" onclick="insertVar()">Insert</button>
+  </div>
+
+  <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+    <button onclick="resetMsg()" style="background:#130520; border:1px solid #130520; color:#fff; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
+  </div>
+  <textarea class="msg-area" id="msg-area" maxlength="240" oninput="updateCount()"></textarea>
+  <div class="char-count" id="char-count">0 / 240</div>
+
+  <button class="save-btn" id="save-btn" onclick="save()">Save</button>
+  <div class="status-msg" id="status-msg"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL      = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
+  var SLOT = 1;
+  var DEFAULT_MSG = 'Hi [clientfirstname], just following up on the estimate we sent you. We\'d love to earn your business!\n\nFeel free to call us with any questions.\n\n[companyname]\n[companyphone]';
+
+  async function init() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) return;
+    var { data } = await sb.from('estimate_followup_settings')
+      .select('days_after, message')
+      .eq('user_id', uid)
+      .eq('slot', SLOT)
+      .single();
+    if (data) {
+      if (data.days_after) document.getElementById('days-after').value = data.days_after;
+      document.getElementById('msg-area').value = data.message || DEFAULT_MSG;
+    } else {
+      document.getElementById('msg-area').value = DEFAULT_MSG;
+    }
+    updateCount();
+  }
+
+  function insertVar() {
+    var sel = document.getElementById('var-select'); var val = sel.value; if (!val) return;
+    var ta = document.getElementById('msg-area'); var s = ta.selectionStart, e = ta.selectionEnd;
+    ta.value = ta.value.substring(0, s) + val + ta.value.substring(e);
+    ta.selectionStart = ta.selectionEnd = s + val.length;
+    ta.focus(); sel.value = ''; updateCount();
+  }
+
+  function resetMsg() { document.getElementById('msg-area').value = DEFAULT_MSG; updateCount(); }
+
+  var MAX_CHARS = 240;
+  function updateCount() {
+    var len = document.getElementById('msg-area').value.length;
+    var el = document.getElementById('char-count');
+    el.textContent = len + ' / ' + MAX_CHARS;
+    el.className = 'char-count' + (len >= MAX_CHARS ? ' over' : len >= 180 ? ' warn' : '');
+  }
+
+  async function save() {
+    var btn = document.getElementById('save-btn');
+    var statusEl = document.getElementById('status-msg');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    statusEl.textContent = ''; statusEl.className = 'status-msg';
+    await sb.auth.refreshSession();
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { btn.disabled = false; btn.textContent = 'Save'; statusEl.textContent = 'Not logged in.'; statusEl.className = 'status-msg err'; return; }
+
+    var daysRaw = document.getElementById('days-after').value.trim();
+    var daysVal = daysRaw ? parseInt(daysRaw) : null;
+    if (daysVal !== null && (isNaN(daysVal) || daysVal < 1 || daysVal > 90)) {
+      btn.disabled = false; btn.textContent = 'Save';
+      statusEl.textContent = 'Days must be between 1 and 90.'; statusEl.className = 'status-msg err'; return;
+    }
+
+    var { data: saved, error } = await sb.from('estimate_followup_settings').upsert(
+      { user_id: uid, slot: SLOT, days_after: daysVal, message: document.getElementById('msg-area').value, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,slot' }
+    ).select();
+    btn.disabled = false;
+    if (error || !saved || !saved.length) {
+      btn.textContent = 'Save';
+      statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
+    } else {
+      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      statusEl.textContent = 'Follow-up saved.'; statusEl.className = 'status-msg ok';
+      setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

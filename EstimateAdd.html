@@ -537,6 +537,22 @@
         body: JSON.stringify({ alert_type: 'estimate_sent', estimate_id: estimateId, user_id: uid, alert_message: alertRow.message, tz_offset: new Date().getTimezoneOffset() })
       }).catch(function(e) { console.error('Estimate SMS alert error:', e); });
     } catch(e) { console.error('Estimate SMS alert error:', e); }
+    scheduleFollowUps(estimateId, uid);
+  }
+
+  async function scheduleFollowUps(estimateId, uid) {
+    if (!uid || !estimateId) return;
+    try {
+      var { data: rows } = await sb.from('estimate_followup_settings')
+        .select('slot, days_after')
+        .eq('user_id', uid);
+      if (!rows || !rows.length) return;
+      var inserts = rows.filter(function(r) { return r.days_after && r.days_after > 0; }).map(function(r) {
+        var sendAt = new Date(Date.now() + r.days_after * 24 * 60 * 60 * 1000);
+        return { user_id: uid, estimate_id: estimateId, slot: r.slot, send_at: sendAt.toISOString() };
+      });
+      if (inserts.length) await sb.from('pending_estimate_followups').insert(inserts);
+    } catch(e) { console.error('Follow-up scheduling error:', e); }
   }
 
   /* ── Convert to Services ── */
