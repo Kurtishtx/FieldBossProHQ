@@ -781,7 +781,7 @@
       tr.dataset.id = p.id;
       tr.innerHTML =
         '<td><input type="checkbox" onclick="event.stopPropagation()" onchange="if(map)loadMarkers()"/></td>' +
-        '<td><a class="property-link" href="propertiesprofile.html?id=' + p.id + '" style="cursor:pointer;color:#2272c3;font-weight:600;" onclick="event.stopPropagation();if(!event.ctrlKey&&!event.metaKey){event.preventDefault();goToProperty(\'' + p.id + '\');}">' + (p.name || p.address || '') + '</a></td>' +
+        '<td><a class="property-link" href="dashboard.html#propprofile?id=' + p.id + '" style="cursor:pointer;color:#2272c3;font-weight:600;" onclick="event.stopPropagation();if(!event.ctrlKey&&!event.metaKey){event.preventDefault();goToProperty(\'' + p.id + '\');}">' + (p.name || p.address || '') + '</a></td>' +
         '<td>' + (p.address || '') + '</td>' +
         '<td>' + (p.city || '') + '</td>';
       tr.addEventListener('click', function(e) {
