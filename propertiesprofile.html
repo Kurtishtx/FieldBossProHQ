@@ -1050,7 +1050,7 @@ function showPropTab(name, btn) {
       var { data: taxData } = await sb.from('sales_taxes').select('name, tax_rate').eq('id', prop.sales_tax_id).single();
       if (taxData) {
         document.getElementById('display-sales-tax').textContent =
-          taxData.name + ' (' + (parseFloat(taxData.tax_rate) * 100).toFixed(2) + '%)';
+          (parseFloat(taxData.tax_rate) * 100).toFixed(2) + '%';
       }
     }
 
