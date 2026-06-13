@@ -632,13 +632,14 @@
   function addFilterRule() {
     var div = document.createElement('div');
     div.className = 'filter-rule';
+    var defaultField = FILTER_FIELDS[0].v;
     var fieldOpts = FILTER_FIELDS.map(function(f) {
       return '<option value="' + f.v + '">' + f.l + '</option>';
     }).join('');
     div.innerHTML =
       '<select class="filter-field" onchange="onFieldChange(this)">' + fieldOpts + '</select>' +
-      '<select class="filter-op">' + getOperatorOptions('client_name', 'contains') + '</select>' +
-      '<div class="filter-val-wrap">' + getValueHtml('client_name') + '</div>' +
+      '<select class="filter-op">' + getOperatorOptions(defaultField, 'contains') + '</select>' +
+      '<div class="filter-val-wrap">' + getValueHtml(defaultField) + '</div>' +
       '<button class="filter-remove-btn" onclick="this.closest(\'.filter-rule\').remove()">&#215;</button>';
     document.getElementById('filter-rules').appendChild(div);
   }
@@ -663,8 +664,7 @@
 
     var tagRules = rules.filter(function(r) { return r.field === 'tags'; });
     if (tagRules.length) {
-      var { data: sess } = await sb.auth.getSession();
-      var uid = sess?.session?.user?.id;
+      var uid = await getUid();
       var { data: clients } = await sb.from('Clients').select('id, client_tags').eq('user_id', uid);
       tagFilteredPropertyIds = (clients || []).filter(function(c) {
         var ct = Array.isArray(c.client_tags) ? c.client_tags : [];
@@ -690,8 +690,7 @@
   }
 
   async function loadTags() {
-    var { data: sess } = await sb.auth.getSession();
-    var uid = sess?.session?.user?.id;
+    var uid = await getUid();
     if (!uid) return;
     var { data } = await sb.from('tags').select('id, name').eq('user_id', uid).eq('active', true).order('name');
     availableTags = data || [];
@@ -723,13 +722,23 @@
     loadProperties();
   }
 
+  var currentUid = null;
+  async function getUid() {
+    if (currentUid) return currentUid;
+    var { data: sess } = await sb.auth.getSession();
+    currentUid = sess?.session?.user?.id || null;
+    return currentUid;
+  }
+
   async function loadProperties() {
-    var { count } = await sb.from('Properties').select('*', { count: 'exact', head: true });
+    var uid = await getUid();
+    if (!uid) return;
+    var { count } = await sb.from('Properties').select('*', { count: 'exact', head: true }).eq('user_id', uid);
     totalCount = count || 0;
     var totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
     if (currentPage > totalPages) currentPage = totalPages;
     var start = (currentPage - 1) * PAGE_SIZE;
-    var { data, error } = await sb.from('Properties').select('*').range(start, start + PAGE_SIZE - 1);
+    var { data, error } = await sb.from('Properties').select('*').eq('user_id', uid).range(start, start + PAGE_SIZE - 1);
     if (error) { console.error(error); return; }
     var pgBar = document.getElementById('pagination-bar');
     pgBar.style.display = totalCount > PAGE_SIZE ? 'flex' : 'none';
