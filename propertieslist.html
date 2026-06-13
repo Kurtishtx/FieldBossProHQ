@@ -18,14 +18,15 @@
 
     /* ── Top bar ── */
     .page-topbar {
-      background: #fff;
-      border-bottom: 1px solid #d8d8d8;
+      background: #130520;
+      border-bottom: 1px solid #1e0a35;
       padding: 10px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
-      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      margin: 8px 16px;
+      border-radius: 10px;
     }
     .topbar-left {
       display: flex;
@@ -33,34 +34,35 @@
       gap: 8px;
     }
     .filter-icon-btn {
-      background: #d4cfe0;
-      border: 1px solid #ccc;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
       border-radius: 6px;
       padding: 6px 11px;
       cursor: pointer;
       font-size: 15px;
-      color: #333;
+      color: rgba(255,255,255,.8);
       line-height: 1;
       transition: background .15s;
     }
-    .filter-icon-btn:hover { background: #ddd; }
+    .filter-icon-btn:hover { background: rgba(255,255,255,.18); }
 
     .property-search {
-      border: 1px solid #ccc;
+      border: 1px solid rgba(255,255,255,.2);
       border-radius: 6px;
       padding: 7px 14px;
       font-size: 13.5px;
       width: 220px;
       font-family: inherit;
-      color: #222;
-      background: #f5f5f5;
+      color: #fff;
+      background: rgba(255,255,255,.1);
       transition: border-color .15s, box-shadow .15s;
     }
+    .property-search::placeholder { color: rgba(255,255,255,.45); }
     .property-search:focus {
       outline: none;
-      border-color: #f5c800;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(245,200,0,.2);
+      border-color: #e07820;
+      background: rgba(255,255,255,.15);
+      box-shadow: 0 0 0 3px rgba(224,120,32,.2);
     }
 
     .topbar-right {
@@ -163,9 +165,9 @@
     }
     .map-sat-toggle button:hover:not(.active) { background: #d4cfe0; color: #333; }
 
-    /* ── Filters bar (BLACK) ── */
+    /* ── Filters bar ── */
     .filters-bar {
-      background: #111;
+      background: #130520;
       color: rgba(255,255,255,.8);
       padding: 8px 16px;
       font-size: 13px;
@@ -177,56 +179,59 @@
       flex-shrink: 0;
       user-select: none;
       letter-spacing: .3px;
+      margin: 0 16px;
+      border-radius: 8px;
     }
-    .filters-bar:hover { background: #1a0828; }
+    .filters-bar:hover { background: #1e0a35; }
 
     .filters-row {
-      background: #bbb;
-      border-bottom: 1px solid #d0d0d0;
+      background: #1a0a30;
+      border-bottom: 1px solid rgba(255,255,255,.06);
       padding: 8px 16px;
       display: flex;
       align-items: center;
       gap: 8px;
       flex-shrink: 0;
+      margin: 2px 16px;
+      border-radius: 8px;
     }
     .btn-filter-action {
-      background: #ddd;
-      border: 1px solid #c4c4c4;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
       border-radius: 5px;
       padding: 5px 14px;
       font-size: 13px;
       font-family: inherit;
       cursor: pointer;
-      color: #333;
+      color: rgba(255,255,255,.8);
       font-weight: 500;
       transition: background .15s;
     }
-    .btn-filter-action:hover { background: #ccc; }
+    .btn-filter-action:hover { background: rgba(255,255,255,.18); }
     .btn-clear-filters {
       margin-left: auto;
-      background: #ddd;
-      border: 1px solid #c4c4c4;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
       border-radius: 5px;
       padding: 5px 14px;
       font-size: 13px;
       font-family: inherit;
       cursor: pointer;
-      color: #555;
+      color: rgba(255,255,255,.6);
       transition: background .15s;
     }
-    .btn-clear-filters:hover { background: #ccc; }
+    .btn-clear-filters:hover { background: rgba(255,255,255,.15); }
 
     /* ── Results bar ── */
     .results-bar {
-      padding: 6px 16px;
-      font-size: 13px;
-      color: #555;
-      background: #e0e0e0;
-      border-bottom: 1px solid #ccc;
+      padding: 6px 24px;
+      font-size: 12.5px;
+      color: #666;
+      background: transparent;
       flex-shrink: 0;
     }
 
-    /* ── Toolbar (medium grey) ── */
+    /* ── Toolbar ── */
     .toolbar {
       background: #130520;
       padding: 7px 14px;
@@ -234,6 +239,8 @@
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
+      margin: 4px 16px 0;
+      border-radius: 10px 10px 0 0;
     }
     .actions-split { display: flex; align-items: stretch; position: relative; }
     .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
@@ -333,16 +340,18 @@
     .btn-columns:hover { background: rgba(255,255,255,.22); color: #fff; }
 
     /* ── Filter pills ── */
-    .filter-tabs { display:flex; gap:4px; padding:8px 16px; background:#fff; border-bottom:1px solid #ddd; flex-wrap:wrap; flex-shrink:0; }
-    .ftab { padding:5px 16px; border:1px solid #bbb; background:#fff; font-size:13px; font-family:inherit; cursor:pointer; border-radius:20px; color:#555; transition:background .15s; }
-    .ftab:hover { background:#f0f0f0; }
-    .ftab.active { background:#130520; color:#fff; border-color:#130520; font-weight:700; }
+    .filter-tabs { display:flex; gap:4px; padding:8px 14px; background:#1a0a30; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap; flex-shrink:0; margin: 0 16px; }
+    .ftab { padding:5px 16px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); font-size:13px; font-family:inherit; cursor:pointer; border-radius:20px; color:rgba(255,255,255,.6); transition:background .15s; }
+    .ftab:hover { background:rgba(255,255,255,.12); color:#fff; }
+    .ftab.active { background:#e07820; color:#fff; border-color:#e07820; font-weight:700; }
 
     /* ── Table ── */
     .table-container {
       flex: 1;
       overflow-y: auto;
       background: #fff;
+      margin: 0 16px 16px;
+      border-radius: 0 0 10px 10px;
     }
     table {
       width: 100%;
