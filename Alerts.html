@@ -83,7 +83,7 @@
   <code>CREATE TABLE IF NOT EXISTS alert_toggles (id uuid DEFAULT uuid_generate_v4() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, alert_type text NOT NULL, sms_enabled boolean DEFAULT false, email_enabled boolean DEFAULT false, UNIQUE(user_id, alert_type)); ALTER TABLE alert_toggles ENABLE ROW LEVEL SECURITY; CREATE POLICY "own" ON alert_toggles FOR ALL USING (auth.uid() = user_id);</code>
 </div>
 
-<div class="section-label">Client Alerts</div>
+<div class="section-label">Client Service Alerts</div>
 
 <div class="link-item">
   <div class="link-icon" onclick="navigate('scheduledalert')">&#128197;</div>
