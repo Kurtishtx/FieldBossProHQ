@@ -14,11 +14,11 @@
     }
     .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
     .btn-add {
-      background: #e07820; color: #fff; border: none;
+      background: #130520; color: #fff; border: 3px solid #e07820;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
-      border-radius: 4px; cursor: pointer; white-space: nowrap;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
     }
-    .btn-add:hover { background: #c96a10; }
+    .btn-add:hover { background: #1e0a35; }
 
     .toolbar {
       background: #130520; display: flex; align-items: center;
@@ -68,16 +68,18 @@
     .view-tab.active { background: #fff; color: #222; border-color: #fff; }
     .view-tab:hover:not(.active) { background: #666; }
 
+    .table-wrap { background: #fff; margin: 0 16px; }
     table { width: 100%; border-collapse: collapse; }
     thead th {
-      padding: 10px 14px; text-align: left; font-size: 12.5px;
-      font-weight: 600; color: #555; border-bottom: 1px solid #ddd;
+      padding: 10px 14px; text-align: left; font-size: 12px;
+      font-weight: 700; color: #fff; border-bottom: 2px solid #7a7098;
+      background: #8e83aa; text-transform: uppercase; letter-spacing: .4px;
     }
     thead th:first-child { width: 40px; text-align: center; }
     thead th.col-auto { width: 130px; text-align: center; }
     thead th.col-mod  { width: 120px; }
-    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
-    tbody tr:hover { background: #f9f9f9; }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; background: #fff; }
+    tbody tr:hover { background: #f5f3fa; }
     tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
     tbody td:first-child { text-align: center; }
     tbody td.col-auto { text-align: center; }
@@ -122,35 +124,38 @@
 
 <!-- Tags table -->
 <div id="tags-view">
-  <table>
-    <thead>
-      <tr>
-        <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
-        <th>Tag</th>
-        <th class="col-mod">Modified</th>
-      </tr>
-    </thead>
-    <tbody id="tags-tbody"></tbody>
-  </table>
-  <div class="empty-msg" id="tags-empty" style="display:none;">No tags found. Click "Add Tag" to create one.</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
+          <th>Tag</th>
+          <th class="col-mod">Modified</th>
+        </tr>
+      </thead>
+      <tbody id="tags-tbody"></tbody>
+    </table>
+    <div class="empty-msg" id="tags-empty" style="display:none;">No tags found. Click "Add Tag" to create one.</div>
+  </div>
 </div>
-<div style="height:28px;background:#130520;"></div>
 
 <!-- Tag Categories table -->
 <div id="cats-view" style="display:none">
-  <table>
-    <thead>
-      <tr>
-        <th><input type="checkbox" id="chk-all-cat" onchange="toggleAllCats(this.checked)"/></th>
-        <th>Category Name</th>
-        <th class="col-mod">Modified</th>
-      </tr>
-    </thead>
-    <tbody id="cats-tbody"></tbody>
-  </table>
-  <div class="empty-msg" id="cats-empty" style="display:none;">No tag categories found. Click "Add Tag Category" to create one.</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="chk-all-cat" onchange="toggleAllCats(this.checked)"/></th>
+          <th>Category Name</th>
+          <th class="col-mod">Modified</th>
+        </tr>
+      </thead>
+      <tbody id="cats-tbody"></tbody>
+    </table>
+    <div class="empty-msg" id="cats-empty" style="display:none;">No tag categories found. Click "Add Tag Category" to create one.</div>
+  </div>
 </div>
-<div style="height:28px;background:#130520;"></div>
+<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
