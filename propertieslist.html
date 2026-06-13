@@ -651,34 +651,43 @@
     rule.querySelector('.filter-val-wrap').innerHTML = getValueHtml(field);
   }
 
-  async function applyFilters() {
+  function applyFilters() {
     var rules = [];
     document.querySelectorAll('.filter-rule').forEach(function(rule) {
-      var field = rule.querySelector('.filter-field').value;
-      var op    = rule.querySelector('.filter-op').value;
-      var valEl = rule.querySelector('.filter-val');
-      var val   = valEl ? valEl.value.trim() : '';
-      if (val !== '') rules.push({ field, op, val });
+      var fieldEl = rule.querySelector('.filter-field');
+      var opEl    = rule.querySelector('.filter-op');
+      var valEl   = rule.querySelector('.filter-val');
+      if (!fieldEl || !opEl || !valEl) return;
+      var field = fieldEl.value;
+      var op    = opEl.value;
+      var val   = valEl.value.trim();
+      if (field && val !== '') rules.push({ field: field, op: op, val: val });
     });
     activeFilters = rules;
 
     var tagRules = rules.filter(function(r) { return r.field === 'tags'; });
     if (tagRules.length) {
-      var uid = await getUid();
-      var { data: clients } = await sb.from('Clients').select('id, client_tags').eq('user_id', uid);
-      tagFilteredPropertyIds = (clients || []).filter(function(c) {
-        var ct = Array.isArray(c.client_tags) ? c.client_tags : [];
-        return tagRules.every(function(tf) {
-          var has = ct.some(function(t) {
-            return (typeof t === 'string' ? t : (t.name || '')).toLowerCase() === tf.val.toLowerCase();
-          });
-          return tf.op === 'notcontains' ? !has : has;
+      tagFilteredPropertyIds = null;
+      getUid().then(function(uid) {
+        if (!uid) { renderTable(); return; }
+        sb.from('Clients').select('id, client_tags').eq('user_id', uid).then(function(res) {
+          var clients = res.data || [];
+          tagFilteredPropertyIds = clients.filter(function(c) {
+            var ct = Array.isArray(c.client_tags) ? c.client_tags : [];
+            return tagRules.every(function(tf) {
+              var has = ct.some(function(t) {
+                return (typeof t === 'string' ? t : (t.name || '')).toLowerCase() === tf.val.toLowerCase();
+              });
+              return tf.op === 'notcontains' ? !has : has;
+            });
+          }).map(function(c) { return c.id; });
+          renderTable();
         });
-      }).map(function(c) { return c.id; });
+      });
     } else {
       tagFilteredPropertyIds = null;
+      renderTable();
     }
-    renderTable();
   }
 
   function clearFilters() {
