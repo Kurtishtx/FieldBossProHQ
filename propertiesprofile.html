@@ -810,6 +810,7 @@
     <button class="page-tab" onclick="showPropTab('estimates',this)">Estimates</button>
     <button class="page-tab" onclick="showPropTab('activity',this)">Activity</button>
     <button class="page-tab" onclick="showPropTab('details',this)">Details</button>
+    <button class="page-tab" onclick="showPropTab('officenotes',this)">Office Notes</button>
     <button class="page-tab" onclick="showPropTab('attachments',this)">Attachments</button>
   </div>
 </div>
@@ -925,6 +926,17 @@
           <div class="details-cell"><span class="dl">Pest Control Linear Ft</span><input type="text" class="dv-text at-inp" data-at-key="pest_control_linear_ft" placeholder="—"/></div>
         </div>
         <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Office Notes -->
+  <div class="tab-panel" id="tab-officenotes">
+    <div class="sec" style="margin:14px 16px;">
+      <div class="sec-hdr"><span>Office Notes</span></div>
+      <div style="padding:14px 16px;">
+        <p id="office-notes-text2" style="margin:0; font-size:14px; color:#e0e4f0; white-space:pre-wrap; line-height:1.7;"></p>
+        <p id="office-notes-empty" style="margin:0; font-size:13px; color:rgba(255,255,255,.4); font-style:italic;">No office notes on this property.</p>
       </div>
     </div>
   </div>
@@ -1083,11 +1095,17 @@ function showPropTab(name, btn) {
     // Office Notes
     var notesSec  = document.getElementById('office-notes-sec');
     var notesText = document.getElementById('office-notes-text');
+    var notesText2 = document.getElementById('office-notes-text2');
+    var notesEmpty = document.getElementById('office-notes-empty');
     if (prop.notes && prop.notes.trim()) {
       notesText.textContent = prop.notes.trim();
       notesSec.style.display = '';
+      if (notesText2) notesText2.textContent = prop.notes.trim();
+      if (notesEmpty) notesEmpty.style.display = 'none';
     } else {
       notesSec.style.display = 'none';
+      if (notesText2) notesText2.textContent = '';
+      if (notesEmpty) notesEmpty.style.display = '';
     }
     loadDetailsGrid();
     loadAreaTreated();
