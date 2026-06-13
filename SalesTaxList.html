@@ -1,10 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-  <meta http-equiv="Pragma" content="no-cache"/>
   <title>Sales Tax</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,7 +12,6 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 16px 20px 10px;
     }
-    .page-topbar-left h1 { font-size: 20px; font-weight: 700; color: #fff; }
     .page-topbar-left .item-count { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 3px; }
     .btn-add {
       background: #130520 !important; color: #fff !important; border: 3px solid #e07820 !important;
@@ -86,7 +83,6 @@
 
 <div class="page-topbar">
   <div class="page-topbar-left">
-    <span class="showing-count" id="results-count"></span>
     <div class="item-count" id="item-count">0 items</div>
   </div>
   <button class="btn-add" onclick="navigate('salestaxadd')">Add Sales Tax</button>
@@ -231,4 +227,3 @@
 </script>
 </body>
 </html>
-
