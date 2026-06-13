@@ -187,40 +187,89 @@
     .filters-row {
       background: #1a0a30;
       border-bottom: 1px solid rgba(255,255,255,.06);
-      padding: 8px 16px;
+      padding: 10px 16px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 8px;
       flex-shrink: 0;
       margin: 2px 16px;
       border-radius: 8px;
     }
+    .filter-rule {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-field, .filter-op {
+      background: #2a1040;
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      height: 34px;
+      cursor: pointer;
+    }
+    .filter-field { min-width: 160px; }
+    .filter-op    { min-width: 170px; }
+    .filter-val-wrap { flex: 1; }
+    .filter-val-wrap input, .filter-val-wrap select {
+      width: 100%;
+      background: #2a1040;
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      height: 34px;
+    }
+    .filter-val-wrap input::placeholder { color: rgba(255,255,255,.4); }
+    .filter-remove-btn {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.5);
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 17px;
+      line-height: 1;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .filter-remove-btn:hover { background: rgba(200,0,0,.3); color: #ff8888; border-color: rgba(200,0,0,.4); }
+    .filter-actions-row { display: flex; gap: 8px; }
     .btn-filter-action {
       background: rgba(255,255,255,.1);
       border: 1px solid rgba(255,255,255,.18);
       border-radius: 5px;
-      padding: 5px 14px;
+      padding: 5px 16px;
       font-size: 13px;
       font-family: inherit;
       cursor: pointer;
       color: rgba(255,255,255,.8);
-      font-weight: 500;
+      font-weight: 600;
       transition: background .15s;
     }
     .btn-filter-action:hover { background: rgba(255,255,255,.18); }
     .btn-clear-filters {
       margin-left: auto;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: 5px;
       padding: 5px 14px;
       font-size: 13px;
       font-family: inherit;
       cursor: pointer;
-      color: rgba(255,255,255,.6);
+      color: rgba(255,255,255,.5);
       transition: background .15s;
     }
-    .btn-clear-filters:hover { background: rgba(255,255,255,.15); }
+    .btn-clear-filters:hover { background: rgba(255,255,255,.13); color: rgba(255,255,255,.8); }
 
     /* ── Results bar ── */
     .results-bar {
@@ -434,9 +483,12 @@
   <span id="filters-arrow">&#9660;</span>
 </div>
 <div class="filters-row" id="filters-row" style="display:none">
-  <button class="btn-filter-action">Search</button>
-  <button class="btn-filter-action">Add Filter</button>
-  <button class="btn-clear-filters">Clear Filters</button>
+  <div id="filter-rules"></div>
+  <div class="filter-actions-row">
+    <button class="btn-filter-action" onclick="applyFilters()">Search</button>
+    <button class="btn-filter-action" onclick="addFilterRule()">+ Add Filter</button>
+    <button class="btn-clear-filters" onclick="clearFilters()">Clear Filters</button>
+  </div>
 </div>
 
 <!-- Results count -->
@@ -538,6 +590,113 @@
     filtersOpen = !filtersOpen;
     document.getElementById('filters-row').style.display = filtersOpen ? '' : 'none';
     document.getElementById('filters-arrow').innerHTML = filtersOpen ? '&#9650;' : '&#9660;';
+    if (filtersOpen && !document.querySelectorAll('.filter-rule').length) addFilterRule();
+  }
+
+  /* ── Filter engine ── */
+  var availableTags = [];
+  var activeFilters = [];
+  var tagFilteredPropertyIds = null;
+
+  var FILTER_FIELDS = [
+    { v:'client_name', l:'Client Name' },
+    { v:'address',     l:'Address'     },
+    { v:'city',        l:'City'        },
+    { v:'state',       l:'State'       },
+    { v:'active',      l:'Active'      },
+    { v:'tags',        l:'Tags'        },
+  ];
+
+  function getOperatorOptions(field, selectedOp) {
+    var ops = field === 'active'
+      ? [{ v:'eq', l:'= Equal To' }, { v:'neq', l:'!= Not Equal To' }]
+      : field === 'tags'
+        ? [{ v:'contains', l:'Contains' }, { v:'notcontains', l:'Does Not Contain' }]
+        : [{ v:'contains', l:'Contains' }, { v:'eq', l:'= Equal To' }, { v:'neq', l:'!= Not Equal To' }, { v:'notcontains', l:'Does Not Contain' }];
+    return ops.map(function(o) {
+      return '<option value="' + o.v + '"' + (o.v === selectedOp ? ' selected' : '') + '>' + o.l + '</option>';
+    }).join('');
+  }
+
+  function getValueHtml(field) {
+    if (field === 'active') {
+      return '<select class="filter-val"><option value="true">Yes</option><option value="false">No</option></select>';
+    }
+    if (field === 'tags') {
+      var opts = availableTags.length
+        ? availableTags.map(function(t) { return '<option value="' + t.name.replace(/"/g,'&quot;') + '">' + t.name + '</option>'; }).join('')
+        : '<option value="">No tags yet</option>';
+      return '<select class="filter-val">' + opts + '</select>';
+    }
+    return '<input type="text" class="filter-val" placeholder="Enter value..."/>';
+  }
+
+  function addFilterRule() {
+    var div = document.createElement('div');
+    div.className = 'filter-rule';
+    var fieldOpts = FILTER_FIELDS.map(function(f) {
+      return '<option value="' + f.v + '">' + f.l + '</option>';
+    }).join('');
+    div.innerHTML =
+      '<select class="filter-field" onchange="onFieldChange(this)">' + fieldOpts + '</select>' +
+      '<select class="filter-op">' + getOperatorOptions('client_name', 'contains') + '</select>' +
+      '<div class="filter-val-wrap">' + getValueHtml('client_name') + '</div>' +
+      '<button class="filter-remove-btn" onclick="this.closest(\'.filter-rule\').remove()">&#215;</button>';
+    document.getElementById('filter-rules').appendChild(div);
+  }
+
+  function onFieldChange(sel) {
+    var rule = sel.closest('.filter-rule');
+    var field = sel.value;
+    rule.querySelector('.filter-op').innerHTML = getOperatorOptions(field, 'contains');
+    rule.querySelector('.filter-val-wrap').innerHTML = getValueHtml(field);
+  }
+
+  async function applyFilters() {
+    var rules = [];
+    document.querySelectorAll('.filter-rule').forEach(function(rule) {
+      var field = rule.querySelector('.filter-field').value;
+      var op    = rule.querySelector('.filter-op').value;
+      var valEl = rule.querySelector('.filter-val');
+      var val   = valEl ? valEl.value.trim() : '';
+      if (val !== '') rules.push({ field, op, val });
+    });
+    activeFilters = rules;
+
+    var tagRules = rules.filter(function(r) { return r.field === 'tags'; });
+    if (tagRules.length) {
+      var { data: sess } = await sb.auth.getSession();
+      var uid = sess?.session?.user?.id;
+      var { data: clients } = await sb.from('Clients').select('id, client_tags').eq('user_id', uid);
+      tagFilteredPropertyIds = (clients || []).filter(function(c) {
+        var ct = Array.isArray(c.client_tags) ? c.client_tags : [];
+        return tagRules.every(function(tf) {
+          var has = ct.some(function(t) {
+            return (typeof t === 'string' ? t : (t.name || '')).toLowerCase() === tf.val.toLowerCase();
+          });
+          return tf.op === 'notcontains' ? !has : has;
+        });
+      }).map(function(c) { return c.id; });
+    } else {
+      tagFilteredPropertyIds = null;
+    }
+    renderTable();
+  }
+
+  function clearFilters() {
+    activeFilters = [];
+    tagFilteredPropertyIds = null;
+    document.getElementById('filter-rules').innerHTML = '';
+    addFilterRule();
+    renderTable();
+  }
+
+  async function loadTags() {
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    if (!uid) return;
+    var { data } = await sb.from('tags').select('id, name').eq('user_id', uid).eq('active', true).order('name');
+    availableTags = data || [];
   }
 
   /* ── Actions dropdown ── */
@@ -591,14 +750,34 @@
     var tbody = document.getElementById('property-tbody');
     var emptyMsg = document.getElementById('empty-msg');
     tbody.innerHTML = '';
+
+    var nonTagFilters = activeFilters.filter(function(f) { return f.field !== 'tags'; });
+    var filtered = properties.filter(function(p) {
+      if (tagFilteredPropertyIds !== null) {
+        var cid = p.customer_id || p.client_id;
+        if (!tagFilteredPropertyIds.includes(cid)) return false;
+      }
+      return nonTagFilters.every(function(f) {
+        var raw = p[f.field];
+        var fv = (raw === null || raw === undefined ? '' : String(raw)).toLowerCase();
+        var tv = f.val.toLowerCase();
+        if (f.op === 'eq')         return fv === tv;
+        if (f.op === 'neq')        return fv !== tv;
+        if (f.op === 'contains')   return fv.includes(tv);
+        if (f.op === 'notcontains') return !fv.includes(tv);
+        return true;
+      });
+    });
+
     document.getElementById('results-bar').textContent =
-      Math.min(currentPage * PAGE_SIZE, totalCount) + ' / ' + totalCount + ' properties';
-    if (properties.length === 0) {
+      filtered.length + ' / ' + totalCount + ' properties';
+
+    if (filtered.length === 0) {
       emptyMsg.style.display = '';
       return;
     }
     emptyMsg.style.display = 'none';
-    properties.forEach(function(p) {
+    filtered.forEach(function(p) {
       var tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
       tr.dataset.id = p.id;
@@ -668,6 +847,7 @@
   }
 
   loadProperties();
+  loadTags();
 
   function openPropertyModal(id) {
     var src = 'PropertiesAdd.html' + (id ? '?id=' + id : '');
