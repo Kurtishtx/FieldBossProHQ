@@ -28,7 +28,7 @@
     .status-msg { font-size: 12.5px; margin-top: 10px; min-height: 18px; }
     .status-msg.ok  { color: #28a745; }
     .status-msg.err { color: #d9534f; }
-    .days-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 14px 16px; background: #f7f4ff; border: 1px solid #e0d8f0; border-radius: 8px; }
+    .days-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; margin-top: 4px; }
     .days-input { width: 72px; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; font-size: 16px; font-family: inherit; font-weight: 700; outline: none; text-align: center; color: #130520; }
     .days-input:focus { border-color: #2272c3; }
   </style>
@@ -40,12 +40,6 @@
   <p>Automatic follow-up text sent to clients if their estimate is still open.</p>
 </div>
 <div class="content">
-
-  <div class="days-row">
-    <span style="font-size:13px; font-weight:600; color:#555; white-space:nowrap;">Send</span>
-    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="—"/>
-    <span style="font-size:13px; color:#222;">days after the estimate is sent &nbsp;(1–90). Leave blank to disable.</span>
-  </div>
 
   <div class="var-row">
     <label>Insert Variable</label>
@@ -74,6 +68,12 @@
   </div>
   <textarea class="msg-area" id="msg-area" maxlength="240" oninput="updateCount()"></textarea>
   <div class="char-count" id="char-count">0 / 240</div>
+
+  <div class="days-row">
+    <span style="font-size:13px; font-weight:600; color:#555; white-space:nowrap;">Days After Sent</span>
+    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="—"/>
+    <span style="font-size:13px; color:#222;">days after estimate sent (1–90). Leave blank to disable.</span>
+  </div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
