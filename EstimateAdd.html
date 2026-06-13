@@ -534,7 +534,7 @@
       fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-        body: JSON.stringify({ alert_type: 'estimate_sent', estimate_id: estimateId, user_id: uid, alert_message: alertRow.message })
+        body: JSON.stringify({ alert_type: 'estimate_sent', estimate_id: estimateId, user_id: uid, alert_message: alertRow.message, tz_offset: new Date().getTimezoneOffset() })
       }).catch(function(e) { console.error('Estimate SMS alert error:', e); });
     } catch(e) { console.error('Estimate SMS alert error:', e); }
   }

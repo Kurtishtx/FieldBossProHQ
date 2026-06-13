@@ -119,6 +119,47 @@
   <textarea class="msg-area" id="msg-area" maxlength="240" oninput="updateCount()"></textarea>
   <div class="char-count" id="char-count">0 / 240</div>
 
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px; margin-top:4px;">
+    <label style="font-size:13px; font-weight:600; color:#555; white-space:nowrap;">Send Time</label>
+    <select id="send-time-select" class="var-select" style="max-width:220px;">
+      <option value="">Send immediately</option>
+      <option value="06:00">6:00 AM</option>
+      <option value="06:30">6:30 AM</option>
+      <option value="07:00">7:00 AM</option>
+      <option value="07:30">7:30 AM</option>
+      <option value="08:00">8:00 AM</option>
+      <option value="08:30">8:30 AM</option>
+      <option value="09:00">9:00 AM</option>
+      <option value="09:30">9:30 AM</option>
+      <option value="10:00">10:00 AM</option>
+      <option value="10:30">10:30 AM</option>
+      <option value="11:00">11:00 AM</option>
+      <option value="11:30">11:30 AM</option>
+      <option value="12:00">12:00 PM</option>
+      <option value="12:30">12:30 PM</option>
+      <option value="13:00">1:00 PM</option>
+      <option value="13:30">1:30 PM</option>
+      <option value="14:00">2:00 PM</option>
+      <option value="14:30">2:30 PM</option>
+      <option value="15:00">3:00 PM</option>
+      <option value="15:30">3:30 PM</option>
+      <option value="16:00">4:00 PM</option>
+      <option value="16:30">4:30 PM</option>
+      <option value="17:00">5:00 PM</option>
+      <option value="17:30">5:30 PM</option>
+      <option value="18:00">6:00 PM</option>
+      <option value="18:30">6:30 PM</option>
+      <option value="19:00">7:00 PM</option>
+      <option value="19:30">7:30 PM</option>
+      <option value="20:00">8:00 PM</option>
+      <option value="20:30">8:30 PM</option>
+      <option value="21:00">9:00 PM</option>
+      <option value="21:30">9:30 PM</option>
+      <option value="22:00">10:00 PM</option>
+    </select>
+    <span style="font-size:12px; color:#999;">If set, alerts triggered before this time are held and sent at this time.</span>
+  </div>
+
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
   <div class="status-msg" id="status-msg"></div>
 
@@ -137,13 +178,14 @@
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) return;
     var { data } = await sb.from('alert_settings')
-      .select('message')
+      .select('message, send_time')
       .eq('user_id', uid)
       .eq('alert_type', ALERT_TYPE)
       .single();
     var ta = document.getElementById('msg-area');
     if (data) {
       ta.value = data.message || DEFAULT_MSG;
+      if (data.send_time) document.getElementById('send-time-select').value = data.send_time;
     } else {
       ta.value = DEFAULT_MSG;
     }
@@ -188,8 +230,9 @@
       statusEl.textContent = 'Not logged in.'; statusEl.className = 'status-msg err'; return;
     }
 
+    var sendTime = document.getElementById('send-time-select').value;
     var { data: saved, error } = await sb.from('alert_settings').upsert(
-      { user_id: uid, alert_type: ALERT_TYPE, message: document.getElementById('msg-area').value, updated_at: new Date().toISOString() },
+      { user_id: uid, alert_type: ALERT_TYPE, message: document.getElementById('msg-area').value, send_time: sendTime || null, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,alert_type' }
     ).select();
 

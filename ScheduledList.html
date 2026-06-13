@@ -280,7 +280,7 @@
     </div>
   </div>
   <div class="drp-wrap" id="drp-wrap">
-    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading…</div>
+    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loadingï¿½</div>
     <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <div class="drp-quick-row" style="margin-top:0; flex-wrap:wrap;">
@@ -459,7 +459,7 @@
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
       <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign To</label>
       <select id="sched-assign" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
-        <option value="">— assign later —</option>
+        <option value="">ï¿½ assign later ï¿½</option>
       </select>
     </div>
     <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
@@ -601,7 +601,7 @@
     <button class="sv-modal-close" onclick="closeSaveViewModal()">&#10005;</button>
     <div class="sv-modal-title">Screen View</div>
     <div class="sv-modal-label">Enter View name.</div>
-    <input type="text" id="sv-name-input" placeholder="View name…" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
+    <input type="text" id="sv-name-input" placeholder="View nameï¿½" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
     <div class="sv-modal-footer">
       <button class="sv-modal-save" onclick="confirmSaveView()">Save</button>
       <button class="sv-modal-cancel" onclick="closeSaveViewModal()">or Cancel</button>
@@ -624,7 +624,7 @@
     var ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12; if (!h) h = 12;
     var time = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' ' + ampm;
-    document.getElementById('page-clock').textContent = time + ' • ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('page-clock').textContent = time + ' ï¿½ ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -694,7 +694,7 @@
     if (direct !== null && direct !== undefined) {
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
       if (hasArea) return direct;
-      /* empty or all-false — fall through to catalog lookup */
+      /* empty or all-false ï¿½ fall through to catalog lookup */
     }
     var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
@@ -849,7 +849,7 @@
   }
 
   async function loadServices() {
-    document.getElementById('jobs-total').textContent = 'Loading…';
+    document.getElementById('jobs-total').textContent = 'Loadingï¿½';
     var { data, error } = await sb.from('Services')
       .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, package_service_id, skip_reason, Properties(lat, lng), trucks(name)')
       .not('property_id', 'is', null)
@@ -1218,7 +1218,7 @@
     var opts = { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' };
     var s = drpStart.toLocaleDateString('en-US', opts);
     el.textContent = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
-      ? s + ' – ' + drpEnd.toLocaleDateString('en-US', opts) : s;
+      ? s + ' ï¿½ ' + drpEnd.toLocaleDateString('en-US', opts) : s;
   }
 
   function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
@@ -1717,7 +1717,7 @@
 
   async function loadSchedAssign() {
     var sel = document.getElementById('sched-assign');
-    sel.innerHTML = '<option value="">— assign later —</option>';
+    sel.innerHTML = '<option value="">ï¿½ assign later ï¿½</option>';
     var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
     (data || []).forEach(function(e) {
       var opt = document.createElement('option');
@@ -1979,14 +1979,14 @@
     try {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (!uid) { console.error('[sendAlert] No session — alert not sent'); return; }
+      if (!uid) { console.error('[sendAlert] No session ï¿½ alert not sent'); return; }
       var { data: toggleRow } = await sb.from('alert_toggles')
         .select('sms_enabled')
         .eq('user_id', uid)
         .eq('alert_type', alertType)
         .single();
       if (!toggleRow || !toggleRow.sms_enabled) {
-        console.log('[sendAlert] Alert toggled off for', alertType, '— skipping');
+        console.log('[sendAlert] Alert toggled off for', alertType, 'ï¿½ skipping');
         return;
       }
       var { data: alertRow } = await sb.from('alert_settings')
@@ -1995,13 +1995,13 @@
         .eq('alert_type', alertType)
         .single();
       if (!alertRow || !alertRow.message) {
-        console.log('[sendAlert] Alert not configured for', alertType, '— skipping');
+        console.log('[sendAlert] Alert not configured for', alertType, 'ï¿½ skipping');
         return;
       }
       var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid, alert_message: alertRow.message })
+        body: JSON.stringify({ alert_type: alertType, service_ids: serviceIds, user_id: uid, alert_message: alertRow.message, tz_offset: new Date().getTimezoneOffset() })
       });
       var json = await res.json();
       console.log('[sendAlert] response for', alertType, ':', JSON.stringify(json));
@@ -2091,7 +2091,7 @@
       if (cb) cb.checked = true;
       document.getElementById('status-ms-btn').textContent = '1 selected';
     }
-    document.getElementById('active-filter-label').textContent = id !== 'none' ? '• ' + id : '';
+    document.getElementById('active-filter-label').textContent = id !== 'none' ? 'ï¿½ ' + id : '';
     document.getElementById('saved-filters-panel').classList.remove('show');
     renderTable();
   }
@@ -2167,7 +2167,7 @@
       cb.checked = activeTruckFilter.indexOf(cb.value) >= 0;
     });
     document.getElementById('truck-ms-btn').textContent = activeTruckFilter.length ? activeTruckFilter.length + ' selected' : '-- Select --';
-    document.getElementById('active-filter-label').textContent = '• ' + v.name;
+    document.getElementById('active-filter-label').textContent = 'ï¿½ ' + v.name;
     document.getElementById('saved-filters-panel').classList.remove('show');
     buildTableHeader();
     renderTable();
@@ -2323,7 +2323,7 @@
 
     sendAlert('completed', ids);
     loadServices();
-    showToast('Marked complete — invoices generated', 'success');
+    showToast('Marked complete ï¿½ invoices generated', 'success');
   }
 
   initDRP();
@@ -2467,7 +2467,7 @@
       container.innerHTML = chemMixProducts.map(function(mp) {
         var prod = prodMap[mp.product_id] || {};
         var label = prod.name || 'Unknown Product';
-        var epa   = prod.epa_reg || '—';
+        var epa   = prod.epa_reg || 'ï¿½';
         var rate  = (mp.amount || 0) + ' ' + (mp.uom || '') + ' per ' + (mp.per || '') + ' ' + (mp.per_uom || '');
         return '<div style="padding:5px 0;border-bottom:1px solid #eee;font-size:12.5px;">' +
           '<strong>' + label + '</strong>' +
@@ -2659,14 +2659,14 @@
       tr.innerHTML =
         '<td style="padding:5px 8px;">' + (sapGetVal(row,['ClientName']) || sapGetVal(row,['ClientFirstName']) + ' ' + sapGetVal(row,['ClientLastName'])) + '</td>' +
         '<td style="padding:5px 8px;">' + sapGetVal(row,['Service','NewService']) + '</td>' +
-        '<td style="padding:5px 8px;">' + (dt ? dt.toLocaleDateString() : '—') + '</td>' +
+        '<td style="padding:5px 8px;">' + (dt ? dt.toLocaleDateString() : 'ï¿½') + '</td>' +
         '<td style="padding:5px 8px;font-size:11px;color:#666;">' + sapGetVal(row,['ServiceAddressLine1','ClientAddressLine1']) + '</td>' +
         '<td style="padding:5px 8px;text-align:right;">$' + (parseFloat(sapGetVal(row,['Amount','Rate']))||0).toFixed(2) + '</td>';
       tbody.appendChild(tr);
     });
     if (sapFutureRows.length > 8) {
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td colspan="5" style="padding:6px 8px;text-align:center;color:#aaa;font-size:12px;font-style:italic;">… and ' + (sapFutureRows.length - 8) + ' more</td>';
+      tr.innerHTML = '<td colspan="5" style="padding:6px 8px;text-align:center;color:#aaa;font-size:12px;font-style:italic;">ï¿½ and ' + (sapFutureRows.length - 8) + ' more</td>';
       tbody.appendChild(tr);
     }
 
@@ -2683,7 +2683,7 @@
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     if (!uid) { alert('Not logged in.'); btn.disabled = false; return; }
 
-    document.getElementById('sap-import-progress').textContent = 'Loading client records…';
+    document.getElementById('sap-import-progress').textContent = 'Loading client recordsï¿½';
     var clientMap = {}, propMap = {};
     var { data: clients } = await sb.from('Clients').select('id, first_name, last_name').eq('user_id', uid);
     (clients || []).forEach(function(c) {
@@ -2732,7 +2732,7 @@
       else success += ins.length;
       done += batch.length;
       document.getElementById('sap-prog-bar').style.width = Math.round(done/total*100) + '%';
-      document.getElementById('sap-import-progress').textContent = 'Importing… ' + done + ' of ' + total;
+      document.getElementById('sap-import-progress').textContent = 'Importingï¿½ ' + done + ' of ' + total;
     }
 
     document.getElementById('sap-import-progress').textContent = '';
@@ -2768,7 +2768,7 @@
   <!-- Mobile record banner -->
   <div id="chem-mobile-banner" style="display:none; align-items:center; gap:10px; background:#fff8e1; border-bottom:2px solid #f0a500; padding:10px 16px; font-size:13px; color:#7a5000;">
     <span style="font-size:16px;">&#9888;</span>
-    <span><strong>Partial record from mobile.</strong> Area, weather &amp; times are pre-filled — complete the chemical/mix details below before saving.</span>
+    <span><strong>Partial record from mobile.</strong> Area, weather &amp; times are pre-filled ï¿½ complete the chemical/mix details below before saving.</span>
   </div>
 
   <div style="padding:0 0 16px;">
@@ -2849,7 +2849,7 @@
     <div style="padding:10px 16px; display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px;">
       <div><div style="font-size:11px;color:#555;font-weight:700;margin-bottom:3px;">Wind Speed (mph)</div><input type="text" id="chem-wind-speed" placeholder="e.g. 5" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:4px 7px;font-size:13px;font-family:inherit;"/></div>
       <div><div style="font-size:11px;color:#555;font-weight:700;margin-bottom:3px;">Wind Direction</div><input type="text" id="chem-wind-dir" placeholder="e.g. NW" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:4px 7px;font-size:13px;font-family:inherit;"/></div>
-      <div><div style="font-size:11px;color:#555;font-weight:700;margin-bottom:3px;">Temperature (°F)</div><input type="text" id="chem-temp" placeholder="e.g. 82" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:4px 7px;font-size:13px;font-family:inherit;"/></div>
+      <div><div style="font-size:11px;color:#555;font-weight:700;margin-bottom:3px;">Temperature (ï¿½F)</div><input type="text" id="chem-temp" placeholder="e.g. 82" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:4px 7px;font-size:13px;font-family:inherit;"/></div>
       <div><div style="font-size:11px;color:#555;font-weight:700;margin-bottom:3px;">Conditions</div><input type="text" id="chem-weather-notes" placeholder="e.g. Partly cloudy" style="width:100%;border:1px solid #bbb;border-radius:3px;padding:4px 7px;font-size:13px;font-family:inherit;"/></div>
     </div>
 

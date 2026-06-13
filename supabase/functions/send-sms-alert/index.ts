@@ -241,7 +241,7 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    const { alert_type, service_ids, user_id, alert_message, estimate_id, skip_note } = await req.json();
+    const { alert_type, service_ids, user_id, alert_message, estimate_id, skip_note, force_send, tz_offset } = await req.json();
     if (!alert_type || !user_id || (!service_ids?.length && !estimate_id)) {
       return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: cors });
     }
@@ -274,6 +274,43 @@ serve(async (req: Request) => {
 
     if (!smsEnabled && !emailEnabled) {
       return new Response(JSON.stringify({ skipped: "all channels disabled" }), { headers: cors });
+    }
+
+    // ── Time-gate: queue 'scheduled' alerts if before the configured send_time ─
+    if (alert_type === "scheduled" && !force_send && !estimate_id) {
+      const { data: timeRow } = await supabase
+        .from("alert_settings")
+        .select("send_time")
+        .eq("user_id", ownerUserId)
+        .eq("alert_type", "scheduled")
+        .limit(1);
+      const sendTime: string | null = timeRow?.[0]?.send_time || null;
+
+      if (sendTime) {
+        const tzMins = parseInt(tz_offset ?? "0") || 0; // browser getTimezoneOffset() — positive for west (e.g. 360 = CST)
+        const now = new Date();
+        // Compute today's local date components by subtracting the UTC offset
+        const nowLocalMs = now.getTime() - tzMins * 60000;
+        const nowLocal   = new Date(nowLocalMs);
+        const [h, m]     = sendTime.split(":").map(Number);
+        // "Today at h:m local" expressed as UTC milliseconds
+        const sendAtUtcMs = Date.UTC(nowLocal.getUTCFullYear(), nowLocal.getUTCMonth(), nowLocal.getUTCDate(), h, m || 0, 0) + tzMins * 60000;
+        const sendAtUtc   = new Date(sendAtUtcMs);
+
+        if (now < sendAtUtc) {
+          await supabase.from("pending_sms_alerts").insert({
+            user_id,
+            alert_type,
+            service_ids: service_ids ? JSON.stringify(service_ids) : null,
+            alert_message: alert_message || null,
+            send_at: sendAtUtc.toISOString(),
+          });
+          return new Response(
+            JSON.stringify({ queued: true, send_at: sendAtUtc.toISOString() }),
+            { headers: { ...cors, "Content-Type": "application/json" } }
+          );
+        }
+      }
     }
 
     // ── Message template ──────────────────────────────────────────────────────
