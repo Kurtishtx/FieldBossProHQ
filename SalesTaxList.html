@@ -6,7 +6,7 @@
   <title>Sales Tax</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
 
     .page-topbar {
       display: flex; align-items: center; justify-content: space-between;
@@ -15,11 +15,11 @@
     .page-topbar-left h1 { font-size: 20px; font-weight: 700; color: #111; }
     .page-topbar-left .item-count { font-size: 13px; color: #666; margin-top: 3px; }
     .btn-add {
-      background: #e07820; color: #fff; border: none;
+      background: #130520; color: #fff; border: 3px solid #e07820;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
-      border-radius: 4px; cursor: pointer; white-space: nowrap;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
     }
-    .btn-add:hover { background: #c96a10; }
+    .btn-add:hover { background: #1e0a35; }
 
     .toolbar {
       background: #130520; display: flex; align-items: center;
@@ -61,14 +61,16 @@
     .tab-btn.active { background: #fff; color: #222; }
     .tab-btn:hover:not(.active) { background: #666; }
 
+    .table-wrap { background: #fff; margin: 0 16px; }
     table { width: 100%; border-collapse: collapse; }
     thead th {
-      padding: 10px 14px; text-align: left; font-size: 12.5px;
-      font-weight: 600; color: #555; border-bottom: 1px solid #ddd;
+      padding: 10px 14px; text-align: left; font-size: 12px;
+      font-weight: 700; color: #fff; border-bottom: 2px solid #7a7098;
+      background: #8e83aa; text-transform: uppercase; letter-spacing: .4px;
     }
     thead th:first-child { width: 40px; text-align: center; }
-    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
-    tbody tr:hover { background: #f9f9f9; }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; background: #fff; }
+    tbody tr:hover { background: #f5f3fa; }
     tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
     tbody td:first-child { text-align: center; }
     .name-link { color: #2272c3; text-decoration: underline; font-size: 13px; }
@@ -105,6 +107,7 @@
   </div>
 </div>
 
+<div class="table-wrap">
 <table>
   <thead>
     <tr>
@@ -117,8 +120,9 @@
   </thead>
   <tbody id="tax-tbody"></tbody>
 </table>
-<div style="height:28px;background:#130520;"></div>
 <div class="empty-msg" id="empty-msg" style="display:none;">No sales taxes found.</div>
+</div>
+<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
