@@ -30,7 +30,8 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "voip.ms not configured for this account", user_id_received: user_id, db_error: voipErr?.message }), { status: 400, headers: cors });
     }
 
-    const toClean  = to.replace(/^\+/, "");
+    let toClean = to.replace(/\D/g, "");
+    if (toClean.length === 10) toClean = "1" + toClean;
     const didClean = voip.phone_number.replace(/\D/g, "");
     const url = `https://voip.ms/api/v1/rest.php?api_username=${encodeURIComponent(voip.account_sid)}&api_password=${encodeURIComponent(voip.auth_token)}&method=sendSMS&did=${didClean}&dst=${toClean}&message=${encodeURIComponent(message)}`;
 
@@ -44,7 +45,7 @@ serve(async (req: Request) => {
     await supabase.from("sms_messages").insert({
       user_id,
       client_name: client_name || to,
-      phone_to: to,
+      phone_to: "+" + toClean,
       phone_from: voip.phone_number,
       body: message,
       direction: "outbound",

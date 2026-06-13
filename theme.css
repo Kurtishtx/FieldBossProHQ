@@ -1,0 +1,112 @@
+/* ── SprayBossPro Global Theme ── */
+
+/* Body background */
+body { background: #d4cfe0 !important; }
+
+/* ── Top bar ── */
+.page-topbar {
+  background: #130520 !important;
+  border-bottom: 1px solid #1e0a35 !important;
+  box-shadow: none !important;
+  margin: 8px 16px !important;
+  border-radius: 10px !important;
+}
+
+/* Search inputs on dark topbar */
+.property-search, .lead-search, .client-search,
+.schedule-search, .invoice-search, .estimate-search,
+.topbar-search, .list-search {
+  background: rgba(255,255,255,.1) !important;
+  border: 1px solid rgba(255,255,255,.2) !important;
+  color: #fff !important;
+}
+.property-search::placeholder, .lead-search::placeholder,
+.client-search::placeholder, .schedule-search::placeholder,
+.invoice-search::placeholder, .estimate-search::placeholder,
+.topbar-search::placeholder, .list-search::placeholder {
+  color: rgba(255,255,255,.45) !important;
+}
+.property-search:focus, .lead-search:focus, .client-search:focus,
+.schedule-search:focus, .invoice-search:focus, .estimate-search:focus,
+.topbar-search:focus, .list-search:focus {
+  border-color: #e07820 !important;
+  background: rgba(255,255,255,.15) !important;
+  box-shadow: 0 0 0 3px rgba(224,120,32,.2) !important;
+}
+
+/* Filter icon button */
+.filter-icon-btn {
+  background: rgba(255,255,255,.1) !important;
+  border: 1px solid rgba(255,255,255,.2) !important;
+  color: rgba(255,255,255,.8) !important;
+}
+.filter-icon-btn:hover { background: rgba(255,255,255,.18) !important; }
+
+/* ── Filters bar ── */
+.filters-bar {
+  background: #130520 !important;
+  color: rgba(255,255,255,.8) !important;
+  margin: 0 16px !important;
+  border-radius: 8px !important;
+}
+.filters-bar:hover { background: #1e0a35 !important; }
+
+/* ── Filters row ── */
+.filters-row {
+  background: #1a0a30 !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  margin: 2px 16px !important;
+  border-radius: 8px !important;
+}
+.btn-filter-action {
+  background: rgba(255,255,255,.1) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  color: rgba(255,255,255,.8) !important;
+}
+.btn-filter-action:hover { background: rgba(255,255,255,.18) !important; }
+.btn-clear-filters {
+  background: rgba(255,255,255,.08) !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  color: rgba(255,255,255,.6) !important;
+}
+.btn-clear-filters:hover { background: rgba(255,255,255,.15) !important; color: #fff !important; }
+
+/* ── Results bar ── */
+.results-bar {
+  padding: 6px 24px !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #111 !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  text-align: right !important;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  background: #130520 !important;
+  margin: 4px 16px 0 !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+/* ── Filter tab pills ── */
+.filter-tabs {
+  background: #1a0a30 !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  margin: 0 16px !important;
+}
+.ftab {
+  background: rgba(255,255,255,.06) !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  color: rgba(255,255,255,.6) !important;
+}
+.ftab:hover { background: rgba(255,255,255,.12) !important; color: #fff !important; }
+.ftab.active { background: #e07820 !important; border-color: #e07820 !important; color: #fff !important; }
+
+/* ── Table container ── */
+.table-container {
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+  margin-bottom: 16px !important;
+  border-radius: 0 0 10px 10px !important;
+}
