@@ -663,7 +663,7 @@
       if (field && val !== '') rules.push({ field: field, op: op, val: val });
     });
     activeFilters = rules;
-    renderTable();
+    loadProperties();
   }
 
   function clearFilters() {
