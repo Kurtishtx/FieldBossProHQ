@@ -6,205 +6,130 @@
   <title>Package Plans</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #d4cfe0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+    .page-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 10px;
     }
+    .page-topbar-left .item-count { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 3px; }
+    .btn-add {
+      background: #130520 !important; color: #fff !important; border: 3px solid #e07820 !important;
+      padding: 9px 20px; font-size: 13px; font-weight: 700;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
+    }
+    .btn-add:hover { background: #1e0a35 !important; }
 
-    /* ── Page header ── */
-    .page-header { padding: 10px 20px 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .page-header h1 {
-      font-size: 22px;
-      font-weight: 800;
-      color: #111;
-    }
-    .showing-count { font-size: 14px; font-weight: 400; color: #555; margin-left: 6px; }
-        .btn-orange-filled {
-      background: #e07820;
-      border: 3px solid #111;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 6px;
-      padding: 7px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s, border-color .15s;
-    }
-    .btn-orange-filled:hover { background: #c96a15; border-color: #111; }
-
-    /* ── Toolbar ── */
     .toolbar {
-      background: #130520;
-      padding: 7px 14px;
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-      gap: 6px;
+      background: #130520; display: flex; align-items: center;
+      padding: 7px 14px; gap: 6px;
     }
-    .actions-split { display: flex; align-items: stretch; position: relative; }
-    .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
-    .btn-green-main:hover { background: #d4ae00; }
-    .btn-green-caret { background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15); border-radius: 0 3px 3px 0; padding: 5px 8px; font-size: 12px; cursor: pointer; }
-    .btn-green-caret:hover { background: #d4ae00; }
-    .actions-dropdown {
-      display: none; position: absolute; top: calc(100% + 4px); left: 0;
-      background: #fff; border: 1px solid #ccc; border-radius: 4px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.18); z-index: 200; min-width: 180px; padding: 4px 0;
+    .btn-actions { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none;
+      padding: 5px 14px; font-size: 13px; font-weight: 700;
+      border-radius: 3px 0 0 3px; cursor: pointer;
     }
-    .actions-dropdown.open { display: block; }
-    .dropdown-header { font-size: 13px; font-weight: 700; color: #222; padding: 7px 16px 5px; border-bottom: 1px solid #eee; margin-bottom: 3px; }
-    .dropdown-item { display: block; width: 100%; background: none; border: none; text-align: left; padding: 7px 16px; font-size: 13.5px; font-family: inherit; color: #333; cursor: pointer; }
-    .dropdown-item:hover { background: #f5f5f5; }
+    .btn-actions:hover { background: #d4ae00; }
+    .btn-actions-caret {
+      background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15);
+      border-radius: 0 3px 3px 0;
+      padding: 5px 8px; font-size: 12px; cursor: pointer;
+    }
+    .btn-actions-caret:hover { background: #d4ae00; }
 
-    /* ── Tabs ── */
-    .tabs-bar {
-      background: #130520;
-      padding: 0 10px;
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      flex-shrink: 0;
-      border-top: 1px solid #0d0318;
+    .dropdown { position: relative; display: inline-flex; }
+    .dd-menu {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
+      background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      min-width: 180px; padding: 4px 0;
     }
+    .dd-menu.show { display: block; }
+    .dd-menu button {
+      display: block; width: 100%; padding: 8px 14px; color: #444;
+      font-size: 13px; cursor: pointer; background: none; border: none;
+      text-align: left; font-family: inherit;
+    }
+    .dd-menu button:hover { background: #f5f5f5; }
+
+    .toolbar-tabs { display: flex; gap: 0; margin-left: 4px; }
     .tab-btn {
-      background: #bbb;
-      color: #111;
-      border: none;
-      border-radius: 4px 4px 0 0;
-      padding: 5px 16px;
-      font-size: 12.5px;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
+      padding: 5px 16px; border: none; cursor: pointer;
+      font-size: 12.5px; font-weight: 600; font-family: inherit;
+      background: #555; color: #bbb;
     }
-    .tab-btn.active { background: #fff; color: #111; font-weight: 700; }
-    .tab-btn:hover:not(.active) { background: #aaa; color: #111; }
+    .tab-btn:first-child { border-radius: 3px 0 0 3px; }
+    .tab-btn:last-child  { border-radius: 0 3px 3px 0; }
+    .tab-btn.active { background: #fff; color: #222; }
+    .tab-btn:hover:not(.active) { background: #666; }
 
-    /* ── Table ── */
-    .table-container {
-      flex: 1;
-      overflow-y: auto;
-      background: #fff;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+    .table-wrap { background: #fff; margin: 0 16px; }
+    table { width: 100%; border-collapse: collapse; }
     thead th {
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      padding: 8px 14px;
-      text-align: left;
-      font-weight: 600;
-      color: #555;
-      white-space: nowrap;
-      font-size: 12.5px;
+      padding: 10px 14px; text-align: left; font-size: 12px;
+      font-weight: 700; color: #fff; border-bottom: 2px solid #7a7098;
+      background: #8e83aa; text-transform: uppercase; letter-spacing: .4px;
     }
-    thead th:first-child { width: 36px; text-align: center; }
-
-    tbody tr { border-bottom: 1px solid #eee; }
-    tbody tr:hover { background: #fdfbe8; }
+    thead th:first-child { width: 40px; text-align: center; }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; background: #fff; }
+    tbody tr:hover { background: #f5f3fa; }
     tbody tr.expired { background: #fde8e8; }
     tbody tr.expired:hover { background: #fad5d5; }
-
-    tbody td { padding: 9px 14px; color: #333; vertical-align: middle; }
+    tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
     tbody td:first-child { text-align: center; }
+    .pkg-link { color: #2272c3; text-decoration: underline; font-size: 13px; cursor: pointer; }
 
-    input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      cursor: pointer;
-      accent-color: #888888;
-    }
-    .pkg-link {
-      color: #444;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .pkg-link:hover { text-decoration: underline; color: #111; }
-
-    /* ── Footer bar ── */
-    .footer-bar {
-      background: #0d0318;
-      height: 22px;
-      flex-shrink: 0;
-    }
-
-    .empty-msg {
-      text-align: center;
-      color: #aaa;
-      padding: 60px 20px;
-      font-size: 14px;
-    }
+    .empty-msg { padding: 32px; text-align: center; color: #888; }
   </style>
   <link rel="stylesheet" href="mobile.css"/>
   <link rel="stylesheet" href="theme.css"/>
 </head>
 <body>
 
-<!-- Page header -->
-<div class="page-header">
-    <span class="showing-count" id="results-count"></span>
-  <button class="btn-orange-filled" onclick="window.location.href='PackagePlansAdd.html'">Add Package</button>
+<div class="page-topbar">
+  <div class="page-topbar-left">
+    <div class="item-count" id="item-count">0 items</div>
+  </div>
+  <button class="btn-add" onclick="window.location.href='PackagePlansAdd.html'">Add Package</button>
 </div>
 
-<!-- Toolbar -->
 <div class="toolbar">
-  <div class="actions-split">
-    <button class="btn-green-main">Actions</button>
-    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
-    <div class="actions-dropdown" id="actions-dropdown">
-      <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="window.location.href='PackagePlansAdd.html'">Add Package Plan</button>
-      <button class="dropdown-item" onclick="copySelected()">Copy</button>
-      <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
-      <button class="dropdown-item" onclick="setSelectedInactive()">Inactivate</button>
-      <button class="dropdown-item" onclick="setSelectedActive()">Activate</button>
+  <div class="dropdown">
+    <button class="btn-actions">Actions</button>
+    <button class="btn-actions-caret" onclick="toggleDD(event)">&#9660;</button>
+    <div class="dd-menu" id="actions-dd">
+      <button onclick="window.location.href='PackagePlansAdd.html'">Add Package Plan</button>
+      <button onclick="copySelected()">Copy</button>
+      <button onclick="deleteSelected()">Delete</button>
+      <button onclick="setSelectedInactive()">Inactivate</button>
+      <button onclick="setSelectedActive()">Activate</button>
     </div>
+  </div>
+  <div class="toolbar-tabs">
+    <button class="tab-btn active" onclick="setTab(this,'active')">Active</button>
+    <button class="tab-btn" onclick="setTab(this,'inactive')">Inactive</button>
+    <button class="tab-btn" onclick="setTab(this,'all')">All</button>
   </div>
 </div>
 
-<!-- Tabs -->
-<div class="tabs-bar">
-  <button class="tab-btn active" onclick="setTab(this,'active')">Active</button>
-  <button class="tab-btn" onclick="setTab(this,'inactive')">Inactive</button>
-  <button class="tab-btn" onclick="setTab(this,'all')">All</button>
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+      <th>Package Name</th>
+      <th>Description</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>Renewal Date</th>
+      <th>Active</th>
+      <th>Subscribers</th>
+      <th id="renew-th" style="display:none;">Renew</th>
+    </tr>
+  </thead>
+  <tbody id="pkg-tbody"></tbody>
+</table>
+<div class="empty-msg" id="empty-msg" style="display:none;">No package plans found.</div>
 </div>
-
-<!-- Table -->
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th>Package Name</th>
-        <th>Description</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Renewal Date</th>
-        <th>Active</th>
-        <th>Subscribers</th>
-        <th id="renew-th" style="display:none;">Renew</th>
-      </tr>
-    </thead>
-    <tbody id="pkg-tbody"></tbody>
-  </table>
-  <div class="empty-msg" id="empty-msg">No package plans found.</div>
-</div>
-<div style="height:28px;background:#130520;"></div>
+<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <!-- Subscribers modal -->
 <div id="sub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;">
@@ -227,9 +152,6 @@
   </div>
 </div>
 
-<!-- Footer bar -->
-<div class="footer-bar"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const sb = supabase.createClient(
@@ -248,12 +170,12 @@
   }
 
   /* ── Dropdown ── */
-  function toggleDropdown(e) {
+  function toggleDD(e) {
     e.stopPropagation();
-    document.getElementById('actions-dropdown').classList.toggle('open');
+    document.getElementById('actions-dd').classList.toggle('show');
   }
   document.addEventListener('click', function() {
-    document.getElementById('actions-dropdown').classList.remove('open');
+    document.getElementById('actions-dd').classList.remove('show');
   });
 
   /* ── Data ── */
@@ -305,6 +227,8 @@
       if (currentTab === 'inactive') return p.active === false;
       return true;
     });
+
+    document.getElementById('item-count').textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '');
 
     if (filtered.length === 0) {
       emptyMsg.style.display = '';
