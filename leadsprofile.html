@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -8,7 +8,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; font-size: 13px; background: #d4cfe0; }
 
-    /* ── Top bar ── */
+    /* -- Top bar -- */
     .topbar {
       display: flex;
       align-items: center;
@@ -26,19 +26,19 @@
       padding: 2px 7px; cursor: pointer; font-size: 13px; color: #555; font-weight: 700;
     }
 
-    /* ── Split buttons ── */
+    /* -- Split buttons -- */
     .btn-group { display: flex; }
-    .btn-map-toggle { background:#111; border:3px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
+    .btn-map-toggle { background:#111; border:2px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
     .btn-map-toggle:hover { background:#1a0828; }
     .btn-main-outline {
-      background: #fff; color: #e07820; border: 3px solid #e07820;
+      background: #fff; color: #e07820; border: 2px solid #e07820;
       padding: 7px 18px; font-size: 13.5px; font-weight: 700;
       cursor: pointer; border-radius: 6px 0 0 6px;
       border-right: none;
     }
     .btn-main-outline:hover { background: #fff5ec; }
     .btn-caret-outline {
-      background: #fff; color: #e07820; border: 3px solid #e07820;
+      background: #fff; color: #e07820; border: 2px solid #e07820;
       padding: 7px 10px; font-size: 12px; cursor: pointer;
       border-radius: 0 6px 6px 0;
     }
@@ -58,7 +58,7 @@
     }
     .btn-caret:hover { background: #c96a10; }
 
-    /* ── Dropdown ── */
+    /* -- Dropdown -- */
     .dropdown { position: relative; display: inline-flex; }
     .dropdown + .dropdown { margin-left: 0; }
     .dropdown-menu {
@@ -77,10 +77,10 @@
     }
     .dropdown-menu a:hover { background: #f0f5ff; }
 
-    /* ── Page layout ── */
+    /* -- Page layout -- */
     .page { max-width: 1200px; margin: 0 auto; padding: 12px; }
 
-    /* ── Lead info card ── */
+    /* -- Lead info card -- */
     .lead-card {
       background: #f5f5f5;
       border: 1px solid #ccc;
@@ -94,7 +94,7 @@
     .lead-card-col a { color: #444; text-decoration: none; }
     .lead-card-col a:hover { text-decoration: underline; }
 
-    /* ── Revenue box ── */
+    /* -- Revenue box -- */
     .revenue-col { display: flex; flex-direction: column; min-width: 160px; }
     .revenue-box {
       background: #130520;
@@ -111,7 +111,7 @@
       margin-top: 4px;
     }
 
-    /* ── Two-column panels ── */
+    /* -- Two-column panels -- */
     .panels-row { display: flex; gap: 10px; margin-bottom: 10px; }
     .panel { flex: 1; background: #fff; border: 1px solid #ccc; }
     .panel-header {
@@ -123,7 +123,7 @@
     .panel-header a:hover { text-decoration: underline; }
     .panel-body { padding: 8px 10px; min-height: 60px; }
 
-    /* ── Tags row ── */
+    /* -- Tags row -- */
     .tags-row {
       background: #fff; border: 1px solid #ccc; padding: 8px 10px;
       display: flex; flex-direction: column; align-items: flex-start;
@@ -204,7 +204,7 @@
     .create-tag-cancel { color: #555; font-size: 13px; cursor: pointer; }
     .create-tag-cancel:hover { text-decoration: underline; }
 
-    /* ── Section ── */
+    /* -- Section -- */
     .sec { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
     .sec-hdr {
       background: #130520; color: #fff; padding: 5px 10px;
@@ -231,7 +231,7 @@
     }
     .add-btn:hover { background: #1a0828; }
 
-    /* ── Activity ── */
+    /* -- Activity -- */
     .activity-filter {
       display: flex; align-items: center; gap: 8px;
       padding: 8px 10px; flex-wrap: wrap;
@@ -258,13 +258,13 @@
     .divider { border: none; border-top: 1px solid #eee; margin: 0 10px; }
     .no-records { padding: 8px 10px; color: #555; font-size: 13px; }
 
-    /* ── Details ── */
+    /* -- Details -- */
     .details-hdr {
       display: flex; justify-content: space-between; align-items: center;
       padding: 6px 10px; background: #130520; color: #fff; font-weight: 600;
     }
 
-    /* ── Attachments ── */
+    /* -- Attachments -- */
     .attach-outer { background: #fff; border: 1px solid #ccc; margin-bottom: 10px; }
     .attach-tabs { display: flex; padding: 0; border-bottom: 1px solid #ccc; }
     .attach-tab {
@@ -284,7 +284,7 @@
     }
     .pg-btn.active { background: #f5c800; color: #111; }
 
-    /* ── Details / Custom Fields grid ── */
+    /* -- Details / Custom Fields grid -- */
     .details-body { display: none; border-top: 1px solid #e0e0e0; }
     .details-body.open { display: block; }
     .details-grid {
@@ -336,7 +336,7 @@
   </div>
 </div>
 
-<!-- ── Top bar ── -->
+<!-- -- Top bar -- -->
 <div class="topbar">
   <div class="topbar-left">
     <h1 id="lead-title">New Lead</h1>
@@ -384,7 +384,7 @@
 
 <div class="page">
 
-  <!-- ── Lead info card ── -->
+  <!-- -- Lead info card -- -->
   <div class="lead-card">
     <div class="lead-card-col">
       <div id="display-name" style="font-weight:600;"></div>
@@ -411,8 +411,8 @@
   <!-- Google Map -->
   <div id="lead-map" style="width:100%; height:355px; background:#e8e8e8; margin-bottom:8px; display:none;"></div>
 
-  <!-- ── Related Properties + Contacts ── -->
-  <!-- ── Tags ── -->
+  <!-- -- Related Properties + Contacts -- -->
+  <!-- -- Tags -- -->
   <div class="tags-row" id="tags-row">
     <div class="tag-select-row">
       <div style="position:relative;">
@@ -459,13 +459,13 @@
     </div>
   </div>
 
-  <!-- ── Estimates ── -->
+  <!-- -- Estimates -- -->
   <div class="sec" style="margin-bottom:10px;">
     <div class="sec-hdr"><span>Estimates</span></div>
     <button class="add-btn">&#10010; &nbsp;Add an Estimate</button>
   </div>
 
-  <!-- ── Activity ── -->
+  <!-- -- Activity -- -->
   <div class="sec" style="margin-bottom:10px;">
     <div class="sec-hdr">
       <span>Activity</span>
@@ -493,7 +493,7 @@
     <div class="no-records">No records found</div>
   </div>
 
-  <!-- ── Details (Custom Fields) ── -->
+  <!-- -- Details (Custom Fields) -- -->
   <div class="sec" style="margin-bottom:10px;">
     <div class="details-hdr">
       <span>Custom Fields</span>
@@ -508,7 +508,7 @@
     </div>
   </div>
 
-  <!-- ── Attachments ── -->
+  <!-- -- Attachments -- -->
   <div class="attach-outer">
     <div class="attach-tabs">
       <div class="attach-tab active">Attachments</div>
@@ -542,7 +542,7 @@
   { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-  /* ── Load lead from Supabase ── */
+  /* -- Load lead from Supabase -- */
   (async function() {
     var leadId = new URLSearchParams(window.location.search).get('id');
     if (!leadId) return;
@@ -642,7 +642,7 @@
     });
   });
 
-  /* ── Details / Custom Fields ── */
+  /* -- Details / Custom Fields -- */
   var CF_ENTITY_TYPE = 'Lead';
   var CF_STORE_KEY   = 'spb_leads';
   var cfRecordId     = new URLSearchParams(window.location.search).get('id');
@@ -675,11 +675,11 @@
       if (f.type === 'Checkbox') {
         inp = '<input type="checkbox" class="dv-check" data-key="' + cfEscAttr(f.key) + '"' + (val ? ' checked' : '') + '/>';
       } else if (f.type === 'Number') {
-        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="�"/>';
       } else if (f.type === 'Date') {
         inp = '<input type="date" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '"/>';
       } else {
-        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="�"/>';
       }
       cell.innerHTML = '<span class="dl">' + cfEscHtml(f.name) + '</span>' + inp;
       grid.appendChild(cell);
@@ -724,7 +724,7 @@
     }, 600);
   }
 
-  /* ── Tags ── */
+  /* -- Tags -- */
   var allTags = [];
   var leadTagNames = [];
   var selectedTagName = null;
@@ -763,7 +763,7 @@
       return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
     });
     if (!filtered.length) {
-      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet � use Create Tag.') + '</div>';
       return;
     }
     list.innerHTML = '';
@@ -834,7 +834,7 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ── Contact modal ── */
+  /* -- Contact modal -- */
   function openContactModal(e, id) {
     if (e) e.preventDefault();
     var leadId = new URLSearchParams(window.location.search).get('id');

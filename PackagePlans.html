@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -14,7 +14,7 @@
     }
     .page-topbar-left .item-count { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 3px; }
     .btn-add {
-      background: #130520 !important; color: #fff !important; border: 3px solid #e07820 !important;
+      background: #130520 !important; color: #fff !important; border: 2px solid #e07820 !important;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer; white-space: nowrap;
     }
@@ -160,7 +160,7 @@
   { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-  /* ── Tabs ── */
+  /* -- Tabs -- */
   var currentTab = 'active';
   function setTab(btn, tab) {
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -169,7 +169,7 @@
     renderTable();
   }
 
-  /* ── Dropdown ── */
+  /* -- Dropdown -- */
   function toggleDD(e) {
     e.stopPropagation();
     document.getElementById('actions-dd').classList.toggle('show');
@@ -178,7 +178,7 @@
     document.getElementById('actions-dd').classList.remove('show');
   });
 
-  /* ── Data ── */
+  /* -- Data -- */
   var packages = [];
   var subscriberCounts = {}; /* pkgId -> count of distinct properties */
 
@@ -216,7 +216,7 @@
     renderTable();
   }
 
-  /* ── Render ── */
+  /* -- Render -- */
   function renderTable() {
     var tbody    = document.getElementById('pkg-tbody');
     var emptyMsg = document.getElementById('empty-msg');
@@ -342,7 +342,7 @@
   }
 
   async function openSubModal(pkgId, pkgName) {
-    document.getElementById('sub-title').textContent = pkgName + ' — Subscribers';
+    document.getElementById('sub-title').textContent = pkgName + ' � Subscribers';
     document.getElementById('sub-overlay').style.display = 'flex';
     document.getElementById('sub-empty').style.display = 'none';
     var tbody = document.getElementById('sub-tbody');
@@ -367,8 +367,8 @@
 
     tbody.innerHTML = rows.map(function(r) {
       return '<tr style="border-bottom:1px solid #eee;">' +
-        '<td style="padding:9px 14px;">' + (r.client_name || '—') + '</td>' +
-        '<td style="padding:9px 14px;">' + (r.address || '—') + '</td>' +
+        '<td style="padding:9px 14px;">' + (r.client_name || '�') + '</td>' +
+        '<td style="padding:9px 14px;">' + (r.address || '�') + '</td>' +
         '<td style="padding:9px 14px;text-align:center;">' + (svcCountMap[r.property_id] || 0) + ' services</td>' +
       '</tr>';
     }).join('');
@@ -382,7 +382,7 @@
     if (!confirm('Renew "' + pkgName + '" for ' + nextYear + '? This will create new service records for all subscribed properties with dates moved forward one year.')) return;
 
     var btn = document.getElementById('renew-btn-' + pkgId);
-    if (btn) { btn.textContent = 'Working…'; btn.disabled = true; }
+    if (btn) { btn.textContent = 'Working�'; btn.disabled = true; }
 
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
@@ -403,7 +403,7 @@
     var alreadyRenewed = svcRows.some(function(s) { return s.start_date && s.start_date.startsWith(String(nextYear)); });
     if (alreadyRenewed) {
       alert('This package has already been renewed for ' + nextYear + '.');
-      if (btn) { btn.textContent = 'Renewed ✓'; btn.style.background = '#aaa'; btn.disabled = true; }
+      if (btn) { btn.textContent = 'Renewed ?'; btn.style.background = '#aaa'; btn.disabled = true; }
       return;
     }
 
@@ -435,8 +435,8 @@
 
     var { error } = await sb.from('Services').insert(inserts);
     if (error) { alert('Error renewing: ' + error.message); if (btn) { btn.textContent = 'Renew'; btn.disabled = false; } return; }
-    if (btn) { btn.textContent = 'Renewed ✓'; btn.style.background = '#aaa'; btn.disabled = true; }
-    alert('"' + pkgName + '" renewed for ' + nextYear + ' — ' + inserts.length + ' service records created.');
+    if (btn) { btn.textContent = 'Renewed ?'; btn.style.background = '#aaa'; btn.disabled = true; }
+    alert('"' + pkgName + '" renewed for ' + nextYear + ' � ' + inserts.length + ' service records created.');
   }
 
   loadPackages();

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -8,7 +8,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #e0e4f0; }
 
-    /* ── Top bar ── */
+    /* -- Top bar -- */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 9px 20px; background: #130520; border-bottom: 1px solid #1e0a35;
@@ -29,7 +29,7 @@
     .topbar-left a.edit-link:hover { background: rgba(255,255,255,.08); color: #fff; }
     .gear-btn { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:4px; padding:3px 8px; cursor:pointer; font-size:13px; color:#ccc; }
 
-    /* ── Split buttons ── */
+    /* -- Split buttons -- */
     .btn-group { display: flex; align-items: stretch; }
     .btn-main-outline {
       background: #fff; color: #e07820; border: 2px solid #e07820;
@@ -55,7 +55,7 @@
     }
     .btn-caret:hover { background: #c96a10; }
 
-    /* ── Dropdown ── */
+    /* -- Dropdown -- */
     .dropdown { position: relative; display: inline-flex; }
     .dropdown-menu {
       display: none; position: absolute; top: calc(100% + 4px); right: 0; z-index: 200;
@@ -68,27 +68,27 @@
     .dropdown-menu a { display: block; padding: 9px 14px; color: #fff; text-decoration: none; font-size: 13px; cursor: pointer; }
     .dropdown-menu a:hover { background: rgba(255,255,255,.07); color: #e07820; }
 
-    /* ── Hero banner ── */
+    /* -- Hero banner -- */
     .hero {
       background: linear-gradient(135deg, #130520 0%, #1e0a35 60%, #130520 100%);
-      border-bottom: 3px solid #e07820;
+      border-bottom: 2px solid #e07820;
       display: flex; align-items: stretch;
       margin: 12px 16px; border-radius: 12px; overflow: hidden;
       box-shadow: 0 4px 16px rgba(0,0,0,.25);
     }
-    /* col 1 — address */
+    /* col 1 � address */
     .hero-c-addr {
       padding: 10px 16px; border-right: 1px solid rgba(255,255,255,.07);
       display: flex; flex-direction: column; justify-content: center; min-width: 150px;
     }
     .hca-street { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
     .hca-city   { font-size: 12px; color: #fff; }
-    /* col 2 — client/phone/email */
+    /* col 2 � client/phone/email */
     .hero-c-left {
       padding: 10px 20px; border-right: 1px solid rgba(255,255,255,.07);
       display: flex; flex-direction: column; justify-content: center; gap: 6px;
     }
-    /* col 3 — added/state/tax */
+    /* col 3 � added/state/tax */
     .hero-c-right {
       flex: 1; padding: 10px 20px; border-right: 1px solid rgba(255,255,255,.07);
       display: flex; flex-direction: column; justify-content: center; gap: 6px;
@@ -97,7 +97,7 @@
     .hrow .lbl { color: rgba(255,255,255,.65); font-size: 12px; min-width: 46px; }
     .hrow a { color: #fff; text-decoration: none; font-weight: 600; }
     .hrow a:hover { color: #fff; }
-    /* col 4 — financial */
+    /* col 4 � financial */
     .hero-c-fin { display: flex; flex-direction: column; min-width: 225px; }
     .hfin-owed {
       flex: 1; background: #e8b800; padding: 15px 30px;
@@ -111,8 +111,8 @@
       font-size: 13px; color: rgba(255,255,255,.5);
     }
 
-    /* ── Tabs ── */
-    .page-tabs-bar { background: #130520; border-bottom: 3px solid #e07820; margin: 2px 16px; border-radius: 10px; overflow: hidden; }
+    /* -- Tabs -- */
+    .page-tabs-bar { background: #130520; border-bottom: 2px solid #e07820; margin: 2px 16px; border-radius: 10px; overflow: hidden; }
     .page-tabs {
       display: flex; align-items: flex-end; justify-content: center; gap: 0;
     }
@@ -124,12 +124,12 @@
     .page-tab:hover { color: rgba(255,255,255,.9); }
     .page-tab.active { color: #fff; border-bottom-color: #e07820; background: rgba(255,255,255,.07); }
 
-    /* ── Page / panels ── */
+    /* -- Page / panels -- */
     .page { margin-left: 15vw; margin-right: 15vw; padding: 16px; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* ── Tags ── */
+    /* -- Tags -- */
     .tags-row {
       background: #0d031a; border-bottom: 1px solid rgba(255,255,255,.08); padding: 8px 24px;
       margin: 2px 16px; border-radius: 10px;
@@ -182,7 +182,7 @@
     .create-tag-cancel { color: #888; font-size: 13px; cursor: pointer; }
     .create-tag-cancel:hover { color: #333; }
 
-    /* ── Card (replaces .sec) ── */
+    /* -- Card (replaces .sec) -- */
     .sec { background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .sec-hdr {
       padding: 13px 18px; font-size: 14px; font-weight: 700; color: #fff;
@@ -206,12 +206,12 @@
     }
     .add-btn:hover { background: rgba(224,120,32,.2); border-color: #e07820; }
 
-    /* ── Services layout — side panel hidden, full width ── */
+    /* -- Services layout � side panel hidden, full width -- */
     .services-layout { display: block; }
     .services-main { width: 100%; }
     .services-side { display: none; }
 
-    /* ── Activity ── */
+    /* -- Activity -- */
     .activity-filter { display: flex; align-items: center; gap: 8px; padding: 10px 14px; flex-wrap: wrap; }
     .activity-filter .filter-count { color: rgba(255,255,255,.5); font-size: 12px; cursor: pointer; }
     .activity-filter .refresh-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 14px; color: #aaa; }
@@ -226,7 +226,7 @@
     .show-more-btn { display: block; width: 100%; padding: 10px; background: rgba(0,0,0,.15); border: none; border-top: 1px solid rgba(255,255,255,.07); cursor: pointer; font-size: 13px; text-align: center; color: rgba(255,255,255,.4); }
     .show-more-btn:hover { background: rgba(0,0,0,.25); color: rgba(255,255,255,.7); }
 
-    /* ── Details / Custom Fields ── */
+    /* -- Details / Custom Fields -- */
     .details-hdr { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 14px; font-weight: 700; color: #fff; border-bottom: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.2); }
     .details-body { display: none; }
     .details-body.open { display: block; }
@@ -238,7 +238,7 @@
     .details-cell .dv-check { width: 15px; height: 15px; accent-color: #e07820; cursor: pointer; }
     .details-empty { padding: 14px 16px; color: rgba(255,255,255,.3); font-size: 13px; font-style: italic; }
 
-    /* ── Attachments ── */
+    /* -- Attachments -- */
     .attach-outer { background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .attach-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.08); }
     .attach-tab { padding: 9px 16px; border-right: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.2); font-size: 12.5px; cursor: pointer; color: rgba(255,255,255,.4); }
@@ -256,7 +256,7 @@
     .btn-map-toggle { background:#f0f0f0; border:1px solid #ccc; color:#333; font-weight:600; border-radius:6px; padding:5px 14px; font-size:12.5px; font-family:inherit; cursor:pointer; }
     .btn-map-toggle:hover { background:#e8e8e8; }
 
-    /* ── Measurement Panel ── */
+    /* -- Measurement Panel -- */
     #measure-panel {
       background: #fff;
       border: 1px solid #ccc;
@@ -450,7 +450,7 @@
     <!-- Tab bar -->
     <div style="display:flex; border-bottom:2px solid #ddd; background:#f8f8f8; flex-shrink:0;">
       <button id="pkg-tab-btn-services" onclick="switchPkgTab('services')"
-        style="padding:10px 22px; background:none; border:none; border-bottom:3px solid #e07820; font-size:13px; font-weight:700; color:#e07820; cursor:pointer; margin-bottom:-2px;">Services</button>
+        style="padding:10px 22px; background:none; border:none; border-bottom:2px solid #e07820; font-size:13px; font-weight:700; color:#e07820; cursor:pointer; margin-bottom:-2px;">Services</button>
       <button id="pkg-tab-btn-notes" onclick="switchPkgTab('notes')"
         style="padding:10px 22px; background:none; border:none; border-bottom:3px solid transparent; font-size:13px; font-weight:700; color:#888; cursor:pointer; margin-bottom:-2px;">Notes</button>
     </div>
@@ -514,7 +514,7 @@
     <!-- Tab bar -->
     <div style="display:flex; border-bottom:2px solid #ddd; background:#f8f8f8; flex-shrink:0;">
       <button id="pke-tab-btn-services" onclick="switchPkeTab('services')"
-        style="padding:10px 22px; background:none; border:none; border-bottom:3px solid #e07820; font-size:13px; font-weight:700; color:#e07820; cursor:pointer; margin-bottom:-2px;">Services</button>
+        style="padding:10px 22px; background:none; border:none; border-bottom:2px solid #e07820; font-size:13px; font-weight:700; color:#e07820; cursor:pointer; margin-bottom:-2px;">Services</button>
       <button id="pke-tab-btn-notes" onclick="switchPkeTab('notes')"
         style="padding:10px 22px; background:none; border:none; border-bottom:3px solid transparent; font-size:13px; font-weight:700; color:#888; cursor:pointer; margin-bottom:-2px;">Notes</button>
     </div>
@@ -634,20 +634,20 @@
 <div class="hero">
   <!-- col 1: address -->
   <div class="hero-c-addr">
-    <div class="hca-street" id="display-address">—</div>
+    <div class="hca-street" id="display-address">�</div>
     <div class="hca-city" id="display-city"></div>
   </div>
   <!-- col 2: client / phone / email -->
   <div class="hero-c-left">
-    <div class="hrow"><span class="lbl">Client:</span><a id="display-client" href="#">—</a></div>
-    <div class="hrow"><span class="lbl">Phone:</span><span id="display-phone">—</span></div>
-    <div class="hrow"><span class="lbl">Email:</span><span id="display-email">—</span></div>
+    <div class="hrow"><span class="lbl">Client:</span><a id="display-client" href="#">�</a></div>
+    <div class="hrow"><span class="lbl">Phone:</span><span id="display-phone">�</span></div>
+    <div class="hrow"><span class="lbl">Email:</span><span id="display-email">�</span></div>
   </div>
   <!-- col 3: added / state / sales tax -->
   <div class="hero-c-right">
-    <div class="hrow"><span class="lbl">Added:</span><span id="display-added">—</span></div>
-    <div class="hrow"><span class="lbl">State:</span><span id="display-state">—</span></div>
-    <div class="hrow"><span class="lbl">Tax:</span><span id="display-sales-tax">—</span></div>
+    <div class="hrow"><span class="lbl">Added:</span><span id="display-added">�</span></div>
+    <div class="hrow"><span class="lbl">State:</span><span id="display-state">�</span></div>
+    <div class="hrow"><span class="lbl">Tax:</span><span id="display-sales-tax">�</span></div>
   </div>
   <!-- col 4: financials -->
   <div class="hero-c-fin">
@@ -801,7 +801,7 @@
 
   </div><!-- end map-measure-container -->
 
-</div><!-- end hero wrapper — close nothing, hero was inline -->
+</div><!-- end hero wrapper � close nothing, hero was inline -->
 
 <!-- Tab navigation -->
 <div class="page-tabs-bar">
@@ -917,13 +917,13 @@
         <div id="cf-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
         <div style="padding:12px 16px 6px; font-size:13px; font-weight:700; color:#555; border-top:1px solid #f0f0f0; text-transform:uppercase; font-size:11px; letter-spacing:.5px;">Area Treated</div>
         <div class="details-grid" style="grid-template-columns:repeat(4,1fr);">
-          <div class="details-cell"><span class="dl">Lawn Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="lawn_care" placeholder="—"/></div>
-          <div class="details-cell"><span class="dl">Lawn Insect Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="lawn_insect" placeholder="—"/></div>
-          <div class="details-cell"><span class="dl">Flower Bed(s) Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="flower_beds" placeholder="—"/></div>
-          <div class="details-cell"><span class="dl">Mosquito Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="mosquito" placeholder="—"/></div>
-          <div class="details-cell"><span class="dl">Mosquito Linear Ft</span><input type="text" class="dv-text at-inp" data-at-key="mosquito_linear_ft" placeholder="—"/></div>
-          <div class="details-cell"><span class="dl">Pest Control Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="pest_control" placeholder="—"/></div>
-          <div class="details-cell"><span class="dl">Pest Control Linear Ft</span><input type="text" class="dv-text at-inp" data-at-key="pest_control_linear_ft" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Lawn Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="lawn_care" placeholder="�"/></div>
+          <div class="details-cell"><span class="dl">Lawn Insect Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="lawn_insect" placeholder="�"/></div>
+          <div class="details-cell"><span class="dl">Flower Bed(s) Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="flower_beds" placeholder="�"/></div>
+          <div class="details-cell"><span class="dl">Mosquito Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="mosquito" placeholder="�"/></div>
+          <div class="details-cell"><span class="dl">Mosquito Linear Ft</span><input type="text" class="dv-text at-inp" data-at-key="mosquito_linear_ft" placeholder="�"/></div>
+          <div class="details-cell"><span class="dl">Pest Control Sq Ft</span><input type="text" class="dv-text at-inp" data-at-key="pest_control" placeholder="�"/></div>
+          <div class="details-cell"><span class="dl">Pest Control Linear Ft</span><input type="text" class="dv-text at-inp" data-at-key="pest_control_linear_ft" placeholder="�"/></div>
         </div>
         <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
       </div>
@@ -982,7 +982,7 @@ function showPropTab(name, btn) {
 
   function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  /* ── Load property record from Supabase ── */
+  /* -- Load property record from Supabase -- */
   async function initProperty() {
     if (!propId) return;
     var { data } = await sb.from('Properties').select('*').eq('id', propId).single();
@@ -1076,7 +1076,7 @@ function showPropTab(name, btn) {
       document.getElementById('display-email').textContent = owner.email || '';
 
       var backLink = document.getElementById('back-link');
-      backLink.textContent = '← ' + (owner.name || 'Client');
+      backLink.textContent = '? ' + (owner.name || 'Client');
       backLink.href = 'ClientProfile.html?id=' + owner.id;
     }
 
@@ -1144,7 +1144,7 @@ function showPropTab(name, btn) {
     }
   }
 
-  /* ── Tags ── */
+  /* -- Tags -- */
   var allTags = [];
   var propTagNames = [];
   var selectedTagName = null;
@@ -1183,7 +1183,7 @@ function showPropTab(name, btn) {
       return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
     });
     if (!filtered.length) {
-      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet � use Create Tag.') + '</div>';
       return;
     }
     list.innerHTML = '';
@@ -1248,7 +1248,7 @@ function showPropTab(name, btn) {
     if (e.key === 'Escape') hideCreateTagModal();
   });
 
-  /* ── Services popup modal ── */
+  /* -- Services popup modal -- */
   function closeJobsModal() {
     document.getElementById('jobs-modal-overlay').style.display = 'none';
   }
@@ -1323,9 +1323,9 @@ function showPropTab(name, btn) {
       var td = 'style="padding:9px 12px;"';
       var tdr = 'style="padding:9px 12px;text-align:right;"';
       var tdc = 'style="padding:9px 12px;text-align:center;"';
-      var dateStr = j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric'}) : '—';
+      var dateStr = j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric'}) : '�';
       var amtStr  = '$' + parseFloat(j.amount || j.price || 0).toFixed(2);
-      var typeStr = j.job_type === 'one_time' ? 'One Time' : (j.job_type || '—');
+      var typeStr = j.job_type === 'one_time' ? 'One Time' : (j.job_type || '�');
       var delBtn  = '<button onclick="deleteService(\'' + j.id + '\',this)" style="background:none;border:none;cursor:pointer;padding:0;font-size:20px;color:#cc2222;line-height:1;">&#10006;</button>';
 
       if (filter === 'upcoming') {
@@ -1337,8 +1337,8 @@ function showPropTab(name, btn) {
         var isOverdue = !!(j.end_date && j.end_date < todayISO);
         var periodStr;
         if (j.start_date || j.end_date) {
-          periodStr = (j.start_date ? fmtISO(j.start_date) : '') + (j.start_date && j.end_date ? ' – ' : '') + (j.end_date ? fmtISO(j.end_date) : '');
-          if (isOverdue) periodStr += ' <span style="color:#cc2222;font-weight:700;">⚠ Late</span>';
+          periodStr = (j.start_date ? fmtISO(j.start_date) : '') + (j.start_date && j.end_date ? ' � ' : '') + (j.end_date ? fmtISO(j.end_date) : '');
+          if (isOverdue) periodStr += ' <span style="color:#cc2222;font-weight:700;">? Late</span>';
         } else {
           periodStr = dateStr;
         }
@@ -1348,9 +1348,9 @@ function showPropTab(name, btn) {
         tr.innerHTML =
           '<td ' + tdc + '>' + rowIcon + '</td>' +
           '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
-          '<td ' + td + '>' + escHtml((j.package_service_id && pkgSvcNameMap[j.package_service_id]) ? pkgSvcNameMap[j.package_service_id] : (j.service || j.name || '—')) + '</td>' +
+          '<td ' + td + '>' + escHtml((j.package_service_id && pkgSvcNameMap[j.package_service_id]) ? pkgSvcNameMap[j.package_service_id] : (j.service || j.name || '�')) + '</td>' +
           '<td ' + td + '>' + periodStr + '</td>' +
-          '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.notes || '�') + '</td>' +
           '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +
           '<td ' + tdr + '>' + amtStr + '</td>' +
           '<td ' + tdc + '>' + delBtn + '</td>';
@@ -1362,22 +1362,22 @@ function showPropTab(name, btn) {
         tr.innerHTML =
           '<td ' + tdc + '>' + lockIcon + '</td>' +
           '<td ' + td + '>' + escHtml(typeStr) + '</td>' +
-          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.service || j.name || '�') + '</td>' +
           '<td ' + td + '>' + dateStr + '</td>' +
-          '<td ' + td + '>' + escHtml(j.notes || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.notes || '�') + '</td>' +
           '<td ' + td + '>' + escHtml(j.assigned_to || '') + '</td>' +
-          '<td ' + tdr + '>' + (j.men_count || '—') + '</td>' +
-          '<td ' + tdr + '>' + (j.time_spent || '—') + '</td>' +
+          '<td ' + tdr + '>' + (j.men_count || '�') + '</td>' +
+          '<td ' + tdr + '>' + (j.time_spent || '�') + '</td>' +
           '<td ' + tdr + '>' + amtStr + '</td>';
       } else {
         var statusText  = j.dispatched ? 'Canceled' : 'Running';
         var statusColor = j.dispatched ? '#888' : '#27a567';
         tr.style.cursor = 'pointer';
         tr.innerHTML =
-          '<td ' + td + '>' + escHtml(j.service || j.name || '—') + '</td>' +
+          '<td ' + td + '>' + escHtml(j.service || j.name || '�') + '</td>' +
           '<td ' + tdr + '>' + amtStr + '</td>' +
           '<td ' + td + '>' + dateStr + '</td>' +
-          '<td ' + td + '>—</td>' +
+          '<td ' + td + '>�</td>' +
           '<td ' + tdc + '>' + pauseIcon + '</td>' +
           '<td ' + td + '><span style="color:' + statusColor + ';font-weight:600;">' + statusText + '</span></td>' +
           '<td ' + tdc + '>' + auditIcon + '</td>' +
@@ -1398,7 +1398,7 @@ function showPropTab(name, btn) {
     btn.closest('tr').remove();
   }
 
-  /* ── Service modal ── */
+  /* -- Service modal -- */
   function openServiceModal(id) {
     var src = 'ServiceAdd.html?entityType=property&propertyId=' + propId;
     if (id) src += '&id=' + id;
@@ -1415,7 +1415,7 @@ function showPropTab(name, btn) {
     if (e.target === this) closeServiceModal(false);
   });
 
-  /* ── Package Plan modal ── */
+  /* -- Package Plan modal -- */
   var allPackages = [];
   var pkgServiceRows = [];
 
@@ -1533,7 +1533,7 @@ function showPropTab(name, btn) {
       tbody.innerHTML = '<tr><td colspan="9" style="padding:10px; color:#aaa; font-style:italic;">No services in this package.</td></tr>';
     } else {
       var today = new Date(); today.setHours(0,0,0,0);
-      function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
+      function fmtDate(v) { if (!v) return '�'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
       tbody.innerHTML = pkgServiceRows.map(function(r, i) {
         var isPast = r.end_date && new Date(r.end_date + 'T00:00:00') < today;
         var checked = isPast ? '' : 'checked';
@@ -1544,8 +1544,8 @@ function showPropTab(name, btn) {
         return '<tr style="border-bottom:2px solid #d0d0d0; background:' + rowBg + '; opacity:' + (isPast ? '0.75' : '1') + ';" class="pkg-modal-row" data-row="' + i + '">' +
           '<td style="padding:7px 10px; text-align:center; white-space:nowrap;"><input type="checkbox" class="pkg-inc-cb" data-row="' + i + '" ' + checked + (isPast ? ' data-past="1"' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:#e07820;"/></td>' +
           '<td style="padding:7px 10px; text-align:center; font-weight:700; color:#888; white-space:nowrap;">' + (i + 1) + '</td>' +
-          '<td style="padding:7px 10px; white-space:nowrap;">' + (r.name || '—') + '</td>' +
-          '<td style="padding:7px 10px; white-space:nowrap;">' + (r.service_name || '—') + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;">' + (r.name || '�') + '</td>' +
+          '<td style="padding:7px 10px; white-space:nowrap;">' + (r.service_name || '�') + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap;">' + fmtDate(r.start_date) + '</td>' +
           '<td style="padding:7px 10px; white-space:nowrap; color:' + (isPast ? '#c0392b' : 'inherit') + '; font-weight:' + (isPast ? '700' : 'normal') + ';">' + fmtDate(r.end_date) + '</td>' +
           '<td style="padding:7px 10px; text-align:center; white-space:nowrap;">' + (r.min_days || 0) + '</td>' +
@@ -1591,7 +1591,7 @@ function showPropTab(name, btn) {
     btn.style.cursor = 'default';
   }
 
-  /* ── Discount modal ── */
+  /* -- Discount modal -- */
   var discountList = [];
   var discountTargetRow = -1;
   var rowDiscountData = {}; /* saved discount info per row index */
@@ -1695,7 +1695,7 @@ function showPropTab(name, btn) {
       discBtns[targetRow].style.background = '#555';
       discBtns[targetRow].style.color = '#fff';
       discBtns[targetRow].style.borderColor = '#555';
-      discBtns[targetRow].title = 'Discount applied — click to change';
+      discBtns[targetRow].title = 'Discount applied � click to change';
     }
     closeDiscountModal();
   }
@@ -1756,7 +1756,7 @@ function showPropTab(name, btn) {
     window.location.reload();
   }
 
-  /* ── Waiting list cards (packages + individual services) ── */
+  /* -- Waiting list cards (packages + individual services) -- */
   var pkgEditStore = {};
 
   async function loadPackageCards() {
@@ -1833,7 +1833,7 @@ function showPropTab(name, btn) {
       html +=
         '<div data-pkedit="' + pid + '" style="position:relative;border-left:5px solid #3a9a3a;background:#fff;border-radius:2px;padding:8px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;" onmouseover="this.style.background=\'#f9fdf9\'" onmouseout="this.style.background=\'#fff\'">' +
           '<button onclick="event.stopPropagation();deletePkgServices(\'' + svcIds + '\',\'' + g.name + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete package services">&#10005;</button>' +
-          '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ✎</div>' +
+          '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Package ?</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
             '<span style="font-weight:700;color:#222;">' + g.name + ' (' + (pkgTotalCount[pid] || g.svcs.length) + ')</span>' +
             '<span><strong>Rate:</strong> ' + rateDisplay + '</span>' +
@@ -1851,7 +1851,7 @@ function showPropTab(name, btn) {
           '<button onclick="deleteOneService(\'' + r.id + '\',\'' + (r.service || '').replace(/'/g,'\\\'') + '\')" style="position:absolute;top:4px;right:6px;background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;" onmouseover="this.style.color=\'#c0392b\'" onmouseout="this.style.color=\'#aaa\'" title="Delete service">&#10005;</button>' +
           '<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Service</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-size:12.5px;flex-wrap:wrap;">' +
-            '<span style="font-weight:700;color:#222;">' + (r.service || '—') + '</span>' +
+            '<span style="font-weight:700;color:#222;">' + (r.service || '�') + '</span>' +
             '<span><strong>Rate:</strong> $' + amount.toFixed(2) + '</span>' +
             (start ? '<span><strong>Start:</strong> ' + start + '</span>' : '') +
           '</div>' +
@@ -1871,7 +1871,7 @@ function showPropTab(name, btn) {
   var pkeContext = {}; /* holds tmplRows + prop info for save */
 
   async function openPkgEditModal(svcs, name, pkgId) {
-    document.getElementById('pkg-edit-title').textContent = 'Edit Package — ' + name;
+    document.getElementById('pkg-edit-title').textContent = 'Edit Package � ' + name;
 
     var svcMap = {};
     svcs.forEach(function(s) { if (s.package_service_id) svcMap[s.package_service_id] = s; });
@@ -1905,7 +1905,7 @@ function showPropTab(name, btn) {
     switchPkeTab('services');
 
     var today = new Date(); today.setHours(0,0,0,0);
-    function fmtDate(v) { if (!v) return '—'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
+    function fmtDate(v) { if (!v) return '�'; var p = v.split('-'); return p.length===3 ? p[1]+'/'+p[2]+'/'+p[0] : v; }
 
     var tbody = document.getElementById('pkg-edit-rows');
     tbody.innerHTML = tmplRows.map(function(tmpl, i) {
@@ -1917,7 +1917,7 @@ function showPropTab(name, btn) {
       var minDays = hasSvc ? (svc.min_days != null ? svc.min_days : tmpl.min_days || 0) : (tmpl.min_days || 0);
       var startDate = hasSvc ? (svc.start_date || tmpl.start_date || '') : (tmpl.start_date || '');
       var endDate   = hasSvc ? (svc.end_date   || tmpl.end_date   || '') : (tmpl.end_date   || '');
-      var svcName   = tmpl.name || tmpl.service_name || '—';
+      var svcName   = tmpl.name || tmpl.service_name || '�';
       var rowBg  = isPast ? '#fff8f0' : (i % 2 === 0 ? '#ffffff' : '#f5f7fa');
       var opacity = (isPast && !hasSvc) ? '0.75' : '1';
       var missedCell = isPast
@@ -2126,14 +2126,14 @@ function showPropTab(name, btn) {
     loadPackageCards();
   }
 
-  /* ── Service menu ── */
+  /* -- Service menu -- */
   function toggleServiceMenu(e) {
     e.stopPropagation();
     var menu = document.getElementById('service-menu');
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
   }
 
-  /* ── Dropdowns ── */
+  /* -- Dropdowns -- */
   function toggleDropdown(id) {
     var menu = document.getElementById(id);
     document.querySelectorAll('.dropdown-menu').forEach(function(m) {
@@ -2154,7 +2154,7 @@ function showPropTab(name, btn) {
     }
   });
 
-  /* ── Activity tabs ── */
+  /* -- Activity tabs -- */
   document.querySelectorAll('.tab-links a').forEach(function(link) {
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -2163,7 +2163,7 @@ function showPropTab(name, btn) {
     });
   });
 
-  /* ── Attachment tabs ── */
+  /* -- Attachment tabs -- */
   document.querySelectorAll('.attach-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.attach-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -2171,7 +2171,7 @@ function showPropTab(name, btn) {
     });
   });
 
-  /* ── Details / Custom Fields (Property type) ── */
+  /* -- Details / Custom Fields (Property type) -- */
   async function loadDetailsGrid() {
     var grid  = document.getElementById('details-grid');
     var empty = document.getElementById('details-empty');
@@ -2192,11 +2192,11 @@ function showPropTab(name, btn) {
       if (f.type === 'Checkbox') {
         inp = '<input type="checkbox" class="dv-check" data-key="' + cfEscAttr(f.key) + '"' + (val ? ' checked' : '') + '/>';
       } else if (f.type === 'Number') {
-        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="�"/>';
       } else if (f.type === 'Date') {
         inp = '<input type="date" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '"/>';
       } else {
-        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="�"/>';
       }
       cell.innerHTML = '<span class="dl">' + escHtml(f.name) + '</span>' + inp;
       grid.appendChild(cell);
@@ -2226,7 +2226,7 @@ function showPropTab(name, btn) {
     }, 600);
   }
 
-  /* ── Area Treated ── */
+  /* -- Area Treated -- */
   function loadAreaTreated() {
     var at = (prop && prop.area_treated) ? prop.area_treated : {};
     document.querySelectorAll('.at-inp').forEach(function(inp) {
@@ -2256,7 +2256,7 @@ function showPropTab(name, btn) {
     }, 600);
   }
 
-  /* ── Property Invoices ── */
+  /* -- Property Invoices -- */
   async function loadPropertyInvoices() {
     if (!propId) return;
     var container = document.getElementById('property-invoices-list');
@@ -2397,9 +2397,9 @@ function showPropTab(name, btn) {
     }
   }
 
-  /* ════════════════════════════════════════════
+  /* --------------------------------------------
      PROPERTY MEASUREMENTS
-  ════════════════════════════════════════════ */
+  -------------------------------------------- */
   var _measureMap      = null;
   var _drawingManager  = null;
   var _measureShapes   = [];   // { id, label, type, value, color, shape (google object) }
@@ -2430,7 +2430,7 @@ function showPropTab(name, btn) {
       btn.innerHTML = '&#9650;';
       setTimeout(function() { if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize'); }, 100);
     } else {
-      // Collapse — hide panel entirely, map fills full width
+      // Collapse � hide panel entirely, map fills full width
       panel.dataset.collapsed = '1';
       panel.style.display = 'none';
       // Show floating expand button on map
@@ -2630,7 +2630,7 @@ function showPropTab(name, btn) {
         '</td>' +
         '<td>' + (m.type === 'polygon' ? 'Area' : 'Line') + '</td>' +
         '<td>' +
-          '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' — click to change">' + modeLabel + '</button>' +
+          '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' � click to change">' + modeLabel + '</button>' +
         '</td>' +
         '<td><strong>' + m.value.toLocaleString() + '</strong> ' + (m.type === 'polygon' ? 'sq ft' : 'linear ft') + '</td>' +
         '<td><button class="btn-measure-del" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>';
@@ -2819,7 +2819,7 @@ function showPropTab(name, btn) {
     var { error } = await sb.from('Properties').update({ measurements: toSave, area_treated: at, user_id: uid }).eq('id', propId);
     if (error) { alert('Error saving: ' + error.message); return; }
     var btn = document.querySelector('.btn-measure-save');
-    btn.textContent = 'Saved ✓';
+    btn.textContent = 'Saved ?';
     setTimeout(function() { btn.textContent = 'Save Measurements'; }, 2000);
   }
 

@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -14,7 +14,7 @@
     }
     .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
     .btn-add {
-      background: #130520; color: #fff; border: 3px solid #e07820;
+      background: #130520; color: #fff; border: 2px solid #e07820;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer;
     }
@@ -124,7 +124,7 @@
     .modal-field select:focus,
     .modal-field input:focus { border-color: #e07820; }
     .modal-footer { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
-    .btn-save { background: #130520; color: #fff; border: 3px solid #e07820; padding: 8px 24px; font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer; }
+    .btn-save { background: #130520; color: #fff; border: 2px solid #e07820; padding: 8px 24px; font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer; }
     .btn-save:hover { background: #1e0a35; }
     .btn-cancel-modal { color: #555; font-size: 13px; cursor: pointer; }
     .btn-cancel-modal:hover { text-decoration: underline; }
@@ -143,7 +143,7 @@
 <div class="filter-bar">
   <label>Employee</label>
   <select id="emp-select" onchange="load()">
-    <option value="">â€” All Employees â€”</option>
+    <option value="">— All Employees —</option>
   </select>
   <label>From</label>
   <input type="date" id="date-from"/>
@@ -173,7 +173,7 @@
   </div>
   <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end;">
     <span style="font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:.4px;">Total Hours</span>
-    <span style="font-size:18px; font-weight:700; color:#fff;" id="sum-hours">â€”</span>
+    <span style="font-size:18px; font-weight:700; color:#fff;" id="sum-hours">—</span>
   </div>
 </div>
 
@@ -329,20 +329,20 @@
   }
 
   function fmtHours(h) {
-    if (h === null || h === undefined) return 'â€”';
+    if (h === null || h === undefined) return '—';
     var hrs = Math.floor(h);
     var min = Math.round((h - hrs) * 60);
     return hrs + 'h ' + pad(min) + 'm';
   }
 
   function fmtTime(ts) {
-    if (!ts) return 'â€”';
+    if (!ts) return '—';
     var d = new Date(ts);
     return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   }
 
   function fmtDate(ts) {
-    if (!ts) return 'â€”';
+    if (!ts) return '—';
     var d = new Date(ts);
     return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
   }
@@ -389,15 +389,15 @@
       if (h !== null) { totalHours += h; completedShifts++; }
 
       var empObj = employees.find(function(e) { return e.id === log.employee_id; });
-      var emp = empObj ? (empObj.last_name + ', ' + empObj.first_name) : 'â€”';
+      var emp = empObj ? (empObj.last_name + ', ' + empObj.first_name) : '—';
       var status = log.clock_out
         ? '<span class="pill-complete">Completed</span>'
         : '<span class="pill-active">Clocked In</span>';
 
       var lunchH  = calcHours(log.lunch_start, log.lunch_end);
       var breakH  = calcHours(log.break_start, log.break_end);
-      var lunchCell = log.lunch_start ? (fmtTime(log.lunch_start) + (log.lunch_end ? ' â€“ ' + fmtTime(log.lunch_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(lunchH) + '</span>' : ' <span style="font-size:11px;color:#e07820;">out</span>')) : 'â€”';
-      var breakCell = log.break_start ? (fmtTime(log.break_start) + (log.break_end ? ' â€“ ' + fmtTime(log.break_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(breakH) + '</span>' : ' <span style="font-size:11px;color:#e07820;">out</span>')) : 'â€”';
+      var lunchCell = log.lunch_start ? (fmtTime(log.lunch_start) + (log.lunch_end ? ' – ' + fmtTime(log.lunch_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(lunchH) + '</span>' : ' <span style="font-size:11px;color:#e07820;">out</span>')) : '—';
+      var breakCell = log.break_start ? (fmtTime(log.break_start) + (log.break_end ? ' – ' + fmtTime(log.break_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(breakH) + '</span>' : ' <span style="font-size:11px;color:#e07820;">out</span>')) : '—';
 
       var tr = document.createElement('tr');
       tr.innerHTML =
@@ -416,7 +416,7 @@
 
     document.getElementById('sum-shifts').textContent = logs.length;
     document.getElementById('sum-hours').textContent  = fmtHours(totalHours);
-    document.getElementById('sum-avg').textContent    = completedShifts ? fmtHours(totalHours / completedShifts) : 'â€”';
+    document.getElementById('sum-avg').textContent    = completedShifts ? fmtHours(totalHours / completedShifts) : '—';
     emptyMsg.style.display = logs.length ? 'none' : '';
   }
 
@@ -472,7 +472,7 @@
     if (!inTime) { alert('Please enter a clock-in time.'); return; }
 
     var saveBtn = document.querySelector('#modal-overlay .btn-save');
-    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Savingâ€¦'; }
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
 
     var clockIn  = new Date(date + 'T' + inTime  + ':00').toISOString();
     var clockOut = outTime ? new Date(date + 'T' + outTime + ':00').toISOString() : null;

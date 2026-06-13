@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -9,17 +9,17 @@
 
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
 
-    /* ── Page header ── */
+    /* -- Page header -- */
     .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; background:#130520; margin:8px 16px; border-radius:10px; }
     .showing-count { font-size:13px; color:rgba(255,255,255,.6); }
     .btn-orange-filled {
-      background: #130520; color: #fff; border: 3px solid #e07820;
+      background: #130520; color: #fff; border: 2px solid #e07820;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer; font-family: inherit; transition: background .15s;
     }
     .btn-orange-filled:hover { background: #1e0a35; }
 
-    /* ── Filter pills ── */
+    /* -- Filter pills -- */
     .tabs-bar {
       display: flex; gap: 4px; padding: 8px 20px;
       flex-wrap: wrap; overflow-x: visible; background: #1a0a30; margin: 0 16px; border-radius: 8px;
@@ -33,7 +33,7 @@
     .tab-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
     .tab-btn.active { background: #e07820; color: #fff; border-color: #e07820; font-weight: 700; }
 
-    /* ── Toolbar ── */
+    /* -- Toolbar -- */
     .toolbar { background: #130520; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; margin:2px 16px 0; border-radius:8px 8px 0 0; }
     .toolbar-left { display:flex; align-items:center; gap:6px; position:relative; overflow:visible; }
     .btn-green-main { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; border-radius:3px 0 0 3px; padding:5px 14px; font-size:13px; font-family:inherit; font-weight:700; cursor:pointer; }
@@ -57,7 +57,7 @@
     .pg-btn:hover { background:rgba(255,255,255,.2); }
     .pg-current { background:#f5c800; color:#111; border:none; padding:4px 9px; border-radius:3px; font-size:12px; font-weight:700; }
 
-    /* ── Table ── */
+    /* -- Table -- */
     .table-container { background:#fff; margin:0 16px; }
     table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
     thead th { background:#e8e4f0; border-bottom:2px solid #c5bfd8; padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#3a2a55; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
@@ -103,7 +103,7 @@
       font-size: 14px;
     }
 
-    /* ── Add Invoice Modal ── */
+    /* -- Add Invoice Modal -- */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,.55); z-index: 1000;
@@ -256,7 +256,7 @@
   { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-  /* ── Dropdown ── */
+  /* -- Dropdown -- */
   function toggleDropdown(e) {
     e.stopPropagation();
     var dd = document.getElementById('actions-dropdown');
@@ -271,7 +271,7 @@
     document.getElementById('actions-dropdown').classList.remove('open');
   });
 
-  /* ── Tabs ── */
+  /* -- Tabs -- */
   var currentTab = 'open';
   function setTab(btn, tab) {
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -286,7 +286,7 @@
     return d.toISOString().split('T')[0];
   }
 
-  /* ── Data ── */
+  /* -- Data -- */
   var invoices = [];
 
   async function loadInvoices() {
@@ -296,7 +296,7 @@
     renderTable();
   }
 
-  /* ── Helpers ── */
+  /* -- Helpers -- */
   function fmt(v) {
     return '$' + (v !== undefined ? parseFloat(v).toFixed(2) : '0.00');
   }
@@ -307,7 +307,7 @@
     document.getElementById('total-invtotal').textContent = fmt(invTotal);
   }
 
-  /* ── Render ── */
+  /* -- Render -- */
   function renderTable() {
     var tbody    = document.getElementById('invoice-tbody');
     var emptyMsg = document.getElementById('empty-msg');
@@ -455,7 +455,7 @@
   loadInvoices();
 </script>
 
-<!-- ── Add Invoice Modal ── -->
+<!-- -- Add Invoice Modal -- -->
 <div class="modal-overlay" id="add-invoice-modal" onclick="handleModalOverlayClick(event)">
   <div class="modal-box" onclick="event.stopPropagation()">
 
@@ -589,7 +589,7 @@
 </div>
 
 <script>
-  /* ── Add Invoice Modal ── */
+  /* -- Add Invoice Modal -- */
 
   var selectedPropertyId = null;
   var invServiceNames = [];
@@ -678,7 +678,7 @@
     if (lbl) lbl.textContent = '#' + next;
   }
 
-  /* ── Client Search ── */
+  /* -- Client Search -- */
   var clientSearchTimer = null;
   function searchClients(val) {
     clearTimeout(clientSearchTimer);
@@ -740,7 +740,7 @@
     if (wrap && !wrap.contains(e.target)) document.getElementById('client-results').classList.remove('open');
   });
 
-  /* ── Line Items ── */
+  /* -- Line Items -- */
   function onServiceNameSelect(sel) {
     recalcLine(sel);
     var taxId = invServiceTaxMap[sel.value];
@@ -838,7 +838,7 @@
     document.getElementById('inv-total-display').textContent = total.toFixed(2);
   }
 
-  /* ── Save Invoice ── */
+  /* -- Save Invoice -- */
   async function saveInvoice(andNew) {
     var clientName = document.getElementById('inv-client-search').value.trim();
     var invDate    = document.getElementById('inv-date').value;
@@ -902,7 +902,7 @@
     loadInvoices();
   }
 
-  /* ── Auto-generate invoice from completed services ── */
+  /* -- Auto-generate invoice from completed services -- */
   async function generateInvoiceFromServices(svcs) {
     if (!svcs || !svcs.length) return;
     var nextNum = await getNextInvoiceNumber();

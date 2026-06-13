@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -27,7 +27,7 @@
     .sf-label { font-size:13px; color:#333; white-space:nowrap; }
     .ms-wrap { position:relative; display:inline-block; }
     .ms-btn { height:26px; min-width:200px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); padding:0 24px 0 8px; font-size:13px; cursor:pointer; text-align:left; color:#fff; position:relative; border-radius:4px; }
-    .ms-btn::after { content:'▼'; font-size:9px; position:absolute; right:7px; top:50%; transform:translateY(-50%); color:#777; }
+    .ms-btn::after { content:'?'; font-size:9px; position:absolute; right:7px; top:50%; transform:translateY(-50%); color:#777; }
     .ms-dropdown { display:none; position:absolute; top:calc(100% + 2px); left:0; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.15); z-index:500; min-width:220px; max-height:220px; overflow-y:auto; padding:4px 0; }
     .ms-dropdown.open { display:block; }
     .ms-item { display:flex; align-items:center; gap:7px; padding:5px 10px; cursor:pointer; font-size:13px; }
@@ -65,7 +65,7 @@
     .toolbar-right { margin-left:auto; display:flex; gap:6px; }
         .btn-orange-outline {
       background: #130520;
-      border: 3px solid #e07820;
+      border: 2px solid #e07820;
       color: #fff;
       font-weight: 700;
       border-radius: 6px;
@@ -76,9 +76,9 @@
       transition: background .15s;
     }
     .btn-orange-outline:hover { background: #1e0a35; }
-    .btn-print { background:#130520; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
+    .btn-print { background:#130520; color:#fff; border:2px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
     .btn-print:hover { background:#1e0a35; }
-    .btn-map-toggle { background:#130520; color:#fff; border:3px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
+    .btn-map-toggle { background:#130520; color:#fff; border:2px solid #e07820; padding:7px 16px; font-size:13.5px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; transition:background .15s; }
     .btn-map-toggle:hover { background:#1e0a35; }
     @media print {
       .filter-bar, .subfilter-bar, .toolbar, .map-section, .bottom-bar, .page-header,
@@ -90,7 +90,7 @@
     .app-dropdown { position:relative; }
     .app-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; border:2px solid rgba(255,255,255,.15); background:#130520; padding:7px 16px; font-size:13.5px; font-weight:400; min-width:160px; cursor:pointer; text-align:left; border-radius:6px; color:rgba(255,255,255,.7); font-family:inherit; transition:background .15s; }
     .app-btn:hover { background:#1e0a35; color:#fff; }
-    .app-btn::after { content:'▼'; font-size:9px; color:rgba(255,255,255,.5); flex-shrink:0; }
+    .app-btn::after { content:'?'; font-size:9px; color:rgba(255,255,255,.5); flex-shrink:0; }
     .saved-filters-panel { display:none; position:absolute; top:100%; left:0; z-index:300; width:280px; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.2); }
     .saved-filters-panel.show { display:flex; flex-direction:column; }
     .sfp-body { overflow-y:auto; max-height:280px; padding:8px 10px; }
@@ -268,7 +268,7 @@
     </div>
   </div>
   <div class="drp-wrap" id="drp-wrap">
-    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading…</div>
+    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading�</div>
     <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
       <div class="drp-months">
         <div id="drp-month-left"></div>
@@ -382,7 +382,7 @@
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
       <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign to Trucks</label>
       <select id="sched-truck" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
-        <option value="">— no truck —</option>
+        <option value="">� no truck �</option>
       </select>
     </div>
     <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
@@ -476,7 +476,7 @@
     <button class="sv-modal-close" onclick="closeSaveViewModal()">&#10005;</button>
     <div class="sv-modal-title">Screen View</div>
     <div class="sv-modal-label">Enter View name.</div>
-    <input type="text" id="sv-name-input" placeholder="View name…" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
+    <input type="text" id="sv-name-input" placeholder="View name�" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
     <div class="sv-modal-footer">
       <button class="sv-modal-save" onclick="confirmSaveView()">Save</button>
       <button class="sv-modal-cancel" onclick="closeSaveViewModal()">or Cancel</button>
@@ -486,14 +486,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  /* ── Supabase ── */
+  /* -- Supabase -- */
   const sb = supabase.createClient(
     'https://knjdbgroiyhvqwrpqzcx.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
   { auth: { autoRefreshToken: true, detectSessionInUrl: false } }
   );
 
-  /* ── Clock ── */
+  /* -- Clock -- */
   function updateClock() {
     var now = new Date();
     var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -502,14 +502,14 @@
     var ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12; if (!h) h = 12;
     var time = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' ' + ampm;
-    document.getElementById('page-clock').textContent = time + ' • ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('page-clock').textContent = time + ' � ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
   }
   updateClock();
   setInterval(updateClock, 1000);
 
-  /* ── Data ── */
+  /* -- Data -- */
   var invoiceNameToServiceName = {};
-  var serviceInvoiceNameMap = {}; // catalog service name → invoice_name for one-time services
+  var serviceInvoiceNameMap = {}; // catalog service name ? invoice_name for one-time services
 
   function resolvedServiceName(svc) {
     /* 1. package_service_id lookup (future records) */
@@ -536,7 +536,7 @@
   var mapMarkers = [];
   var routeOrderMode = false, routeCounter = 0, routeOrderMap = {};
 
-  /* ── Custom fields ── */
+  /* -- Custom fields -- */
   async function loadCustomFields() {
     var { data, error } = await sb.from('custom_fields').select('id, key, name, display_order').eq('active', true).order('display_order', { ascending: true });
     if (error) { console.error(error); return; }
@@ -566,7 +566,7 @@
     if (direct !== null && direct !== undefined) {
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
       if (hasArea) return direct;
-      /* empty or all-false — fall through to catalog lookup */
+      /* empty or all-false � fall through to catalog lookup */
     }
     var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
@@ -598,7 +598,7 @@
     return m && m[def.key] !== undefined ? String(m[def.key]) : '';
   }
 
-  /* ── Column management ── */
+  /* -- Column management -- */
   var CORE_COLS = ['order','client','service','lastsvc','amount'];
   var activeCoreColumns = CORE_COLS.slice();
   var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
@@ -697,9 +697,9 @@
     }
   }
 
-  /* ── Load services ── */
+  /* -- Load services -- */
   async function loadServices() {
-    document.getElementById('jobs-total').textContent = 'Loading…';
+    document.getElementById('jobs-total').textContent = 'Loading�';
     var { data, error } = await sb.from('Services')
       .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, associated_areas, Properties(lat, lng)')
       .not('property_id', 'is', null)
@@ -822,7 +822,7 @@
     return svc.start_date || '';
   }
 
-  /* ── Render table ── */
+  /* -- Render table -- */
   function renderTable() {
     var filtered = services.slice();
 
@@ -847,7 +847,7 @@
       });
     }
 
-    /* start_date / scheduled_date filter — hide services not yet due as of the selected date */
+    /* start_date / scheduled_date filter � hide services not yet due as of the selected date */
     var refDate = drpStart ? new Date(drpStart) : new Date();
     refDate.setHours(0,0,0,0);
     var pad = function(n) { return String(n).padStart(2,'0'); };
@@ -858,7 +858,7 @@
       return true;
     });
 
-    /* min days filter — hide services dispatched less than min_days ago (uses selected date as reference) */
+    /* min days filter � hide services dispatched less than min_days ago (uses selected date as reference) */
     if (document.getElementById('use-min-days').checked) {
       filtered = filtered.filter(function(s) {
         var minDays = parseInt(s.min_days) || 0;
@@ -870,7 +870,7 @@
         return daysSince >= minDays;
       });
 
-      /* Package sequential filter — for package services, only show the earliest
+      /* Package sequential filter � for package services, only show the earliest
          undispatched step per property+package so only 1 service from each package
          appears on the waiting list at a time.
          Falls back to grouping by property when package_services rows are stale
@@ -896,10 +896,10 @@
         return s.package_service_id === pkgGroupMin[gKey];
       });
 
-      /* Master package dependency filter — hide services whose package requires a master
+      /* Master package dependency filter � hide services whose package requires a master
          package until that master package also has a currently-due service on the property.
          Exception: if the property has no pending services from the master package at all,
-         they are not in the master package's current cycle — show normally. */
+         they are not in the master package's current cycle � show normally. */
       if (Object.keys(packageMasterMap).length) {
         /* which package_ids are currently due (in filtered after sequential filter) per property */
         var activePkgsByProp = {};
@@ -925,10 +925,10 @@
           if (!meta || !meta.package_id) return true;
           var masterPkgId = packageMasterMap[meta.package_id];
           if (!masterPkgId) return true; /* no master dependency */
-          /* if property has no pending services from master package → not in its cycle → show */
+          /* if property has no pending services from master package ? not in its cycle ? show */
           var pending = pendingPkgsByProp[s.property_id] || {};
           if (!pending[masterPkgId]) return true;
-          /* enrolled in master cycle → only show when master is also currently due */
+          /* enrolled in master cycle ? only show when master is also currently due */
           var activePkgs = activePkgsByProp[s.property_id] || {};
           return !!activePkgs[masterPkgId];
         });
@@ -1028,7 +1028,7 @@
       var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span>' + notesHtml + '</td>' : '';
       var displaySvc = resolvedServiceName(svc);
       var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
-      var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ⚠' : '') + '</td>';
+      var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ?' : '') + '</td>';
       var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';
       var amtCell = activeCoreColumns.indexOf('amount') >= 0 ? '<td>$' + amt.toFixed(2) + '</td>' : '';
 
@@ -1099,7 +1099,7 @@
     loadMarkers();
   }
 
-  /* ── Filter logic ── */
+  /* -- Filter logic -- */
   function setFilter(btn, type) {
     if (btn.classList.contains('active')) {
       btn.classList.remove('active');
@@ -1199,7 +1199,7 @@
     document.getElementById('status-ms-dropdown').classList.remove('open');
   }
 
-  /* ── Stats toggle ── */
+  /* -- Stats toggle -- */
   var statsVisible = false;
   function toggleStats() {
     statsVisible = !statsVisible;
@@ -1207,7 +1207,7 @@
     document.getElementById('stats-btn').textContent = statsVisible ? 'Hide Stats' : 'Show Stats';
   }
 
-  /* ── Map toggle ── */
+  /* -- Map toggle -- */
   var mapVisible = false;
   function toggleMap() {
     mapVisible = !mapVisible;
@@ -1216,7 +1216,7 @@
     if (mapVisible && map) google.maps.event.trigger(map, 'resize');
   }
 
-  /* ── Date range picker ── */
+  /* -- Date range picker -- */
   var drpStart, drpEnd, drpLY, drpLM, drpRY, drpRM;
   var drpSelecting = false;
 
@@ -1235,7 +1235,7 @@
     var opts = { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' };
     var s = drpStart.toLocaleDateString('en-US', opts);
     el.textContent = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
-      ? s + ' – ' + drpEnd.toLocaleDateString('en-US', opts) : s;
+      ? s + ' � ' + drpEnd.toLocaleDateString('en-US', opts) : s;
   }
 
   function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
@@ -1300,7 +1300,7 @@
     drpRender(); drpUpdateInput();
   }
 
-  /* ── Day tabs ── */
+  /* -- Day tabs -- */
   var dayLetters = ['S','M','T','W','T','F','S'];
   function buildDayTabs() {
     var tabs = document.getElementById('day-tabs');
@@ -1328,7 +1328,7 @@
     }
   }
 
-  /* ── Google Maps ── */
+  /* -- Google Maps -- */
   var map = new google.maps.Map(document.getElementById('map'), {
     center: { lat: 32.725, lng: -97.033 },
     zoom: 9,
@@ -1342,7 +1342,7 @@
   var mapTool = 'pan', polyVerts = [], vertexMarkers = [], firstVertexMarker = null, drawingMarkers = [];
   var selPolygon = null, selDrawingLine = null, selPreviewLine = null;
 
-  /* Minimal OverlayView — only used to get MapCanvasProjection for lat/lng conversions */
+  /* Minimal OverlayView � only used to get MapCanvasProjection for lat/lng conversions */
   var projOverlay = new google.maps.OverlayView();
   projOverlay.onAdd = function() {};
   projOverlay.draw  = function() {};
@@ -1536,7 +1536,7 @@
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
 
-    /* area treated totals — only count area types associated with each service */
+    /* area treated totals � only count area types associated with each service */
     var areaTotals = {};
     var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
     var seenPropForArea = {};
@@ -1710,7 +1710,7 @@
     if (prop && prop.lat && prop.lng) { map.panTo({ lat: prop.lat, lng: prop.lng }); map.setZoom(14); }
   }
 
-  /* ── Schedule modal ── */
+  /* -- Schedule modal -- */
   var schedCalYear, schedCalMonth, schedSelDate;
   function scheduleSelected(e) {
     if (e) e.preventDefault();
@@ -1736,7 +1736,7 @@
 
   async function loadSchedAssign() {
     var sel = document.getElementById('sched-assign');
-    sel.innerHTML = '<option value="">— assign later —</option>';
+    sel.innerHTML = '<option value="">� assign later �</option>';
     var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
     (data || []).forEach(function(e) {
       var opt = document.createElement('option');
@@ -1748,7 +1748,7 @@
 
   async function loadSchedTrucks() {
     var sel = document.getElementById('sched-truck');
-    sel.innerHTML = '<option value="">— no truck —</option>';
+    sel.innerHTML = '<option value="">� no truck �</option>';
     var { data } = await sb.from('trucks').select('id, name').eq('active', true).order('name');
     (data || []).forEach(function(t) {
       var opt = document.createElement('option');
@@ -1854,7 +1854,7 @@
     if (inserts.length) await sb.from('Services').insert(inserts);
   }
 
-  /* ── Cancel / Skip ── */
+  /* -- Cancel / Skip -- */
   async function cancelSelected(e) {
     if (e) e.preventDefault();
     document.getElementById('actions-dd').style.display = 'none';
@@ -1884,7 +1884,7 @@
     try {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (!uid) { console.error('[sendAlert] No session — alert not sent'); return; }
+      if (!uid) { console.error('[sendAlert] No session � alert not sent'); return; }
 
       var { data: toggleRow } = await sb.from('alert_toggles')
         .select('sms_enabled')
@@ -1892,7 +1892,7 @@
         .eq('alert_type', alertType)
         .single();
       if (!toggleRow || !toggleRow.sms_enabled) {
-        console.log('[sendAlert] Alert toggled off for', alertType, '— skipping');
+        console.log('[sendAlert] Alert toggled off for', alertType, '� skipping');
         return;
       }
 
@@ -1903,7 +1903,7 @@
         .single();
       console.log('[sendAlert] alert_settings:', JSON.stringify(alertRow));
       if (!alertRow || !alertRow.enabled || !alertRow.message) {
-        console.log('[sendAlert] Alert not configured — skipping');
+        console.log('[sendAlert] Alert not configured � skipping');
         return;
       }
 
@@ -1923,7 +1923,7 @@
     } catch(e) { console.error('[sendAlert] error:', e); }
   }
 
-  /* ── Delete services ── */
+  /* -- Delete services -- */
   function deleteSelectedServices(e) {
     e.preventDefault(); e.stopPropagation();
     document.getElementById('actions-dd').style.display = 'none';
@@ -1946,14 +1946,14 @@
     await loadServices();
   }
 
-  /* ── Actions dropdown ── */
+  /* -- Actions dropdown -- */
   function toggleActionsDD(e) {
     e.stopPropagation();
     var dd = document.getElementById('actions-dd');
     dd.style.display = dd.style.display === 'none' ? '' : 'none';
   }
 
-  /* ── Saved Views ── */
+  /* -- Saved Views -- */
   var savedViews = [];
   var activeViewId = null;
 
@@ -2030,7 +2030,7 @@
       if (cb) cb.checked = true;
       document.getElementById('status-ms-btn').textContent = '1 selected';
     }
-    document.getElementById('active-filter-label').textContent = id !== 'none' ? '• ' + id : '';
+    document.getElementById('active-filter-label').textContent = id !== 'none' ? '� ' + id : '';
     document.getElementById('saved-filters-panel').classList.remove('show');
     renderTable();
   }
@@ -2100,7 +2100,7 @@
       cb.checked = activeTagFilter.indexOf(cb.value) >= 0;
     });
     document.getElementById('tag-ms-btn').textContent = activeTagFilter.length ? activeTagFilter.length + ' selected' : '-- Select --';
-    document.getElementById('active-filter-label').textContent = '• ' + v.name;
+    document.getElementById('active-filter-label').textContent = '� ' + v.name;
     document.getElementById('saved-filters-panel').classList.remove('show');
     buildTableHeader();
     renderTable();
@@ -2183,7 +2183,7 @@
     }
   }
 
-  /* ── Close dropdowns on outside click ── */
+  /* -- Close dropdowns on outside click -- */
   document.addEventListener('click', function() {
     document.getElementById('actions-dd').style.display = 'none';
     document.getElementById('ms-dropdown').classList.remove('open');
@@ -2194,7 +2194,7 @@
     document.getElementById('col-panel').classList.remove('show');
   });
 
-  /* ── Init ── */
+  /* -- Init -- */
   initDRP();
   buildDayTabs();
 
@@ -2210,7 +2210,7 @@
     var pendingCb = document.getElementById('st-pending');
     if (pendingCb) pendingCb.checked = true;
     document.getElementById('status-ms-btn').textContent = '1 selected';
-    document.getElementById('active-filter-label').textContent = '• pending';
+    document.getElementById('active-filter-label').textContent = '� pending';
     await loadServices();
   })();
 </script>

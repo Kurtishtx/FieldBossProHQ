@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -9,17 +9,17 @@
 
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
 
-    /* ── Page header ── */
+    /* -- Page header -- */
     .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; background:#130520; margin:8px 16px; border-radius:10px; }
     .showing-count { font-size:13px; color:rgba(255,255,255,.6); }
     .btn-orange-filled {
-      background: #130520; color: #fff; border: 3px solid #e07820;
+      background: #130520; color: #fff; border: 2px solid #e07820;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer; font-family: inherit; transition: background .15s;
     }
     .btn-orange-filled:hover { background: #1e0a35; }
 
-    /* ── Filter pills ── */
+    /* -- Filter pills -- */
     .tabs-bar {
       display: flex; gap: 4px; padding: 8px 20px;
       flex-wrap: wrap; background: #1a0a30; margin: 0 16px; border-radius: 8px;
@@ -33,7 +33,7 @@
     .tab-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
     .tab-btn.active { background: #e07820; color: #fff; border-color: #e07820; font-weight: 700; }
 
-    /* ── Toolbar ── */
+    /* -- Toolbar -- */
     .toolbar { background: #130520; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; margin:2px 16px 0; border-radius:8px 8px 0 0; }
     .toolbar-left { display:flex; align-items:center; gap:6px; position:relative; overflow:visible; }
     .btn-green-main { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; border-radius:3px 0 0 3px; padding:5px 14px; font-size:13px; font-family:inherit; font-weight:700; cursor:pointer; }
@@ -57,7 +57,7 @@
     .pg-btn:hover { background:rgba(255,255,255,.2); }
     .pg-current { background:#f5c800; color:#111; border:none; padding:4px 9px; border-radius:3px; font-size:12px; font-weight:700; }
 
-    /* ── Table ── */
+    /* -- Table -- */
     .table-container { background:#fff; margin:0 16px; }
     table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
     thead th { background:#e8e4f0; border-bottom:2px solid #c5bfd8; padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#3a2a55; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
@@ -151,7 +151,7 @@
   { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-  /* ── Dropdown (body-level, fixed) ── */
+  /* -- Dropdown (body-level, fixed) -- */
   function toggleDropdown(e) {
     e.stopPropagation();
     var dd = document.getElementById('actions-dropdown');
@@ -166,7 +166,7 @@
     document.getElementById('actions-dropdown').classList.remove('open');
   });
 
-  /* ── Tabs ── */
+  /* -- Tabs -- */
   var currentTab = 'last30';
   function setTab(btn, tab) {
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -181,7 +181,7 @@
     return d.toISOString().split('T')[0];
   }
 
-  /* ── Data ── */
+  /* -- Data -- */
   var payments = [];
 
   async function loadPayments() {
@@ -191,7 +191,7 @@
     renderTable();
   }
 
-  /* ── Helpers ── */
+  /* -- Helpers -- */
   function fmt(v) { return '$' + (parseFloat(v) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
   function updateTotals(rows) {
@@ -206,7 +206,7 @@
     document.getElementById('total-refunded').textContent  = fmt(refunded);
   }
 
-  /* ── Render ── */
+  /* -- Render -- */
   function renderTable() {
     var tbody    = document.getElementById('payment-tbody');
     var emptyMsg = document.getElementById('empty-msg');
