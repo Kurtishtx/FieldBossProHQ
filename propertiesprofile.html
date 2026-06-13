@@ -32,28 +32,28 @@
     /* ── Split buttons ── */
     .btn-group { display: flex; align-items: stretch; }
     .btn-main-outline {
-      background: #e07820; color: #fff; border: 2px solid #fff;
+      background: #fff; color: #e07820; border: 2px solid #e07820;
       padding: 6px 16px; font-size: 13px; font-weight: 700; font-family: inherit;
-      cursor: pointer; border-radius: 6px 0 0 6px; border-right: 1px solid rgba(255,255,255,.3);
+      cursor: pointer; border-radius: 6px 0 0 6px; border-right: none;
     }
-    .btn-main-outline:hover { background: #c96a10; }
+    .btn-main-outline:hover { background: #fff5ec; }
     .btn-caret-outline {
-      background: #e07820; color: #fff; border: 2px solid #fff; border-left: none;
+      background: #fff; color: #e07820; border: 2px solid #e07820;
       padding: 6px 9px; font-size: 11px; cursor: pointer; border-radius: 0 6px 6px 0;
     }
-    .btn-caret-outline:hover { background: #c96a10; }
+    .btn-caret-outline:hover { background: #fff5ec; }
     .btn-main {
-      background: #fff; color: #e07820; border: 2px solid #e07820;
-      border-right: 1px solid rgba(224,120,32,.3);
+      background: #e07820; color: #fff; border: 2px solid #fff;
+      border-right: 1px solid rgba(255,255,255,.3);
       padding: 6px 16px; font-size: 13px; font-weight: 700; font-family: inherit;
       cursor: pointer; border-radius: 6px 0 0 6px;
     }
-    .btn-main:hover { background: #fff5ec; }
+    .btn-main:hover { background: #c96a10; }
     .btn-caret {
-      background: #fff; color: #e07820; border: 2px solid #e07820; border-left: none;
+      background: #e07820; color: #fff; border: 2px solid #fff; border-left: none;
       padding: 6px 9px; font-size: 11px; cursor: pointer; border-radius: 0 6px 6px 0;
     }
-    .btn-caret:hover { background: #fff5ec; }
+    .btn-caret:hover { background: #c96a10; }
 
     /* ── Dropdown ── */
     .dropdown { position: relative; display: inline-flex; }
@@ -253,8 +253,8 @@
     #pkg-modal-rows input[type="number"]::-webkit-outer-spin-button,
     #pkg-modal-rows input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     #pkg-modal-rows input[type="number"] { -moz-appearance: textfield; }
-    .btn-map-toggle { background:#f0f0f0; border:1px solid #ccc; color:#333; font-weight:600; border-radius:6px; padding:5px 14px; font-size:12.5px; font-family:inherit; cursor:pointer; }
-    .btn-map-toggle:hover { background:#e8e8e8; }
+    .btn-map-toggle { background:#e07820; border:2px solid #fff; color:#fff; font-weight:700; border-radius:6px; padding:5px 14px; font-size:12.5px; font-family:inherit; cursor:pointer; }
+    .btn-map-toggle:hover { background:#c96a10; }
 
     /* ── Measurement Panel ── */
     #measure-panel {
@@ -601,7 +601,7 @@
     <a class="edit-link" href="#" onclick="openPropEditModal(event)">Edit</a>
   </div>
   <div style="display:flex; gap:6px; align-items:center;">
-    <button class="btn-map-toggle" id="map-toggle-btn" onclick="togglePropMap()" style="display:none; background:#f0f0f0; border:1px solid #ccc; color:#333; font-weight:600; border-radius:6px; padding:5px 14px; font-size:12.5px; cursor:pointer;">&#9654; Map</button>
+    <button class="btn-map-toggle" id="map-toggle-btn" onclick="togglePropMap()" style="display:none;">&#9654; Map</button>
     <div class="dropdown">
       <div class="btn-group">
         <button class="btn-main-outline" onclick="sendText()">Send</button>
