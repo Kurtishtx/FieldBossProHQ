@@ -1009,8 +1009,30 @@ function showClientTab(name, btn) {
     renderTagChips();
     var { error } = await sb.from('Clients').update({ client_tags: clientTagNames }).eq('id', clientId);
     if (error) { alert('Tag save failed: ' + error.message); return; }
+    fireTagReviewRequest(selectedTagName);
     selectedTagName = null;
     document.getElementById('tag-select-label').textContent = 'Select Tag';
+  }
+
+  async function fireTagReviewRequest(tagName) {
+    try {
+      var { data: sessionData } = await sb.auth.getSession();
+      var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+      if (!uid) return;
+      var { data: toggleRow } = await sb.from('alert_toggles').select('sms_enabled').eq('user_id', uid).eq('alert_type', 'review_request').single();
+      if (!toggleRow || !toggleRow.sms_enabled) return;
+      var { data: setting } = await sb.from('alert_settings')
+        .select('message, review_link, trigger_type, trigger_tag, yearly_limit')
+        .eq('user_id', uid).eq('alert_type', 'review_request').single();
+      if (!setting || setting.trigger_type !== 'tag' || setting.trigger_tag !== tagName || !setting.message) return;
+      var msg = setting.message;
+      if (setting.review_link) msg = msg.split('[reviewlink]').join(setting.review_link);
+      fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPA_ANON },
+        body: JSON.stringify({ alert_type: 'review_request', user_id: uid, client_id: clientId, alert_message: msg, yearly_limit: !!setting.yearly_limit, force_send: true })
+      }).catch(function(e) { console.error('Review request error:', e); });
+    } catch(e) { console.error('Tag review request error:', e); }
   }
 
   async function removeTag(name) {

@@ -178,7 +178,85 @@
   <div class="link-arrow" onclick="navigate('estimatefollowup3')">&#8250;</div>
 </div>
 
+<div class="section-label">Billing Alerts</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('paymentdeclinedalert')">&#128683;</div>
+  <div class="link-text" onclick="navigate('paymentdeclinedalert')">
+    <div class="link-name">Payment Declined Alert</div>
+    <div class="link-desc">Sent immediately to the client when a payment is declined.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="payment_declined" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="payment_declined" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('paymentdeclinedalert')">&#8250;</div>
+</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('paymentfollowup1')">&#128680;</div>
+  <div class="link-text" onclick="navigate('paymentfollowup1')">
+    <div class="link-name">Payment Follow Up 1</div>
+    <div class="link-desc">First follow-up reminder after a declined payment.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="payment_followup_1" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="payment_followup_1" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('paymentfollowup1')">&#8250;</div>
+</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('paymentfollowup2')">&#128680;</div>
+  <div class="link-text" onclick="navigate('paymentfollowup2')">
+    <div class="link-name">Payment Follow Up 2</div>
+    <div class="link-desc">Second follow-up reminder after a declined payment.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="payment_followup_2" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="payment_followup_2" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('paymentfollowup2')">&#8250;</div>
+</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('paymentfollowup3')">&#128680;</div>
+  <div class="link-text" onclick="navigate('paymentfollowup3')">
+    <div class="link-name">Payment Follow Up 3</div>
+    <div class="link-desc">Final follow-up — can auto-pause client services.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="payment_followup_3" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="payment_followup_3" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('paymentfollowup3')">&#8250;</div>
+</div>
+
 <div class="section-label">Employee Alerts</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('estimateacceptedalert')">&#9989;</div>
+  <div class="link-text" onclick="navigate('estimateacceptedalert')">
+    <div class="link-name">Estimate Accepted Alert</div>
+    <div class="link-desc">Sent to your team when a client accepts an estimate.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="estimate_accepted" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('estimateacceptedalert')">&#8250;</div>
+</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('reviewrequestalert')">&#11088;</div>
+  <div class="link-text" onclick="navigate('reviewrequestalert')">
+    <div class="link-name">Review Request Alert</div>
+    <div class="link-desc">Ask clients for a Google review after service or when a tag is added.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">💬</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="review_request" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('reviewrequestalert')">&#8250;</div>
+</div>
 
 <div class="link-item">
   <div class="link-icon" onclick="navigate('serviceskippedalert')">&#9194;</div>

@@ -378,6 +378,13 @@
       amount:         total,
     }).eq('id', estimateData.id);
 
+    // Notify owner/team
+    fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g' },
+      body: JSON.stringify({ alert_type: 'estimate_accepted', estimate_id: estimateData.id, user_id: estimateData.user_id, force_send: true })
+    }).catch(function() {});
+
     document.getElementById('active-flow').style.display = 'none';
     document.getElementById('accepted-state').style.display = '';
   }

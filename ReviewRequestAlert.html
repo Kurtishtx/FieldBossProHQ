@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Review Request Alert</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+    .page-hdr { padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
+    .content { padding: 20px 24px; max-width: 680px; }
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #888; margin-bottom: 10px; margin-top: 22px; }
+    .trigger-box { border: 1px solid #e0d8f0; border-radius: 8px; overflow: hidden; margin-bottom: 18px; }
+    .trigger-option { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; cursor: pointer; transition: background .12s; }
+    .trigger-option:not(:last-child) { border-bottom: 1px solid #eee; }
+    .trigger-option:hover { background: #faf7ff; }
+    .trigger-option input[type="radio"] { margin-top: 2px; accent-color: #5b2d8e; flex-shrink: 0; width: 16px; height: 16px; }
+    .trigger-label { font-size: 13px; font-weight: 600; color: #222; display: block; margin-bottom: 4px; }
+    .trigger-sub { font-size: 12px; color: #777; }
+    .trigger-detail { padding: 10px 16px 14px 44px; background: #f9f4ff; border-top: 1px solid #eee; }
+    .inline-row { display: flex; align-items: center; gap: 10px; }
+    .days-input { width: 72px; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; font-size: 16px; font-family: inherit; font-weight: 700; outline: none; text-align: center; color: #130520; }
+    .days-input:focus { border-color: #2272c3; }
+    .tag-select { border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; background: #fff; outline: none; cursor: pointer; min-width: 200px; }
+    .tag-select:focus { border-color: #2272c3; }
+    .var-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .var-row label { font-size: 12.5px; font-weight: 600; color: #555; white-space: nowrap; }
+    .var-select { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; background: #fafafa; outline: none; cursor: pointer; }
+    .var-select:focus { border-color: #2272c3; background: #fff; }
+    .insert-btn { padding: 9px 18px; background: #2272c3; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .insert-btn:hover { background: #1a5ea0; }
+    textarea.msg-area { width: 100%; min-height: 180px; border: 1px solid #ddd; border-radius: 8px; padding: 14px; font-size: 14px; font-family: inherit; color: #222; resize: vertical; outline: none; line-height: 1.6; margin-bottom: 6px; }
+    textarea.msg-area:focus { border-color: #2272c3; }
+    .char-count { text-align: right; font-size: 12px; color: #888; margin-bottom: 14px; font-weight: 600; }
+    .char-count.warn { color: #e67e22; }
+    .char-count.over { color: #d9534f; }
+    .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .field-label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; min-width: 130px; }
+    .field-input { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; outline: none; background: #fafafa; }
+    .field-input:focus { border-color: #2272c3; background: #fff; }
+    .check-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 12px 14px; background: #f7f4ff; border: 1px solid #e0d8f0; border-radius: 8px; }
+    .check-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #5b2d8e; flex-shrink: 0; }
+    .check-row label { font-size: 13px; color: #333; cursor: pointer; }
+    .save-btn { padding: 10px 30px; background: #2272c3; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .save-btn:hover { background: #1a5ea0; }
+    .save-btn:disabled { background: #90b8e0; cursor: default; }
+    .save-btn.saved { background: #28a745; }
+    .status-msg { font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+    .status-msg.ok  { color: #28a745; }
+    .status-msg.err { color: #d9534f; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+<div class="page-hdr">
+  <p>Automatically ask clients for a Google review after a completed service.</p>
+</div>
+<div class="content">
+
+  <div class="section-title">When to Send</div>
+  <div class="trigger-box">
+    <label class="trigger-option">
+      <input type="radio" name="trigger" value="days_after" checked onchange="onTriggerChange()"/>
+      <div>
+        <span class="trigger-label">X days after service completion</span>
+        <span class="trigger-sub">Fires automatically when a service is marked complete.</span>
+      </div>
+    </label>
+    <div id="detail-days" class="trigger-detail">
+      <div class="inline-row">
+        <span style="font-size:13px; font-weight:600; color:#555;">Send</span>
+        <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="3" value="3"/>
+        <span style="font-size:13px; color:#222;">days after completion</span>
+      </div>
+    </div>
+    <label class="trigger-option">
+      <input type="radio" name="trigger" value="tag" onchange="onTriggerChange()"/>
+      <div>
+        <span class="trigger-label">When a specific tag is added to a client</span>
+        <span class="trigger-sub">Fires immediately when you apply the chosen tag in a client profile.</span>
+      </div>
+    </label>
+    <div id="detail-tag" class="trigger-detail" style="display:none;">
+      <div class="inline-row">
+        <span style="font-size:13px; font-weight:600; color:#555;">Tag:</span>
+        <select id="tag-select" class="tag-select">
+          <option value="">— loading tags… —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="check-row">
+    <input type="checkbox" id="yearly-limit" checked/>
+    <label for="yearly-limit">Send no more than once per year per customer</label>
+  </div>
+
+  <div class="section-title">Message</div>
+
+  <div class="field-row">
+    <span class="field-label">Google Review Link</span>
+    <input type="url" id="review-link" class="field-input" placeholder="https://g.page/r/your-review-link"/>
+  </div>
+
+  <div class="var-row">
+    <label>Insert Variable</label>
+    <select class="var-select" id="var-select">
+      <option value="">— choose a variable to insert —</option>
+      <optgroup label="Client">
+        <option value="[clientname]">[clientname] — Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] — First name</option>
+        <option value="[clientlastname]">[clientlastname] — Last name</option>
+      </optgroup>
+      <optgroup label="Review">
+        <option value="[reviewlink]">[reviewlink] — Your Google review link</option>
+      </optgroup>
+      <optgroup label="Company">
+        <option value="[companyname]">[companyname] — Company name</option>
+        <option value="[companyphone]">[companyphone] — Company phone</option>
+      </optgroup>
+    </select>
+    <button class="insert-btn" onclick="insertVar()">Insert</button>
+  </div>
+
+  <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+    <button onclick="resetMsg()" style="background:#130520; border:1px solid #130520; color:#fff; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
+  </div>
+  <textarea class="msg-area" id="msg-area" maxlength="300" oninput="updateCount()"></textarea>
+  <div class="char-count" id="char-count">0 / 300</div>
+
+  <button class="save-btn" id="save-btn" onclick="save()">Save</button>
+  <div class="status-msg" id="status-msg"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL      = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
+  var ALERT_TYPE = 'review_request';
+  var DEFAULT_MSG = 'Hi [clientfirstname], thank you for choosing [companyname]! We hope your service was great.\n\nIf you have a moment, we\'d love a Google review:\n[reviewlink]\n\nThank you!\n[companyname]';
+
+  function onTriggerChange() {
+    var val = document.querySelector('input[name="trigger"]:checked').value;
+    document.getElementById('detail-days').style.display = val === 'days_after' ? '' : 'none';
+    document.getElementById('detail-tag').style.display  = val === 'tag'        ? '' : 'none';
+  }
+
+  async function init() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) return;
+
+    // Load tags
+    var { data: tags } = await sb.from('tags').select('name').eq('user_id', uid).eq('active', true).order('name');
+    var tagSel = document.getElementById('tag-select');
+    tagSel.innerHTML = '<option value="">— select a tag —</option>';
+    (tags || []).forEach(function(t) {
+      tagSel.innerHTML += '<option value="' + t.name + '">' + t.name + '</option>';
+    });
+
+    // Load saved settings
+    var { data } = await sb.from('alert_settings')
+      .select('message, days_after, review_link, trigger_type, trigger_tag, yearly_limit')
+      .eq('user_id', uid).eq('alert_type', ALERT_TYPE).single();
+
+    if (data) {
+      document.getElementById('msg-area').value  = data.message || DEFAULT_MSG;
+      document.getElementById('review-link').value = data.review_link || '';
+      if (data.days_after) document.getElementById('days-after').value = data.days_after;
+      if (data.trigger_type) {
+        var r = document.querySelector('input[name="trigger"][value="' + data.trigger_type + '"]');
+        if (r) { r.checked = true; onTriggerChange(); }
+      }
+      if (data.trigger_tag) document.getElementById('tag-select').value = data.trigger_tag;
+      document.getElementById('yearly-limit').checked = data.yearly_limit !== false;
+    } else {
+      document.getElementById('msg-area').value = DEFAULT_MSG;
+    }
+    updateCount();
+  }
+
+  function insertVar() {
+    var sel = document.getElementById('var-select'); var val = sel.value; if (!val) return;
+    var ta = document.getElementById('msg-area'); var s = ta.selectionStart, e = ta.selectionEnd;
+    ta.value = ta.value.substring(0, s) + val + ta.value.substring(e);
+    ta.selectionStart = ta.selectionEnd = s + val.length;
+    ta.focus(); sel.value = ''; updateCount();
+  }
+
+  function resetMsg() { document.getElementById('msg-area').value = DEFAULT_MSG; updateCount(); }
+
+  var MAX_CHARS = 300;
+  function updateCount() {
+    var len = document.getElementById('msg-area').value.length;
+    var el = document.getElementById('char-count');
+    el.textContent = len + ' / ' + MAX_CHARS;
+    el.className = 'char-count' + (len >= MAX_CHARS ? ' over' : len >= 240 ? ' warn' : '');
+  }
+
+  async function save() {
+    var btn = document.getElementById('save-btn');
+    var statusEl = document.getElementById('status-msg');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    statusEl.textContent = ''; statusEl.className = 'status-msg';
+    await sb.auth.refreshSession();
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) { btn.disabled = false; btn.textContent = 'Save'; statusEl.textContent = 'Not logged in.'; statusEl.className = 'status-msg err'; return; }
+
+    var triggerType = document.querySelector('input[name="trigger"]:checked').value;
+    var daysRaw = document.getElementById('days-after').value.trim();
+    var daysVal = daysRaw ? parseInt(daysRaw) : 3;
+    if (isNaN(daysVal) || daysVal < 1 || daysVal > 90) daysVal = 3;
+
+    var { data: saved, error } = await sb.from('alert_settings').upsert({
+      user_id: uid, alert_type: ALERT_TYPE,
+      message:       document.getElementById('msg-area').value,
+      review_link:   document.getElementById('review-link').value.trim() || null,
+      trigger_type:  triggerType,
+      days_after:    triggerType === 'days_after' ? daysVal : null,
+      trigger_tag:   triggerType === 'tag' ? (document.getElementById('tag-select').value || null) : null,
+      yearly_limit:  document.getElementById('yearly-limit').checked,
+      updated_at:    new Date().toISOString(),
+    }, { onConflict: 'user_id,alert_type' }).select();
+
+    btn.disabled = false;
+    if (error || !saved || !saved.length) {
+      btn.textContent = 'Save';
+      statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
+    } else {
+      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      statusEl.textContent = 'Saved successfully.'; statusEl.className = 'status-msg ok';
+      setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

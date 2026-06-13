@@ -2015,6 +2015,25 @@
     } catch(e) { console.error('SMS alert error:', e); }
   }
 
+  async function scheduleReviewRequest(serviceIds, uid) {
+    if (!uid || !serviceIds || !serviceIds.length) return;
+    try {
+      var { data: toggleRow } = await sb.from('alert_toggles').select('sms_enabled').eq('user_id', uid).eq('alert_type', 'review_request').single();
+      if (!toggleRow || !toggleRow.sms_enabled) return;
+      var { data: setting } = await sb.from('alert_settings')
+        .select('message, days_after, review_link, trigger_type, yearly_limit')
+        .eq('user_id', uid).eq('alert_type', 'review_request').single();
+      if (!setting || setting.trigger_type === 'tag' || !setting.days_after || !setting.message) return;
+      var msg = setting.message;
+      if (setting.review_link) msg = msg.split('[reviewlink]').join(setting.review_link);
+      var inserts = serviceIds.map(function(id) {
+        var sendAt = new Date(Date.now() + setting.days_after * 24 * 60 * 60 * 1000);
+        return { user_id: uid, alert_type: 'review_request', service_ids: JSON.stringify([id]), alert_message: msg, send_at: sendAt.toISOString(), yearly_limit: !!setting.yearly_limit };
+      });
+      await sb.from('pending_sms_alerts').insert(inserts);
+    } catch(e) { console.error('Review request schedule error:', e); }
+  }
+
   var savedViews = [];
   var activeViewId = null;
 
@@ -2322,6 +2341,7 @@
     }
 
     sendAlert('completed', ids);
+    scheduleReviewRequest(ids, uid);
     loadServices();
     showToast('Marked complete � invoices generated', 'success');
   }

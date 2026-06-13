@@ -228,6 +228,12 @@ function emailSubject(alertType: string, companyName: string): string {
     estimate_followup_1:        `Following Up on Your Estimate — ${n}`,
     estimate_followup_2:        `Following Up on Your Estimate — ${n}`,
     estimate_followup_3:        `Following Up on Your Estimate — ${n}`,
+    review_request:             `We'd Love Your Feedback — ${n}`,
+    estimate_accepted:          `Estimate Accepted — ${n}`,
+    payment_declined:           `Payment Notice — ${n}`,
+    payment_followup_1:         `Payment Reminder — ${n}`,
+    payment_followup_2:         `Payment Reminder — ${n}`,
+    payment_followup_3:         `Payment Reminder — ${n}`,
     mobile_property_scheduled:  `You're Up Next — ${n}`,
   };
   return map[alertType] || `Alert from ${n}`;
@@ -244,8 +250,8 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    const { alert_type, service_ids, user_id, alert_message, estimate_id, skip_note, force_send, tz_offset } = await req.json();
-    if (!alert_type || !user_id || (!service_ids?.length && !estimate_id)) {
+    const { alert_type, service_ids, user_id, alert_message, estimate_id, client_id, invoice_amount, invoice_number, skip_note, force_send, tz_offset } = await req.json();
+    if (!alert_type || !user_id || (!service_ids?.length && !estimate_id && !client_id)) {
       return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: cors });
     }
 
@@ -409,6 +415,181 @@ serve(async (req: Request) => {
       });
       const d = await res.json();
       return res.ok ? { ok: true } : { ok: false, err: d.message || JSON.stringify(d) };
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ESTIMATE ACCEPTED FLOW  (employee notification — sends to recipient phones)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (alert_type === "estimate_accepted") {
+      if (!canSms) {
+        return new Response(JSON.stringify({ skipped: "SMS not configured" }), { headers: cors });
+      }
+
+      const { data: accSettings } = await supabase
+        .from("alert_settings")
+        .select("recipients")
+        .eq("user_id", ownerUserId)
+        .eq("alert_type", "estimate_accepted")
+        .single();
+
+      const recipientsRaw: string[] = (() => {
+        try { return JSON.parse(accSettings?.recipients || "[]"); } catch { return []; }
+      })();
+      const recipients = recipientsRaw.map((p: string) => p.replace(/\D/g, "")).filter((p: string) => p.length >= 10);
+      if (!recipients.length) {
+        return new Response(JSON.stringify({ skipped: "no recipient phones configured" }), { headers: cors });
+      }
+
+      let firstName = "", lastName = "", clientPhone = "", estimateAmount = "", estimateNumber = "";
+      if (estimate_id) {
+        const { data: est } = await supabase.from("estimates").select("*").eq("id", estimate_id).single();
+        if (est) {
+          const cn = est.client_name || "";
+          firstName = cn.split(" ")[0] || "";
+          lastName  = cn.split(" ").slice(1).join(" ") || "";
+          estimateAmount = est.amount ? "$" + parseFloat(est.amount).toFixed(2) : "";
+          estimateNumber = est.estimate_number ? String(est.estimate_number) : "";
+          if (est.customer_id) {
+            const { data: lead } = await supabase.from("Leads").select("first_name, last_name, phone").eq("id", est.customer_id).single();
+            if (lead) { firstName = lead.first_name || firstName; lastName = lead.last_name || lastName; clientPhone = lead.phone || ""; }
+            if (!clientPhone) {
+              const { data: cl } = await supabase.from("Clients").select("first_name, last_name, phone").eq("id", est.customer_id).single();
+              if (cl) { firstName = cl.first_name || firstName; lastName = cl.last_name || lastName; clientPhone = cl.phone || ""; }
+            }
+          }
+        }
+      }
+
+      const accMsg = subVars(msgTemplate, {
+        clientname:      (firstName + " " + lastName).trim(),
+        clientfirstname: firstName,
+        clientlastname:  lastName,
+        clientphone:     clientPhone,
+        estimateamount:  estimateAmount,
+        estimatenumber:  estimateNumber,
+        companyname:     companyName,
+        companyphone:    company?.phone || "",
+      });
+
+      const results: any[] = [];
+      for (const recipPhone of recipients) {
+        const toClean = recipPhone.length === 10 ? "+1" + recipPhone : "+" + recipPhone;
+        const status = await sendSms(toClean, accMsg);
+        results.push({ channel: "sms", to: toClean, status });
+        await supabase.from("sms_messages").insert({
+          user_id, client_name: "Team Alert",
+          phone_to: toClean, phone_from: twilio?.phone_number,
+          body: accMsg, direction: "outbound", twilio_sid: null,
+          alert_type, sent_at: new Date().toISOString(),
+        });
+      }
+      return new Response(JSON.stringify({ results }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // REVIEW REQUEST — tag-trigger path (client_id provided, no service_ids)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (alert_type === "review_request" && client_id && !service_ids?.length) {
+      const { data: cl } = await supabase.from("Clients").select("*").eq("id", client_id).single();
+      if (!cl) return new Response(JSON.stringify({ skipped: "client not found" }), { headers: cors });
+
+      const toPhone  = (cl.phone || cl.mobile || cl.cell || "").replace(/\D/g, "");
+      const toEmail  = cl.email || "";
+      const fName    = cl.first_name || "";
+      const lName    = cl.last_name  || "";
+      const formatted = toPhone.length === 10 ? "+1" + toPhone : toPhone.length === 11 ? "+" + toPhone : toPhone;
+
+      // Yearly limit check
+      const { data: rrSettings } = await supabase
+        .from("alert_settings")
+        .select("yearly_limit")
+        .eq("user_id", ownerUserId)
+        .eq("alert_type", "review_request")
+        .single();
+
+      if (rrSettings?.yearly_limit && toPhone) {
+        const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: prior } = await supabase
+          .from("sms_messages")
+          .select("id")
+          .eq("user_id", ownerUserId)
+          .eq("alert_type", "review_request")
+          .eq("direction", "outbound")
+          .gte("sent_at", oneYearAgo)
+          .or(`phone_to.eq.${formatted},phone_to.eq.+1${toPhone},phone_to.eq.${toPhone}`)
+          .limit(1);
+        if (prior?.length) {
+          return new Response(JSON.stringify({ skipped: "already sent review request within past year" }), { headers: cors });
+        }
+      }
+
+      const rrMsg = subVars(msgTemplate, {
+        clientname:      (fName + " " + lName).trim(),
+        clientfirstname: fName,
+        clientlastname:  lName,
+        companyname:     companyName,
+        companyphone:    company?.phone || "",
+        companywebsite:  company?.website || "",
+      });
+
+      const results: any[] = [];
+      if (canSms && formatted.length >= 10) {
+        const status = await sendSms(formatted, rrMsg);
+        results.push({ channel: "sms", to: formatted, status });
+        await supabase.from("sms_messages").insert({
+          user_id, client_name: (fName + " " + lName).trim(),
+          phone_to: formatted, phone_from: twilio?.phone_number,
+          body: rrMsg, direction: "outbound", twilio_sid: null,
+          alert_type, sent_at: new Date().toISOString(),
+        });
+      }
+      if (canEmail && toEmail) {
+        const r = await sendEmail(toEmail, rrMsg);
+        results.push({ channel: "email", to: toEmail, ...r });
+      }
+      return new Response(JSON.stringify({ results }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CLIENT ALERT BY client_id  (payment_declined, payment_followup_1/2/3)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (client_id && !service_ids?.length) {
+      const { data: cl } = await supabase.from("Clients").select("*").eq("id", client_id).single();
+      if (!cl) return new Response(JSON.stringify({ skipped: "client not found" }), { headers: cors });
+
+      const toPhone   = (cl.phone || cl.mobile || cl.cell || "").replace(/\D/g, "");
+      const toEmail   = cl.email || "";
+      const fName     = cl.first_name || "";
+      const lName     = cl.last_name  || "";
+      const formatted = toPhone.length === 10 ? "+1" + toPhone : toPhone.length === 11 ? "+" + toPhone : toPhone;
+
+      const clMsg = subVars(msgTemplate, {
+        clientname:      (fName + " " + lName).trim(),
+        clientfirstname: fName,
+        clientlastname:  lName,
+        companyname:     companyName,
+        companyphone:    company?.phone || "",
+        companywebsite:  company?.website || "",
+        invoiceamount:   invoice_amount ? "$" + parseFloat(invoice_amount).toFixed(2) : "",
+        invoicenumber:   invoice_number ? String(invoice_number) : "",
+      });
+
+      const results: any[] = [];
+      if (canSms && formatted.length >= 10) {
+        const status = await sendSms(formatted, clMsg);
+        results.push({ channel: "sms", to: formatted, status });
+        await supabase.from("sms_messages").insert({
+          user_id, client_name: (fName + " " + lName).trim(),
+          phone_to: formatted, phone_from: twilio?.phone_number,
+          body: clMsg, direction: "outbound", twilio_sid: null,
+          alert_type, sent_at: new Date().toISOString(),
+        });
+      }
+      if (canEmail && toEmail) {
+        const r = await sendEmail(toEmail, clMsg);
+        results.push({ channel: "email", to: toEmail, ...r });
+      }
+      return new Response(JSON.stringify({ results }), { headers: { ...cors, "Content-Type": "application/json" } });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
