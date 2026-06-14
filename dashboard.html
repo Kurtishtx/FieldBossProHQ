@@ -913,6 +913,15 @@
     return null;
   });
 
+  /* load persisted recent views */
+  _dashAuthPromise.then(async function(user) {
+    if (!user) return;
+    var { data: prof } = await sbMain.from('user_profiles').select('recent_views').eq('id', user.id).single();
+    if (prof && Array.isArray(prof.recent_views) && prof.recent_views.length) {
+      _recentSearches = prof.recent_views;
+    }
+  });
+
   /* fire package renewal check once per day in the background */
   _dashAuthPromise.then(function(user) {
     if (!user) return;
@@ -1418,10 +1427,35 @@
   var _searchDdId = 'global-search-dd';
   var _recentSearches = [];
 
-  function addRecent(item) {
+  async function addRecent(item) {
     _recentSearches = _recentSearches.filter(function(r) { return !(r.type === item.type && r.id === item.id); });
     _recentSearches.unshift(item);
     if (_recentSearches.length > 5) _recentSearches.pop();
+    var { data: s } = await sbMain.auth.getSession();
+    if (s && s.session) {
+      sbMain.from('user_profiles').update({ recent_views: _recentSearches }).eq('id', s.session.user.id).then(function() {});
+    }
+  }
+
+  async function trackRecent(pageKey, queryStr) {
+    var profileMap = { clientprofile: 'client', propprofile: 'property', leadsprofile: 'lead' };
+    var type = profileMap[pageKey];
+    if (!type) return;
+    var params = new URLSearchParams(queryStr.replace(/^\?/, ''));
+    var id = params.get('id');
+    if (!id) return;
+    var item;
+    if (type === 'client') {
+      var { data } = await sbMain.from('Clients').select('id,name,address,city').eq('id', id).single();
+      if (data) item = { type: 'client', id: data.id, name: data.name||'', sub: [data.address, data.city].filter(Boolean).join(', '), page: 'clientprofile?id=' + id };
+    } else if (type === 'property') {
+      var { data } = await sbMain.from('Properties').select('id,name,address,city').eq('id', id).single();
+      if (data) { var addr = [data.address, data.city].filter(Boolean).join(', '); item = { type: 'property', id: data.id, name: data.name || addr, sub: data.name ? addr : '', page: 'propprofile?id=' + id }; }
+    } else {
+      var { data } = await sbMain.from('Leads').select('id,name,email,phone').eq('id', id).single();
+      if (data) item = { type: 'lead', id: data.id, name: data.name||'', sub: data.email || data.phone || '', page: 'leadsprofile?id=' + id };
+    }
+    if (item) await addRecent(item);
   }
 
   function srClick(type, id, name, sub, page) {
@@ -1573,6 +1607,8 @@
     if (match) match.classList.add('active');
 
     if (file) {
+      // Track profile page visits for recent searches
+      trackRecent(pageKey, queryStr);
       // Document editor opens as a full page (not in iframe)
       if (pageKey === 'documentsadd') {
         window.location.href = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
