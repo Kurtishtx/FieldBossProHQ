@@ -1037,13 +1037,13 @@
       } else if (svcLinFt[n]) {
         badge = '<span style="font-size:20px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Math.round(Number(svcLinFt[n])).toLocaleString() + ' ft</span>';
       } else {
-        badge = '<span style="font-size:20px;">&nbsp;</span>';
+        badge = '<span style="font-size:20px;font-weight:700;border-radius:10px;padding:0 7px;display:inline-block;visibility:hidden;">&nbsp;</span>';
       }
       var dollarBadge = '<span style="font-size:18px;font-weight:700;color:#fff;display:inline-block;">$' + (svcAmounts[n] || 0).toFixed(2) + '</span>';
       return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span><span style="font-size:18px;">' + n + '</span>' + badge + dollarBadge + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
-    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:18px;">Services Total</span><span style="font-size:20px;">&nbsp;</span><span style="font-size:18px;font-weight:700;color:#fff;display:inline-block;">$' + preTotal.toFixed(2) + '</span></span>';
+    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:18px;">Services Total</span><span style="font-size:20px;font-weight:700;border-radius:10px;padding:0 7px;display:inline-block;visibility:hidden;">&nbsp;</span><span style="font-size:18px;font-weight:700;color:#fff;display:inline-block;">$' + preTotal.toFixed(2) + '</span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + pills;
 
     var tbody = document.getElementById('table-body');
