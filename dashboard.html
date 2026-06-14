@@ -1376,6 +1376,7 @@
     var homeScreen = document.getElementById('home-screen');
     var qIdx    = page.indexOf('?');
     var pageKey = qIdx >= 0 ? page.substring(0, qIdx) : page;
+    if (pageKey === 'texts') markTextsRead();
     var queryStr = qIdx >= 0 ? page.substring(qIdx) : '';
     var file      = pageFiles[pageKey];
 
