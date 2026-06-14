@@ -383,7 +383,7 @@
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
       <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign to Trucks</label>
       <select id="sched-truck" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
-        <option value="">� no truck �</option>
+        <option value="">-- no truck --</option>
       </select>
     </div>
     <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
@@ -1815,7 +1815,7 @@
 
   async function loadSchedTrucks() {
     var sel = document.getElementById('sched-truck');
-    sel.innerHTML = '<option value="">� no truck �</option>';
+    sel.innerHTML = '<option value="">-- no truck --</option>';
     var { data } = await sb.from('trucks').select('id, name').eq('active', true).order('name');
     (data || []).forEach(function(t) {
       var opt = document.createElement('option');
