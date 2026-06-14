@@ -459,7 +459,7 @@
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
       <label style="width:90px; color:#888; font-size:14px; flex-shrink:0;">Assign To</label>
       <select id="sched-assign" style="border:1px solid #bbb; padding:5px 8px; font-size:14px; min-width:190px; font-family:inherit;">
-        <option value="">� assign later �</option>
+        <option value="">> assign later �</option>
       </select>
     </div>
     <div style="display:flex; align-items:center; gap:22px; margin-top:16px;">
@@ -615,7 +615,7 @@
     var ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12; if (!h) h = 12;
     var time = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' ' + ampm;
-    document.getElementById('page-clock').textContent = time + ' � ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('page-clock').textContent = time + ' > ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -691,7 +691,7 @@
     if (direct !== null && direct !== undefined) {
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
       if (hasArea) return direct;
-      /* empty or all-false � fall through to catalog lookup */
+      /* empty or all-false > fall through to catalog lookup */
     }
     var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
@@ -1799,7 +1799,7 @@
 
   async function loadSchedAssign() {
     var sel = document.getElementById('sched-assign');
-    sel.innerHTML = '<option value="">� assign later �</option>';
+    sel.innerHTML = '<option value="">> assign later �</option>';
     var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
     (data || []).forEach(function(e) {
       var opt = document.createElement('option');
@@ -2061,14 +2061,14 @@
     try {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (!uid) { console.error('[sendAlert] No session � alert not sent'); return; }
+      if (!uid) { console.error('[sendAlert] No session > alert not sent'); return; }
       var { data: toggleRow } = await sb.from('alert_toggles')
         .select('sms_enabled')
         .eq('user_id', uid)
         .eq('alert_type', alertType)
         .single();
       if (!toggleRow || !toggleRow.sms_enabled) {
-        console.log('[sendAlert] Alert toggled off for', alertType, '� skipping');
+        console.log('[sendAlert] Alert toggled off for', alertType, '> skipping');
         return;
       }
       var { data: alertRow } = await sb.from('alert_settings')
@@ -2077,7 +2077,7 @@
         .eq('alert_type', alertType)
         .single();
       if (!alertRow || !alertRow.message) {
-        console.log('[sendAlert] Alert not configured for', alertType, '� skipping');
+        console.log('[sendAlert] Alert not configured for', alertType, '> skipping');
         return;
       }
       var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-sms-alert', {
@@ -2192,7 +2192,7 @@
       if (cb) cb.checked = true;
       document.getElementById('status-ms-btn').textContent = '1 selected';
     }
-    document.getElementById('active-filter-label').textContent = id !== 'none' ? '� ' + id : '';
+    document.getElementById('active-filter-label').textContent = id !== 'none' ? '> ' + id : '';
     document.getElementById('saved-filters-panel').classList.remove('show');
     renderTable();
   }
@@ -2268,7 +2268,7 @@
       cb.checked = activeTruckFilter.indexOf(cb.value) >= 0;
     });
     document.getElementById('truck-ms-btn').textContent = activeTruckFilter.length ? activeTruckFilter.length + ' selected' : '-- Select --';
-    document.getElementById('active-filter-label').textContent = '� ' + v.name;
+    document.getElementById('active-filter-label').textContent = '> ' + v.name;
     document.getElementById('saved-filters-panel').classList.remove('show');
     buildTableHeader();
     renderTable();
@@ -2425,7 +2425,7 @@
     sendAlert('completed', ids);
     scheduleReviewRequest(ids, uid);
     loadServices();
-    showToast('Marked complete � invoices generated', 'success');
+    showToast('Marked complete > invoices generated', 'success');
   }
 
   initDRP();
@@ -2768,7 +2768,7 @@
     });
     if (sapFutureRows.length > 8) {
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td colspan="5" style="padding:6px 8px;text-align:center;color:#aaa;font-size:12px;font-style:italic;">� and ' + (sapFutureRows.length - 8) + ' more</td>';
+      tr.innerHTML = '<td colspan="5" style="padding:6px 8px;text-align:center;color:#aaa;font-size:12px;font-style:italic;">> and ' + (sapFutureRows.length - 8) + ' more</td>';
       tbody.appendChild(tr);
     }
 
@@ -2834,7 +2834,7 @@
       else success += ins.length;
       done += batch.length;
       document.getElementById('sap-prog-bar').style.width = Math.round(done/total*100) + '%';
-      document.getElementById('sap-import-progress').textContent = 'Importing� ' + done + ' of ' + total;
+      document.getElementById('sap-import-progress').textContent = 'Importing> ' + done + ' of ' + total;
     }
 
     document.getElementById('sap-import-progress').textContent = '';
@@ -2870,7 +2870,7 @@
   <!-- Mobile record banner -->
   <div id="chem-mobile-banner" style="display:none; align-items:center; gap:10px; background:#fff8e1; border-bottom:2px solid #f0a500; padding:10px 16px; font-size:13px; color:#7a5000;">
     <span style="font-size:16px;">&#9888;</span>
-    <span><strong>Partial record from mobile.</strong> Area, weather &amp; times are pre-filled � complete the chemical/mix details below before saving.</span>
+    <span><strong>Partial record from mobile.</strong> Area, weather &amp; times are pre-filled > complete the chemical/mix details below before saving.</span>
   </div>
 
   <div style="padding:0 0 16px;">

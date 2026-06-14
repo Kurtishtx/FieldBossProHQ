@@ -494,7 +494,7 @@
     var ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12; if (!h) h = 12;
     var time = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' ' + ampm;
-    document.getElementById('page-clock').textContent = time + ' � ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('page-clock').textContent = time + ' > ' + days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -564,7 +564,7 @@
     if (direct !== null && direct !== undefined) {
       var hasArea = Object.keys(direct).some(function(k) { return direct[k]; });
       if (hasArea) return direct;
-      /* empty or all-false � fall through to catalog lookup */
+      /* empty or all-false > fall through to catalog lookup */
     }
     var svcName = resolvedServiceName(svc), svcLines = svc.service_lines;
     if (!serviceCatalog.length) return undefined;
@@ -907,7 +907,7 @@
       });
     }
 
-    /* start_date / scheduled_date filter � hide services not yet due as of the selected date */
+    /* start_date / scheduled_date filter > hide services not yet due as of the selected date */
     var refDate = drpStart ? new Date(drpStart) : new Date();
     refDate.setHours(0,0,0,0);
     var pad = function(n) { return String(n).padStart(2,'0'); };
@@ -918,7 +918,7 @@
       return true;
     });
 
-    /* min days filter � hide services dispatched less than min_days ago (uses selected date as reference) */
+    /* min days filter > hide services dispatched less than min_days ago (uses selected date as reference) */
     if (document.getElementById('use-min-days').checked) {
       filtered = filtered.filter(function(s) {
         var minDays = parseInt(s.min_days) || 0;
@@ -930,7 +930,7 @@
         return daysSince >= minDays;
       });
 
-      /* Package sequential filter � for package services, only show the earliest
+      /* Package sequential filter > for package services, only show the earliest
          undispatched step per property+package so only 1 service from each package
          appears on the waiting list at a time.
          Falls back to grouping by property when package_services rows are stale
@@ -956,10 +956,10 @@
         return s.package_service_id === pkgGroupMin[gKey];
       });
 
-      /* Master package dependency filter � hide services whose package requires a master
+      /* Master package dependency filter > hide services whose package requires a master
          package until that master package also has a currently-due service on the property.
          Exception: if the property has no pending services from the master package at all,
-         they are not in the master package's current cycle � show normally. */
+         they are not in the master package's current cycle > show normally. */
       if (Object.keys(packageMasterMap).length) {
         /* which package_ids are currently due (in filtered after sequential filter) per property */
         var activePkgsByProp = {};
@@ -1326,7 +1326,7 @@
     var opts = { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' };
     var s = drpStart.toLocaleDateString('en-US', opts);
     el.textContent = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
-      ? s + ' � ' + drpEnd.toLocaleDateString('en-US', opts) : s;
+      ? s + ' > ' + drpEnd.toLocaleDateString('en-US', opts) : s;
   }
 
   function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
@@ -1449,7 +1449,7 @@
   }
   google.maps.event.addListener(map, 'zoom_changed', updateMarkerSizes);
 
-  /* Minimal OverlayView � only used to get MapCanvasProjection for lat/lng conversions */
+  /* Minimal OverlayView > only used to get MapCanvasProjection for lat/lng conversions */
   var projOverlay = new google.maps.OverlayView();
   projOverlay.onAdd = function() {};
   projOverlay.draw  = function() {};
@@ -1644,7 +1644,7 @@
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
 
-    /* area treated totals � only count area types associated with each service */
+    /* area treated totals > only count area types associated with each service */
     var areaTotals = {};
     var seenPropForArea = {};
     selected.forEach(function(svc) {
@@ -1860,7 +1860,7 @@
 
   async function loadSchedAssign() {
     var sel = document.getElementById('sched-assign');
-    sel.innerHTML = '<option value="">� assign later �</option>';
+    sel.innerHTML = '<option value="">> assign later �</option>';
     var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
     (data || []).forEach(function(e) {
       var opt = document.createElement('option');
@@ -2008,7 +2008,7 @@
     try {
       var { data: sessionData } = await sb.auth.getSession();
       var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-      if (!uid) { console.error('[sendAlert] No session � alert not sent'); return; }
+      if (!uid) { console.error('[sendAlert] No session > alert not sent'); return; }
 
       var { data: toggleRow } = await sb.from('alert_toggles')
         .select('sms_enabled')
@@ -2016,7 +2016,7 @@
         .eq('alert_type', alertType)
         .single();
       if (!toggleRow || !toggleRow.sms_enabled) {
-        console.log('[sendAlert] Alert toggled off for', alertType, '� skipping');
+        console.log('[sendAlert] Alert toggled off for', alertType, '> skipping');
         return;
       }
 
@@ -2027,7 +2027,7 @@
         .single();
       console.log('[sendAlert] alert_settings:', JSON.stringify(alertRow));
       if (!alertRow || !alertRow.enabled || !alertRow.message) {
-        console.log('[sendAlert] Alert not configured � skipping');
+        console.log('[sendAlert] Alert not configured > skipping');
         return;
       }
 
@@ -2154,7 +2154,7 @@
       if (cb) cb.checked = true;
       document.getElementById('status-ms-btn').textContent = '1 selected';
     }
-    document.getElementById('active-filter-label').textContent = id !== 'none' ? '� ' + id : '';
+    document.getElementById('active-filter-label').textContent = id !== 'none' ? '> ' + id : '';
     document.getElementById('saved-filters-panel').classList.remove('show');
     renderTable();
   }
@@ -2224,7 +2224,7 @@
       cb.checked = activeTagFilter.indexOf(cb.value) >= 0;
     });
     document.getElementById('tag-ms-btn').textContent = activeTagFilter.length ? activeTagFilter.length + ' selected' : '-- Select --';
-    document.getElementById('active-filter-label').textContent = '� ' + v.name;
+    document.getElementById('active-filter-label').textContent = '> ' + v.name;
     document.getElementById('saved-filters-panel').classList.remove('show');
     buildTableHeader();
     renderTable();
@@ -2334,7 +2334,7 @@
     var pendingCb = document.getElementById('st-pending');
     if (pendingCb) pendingCb.checked = true;
     document.getElementById('status-ms-btn').textContent = '1 selected';
-    document.getElementById('active-filter-label').textContent = '� pending';
+    document.getElementById('active-filter-label').textContent = '> pending';
     await loadServices();
   })();
 </script>
