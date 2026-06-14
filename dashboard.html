@@ -1507,7 +1507,11 @@
     _searchTab = 'active';
   }
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('.global-search-wrap') && !e.target.closest('.mobile-search-wrap')) closeSearchDD();
+    if (!e.target.closest('.global-search-wrap') && !e.target.closest('.mobile-search-wrap')) {
+      closeSearchDD();
+      document.getElementById('global-search').value = '';
+      document.getElementById('mobile-search').value = '';
+    }
   });
 
   function sriSub(parts) {
