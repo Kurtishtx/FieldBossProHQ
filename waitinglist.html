@@ -1671,7 +1671,7 @@
     /* area rows */
     AREA_COL_KEYS.forEach(function(colKey) {
       var slug = AREA_DATA_KEYS[colKey];
-      if (slug && areaTotals[slug]) html += '<div class="sp-row"><span>' + (_atTypeLabels[colKey] || colKey) + '</span><span>' + Number(areaTotals[slug]).toLocaleString() + '</span></div>';
+      if (slug && areaTotals[slug]) html += '<div class="sp-row"><span>' + (_atTypeLabels[colKey] || colKey) + '</span><span>' + Math.round(Number(areaTotals[slug])).toLocaleString() + '</span></div>';
     });
 
     if (Object.keys(areaTotals).length) html += '<div style="margin:4px 0;border-top:1px solid #eee;"></div>';
