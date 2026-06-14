@@ -59,7 +59,7 @@
     .btn-save:hover { background: #c96a10; }
     .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
     .btn-cancel:hover { text-decoration: underline; }
-    .btn-delete { background: none; border: 1px solid #c0392b; color: #c0392b; padding: 7px 20px; font-size: 13px; font-weight: 600; border-radius: 4px; cursor: pointer; margin-left: auto; }
+    .btn-delete { background: none; border: 1px solid #c0392b; color: #c0392b; padding: 5px 14px; font-size: 13px; font-weight: 600; border-radius: 4px; cursor: pointer; }
     .btn-delete:hover { background: #c0392b; color: #fff; }
 
     /* Tab panels */
@@ -76,7 +76,10 @@
 
   <div class="dialog-header">
     <h1>Add Property &ndash; <span id="prop-title">New Property</span></h1>
-    <button class="close-btn" onclick="closeModal()">&#10005;</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="btn-delete-property" class="btn-delete" onclick="deleteProperty()" style="display:none;">Delete Property</button>
+      <button class="close-btn" onclick="closeModal()">&#10005;</button>
+    </div>
   </div>
 
   <!-- Tabs -->
@@ -195,7 +198,6 @@
   <div class="dialog-footer">
     <button class="btn-save" onclick="saveProperty()">Save</button>
     <span class="btn-cancel" onclick="cancelEdit(event)">Cancel</span>
-    <button id="btn-delete-property" class="btn-delete" onclick="deleteProperty()" style="display:none;">Delete Property</button>
   </div>
 
 </div>
