@@ -475,8 +475,14 @@
     if (!reason) { alert('Please select a cancellation reason.'); return; }
     document.getElementById('cancel-overlay').style.display = 'none';
 
-    await sbClient.from('Clients').update({ active: false }).eq('id', editId);
-    await sbClient.from('Properties').update({ active: false }).eq('customer_id', editId);
+    var { data: sess } = await sbClient.auth.getSession();
+    var uid = sess && sess.session ? sess.session.user.id : null;
+
+    var rc = await sbClient.from('Clients').update({ active: false }).eq('id', editId);
+    if (rc.error) { alert('Error cancelling client: ' + rc.error.message); return; }
+
+    var rp = await sbClient.from('Properties').update({ active: false }).eq('customer_id', editId).eq('user_id', uid);
+    if (rp.error) { alert('Error cancelling properties: ' + rp.error.message); return; }
 
     if (window.parent && window.parent.loadPage) {
       window.parent.loadPage('customers');
