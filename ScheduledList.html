@@ -2526,7 +2526,7 @@
         if (prop.area_treated) {
           var at = prop.area_treated;
           var aa = getCatalogAreas(first) || {};
-          var areaKeys = ['lawn_care', 'lawn_insect', 'flower_beds', 'mosquito', 'mosquito_linear_ft', 'pest_control', 'pest_control_linear_ft'];
+          var areaKeys = AREA_COL_KEYS.map(function(k) { return AREA_DATA_KEYS[k]; });
           var matchedKey = areaKeys.find(function(k) { return aa[k] && at[k]; });
           document.getElementById('chem-area').value = matchedKey ? at[matchedKey] : '';
         }

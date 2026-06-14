@@ -199,7 +199,7 @@
     btn.disabled = true;
 
     var { data, error } = await sb.from('Invoices')
-      .select('id, inv_num, date, client_name, address, service_lines, inv_total')
+      .select('id, inv_num, date, client_name, service_lines, inv_total, Properties(address, city)')
       .gte('date', from)
       .lte('date', to)
       .neq('deleted', true)
@@ -262,7 +262,7 @@
         '<td>' + dateStr + '</td>' +
         '<td>#' + (inv.inv_num || '—') + '</td>' +
         '<td>' + (inv.client_name || '—') + '</td>' +
-        '<td style="font-size:12px;color:#666;">' + (inv.address || '—') + '</td>' +
+        '<td style="font-size:12px;color:#666;">' + (inv.Properties ? [inv.Properties.address, inv.Properties.city].filter(Boolean).join(', ') || '—' : '—') + '</td>' +
         '<td class="num' + (taxable === 0 ? ' zero' : '') + '">' + fmt(taxable) + '</td>' +
         '<td class="num' + (nontaxable === 0 ? ' zero' : '') + '">' + fmt(nontaxable) + '</td>' +
         '<td class="num">' + rateStr + '</td>' +
