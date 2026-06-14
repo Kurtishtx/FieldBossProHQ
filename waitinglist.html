@@ -954,6 +954,22 @@
     });
 
     var linearKeys = { mosquito_linear_ft: true, pest_control_linear_ft: true };
+    var areaFallbackMap = [
+      ['mosquito', ['mosquito', 'mosquito_linear_ft']],
+      ['insect',   ['lawn_insect']],
+      ['lawn',     ['lawn_care']],
+      ['flower',   ['flower_beds']],
+      ['shrub',    ['flower_beds']],
+      ['bush',     ['flower_beds']],
+      ['pest',     ['pest_control', 'pest_control_linear_ft']]
+    ];
+    function guessPillAreaKeys(n) {
+      var lo = n.toLowerCase();
+      for (var i = 0; i < areaFallbackMap.length; i++) {
+        if (lo.indexOf(areaFallbackMap[i][0]) >= 0) return areaFallbackMap[i][1];
+      }
+      return [];
+    }
     var svcCounts = {}, svcSqFt = {}, svcLinFt = {}, seenPropForSvc = {};
     filtered.forEach(function(s) {
       var name = resolvedServiceName(s) || 'Unknown';
@@ -964,7 +980,7 @@
         if (!seenPropForSvc[key]) {
           seenPropForSvc[key] = true;
           var areaMap = areaTreatedByProperty[s.property_id] || {};
-          var areaKeys = aa === undefined ? Object.keys(areaMap)
+          var areaKeys = aa === undefined ? guessPillAreaKeys(name)
                        : aa === null ? []
                        : Object.keys(aa).filter(function(k) { return aa[k]; });
           areaKeys.forEach(function(k) {
