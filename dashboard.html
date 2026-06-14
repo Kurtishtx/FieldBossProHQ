@@ -911,7 +911,7 @@
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
-      .gt('created_at', lastRead);
+      .gt('sent_at', lastRead);
     var badge = document.getElementById('notif-badge');
     if (count && count > 0) {
       badge.textContent = count > 99 ? '99+' : count;
