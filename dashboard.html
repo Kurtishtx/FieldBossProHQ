@@ -356,6 +356,37 @@
       justify-content: center;
     }
 
+    .notif-bell {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      background: #f0ecf7;
+      flex-shrink: 0;
+    }
+    .notif-bell:hover { background: #e0d8f0; }
+    .notif-bell svg { width: 18px; height: 18px; fill: #3a0d55; }
+    .notif-badge {
+      display: none;
+      position: absolute;
+      top: -3px; right: -3px;
+      background: #e03030;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 10px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
     .content-area {
       flex: 1;
       overflow-y: auto;
@@ -629,6 +660,10 @@
       <div class="global-search-dropdown" id="global-search-dd"></div>
     </div>
     <div class="topbar-right">
+      <div class="notif-bell" id="notif-bell" onclick="loadPage('texts'); markTextsRead();" title="Text messages">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <span class="notif-badge" id="notif-badge"></span>
+      </div>
       <div class="user-badge">SBP</div>
     </div>
   </div>
@@ -861,6 +896,35 @@
         'Content-Type': 'application/json'
       }
     }).catch(function() {}); /* silent — runs in background */
+  });
+
+  /* SMS notification bell */
+  var _notifUserId = null;
+  function markTextsRead() {
+    localStorage.setItem('sbp_texts_last_read', new Date().toISOString());
+    document.getElementById('notif-badge').style.display = 'none';
+  }
+  async function pollSmsNotifications() {
+    if (!_notifUserId) return;
+    var lastRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
+    var { count } = await sbMain.from('sms_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', _notifUserId)
+      .eq('direction', 'inbound')
+      .gt('created_at', lastRead);
+    var badge = document.getElementById('notif-badge');
+    if (count && count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  _dashAuthPromise.then(function(user) {
+    if (!user) return;
+    _notifUserId = user.id;
+    pollSmsNotifications();
+    setInterval(pollSmsNotifications, 15000);
   });
 
   /* Package renewal banner — show on Dec 30+ each year until dismissed */
