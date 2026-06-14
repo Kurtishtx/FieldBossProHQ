@@ -76,11 +76,11 @@
   <div class="dialog-body">
     <div class="section-label">Service Info</div>
 
-    <div class="field-row" id="invoice-name-row">
+    <div class="field-row" id="invoice-name-row" style="display:none;">
       <label for="invoice-name">Name on Invoice</label>
       <div style="flex:1;"><input type="text" id="invoice-name" autocomplete="off"/></div>
     </div>
-    <script>(function(){ var p = new URLSearchParams(window.location.search); if(p.get('category')==='package' && !p.get('id')) document.getElementById('invoice-name-row').style.display='none'; })();</script>
+    <script>(function(){ var p = new URLSearchParams(window.location.search); if(p.get('category')==='one_time' || p.get('id')) document.getElementById('invoice-name-row').style.display=''; })();</script>
 
     <div class="field-row">
       <label for="service-name">Service Name</label>
