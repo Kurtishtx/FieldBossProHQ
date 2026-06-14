@@ -481,8 +481,7 @@
     var rc = await sbClient.from('Clients').update({ active: false }).eq('id', editId);
     if (rc.error) { alert('Error cancelling client: ' + rc.error.message); return; }
 
-    var rp = await sbClient.from('Properties').update({ active: false }).eq('customer_id', editId).eq('user_id', uid);
-    if (rp.error) { alert('Error cancelling properties: ' + rp.error.message); return; }
+    await sbClient.from('Properties').update({ active: false }).eq('customer_id', editId).eq('user_id', uid);
 
     if (window.parent && window.parent.loadPage) {
       window.parent.loadPage('customers');
