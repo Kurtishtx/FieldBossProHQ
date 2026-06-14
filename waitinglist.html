@@ -268,7 +268,7 @@
     </div>
   </div>
   <div class="drp-wrap" id="drp-wrap">
-    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading�</div>
+    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading</div>
     <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
       <div class="drp-months">
         <div id="drp-month-left"></div>
@@ -468,7 +468,7 @@
     <button class="sv-modal-close" onclick="closeSaveViewModal()">&#10005;</button>
     <div class="sv-modal-title">Screen View</div>
     <div class="sv-modal-label">Enter View name.</div>
-    <input type="text" id="sv-name-input" placeholder="View name�" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
+    <input type="text" id="sv-name-input" placeholder="View name" onkeydown="if(event.key==='Enter')confirmSaveView()"/>
     <div class="sv-modal-footer">
       <button class="sv-modal-save" onclick="confirmSaveView()">Save</button>
       <button class="sv-modal-cancel" onclick="closeSaveViewModal()">or Cancel</button>
@@ -759,7 +759,7 @@
 
   /* -- Load services -- */
   async function loadServices() {
-    document.getElementById('jobs-total').textContent = 'Loading�';
+    document.getElementById('jobs-total').textContent = 'Loading';
     var { data, error } = await sb.from('Services')
       .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, associated_areas, Properties(lat, lng)')
       .not('property_id', 'is', null)
@@ -1860,7 +1860,7 @@
 
   async function loadSchedAssign() {
     var sel = document.getElementById('sched-assign');
-    sel.innerHTML = '<option value="">> assign later �</option>';
+    sel.innerHTML = '<option value="">> assign later </option>';
     var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).order('last_name');
     (data || []).forEach(function(e) {
       var opt = document.createElement('option');
