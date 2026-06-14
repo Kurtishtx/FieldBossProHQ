@@ -964,6 +964,8 @@
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
+  function bellEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
   function renderBellDropdown() {
     var list = document.getElementById('notif-dd-list');
     if (!_bellItems.length) {
@@ -978,8 +980,8 @@
       return '<div class="notif-dd-item" onclick="bellOpenConvo(\'' + phone.replace(/'/g,"\\'") + '\')">' +
         '<div class="notif-dd-icon">' + msgIcon + '</div>' +
         '<div class="notif-dd-body">' +
-          '<div class="notif-dd-name">' + escHtml(name) + '</div>' +
-          '<div class="notif-dd-preview">' + escHtml(preview) + '</div>' +
+          '<div class="notif-dd-name">' + bellEsc(name) + '</div>' +
+          '<div class="notif-dd-preview">' + bellEsc(preview) + '</div>' +
         '</div>' +
         '<div class="notif-dd-time">' + bellFmtTime(m.sent_at) + '</div>' +
       '</div>';
