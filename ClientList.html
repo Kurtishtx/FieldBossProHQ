@@ -485,7 +485,7 @@
       });
     }
     var pageEnd = Math.min(currentPage * PAGE_SIZE, totalCount);
-    document.getElementById('results-bar').textContent = pageEnd + ' / ' + totalCount + ' clients';
+    document.getElementById('results-bar').textContent = filtered.length + ' ' + (filtered.length === 1 ? 'client' : 'clients');
     if (filtered.length === 0) { emptyMsg.style.display = ''; return; }
     emptyMsg.style.display = 'none';
     filtered.forEach(function(c) {
