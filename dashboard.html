@@ -900,7 +900,9 @@
 
   /* SMS notification bell */
   var _notifUserId = null;
+  var _notifVersion = 0;
   function markTextsRead() {
+    _notifVersion++;
     localStorage.setItem('sbp_texts_last_read', new Date().toISOString());
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
@@ -908,12 +910,14 @@
   }
   async function pollSmsNotifications() {
     if (!_notifUserId) return;
+    var myVersion = _notifVersion;
     var lastRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
     var { count } = await sbMain.from('sms_messages')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
       .gt('sent_at', lastRead);
+    if (myVersion !== _notifVersion) return;
     var badge = document.getElementById('notif-badge');
     if (count && count > 0) {
       badge.textContent = count > 99 ? '99+' : count;
