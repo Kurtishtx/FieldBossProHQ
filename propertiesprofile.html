@@ -1042,8 +1042,22 @@ function showPropTab(name, btn) {
       var btn = document.getElementById('map-toggle-btn');
       var showing = mapEl.style.display !== 'none';
       if (showing) {
+        /* Hide map and close measurement panel */
         mapEl.style.display = 'none';
         btn.textContent = 'Show Map';
+        var panel = document.getElementById('measure-panel');
+        if (panel) panel.style.display = 'none';
+        var container = document.getElementById('map-measure-container');
+        if (container) {
+          container.style.flexDirection = '';
+          container.style.alignItems    = '';
+          container.style.border        = '';
+          container.style.borderRadius  = '';
+          container.style.overflow      = '';
+        }
+        if (typeof _drawingManager !== 'undefined' && _drawingManager) {
+          _drawingManager.setDrawingMode(null);
+        }
       } else {
         mapEl.style.display = 'block';
         btn.textContent = 'Hide Map';
@@ -2490,7 +2504,7 @@ function showPropTab(name, btn) {
 
   function openMeasureMode() {
     /* Close the dropdown */
-    document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.style.display = 'none'; });
+    document.querySelectorAll('.dropdown-menu').forEach(function(m) { m.classList.remove('show'); });
 
     if (!window._propLat || !window._propLng) {
       alert('This property has no coordinates saved. Edit the property and geocode the address first.');
