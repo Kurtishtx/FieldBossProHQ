@@ -1218,7 +1218,7 @@
     var opts = { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' };
     var s = drpStart.toLocaleDateString('en-US', opts);
     el.textContent = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
-      ? s + ' � ' + drpEnd.toLocaleDateString('en-US', opts) : s;
+      ? s + ' – ' + drpEnd.toLocaleDateString('en-US', opts) : s;
   }
 
   function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
