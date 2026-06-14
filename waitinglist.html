@@ -973,7 +973,7 @@
       }
     });
     var pills = Object.keys(svcCounts).map(function(n) {
-      var sqft = svcSqFt[n] ? '<span style="font-size:14px;font-weight:700;color:#fff;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
+      var sqft = '<span style="font-size:14px;font-weight:700;color:#fff;">' + (svcSqFt[n] ? Number(svcSqFt[n]).toLocaleString() + ' sq ft' : '') + '</span>';
       return '<span class="jt-pill">' + n + '<span class="jt-pill-count">' + svcCounts[n] + '</span>' + sqft + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
