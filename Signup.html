@@ -416,6 +416,17 @@
         zip
       });
 
+      /* 7. Seed default cancellation reasons */
+      var defaultReasons = [
+        'Cancel Maintaining Self',
+        'Cancel Sold House',
+        'Cancel Too Expensive',
+        'Cancel Unknown',
+        'Dropping Customer',
+        'Sold House'
+      ].map(function(name) { return { name: name, active: true, user_id: uid }; });
+      await sb.from('cancellation_reasons').insert(defaultReasons);
+
       /* 5. Show success, then redirect */
       showSuccess();
 
