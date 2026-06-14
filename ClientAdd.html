@@ -172,6 +172,12 @@
       <!-- BILLING ADDRESS -->
       <div class="col-section">
         <div class="col-section-title">Billing Address</div>
+        <div class="fr" style="margin-bottom:6px;">
+          <span class="lbl"></span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="same-as-svc" onchange="toggleSameAsSvc(this)"/> Same as Service Address
+          </label>
+        </div>
         <div class="fr"><span class="lbl">Name on Inv.</span><input type="text" id="inv-name"/></div>
         <div class="fr"><span class="lbl">Attention To</span><input type="text" id="attention"/></div>
         <div class="fr"><span class="lbl">Address</span><input type="text" id="bill-addr1"/></div>
@@ -209,17 +215,6 @@
 
     </div><!-- /cols-grid -->
 
-    <!-- Master Property -->
-    <div class="dialog-body" style="padding-top:0;">
-      <div class="section-label">Master Property</div>
-      <div class="field-row">
-        <label for="master-prop">Select Client</label>
-        <div style="flex:1;">
-          <select id="master-prop"><option value="">Type to search for clients</option></select>
-          <div class="field-hint">Select the client from the list that owns or manages this property.</div>
-        </div>
-      </div>
-    </div>
 
   </div><!-- /tab-personal -->
 
@@ -280,6 +275,19 @@
       if (target) target.classList.add('active');
     });
   });
+
+  // Same as Service Address checkbox
+  function toggleSameAsSvc(cb) {
+    if (!cb.checked) return;
+    var fn = (document.getElementById('first-name').value || '').trim();
+    var ln = (document.getElementById('last-name').value || '').trim();
+    document.getElementById('inv-name').value   = [fn, ln].filter(Boolean).join(' ');
+    document.getElementById('bill-addr1').value = document.getElementById('svc-addr1').value;
+    document.getElementById('bill-addr2').value = document.getElementById('svc-addr2').value;
+    document.getElementById('bill-zip').value   = document.getElementById('svc-zip').value;
+    document.getElementById('bill-city').value  = document.getElementById('svc-city').value;
+    document.getElementById('bill-state').value = document.getElementById('svc-state').value;
+  }
 
   // Auto-fill property name from client name (stops if user manually edits prop-name)
   var _propNameManual = false;
