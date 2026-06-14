@@ -1341,6 +1341,22 @@
   var mapTool = 'pan', polyVerts = [], vertexMarkers = [], firstVertexMarker = null, drawingMarkers = [];
   var selPolygon = null, selDrawingLine = null, selPreviewLine = null;
 
+  function getMarkerSize() {
+    var z = map.getZoom();
+    if (z <= 10) return [14, 18];
+    if (z <= 12) return [20, 26];
+    if (z <= 14) return [26, 34];
+    return [32, 42];
+  }
+  function updateMarkerSizes() {
+    var s = getMarkerSize();
+    mapMarkers.forEach(function(m) {
+      var icon = m.getIcon();
+      if (icon && icon.url) m.setIcon({ url: icon.url, scaledSize: new google.maps.Size(s[0], s[1]), anchor: new google.maps.Point(s[0]/2, s[1]) });
+    });
+  }
+  google.maps.event.addListener(map, 'zoom_changed', updateMarkerSizes);
+
   /* Minimal OverlayView � only used to get MapCanvasProjection for lat/lng conversions */
   var projOverlay = new google.maps.OverlayView();
   projOverlay.onAdd = function() {};
@@ -1615,7 +1631,7 @@
         marker = new google.maps.Marker({
           position: pos, map: map,
           icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(routeOrderMap[propId] || '')),
-            scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+            scaledSize: new google.maps.Size(getMarkerSize()[0], getMarkerSize()[1]), anchor: new google.maps.Point(getMarkerSize()[0]/2, getMarkerSize()[1]) }
         });
         (function(pid, m) {
           google.maps.event.addListener(m, 'click', function() {
@@ -1623,7 +1639,7 @@
             routeCounter++;
             routeOrderMap[pid] = routeCounter;
             m.setIcon({ url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(routeCounter)),
-              scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) });
+              scaledSize: new google.maps.Size(getMarkerSize()[0], getMarkerSize()[1]), anchor: new google.maps.Point(getMarkerSize()[0]/2, getMarkerSize()[1]) });
           });
         })(propId, marker);
       } else {
@@ -1631,7 +1647,7 @@
         marker = new google.maps.Marker({
           position: pos, map: map,
           icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
-            scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+            scaledSize: new google.maps.Size(getMarkerSize()[0], getMarkerSize()[1]), anchor: new google.maps.Point(getMarkerSize()[0]/2, getMarkerSize()[1]) }
         });
         var relatedSvcs = services.filter(function(s) { return String(s.property_id) === propId; });
         (function(svcs, m) {
@@ -1668,7 +1684,7 @@
       var marker = new google.maps.Marker({
         position: { lat: svc.Properties.lat, lng: svc.Properties.lng }, map: map,
         icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
-          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+          scaledSize: new google.maps.Size(getMarkerSize()[0], getMarkerSize()[1]), anchor: new google.maps.Point(getMarkerSize()[0]/2, getMarkerSize()[1]) }
       });
       mapMarkers.push(marker);
     });
