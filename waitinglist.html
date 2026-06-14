@@ -1072,7 +1072,7 @@
     }).join('<span class="jt-sep"></span>');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var _badgeStyle2 = 'font-size:20px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:2px 7px;display:inline-block;';
-    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span><span>Services Total</span><span style="' + _badgeStyle2 + 'visibility:hidden;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-size:18px;font-weight:700;color:#fff;">$' + preTotal.toFixed(2) + '</span></span>';
+    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span><span>Services Total</span><span style="' + _badgeStyle2 + 'visibility:hidden;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-size:18px;font-weight:700;color:#fff;border:2px solid #e07820;border-radius:8px;padding:2px 10px;">$' + preTotal.toFixed(2) + '</span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + (pills ? '<span class="jt-sep"></span>' + pills : '');
 
     var tbody = document.getElementById('table-body');
