@@ -551,10 +551,7 @@
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-truck"   checked onchange="toggleCoreCol('truck',this.checked)"/>   Truck</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
+      <div id="area-col-dynamic-items"><!-- area type checkboxes inserted by loadAreaTreatedTypes() --></div>
     </div>
   </div>
 </div>
@@ -570,10 +567,7 @@
         <th id="th-service" onclick="sortBy('service')">Service <span class="sort-arrow">&#9650;</span></th>
         <th id="th-lastsvc" onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
         <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
-        <th id="th-arealawn"     style="display:none;" class="area-sep">Lawn Sq Ft</th>
-        <th id="th-areainsect"   style="display:none;">Lawn Insect Sq Ft</th>
-        <th id="th-areaflower"   style="display:none;">Flower Bed(s) Sq Ft</th>
-        <th id="th-areamosquito" style="display:none;">Mosquito Sq Ft</th>
+        <!-- area type th's inserted by loadAreaTreatedTypes() -->
         <th id="th-truck">Truck</th>
       </tr>
     </thead>
@@ -581,10 +575,7 @@
       <tr class="totals-row" id="totals-row">
         <td colspan="5" style="text-align:right; padding-right:12px;"></td>
         <td id="total-amt">$0.00</td>
-        <td id="total-arealawn"     style="text-align:right;display:none;" class="area-sep"></td>
-        <td id="total-areainsect"   style="text-align:right;display:none;"></td>
-        <td id="total-areaflower"   style="text-align:right;display:none;"></td>
-        <td id="total-areamosquito" style="text-align:right;display:none;"></td>
+        <!-- area type total td's inserted by loadAreaTreatedTypes() -->
         <td id="total-truck"></td>
       </tr>
       <tr class="empty-row" id="empty-row">
@@ -734,8 +725,58 @@
 
   var CORE_COLS = ['order','client','service','lastsvc','amount','truck'];
   var activeCoreColumns = CORE_COLS.slice();
-  var AREA_COL_KEYS = ['arealawn','areainsect','areaflower','areamosquito'];
-  var AREA_DATA_KEYS = { arealawn:'lawn_care', areainsect:'lawn_insect', areaflower:'flower_beds', areamosquito:'mosquito', areapest:'pest_control' };
+  var AREA_COL_KEYS = [];
+  var AREA_DATA_KEYS = {};
+  var _atTypeLabels = {};
+
+  async function loadAreaTreatedTypes() {
+    var { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+    var { data } = await sb.from('area_treated_types')
+      .select('*').eq('user_id', user.id).order('sort_order').order('name');
+    var types = data || [];
+    if (!types.length) {
+      var defaults = [
+        { user_id: user.id, name: 'Lawn Care',          unit: 'ft²', slug: 'lawn_care',              sort_order: 0 },
+        { user_id: user.id, name: 'Lawn Insect',         unit: 'ft²', slug: 'lawn_insect',            sort_order: 1 },
+        { user_id: user.id, name: 'Flower Beds',         unit: 'ft²', slug: 'flower_beds',            sort_order: 2 },
+        { user_id: user.id, name: 'Mosquito',            unit: 'ft²', slug: 'mosquito',               sort_order: 3 },
+        { user_id: user.id, name: 'Mosquito Linear',     unit: 'ft',       slug: 'mosquito_linear_ft',     sort_order: 4 },
+        { user_id: user.id, name: 'Pest Control',        unit: 'ft²', slug: 'pest_control',           sort_order: 5 },
+        { user_id: user.id, name: 'Pest Control Linear', unit: 'ft',       slug: 'pest_control_linear_ft', sort_order: 6 },
+      ];
+      await sb.from('area_treated_types').insert(defaults);
+      types = defaults;
+    }
+    AREA_COL_KEYS = types.map(function(t) { return 'at_' + t.slug; });
+    AREA_DATA_KEYS = {};
+    _atTypeLabels = {};
+    types.forEach(function(t) {
+      AREA_DATA_KEYS['at_' + t.slug] = t.slug;
+      _atTypeLabels['at_' + t.slug] = t.name + ' ' + t.unit;
+    });
+    /* Inject checkboxes into column panel */
+    var panel = document.getElementById('area-col-dynamic-items');
+    panel.innerHTML = types.map(function(t, i) {
+      var k = 'at_' + t.slug;
+      var sepStyle = i === 0 ? ' style="border-top:1px solid #eee;padding-top:6px;margin-top:4px;"' : '';
+      return '<div class="col-panel-row"' + sepStyle + '>' +
+        '<label><input type="checkbox" id="area-cb-' + k + '" onchange="toggleAreaCol(\'' + k + '\',this.checked)"/> ' +
+        t.name + ' ' + t.unit + '</label></div>';
+    }).join('');
+    /* Inject total td's before truck td (buildTableHeader handles thead row) */
+    var totalsRow = document.getElementById('totals-row');
+    var totalTruck = document.getElementById('total-truck');
+    types.forEach(function(t, i) {
+      var k = 'at_' + t.slug;
+      var td = document.createElement('td');
+      td.id = 'total-' + k;
+      td.style.textAlign = 'right';
+      td.style.display = 'none';
+      if (i === 0) td.className = 'area-sep';
+      totalsRow.insertBefore(td, totalTruck);
+    });
+  }
   var activeAreaCols = [];
   var activeCustomCols = [];
 
@@ -797,7 +838,6 @@
 
   function buildTableHeader() {
     var tr = document.getElementById('thead-row');
-    var areaLabels = {arealawn:'Lawn Sq Ft', areainsect:'Lawn Insect Sq Ft', areaflower:'Flower Bed(s) Sq Ft', areamosquito:'Mosquito Sq Ft'};
     var cells = ['<th class="cb-cell"><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>'];
     if (activeCoreColumns.indexOf('order')   >= 0) cells.push('<th id="th-order"   onclick="sortBy(\'order\')">Order <span class="sort-arrow">&#9650;</span></th>');
     if (activeCoreColumns.indexOf('client')  >= 0) cells.push('<th id="th-client"  onclick="sortBy(\'client\')">Client <span class="sort-arrow">&#9650;</span></th>');
@@ -809,7 +849,7 @@
       if (activeAreaCols.indexOf(k) >= 0) {
         var sepClass = firstAreaTh ? ' class="area-sep"' : '';
         firstAreaTh = false;
-        cells.push('<th id="th-' + k + '"' + sepClass + '>' + areaLabels[k] + '</th>');
+        cells.push('<th id="th-' + k + '"' + sepClass + '>' + (_atTypeLabels[k] || k) + '</th>');
       }
     });
     if (activeCoreColumns.indexOf('truck')  >= 0) cells.push('<th id="th-truck">Truck</th>');
@@ -1564,25 +1604,27 @@
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
     var areaTotals = {};
-    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
     var seenPropForArea = {};
     selected.forEach(function(svc) {
       var aa = getCatalogAreas(svc);
       var areaMap = areaTreatedByProperty[svc.property_id] || {};
-      Object.keys(areaLabels).forEach(function(k) {
+      AREA_COL_KEYS.forEach(function(colKey) {
+        var slug = AREA_DATA_KEYS[colKey];
+        if (!slug) return;
         if (aa === null) return;
-        if (aa !== undefined && !aa[k]) return;
-        var propAreaKey = svc.property_id + '_' + k;
+        if (aa !== undefined && !aa[slug]) return;
+        var propAreaKey = svc.property_id + '_' + slug;
         if (seenPropForArea[propAreaKey]) return;
         seenPropForArea[propAreaKey] = true;
-        if (areaMap[k]) areaTotals[k] = (areaTotals[k] || 0) + (parseFloat(areaMap[k]) || 0);
+        if (areaMap[slug]) areaTotals[slug] = (areaTotals[slug] || 0) + (parseFloat(areaMap[slug]) || 0);
       });
     });
     var svcCounts = {};
     selected.forEach(function(x) { svcCounts[x.service] = (svcCounts[x.service] || 0) + 1; });
     var html = '<div class="sp-row" style="margin-bottom:6px;"><span><strong>Total Revenue</strong></span><span><strong>$' + totalRev.toFixed(2) + '</strong></span></div>';
-    Object.keys(areaTotals).forEach(function(k) {
-      if (areaLabels[k]) html += '<div class="sp-row"><span>' + areaLabels[k] + '</span><span>' + Number(areaTotals[k]).toLocaleString() + '</span></div>';
+    AREA_COL_KEYS.forEach(function(colKey) {
+      var slug = AREA_DATA_KEYS[colKey];
+      if (slug && areaTotals[slug]) html += '<div class="sp-row"><span>' + (_atTypeLabels[colKey] || colKey) + '</span><span>' + Number(areaTotals[slug]).toLocaleString() + '</span></div>';
     });
     if (Object.keys(areaTotals).length) html += '<div style="margin:4px 0;border-top:1px solid #eee;"></div>';
     Object.keys(svcCounts).forEach(function(n) {
@@ -2196,7 +2238,7 @@
       }
       if (s.area_cols) {
         activeAreaCols = s.area_cols;
-        ['arealawn','areainsect','areaflower','areamosquito'].forEach(function(k) {
+        AREA_COL_KEYS.forEach(function(k) {
           var cb = document.getElementById('area-cb-' + k);
           if (cb) cb.checked = activeAreaCols.indexOf(k) >= 0;
         });
@@ -2392,7 +2434,7 @@
   document.getElementById('use-min-days').addEventListener('change', renderTable);
 
   (async function() {
-    await Promise.all([loadCustomFields(), loadColPrefs(), loadSavedViews()]);
+    await Promise.all([loadCustomFields(), loadColPrefs(), loadSavedViews(), loadAreaTreatedTypes()]);
     await loadDefaultView();
     buildTableHeader();
     await loadServices();

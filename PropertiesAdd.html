@@ -185,33 +185,8 @@
     <div class="dialog-body" style="padding-bottom:0;">
       <div class="section-label" style="padding-top:0;border-top:none;">Area Treated</div>
     </div>
-    <div class="cf-row">
-      <div class="cf-label">Lawn Care ft²</div>
-      <input class="cf-input" type="text" id="area-lawn-care" placeholder=""/>
-    </div>
-    <div class="cf-row">
-      <div class="cf-label">Lawn Insect ft²</div>
-      <input class="cf-input" type="text" id="area-lawn-insect" placeholder=""/>
-    </div>
-    <div class="cf-row">
-      <div class="cf-label">Flower Bed(s) ft²</div>
-      <input class="cf-input" type="text" id="area-flower-beds" placeholder=""/>
-    </div>
-    <div class="cf-row">
-      <div class="cf-label">Mosquito ft²</div>
-      <input class="cf-input" type="text" id="area-mosquito" placeholder=""/>
-    </div>
-    <div class="cf-row">
-      <div class="cf-label">Mosquito ft</div>
-      <input class="cf-input" type="text" id="area-mosquito-linear" placeholder=""/>
-    </div>
-    <div class="cf-row">
-      <div class="cf-label">Pest Control ft²</div>
-      <input class="cf-input" type="text" id="area-pest-control" placeholder=""/>
-    </div>
-    <div class="cf-row">
-      <div class="cf-label">Pest Control ft</div>
-      <input class="cf-input" type="text" id="area-pest-control-linear" placeholder=""/>
+    <div id="at-dynamic-fields">
+      <div class="cf-row" style="color:#aaa;font-style:italic;padding:12px 20px;">Loading...</div>
     </div>
   </div>
 
@@ -283,6 +258,10 @@
     nameBox.value = (chosen && chosen.value) ? chosen.textContent : '';
   }
 
+  /* ── Area Treated vars (declared before init IIFE) ── */
+  var _atTypes = [];
+  var _editAtValues = {};
+
   /* ── Init: load existing property OR preset client ── */
   (async function init() {
     if (editId) {
@@ -303,14 +282,7 @@
       document.getElementById('alert-scheduled-next').checked = !!p.alert_scheduled_next;
       document.getElementById('prop-title').textContent = p.name || p.address || 'Property';
 
-      var at = p.area_treated || {};
-      set('area-lawn-care',   at.lawn_care);
-      set('area-lawn-insect', at.lawn_insect);
-      set('area-flower-beds', at.flower_beds);
-      set('area-mosquito',         at.mosquito);
-      set('area-mosquito-linear',  at.mosquito_linear_ft);
-      set('area-pest-control',        at.pest_control);
-      set('area-pest-control-linear', at.pest_control_linear_ft);
+      _editAtValues = p.area_treated || {};
 
       await loadClientOptions(p.customer_id);
       await loadSalesTaxOptions(p.sales_tax_id || null);
@@ -328,7 +300,56 @@
         }
       }
     }
+    loadAreaTreatedTab();
   })();
+
+  /* ── Area Treated Types ── */
+  async function loadAreaTreatedTab() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid) return;
+    var { data } = await sb.from('area_treated_types')
+      .select('*').eq('user_id', uid).order('sort_order').order('name');
+    if (data && data.length) {
+      _atTypes = data;
+    } else {
+      var defaults = [
+        { user_id: uid, name: 'Lawn Care',          unit: 'ft²', slug: 'lawn_care',              sort_order: 0 },
+        { user_id: uid, name: 'Lawn Insect',         unit: 'ft²', slug: 'lawn_insect',            sort_order: 1 },
+        { user_id: uid, name: 'Flower Beds',         unit: 'ft²', slug: 'flower_beds',            sort_order: 2 },
+        { user_id: uid, name: 'Mosquito',            unit: 'ft²', slug: 'mosquito',               sort_order: 3 },
+        { user_id: uid, name: 'Mosquito Linear',     unit: 'ft',       slug: 'mosquito_linear_ft',     sort_order: 4 },
+        { user_id: uid, name: 'Pest Control',        unit: 'ft²', slug: 'pest_control',           sort_order: 5 },
+        { user_id: uid, name: 'Pest Control Linear', unit: 'ft',       slug: 'pest_control_linear_ft', sort_order: 6 },
+      ];
+      await sb.from('area_treated_types').insert(defaults);
+      _atTypes = defaults;
+    }
+    renderAtFields();
+  }
+
+  function atAddEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function atAddEscVal(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function renderAtFields() {
+    var container = document.getElementById('at-dynamic-fields');
+    if (!_atTypes.length) { container.innerHTML = ''; return; }
+    container.innerHTML = _atTypes.map(function(t) {
+      var val = _editAtValues[t.slug] || '';
+      return '<div class="cf-row">' +
+        '<div class="cf-label">' + atAddEsc(t.name) + ' ' + atAddEsc(t.unit) + '</div>' +
+        '<input class="cf-input at-add-inp" type="text" data-at-key="' + atAddEscVal(t.slug) + '" value="' + atAddEscVal(val) + '" placeholder=""/>' +
+        '</div>';
+    }).join('');
+  }
+
+  function buildAtValues() {
+    var values = {};
+    document.querySelectorAll('.at-add-inp').forEach(function(el) {
+      values[el.dataset.atKey] = el.value.trim();
+    });
+    return values;
+  }
 
   /* ── Custom Fields ── */
   var cfLoaded = false;
@@ -408,16 +429,7 @@
     };
 
     if (cfLoaded) record.custom_fields = buildCfValues();
-
-    record.area_treated = {
-      lawn_care:   document.getElementById('area-lawn-care').value.trim(),
-      lawn_insect: document.getElementById('area-lawn-insect').value.trim(),
-      flower_beds: document.getElementById('area-flower-beds').value.trim(),
-      mosquito:              document.getElementById('area-mosquito').value.trim(),
-      mosquito_linear_ft:    document.getElementById('area-mosquito-linear').value.trim(),
-      pest_control:          document.getElementById('area-pest-control').value.trim(),
-      pest_control_linear_ft: document.getElementById('area-pest-control-linear').value.trim()
-    };
+    if (_atTypes.length) record.area_treated = buildAtValues();
 
     var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
     var fullAddress = [addr1, city, state, zip].filter(Boolean).join(', ');

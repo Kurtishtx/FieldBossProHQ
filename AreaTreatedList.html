@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Area Treated Types</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #d4cfe0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .page-header { padding: 10px 20px 6px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #fff; border-bottom: 1px solid #ddd; }
+    .page-header h1 { font-size: 22px; font-weight: 800; color: #111; }
+    .btn-add { background: #130520; border: 2px solid #e07820; color: #fff; font-weight: 700; border-radius: 6px; padding: 7px 16px; font-size: 13.5px; font-family: inherit; cursor: pointer; }
+    .btn-add:hover { background: #1e0a35; }
+    .toolbar { background: #130520; padding: 7px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-del { background: #c0392b; color: #fff; border: none; border-radius: 4px; padding: 5px 14px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-del:hover { background: #a93226; }
+    .info-msg { font-size: 12px; color: #aaa; margin-left: 6px; }
+    .table-container { flex: 1; overflow-y: auto; background: #fff; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 10px 14px; text-align: left; font-size: 12.5px; font-weight: 700; color: #555; border-bottom: 2px solid #ddd; background: #fafafa; white-space: nowrap; }
+    thead th:first-child { width: 40px; text-align: center; }
+    thead th:last-child { width: 100px; text-align: center; }
+    tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
+    tbody tr:hover { background: #f9f9f9; }
+    tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+    tbody td:last-child { text-align: center; }
+    .name-link { color: #2272c3; text-decoration: underline; font-weight: 600; }
+    .empty-msg { padding: 40px; text-align: center; color: #888; }
+    .badge-unit { background: #f0f0f0; color: #555; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-family: monospace; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Area Treated Types</h1>
+  <button class="btn-add" onclick="navigate('areatreatedadd')">+ Add Type</button>
+</div>
+
+<div class="toolbar">
+  <button class="btn-del" onclick="deleteSelected()">Delete Selected</button>
+  <span class="info-msg">Changes apply to all property profiles, waiting list, and scheduled list.</span>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"/></th>
+        <th>Name</th>
+        <th>Unit</th>
+        <th>Sort Order</th>
+      </tr>
+    </thead>
+    <tbody id="types-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg" style="display:none;">No area treated types defined. Add one to get started.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var types = [];
+
+  function navigate(page, params) {
+    var url = params ? page + '?' + params : page;
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(url);
+    else window.location.href = url + '.html';
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function toggleAll(checked) { document.querySelectorAll('.row-cb').forEach(function(cb){ cb.checked = checked; }); }
+
+  function getSelected() {
+    return Array.from(document.querySelectorAll('.row-cb:checked')).map(function(cb){ return cb.dataset.id; });
+  }
+
+  async function deleteSelected() {
+    var ids = getSelected();
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' type(s)? Existing measurement data on properties will remain but won\'t be displayed.')) return;
+    await sb.from('area_treated_types').delete().in('id', ids);
+    types = types.filter(function(t){ return !ids.includes(t.id); });
+    renderTable();
+  }
+
+  function renderTable() {
+    var tbody = document.getElementById('types-tbody');
+    document.getElementById('empty-msg').style.display = types.length ? 'none' : '';
+    tbody.innerHTML = '';
+    types.forEach(function(t) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" data-id="' + t.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td><span class="name-link">' + esc(t.name) + '</span></td>' +
+        '<td><span class="badge-unit">' + esc(t.unit) + '</span></td>' +
+        '<td style="color:#888;">' + (t.sort_order || 0) + '</td>';
+      tr.addEventListener('click', function(e){
+        if (e.target.type === 'checkbox') return;
+        navigate('areatreatedadd', 'id=' + t.id);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function load() {
+    var { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+    var { data } = await sb.from('area_treated_types')
+      .select('*').eq('user_id', user.id)
+      .order('sort_order').order('name');
+    types = data || [];
+    renderTable();
+  }
+
+  load();
+</script>
+</body>
+</html>

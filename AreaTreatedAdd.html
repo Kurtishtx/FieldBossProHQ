@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add / Edit Area Type</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #d4cfe0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .page-header { padding: 10px 20px 6px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; background: #fff; border-bottom: 1px solid #ddd; }
+    .btn-back { background: none; border: 2px solid #888; border-radius: 6px; padding: 5px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; font-family: inherit; }
+    .btn-back:hover { background: #f0f0f0; }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #111; }
+    .form-wrap { flex: 1; overflow-y: auto; padding: 20px; }
+    .form-card { background: #fff; border-radius: 8px; padding: 24px; max-width: 480px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .field { margin-bottom: 18px; }
+    .field label { display: block; font-size: 12.5px; font-weight: 700; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .3px; }
+    .field input, .field select { width: 100%; border: 1.5px solid #ccc; border-radius: 5px; padding: 9px 10px; font-size: 14px; font-family: inherit; color: #222; }
+    .field input:focus, .field select:focus { border-color: #e07820; outline: none; box-shadow: 0 0 0 3px rgba(224,120,32,.1); }
+    .hint { font-size: 11.5px; color: #999; margin-top: 4px; }
+    .footer { display: flex; gap: 10px; margin-top: 24px; align-items: center; }
+    .btn-save { background: #130520; border: 2px solid #e07820; color: #fff; font-weight: 700; border-radius: 6px; padding: 9px 22px; font-size: 14px; font-family: inherit; cursor: pointer; }
+    .btn-save:hover { background: #1e0a35; }
+    .btn-cancel { background: #fff; border: 2px solid #ccc; color: #555; font-weight: 600; border-radius: 6px; padding: 9px 16px; font-size: 14px; font-family: inherit; cursor: pointer; }
+    .btn-cancel:hover { background: #f0f0f0; }
+    .btn-delete { background: #c0392b; border: none; color: #fff; font-weight: 700; border-radius: 6px; padding: 9px 16px; font-size: 14px; font-family: inherit; cursor: pointer; margin-left: auto; }
+    .btn-delete:hover { background: #a93226; }
+  </style>
+  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="btn-back" onclick="goBack()">&#8592; Back</button>
+  <h1 id="page-title">Add Area Type</h1>
+</div>
+
+<div class="form-wrap">
+  <div class="form-card">
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="f-name" placeholder="e.g. Lawn Care"/>
+    </div>
+    <div class="field">
+      <label>Unit</label>
+      <input type="text" id="f-unit" value="ft²" placeholder="ft², ft, acres, sq yd, etc."/>
+      <div class="hint">Shown next to the field label, e.g. "Lawn Care ft²"</div>
+    </div>
+    <div class="field">
+      <label>Sort Order</label>
+      <input type="number" id="f-order" value="0" min="0" step="1"/>
+      <div class="hint">Lower numbers appear first in lists</div>
+    </div>
+    <div class="footer">
+      <button class="btn-save" onclick="save()">Save</button>
+      <button class="btn-cancel" onclick="goBack()">Cancel</button>
+      <button class="btn-delete" id="btn-delete" style="display:none;" onclick="deleteType()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var params = new URLSearchParams(window.location.search);
+  var editId = params.get('id');
+
+  function goBack() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('areatreatedlist');
+    else window.location.href = 'AreaTreatedList.html';
+  }
+
+  function slugify(name) {
+    return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+
+  async function load() {
+    if (!editId) return;
+    document.getElementById('page-title').textContent = 'Edit Area Type';
+    document.getElementById('btn-delete').style.display = '';
+    var { data } = await sb.from('area_treated_types').select('*').eq('id', editId).single();
+    if (!data) return;
+    document.getElementById('f-name').value  = data.name || '';
+    document.getElementById('f-unit').value  = data.unit || 'ft²';
+    document.getElementById('f-order').value = data.sort_order != null ? data.sort_order : 0;
+  }
+
+  async function save() {
+    var name  = document.getElementById('f-name').value.trim();
+    var unit  = document.getElementById('f-unit').value.trim() || 'ft²';
+    var order = parseInt(document.getElementById('f-order').value) || 0;
+    if (!name) { alert('Name is required.'); return; }
+
+    if (editId) {
+      var { error } = await sb.from('area_treated_types')
+        .update({ name: name, unit: unit, sort_order: order })
+        .eq('id', editId);
+      if (error) { alert('Save failed: ' + error.message); return; }
+    } else {
+      var { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      var slug = slugify(name);
+      var { error } = await sb.from('area_treated_types')
+        .insert({ user_id: user.id, name: name, unit: unit, slug: slug, sort_order: order });
+      if (error) {
+        if (error.message && error.message.toLowerCase().includes('unique')) {
+          alert('A type with a similar name already exists. Try a more specific name.');
+          return;
+        }
+        alert('Save failed: ' + error.message);
+        return;
+      }
+    }
+    goBack();
+  }
+
+  async function deleteType() {
+    if (!editId) return;
+    if (!confirm('Delete this area type?\n\nExisting measurement data saved on properties will remain in the database but won\'t be displayed.')) return;
+    await sb.from('area_treated_types').delete().eq('id', editId);
+    goBack();
+  }
+
+  load();
+</script>
+</body>
+</html>
