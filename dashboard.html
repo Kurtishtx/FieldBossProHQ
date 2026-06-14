@@ -1413,45 +1413,77 @@
 
   // ── Global Search ──
   var _searchTimer = null;
+  var _searchTab = 'active';
+  var _searchQuery = '';
+  var _searchDdId = 'global-search-dd';
+
   function globalSearchInput() {
     clearTimeout(_searchTimer);
     var q = document.getElementById('global-search').value.trim();
+    _searchQuery = q; _searchDdId = 'global-search-dd';
     if (q.length < 2) { closeSearchDD(); return; }
     _searchTimer = setTimeout(function() { runGlobalSearch(q, 'global-search-dd'); }, 300);
   }
   function mobileSearchInput() {
     clearTimeout(_searchTimer);
     var q = document.getElementById('mobile-search').value.trim();
+    _searchQuery = q; _searchDdId = 'mobile-search-dd';
     if (q.length < 2) { closeSearchDD(); return; }
     _searchTimer = setTimeout(function() { runGlobalSearch(q, 'mobile-search-dd'); }, 300);
+  }
+  function setSearchTab(tab) {
+    _searchTab = tab;
+    if (_searchQuery.length >= 2) runGlobalSearch(_searchQuery, _searchDdId);
   }
   function closeSearchDD() {
     document.getElementById('global-search-dd').classList.remove('open');
     document.getElementById('mobile-search-dd').classList.remove('open');
+    _searchTab = 'active';
   }
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.global-search-wrap') && !e.target.closest('.mobile-search-wrap')) closeSearchDD();
   });
   async function runGlobalSearch(q, ddId) {
     var dd = document.getElementById(ddId);
-    dd.innerHTML = '<div class="search-no-results">Searching…</div>';
     dd.classList.add('open');
+    var tabsHtml =
+      '<div style="display:flex;border-bottom:1px solid #eee;padding:0;">' +
+        '<button onclick="event.stopPropagation();setSearchTab(\'active\')" style="flex:1;padding:9px 0;border:none;background:none;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:' + (_searchTab==='active'?'2px solid #e07820;color:#e07820':'2px solid transparent;color:#888') + ';">Clients &amp; Leads</button>' +
+        '<button onclick="event.stopPropagation();setSearchTab(\'former\')" style="flex:1;padding:9px 0;border:none;background:none;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:' + (_searchTab==='former'?'2px solid #e07820;color:#e07820':'2px solid transparent;color:#888') + ';">Former Clients &amp; Lead</button>' +
+      '</div>';
+    dd.innerHTML = tabsHtml + '<div class="search-no-results">Searching…</div>';
+
     var like = '%' + q + '%';
-    var [cRes, pRes, lRes] = await Promise.all([
-      sbMain.from('Clients').select('id,name,email,phone,cell,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',cell.ilike.' + like + ',address.ilike.' + like).limit(5),
-      sbMain.from('Properties').select('id,name,address,city,customer_id').or('address.ilike.' + like + ',city.ilike.' + like + ',name.ilike.' + like).limit(5),
-      sbMain.from('Leads').select('id,name,email,phone,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',address.ilike.' + like).limit(5)
-    ]);
-    var clients = cRes.data || [], props = pRes.data || [], leads = lRes.data || [];
-    if (!clients.length && !props.length && !leads.length) {
-      dd.innerHTML = '<div class="search-no-results">No results for "' + q + '"</div>'; return;
+    var clientQ = sbMain.from('Clients').select('id,name,email,phone,cell,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',cell.ilike.' + like + ',address.ilike.' + like);
+    if (_searchTab === 'active') clientQ = clientQ.neq('active', false);
+    else clientQ = clientQ.eq('active', false);
+    clientQ = clientQ.limit(8);
+
+    var results;
+    if (_searchTab === 'active') {
+      var [cRes, pRes, lRes] = await Promise.all([
+        clientQ,
+        sbMain.from('Properties').select('id,name,address,city,customer_id').neq('active', false).or('address.ilike.' + like + ',city.ilike.' + like + ',name.ilike.' + like).limit(5),
+        sbMain.from('Leads').select('id,name,email,phone,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',address.ilike.' + like).limit(5)
+      ]);
+      results = { clients: cRes.data || [], props: pRes.data || [], leads: lRes.data || [] };
+    } else {
+      var cRes = await clientQ;
+      results = { clients: cRes.data || [], props: [], leads: [] };
     }
+
     function sriSub(parts) {
       return parts.filter(Boolean).map(function(p) { return '<span>' + p + '</span>'; }).join(' &nbsp;|&nbsp; ');
     }
-    var html = '';
+    var html = tabsHtml;
+    var { clients, props, leads } = results;
+
+    if (!clients.length && !props.length && !leads.length) {
+      html += '<div class="search-no-results">No results for "' + q + '"</div>';
+      dd.innerHTML = html; return;
+    }
     if (clients.length) {
-      html += '<div class="search-group-label">&#128101; Clients</div>';
+      html += '<div class="search-group-label">&#128101; ' + (_searchTab === 'former' ? 'Former ' : '') + 'Clients</div>';
       clients.forEach(function(c) {
         var phone = c.cell || c.phone || '';
         html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
