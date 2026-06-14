@@ -343,6 +343,7 @@
       font-size: 14.5px;
       font-weight: 700;
     }
+    .notif-wrap { position: relative; }
     .sms-bell {
       position: relative;
       width: 34px; height: 34px;
@@ -362,6 +363,36 @@
       padding: 0 4px; align-items: center; justify-content: center; line-height: 1;
       border: 2px solid #fff;
     }
+    .notif-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      width: 320px; background: #fff;
+      border-radius: 10px; box-shadow: 0 6px 28px rgba(0,0,0,.18);
+      z-index: 1500; overflow: hidden;
+    }
+    .notif-dd-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; border-bottom: 1px solid #eee;
+    }
+    .notif-dd-hdr-title { font-size: 14px; font-weight: 700; color: #111; }
+    .notif-dd-seeall { font-size: 12px; font-weight: 600; color: #2563eb; cursor: pointer; }
+    .notif-dd-seeall:hover { text-decoration: underline; }
+    .notif-dd-list { max-height: 400px; overflow-y: auto; }
+    .notif-dd-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-bottom: 1px solid #f0f0f0;
+      cursor: pointer; transition: background .1s;
+    }
+    .notif-dd-item:hover { background: #f7f7f7; }
+    .notif-dd-item:last-child { border-bottom: none; }
+    .notif-dd-icon {
+      width: 40px; height: 40px; min-width: 40px; border-radius: 50%;
+      background: #e07820; display: flex; align-items: center; justify-content: center;
+    }
+    .notif-dd-icon svg { width: 18px; height: 18px; fill: #fff; }
+    .notif-dd-body { flex: 1; min-width: 0; }
+    .notif-dd-name { font-size: 13px; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .notif-dd-preview { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .notif-dd-time { font-size: 11px; color: #aaa; flex-shrink: 0; }
     .user-badge {
       background: #3a0d55;
       color: #fff;
@@ -649,9 +680,20 @@
       <div class="global-search-dropdown" id="global-search-dd"></div>
     </div>
     <div class="topbar-right">
-      <div class="sms-bell" onclick="smsBellClick()" title="Text messages">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-        <span class="sms-bell-badge" id="sms-bell-badge"></span>
+      <div class="notif-wrap" id="notif-wrap">
+        <div class="sms-bell" onclick="smsBellClick()" title="Notifications">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          <span class="sms-bell-badge" id="sms-bell-badge"></span>
+        </div>
+        <div class="notif-dropdown" id="notif-dropdown" style="display:none">
+          <div class="notif-dd-hdr">
+            <span class="notif-dd-hdr-title">Notifications</span>
+            <span class="notif-dd-seeall" onclick="closeBellDropdown();loadPage('texts')">See All</span>
+          </div>
+          <div class="notif-dd-list" id="notif-dd-list">
+            <div style="padding:20px;text-align:center;color:#999;font-size:13px">No notifications</div>
+          </div>
+        </div>
       </div>
       <div class="user-badge">SBP</div>
     </div>
@@ -888,42 +930,83 @@
   });
 
 
-  /* ── SMS bell notification ── */
-  var _bellUid         = null;
-  var _bellBaseline    = null;  /* inbound count at page load or last dismiss */
-  var _bellDismissed   = false; /* flag so in-flight poll doesn't re-show after click */
-  var _bellNewestPhone = null;  /* phone_from of the newest unread message */
+  /* ── Notification bell ── */
+  var _bellUid       = null;
+  var _bellBaseline  = null;
+  var _bellDismissed = false;
+  var _bellOpen      = false;
+  var _bellItems     = []; /* last 30 inbound messages */
 
   function smsBellClick() {
+    if (_bellOpen) { closeBellDropdown(); return; }
     _bellDismissed = true;
     document.getElementById('sms-bell-badge').style.display = 'none';
-    var dest = _bellNewestPhone ? 'texts?phone=' + encodeURIComponent(_bellNewestPhone) : 'texts';
-    loadPage(dest);
+    _bellOpen = true;
+    renderBellDropdown();
+    document.getElementById('notif-dropdown').style.display = 'block';
+  }
+
+  function closeBellDropdown() {
+    _bellOpen = false;
+    document.getElementById('notif-dropdown').style.display = 'none';
+  }
+
+  function bellOpenConvo(phone) {
+    closeBellDropdown();
+    loadPage('texts?phone=' + encodeURIComponent(phone));
+  }
+
+  function bellFmtTime(iso) {
+    var d = new Date(iso), now = new Date(), diff = now - d;
+    if (diff < 60000)    return 'Just now';
+    if (diff < 3600000)  return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function renderBellDropdown() {
+    var list = document.getElementById('notif-dd-list');
+    if (!_bellItems.length) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:#999;font-size:13px">No notifications</div>';
+      return;
+    }
+    var msgIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>';
+    list.innerHTML = _bellItems.map(function(m) {
+      var name    = (m.client_name && m.client_name !== m.phone_from) ? m.client_name : (m.phone_from || 'Unknown');
+      var preview = (m.body || '').substring(0, 55);
+      var phone   = (m.phone_from || '').replace(/"/g, '');
+      return '<div class="notif-dd-item" onclick="bellOpenConvo(\'' + phone.replace(/'/g,"\\'") + '\')">' +
+        '<div class="notif-dd-icon">' + msgIcon + '</div>' +
+        '<div class="notif-dd-body">' +
+          '<div class="notif-dd-name">' + escHtml(name) + '</div>' +
+          '<div class="notif-dd-preview">' + escHtml(preview) + '</div>' +
+        '</div>' +
+        '<div class="notif-dd-time">' + bellFmtTime(m.sent_at) + '</div>' +
+      '</div>';
+    }).join('');
   }
 
   async function smsBellPoll() {
     if (!_bellUid || _bellBaseline === null) return;
     var { data: rows, count } = await sbMain.from('sms_messages')
-      .select('phone_from', { count: 'exact' })
+      .select('phone_from, client_name, body, sent_at', { count: 'exact' })
       .eq('user_id', _bellUid)
       .eq('direction', 'inbound')
       .order('sent_at', { ascending: false })
-      .limit(1);
+      .limit(30);
     var total = count || 0;
+    _bellItems = rows || [];
     if (_bellDismissed) {
-      _bellBaseline    = total;
-      _bellDismissed   = false;
-      _bellNewestPhone = null;
-      return;
+      _bellBaseline  = total;
+      _bellDismissed = false;
     }
-    var badge = document.getElementById('sms-bell-badge');
+    if (_bellOpen) renderBellDropdown();
     var n = total - _bellBaseline;
+    var badge = document.getElementById('sms-bell-badge');
     if (n > 0) {
-      _bellNewestPhone = rows && rows[0] ? rows[0].phone_from : null;
       badge.textContent = n > 99 ? '99+' : n;
       badge.style.display = 'flex';
     } else {
-      _bellNewestPhone = null;
       badge.style.display = 'none';
     }
   }
@@ -931,12 +1014,21 @@
   _dashAuthPromise.then(async function(user) {
     if (!user) return;
     _bellUid = user.id;
-    var { count } = await sbMain.from('sms_messages')
-      .select('*', { count: 'exact', head: true })
+    var { data: rows, count } = await sbMain.from('sms_messages')
+      .select('phone_from, client_name, body, sent_at', { count: 'exact' })
       .eq('user_id', _bellUid)
-      .eq('direction', 'inbound');
+      .eq('direction', 'inbound')
+      .order('sent_at', { ascending: false })
+      .limit(30);
     _bellBaseline = count || 0;
+    _bellItems    = rows || [];
     setInterval(smsBellPoll, 15000);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (_bellOpen && !document.getElementById('notif-wrap').contains(e.target)) {
+      closeBellDropdown();
+    }
   });
 
   /* Package renewal banner — show on Dec 30+ each year until dismissed */
