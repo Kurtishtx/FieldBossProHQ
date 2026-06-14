@@ -343,6 +343,24 @@
       font-size: 14.5px;
       font-weight: 700;
     }
+    .sms-bell {
+      position: relative;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: #e07820;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .sms-bell:hover { background: #c96a10; }
+    .sms-bell svg { width: 18px; height: 18px; fill: #3a0d55; }
+    .sms-bell-badge {
+      display: none;
+      position: absolute; top: -3px; right: -3px;
+      background: #e03030; color: #fff;
+      font-size: 10px; font-weight: 700;
+      border-radius: 10px; min-width: 16px; height: 16px;
+      padding: 0 4px; align-items: center; justify-content: center; line-height: 1;
+    }
     .user-badge {
       background: #3a0d55;
       color: #fff;
@@ -630,7 +648,11 @@
       <div class="global-search-dropdown" id="global-search-dd"></div>
     </div>
     <div class="topbar-right">
-<div class="user-badge">SBP</div>
+      <div class="sms-bell" onclick="smsBellClick()" title="Text messages">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <span class="sms-bell-badge" id="sms-bell-badge"></span>
+      </div>
+      <div class="user-badge">SBP</div>
     </div>
   </div>
 
@@ -864,6 +886,50 @@
     }).catch(function() {}); /* silent — runs in background */
   });
 
+
+  /* ── SMS bell notification ── */
+  var _bellUid      = null;
+  var _bellBaseline = null;  /* inbound count at page load or last dismiss */
+  var _bellDismissed = false; /* flag so in-flight poll doesn't re-show after click */
+
+  function smsBellClick() {
+    _bellDismissed = true;
+    document.getElementById('sms-bell-badge').style.display = 'none';
+    loadPage('texts');
+  }
+
+  async function smsBellPoll() {
+    if (!_bellUid || _bellBaseline === null) return;
+    var { count } = await sbMain.from('sms_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', _bellUid)
+      .eq('direction', 'inbound');
+    var total = count || 0;
+    if (_bellDismissed) {
+      _bellBaseline  = total;
+      _bellDismissed = false;
+      return;
+    }
+    var badge = document.getElementById('sms-bell-badge');
+    var n = total - _bellBaseline;
+    if (n > 0) {
+      badge.textContent = n > 99 ? '99+' : n;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  _dashAuthPromise.then(async function(user) {
+    if (!user) return;
+    _bellUid = user.id;
+    var { count } = await sbMain.from('sms_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', _bellUid)
+      .eq('direction', 'inbound');
+    _bellBaseline = count || 0;
+    setInterval(smsBellPoll, 15000);
+  });
 
   /* Package renewal banner — show on Dec 30+ each year until dismissed */
   (function checkRenewalBanner() {
