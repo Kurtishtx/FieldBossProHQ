@@ -660,7 +660,7 @@
       <div class="global-search-dropdown" id="global-search-dd"></div>
     </div>
     <div class="topbar-right">
-      <div class="notif-bell" id="notif-bell" onclick="loadPage('texts'); markTextsRead();" title="Text messages">
+      <div class="notif-bell" id="notif-bell" onclick="markTextsRead(); loadPage('texts');" title="Text messages">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
         <span class="notif-badge" id="notif-badge"></span>
       </div>
@@ -902,7 +902,9 @@
   var _notifUserId = null;
   function markTextsRead() {
     localStorage.setItem('sbp_texts_last_read', new Date().toISOString());
-    document.getElementById('notif-badge').style.display = 'none';
+    var badge = document.getElementById('notif-badge');
+    if (badge) badge.style.display = 'none';
+    pollSmsNotifications();
   }
   async function pollSmsNotifications() {
     if (!_notifUserId) return;
