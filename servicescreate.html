@@ -138,6 +138,7 @@
   var serviceId = new URLSearchParams(window.location.search).get('id');
   var serviceCategory = new URLSearchParams(window.location.search).get('category') || 'package';
   var existing = null;
+  if (serviceCategory === 'package') document.querySelector('.field-row:has(#invoice-name)').style.display = 'none';
   var mixOptions = '';
 
   /* ── Tab switching ── */
