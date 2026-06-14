@@ -898,28 +898,30 @@
     }).catch(function() {}); /* silent — runs in background */
   });
 
-  /* SMS notification bell */
+  /* SMS notification bell — last-read stored in user_profiles.texts_last_read_at */
   var _notifUserId = null;
   var _notifActivePage = null;
+  var _notifLastRead = null; /* in-memory; loaded from Supabase on init */
 
   function markTextsRead() {
-    localStorage.setItem('sbp_texts_last_read', new Date().toISOString());
+    var now = new Date().toISOString();
+    _notifLastRead = now;
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
+    if (_notifUserId) sbMain.from('user_profiles').update({ texts_last_read_at: now }).eq('id', _notifUserId);
   }
 
   async function pollSmsNotifications() {
-    if (!_notifUserId) return;
+    if (!_notifUserId || !_notifLastRead) return;
     if (_notifActivePage === 'texts') { markTextsRead(); return; }
-    var lastRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
+    var snapshot = _notifLastRead;
     var { count } = await sbMain.from('sms_messages')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
-      .gt('sent_at', lastRead);
-    /* If user dismissed while this query was in-flight, discard the stale result */
-    var nowRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
-    if (nowRead !== lastRead) return;
+      .gt('sent_at', snapshot);
+    /* Discard stale result if user dismissed while query was in-flight */
+    if (_notifLastRead !== snapshot) return;
     var badge = document.getElementById('notif-badge');
     if (count && count > 0) {
       badge.textContent = count > 99 ? '99+' : count;
@@ -929,9 +931,14 @@
     }
   }
 
-  _dashAuthPromise.then(function(user) {
+  _dashAuthPromise.then(async function(user) {
     if (!user) return;
     _notifUserId = user.id;
+    var { data: profile } = await sbMain.from('user_profiles')
+      .select('texts_last_read_at')
+      .eq('id', user.id)
+      .single();
+    _notifLastRead = (profile && profile.texts_last_read_at) || new Date().toISOString();
     pollSmsNotifications();
     setInterval(pollSmsNotifications, 15000);
   });
