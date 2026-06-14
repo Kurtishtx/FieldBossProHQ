@@ -1005,9 +1005,9 @@ function showPropTab(name, btn) {
     window._propLng     = prop.lng ? parseFloat(prop.lng) : null;
 
     if (window._propLat && window._propLng) {
-      document.getElementById('map-toggle-btn').style.display = 'inline-block';
+      var _mtb2 = document.getElementById('map-toggle-btn'); if (_mtb2) _mtb2.style.display = 'inline-block';
     } else {
-      document.getElementById('map-toggle-btn').style.display = 'none';
+      var _mtb2 = document.getElementById('map-toggle-btn'); if (_mtb2) _mtb2.style.display = 'none';
     }
 
     window._initPropMap = function(zoom) {
@@ -1030,10 +1030,10 @@ function showPropTab(name, btn) {
       var showing = mapEl.style.display !== 'none';
       if (showing) {
         mapEl.style.display = 'none';
-        btn.textContent = 'Show Map';
+        if (btn) btn.textContent = 'Show Map';
       } else {
         mapEl.style.display = 'block';
-        btn.textContent = 'Hide Map';
+        if (btn) btn.textContent = 'Hide Map';
         if (!window._propMapInit && window._propLat && window._propLng) window._initPropMap(17);
       }
     };
@@ -2484,7 +2484,7 @@ function showPropTab(name, btn) {
     mapEl.style.width   = 'auto';
     mapEl.style.height  = '580px';
     mapEl.style.borderRadius = '0';
-    document.getElementById('map-toggle-btn').textContent = 'Hide Map';
+    var _mtb = document.getElementById('map-toggle-btn'); if (_mtb) _mtb.textContent = 'Hide Map';
 
     /* Init map if not yet created */
     if (!window._propMapInit) window._initPropMap(19);
