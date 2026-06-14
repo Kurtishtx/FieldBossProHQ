@@ -522,6 +522,12 @@
     if (stored && invoiceNameToServiceName[stored]) return invoiceNameToServiceName[stored];
     /* 3. one-time service invoice name */
     if (stored && serviceInvoiceNameMap[stored]) return serviceInvoiceNameMap[stored];
+    /* 4. service_lines service_id -> live catalog name (always reflects renames) */
+    var svcLines = svc.service_lines;
+    if (svcLines && svcLines.length && svcLines[0].service_id) {
+      var ce = serviceCatalog.find(function(c) { return c.id === svcLines[0].service_id; });
+      if (ce && ce.name) return ce.name;
+    }
     return stored;
   }
 

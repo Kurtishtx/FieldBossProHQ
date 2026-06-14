@@ -640,6 +640,12 @@
     var stored = svc.service || svc.name || '';
     if (stored && invoiceNameToServiceName[stored]) return invoiceNameToServiceName[stored];
     if (stored && serviceInvoiceNameMap[stored]) return serviceInvoiceNameMap[stored];
+    /* fallback: service_lines service_id -> live catalog (always reflects renames) */
+    var svcLines = svc.service_lines;
+    if (svcLines && svcLines.length && svcLines[0].service_id) {
+      var ce = serviceCatalog.find(function(c) { return c.id === svcLines[0].service_id; });
+      if (ce && ce.name) return ce.name;
+    }
     return stored;
   }
 
