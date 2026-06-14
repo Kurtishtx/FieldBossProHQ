@@ -23,21 +23,21 @@
     .date-arrow { font-size:20px; color:#bbb; margin-top:18px; }
     .preset-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:12px; }
     .preset-label { font-size:11px; color:#999; font-weight:600; margin-right:2px; }
-    .btn-preset { background:#f2f5fa; color:#e07820; border:1px solid #f0d8bc; padding:5px 13px; font-size:12px; font-weight:600; border-radius:20px; cursor:pointer; transition:background .15s; }
-    .btn-preset:hover { background:#fdf0e2; }
+    .btn-preset { background:#f5f0ff; color:#130520; border:1px solid #d8cce8; padding:5px 13px; font-size:12px; font-weight:600; border-radius:20px; cursor:pointer; transition:background .15s; }
+    .btn-preset:hover { background:#ece5f5; }
     .btn-preset.active { background:#e07820; color:#fff; border-color:#e07820; }
     .generate-row { display:flex; align-items:center; margin-top:14px; border-top:1px solid #f0f0f0; padding-top:14px; }
     .btn-generate { background:#e07820; color:#fff; border:none; padding:9px 30px; font-size:14px; font-weight:700; border-radius:5px; cursor:pointer; margin-left:auto; }
     .btn-generate:hover { background:#c96a15; }
 
     .summary-bar { display:flex; gap:16px; padding:14px 20px; background:#fff; border-bottom:1px solid #eee; flex-wrap:wrap; }
-    .summary-card { background:#fff8f2; border:1px solid #f0d8bc; border-radius:6px; padding:10px 20px; min-width:160px; }
+    .summary-card { background:#f8f4ff; border:1px solid #ddd4ee; border-radius:6px; padding:10px 20px; min-width:160px; }
     .summary-card .sc-label { font-size:11.5px; color:#888; text-transform:uppercase; letter-spacing:.4px; }
-    .summary-card .sc-val { font-size:22px; font-weight:800; color:#e07820; margin-top:3px; }
+    .summary-card .sc-val { font-size:22px; font-weight:800; color:#130520; margin-top:3px; }
+    .summary-card.orange { background:#fff8f2; border-color:#f0d8bc; }
+    .summary-card.orange .sc-val { color:#e07820; }
     .summary-card.green { background:#f2fff6; border-color:#b8e8c8; }
     .summary-card.green .sc-val { color:#1a7a3c; }
-    .summary-card.blue { background:#f0f6ff; border-color:#d0e4f8; }
-    .summary-card.blue .sc-val { color:#1a5ea0; }
 
     .table-wrap { padding:16px 20px; }
     table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
@@ -106,13 +106,13 @@
     <div class="sc-label">Taxable Sales</div>
     <div class="sc-val" id="sum-taxable">$0.00</div>
   </div>
-  <div class="summary-card blue">
+  <div class="summary-card">
     <div class="sc-label">Non-Taxable Sales</div>
     <div class="sc-val" id="sum-nontaxable">$0.00</div>
   </div>
-  <div class="summary-card" style="background:#f5f0ff;border-color:#d8c8f0;">
+  <div class="summary-card orange">
     <div class="sc-label">Sales Tax Collected</div>
-    <div class="sc-val" style="color:#6b2fb3;" id="sum-tax-collected">$0.00</div>
+    <div class="sc-val" id="sum-tax-collected">$0.00</div>
   </div>
 </div>
 
