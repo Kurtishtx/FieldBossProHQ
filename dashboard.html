@@ -924,12 +924,15 @@
       markTextsRead();
       return;
     }
+    var readAtSnapshot = _notifLastReadAt;
     var { count } = await sbMain.from('sms_messages')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
-      .gt('sent_at', _notifLastReadAt);
+      .gt('sent_at', readAtSnapshot);
     var n = count || 0;
+    /* User dismissed while this query was in-flight — discard stale result */
+    if (_notifLastReadAt !== readAtSnapshot) return;
     var badge = document.getElementById('notif-badge');
     if (n > 0) {
       badge.textContent = n > 99 ? '99+' : n;
