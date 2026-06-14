@@ -602,6 +602,7 @@
     <a class="edit-link" href="#" onclick="openPropEditModal(event)">Edit</a>
   </div>
   <div style="display:flex; gap:6px; align-items:center;">
+    <button class="btn-map-toggle" id="map-toggle-btn" onclick="togglePropMap()" style="display:none;">&#9654; Map</button>
     <div class="dropdown">
       <div class="btn-group">
         <button class="btn-main-outline" onclick="sendText()">Send</button>
@@ -1042,10 +1043,10 @@ function showPropTab(name, btn) {
       var showing = mapEl.style.display !== 'none';
       if (showing) {
         mapEl.style.display = 'none';
-        if (btn) btn.textContent = 'Show Map';
+        btn.textContent = 'Show Map';
       } else {
         mapEl.style.display = 'block';
-        if (btn) btn.textContent = 'Hide Map';
+        btn.textContent = 'Hide Map';
         if (!window._propMapInit && window._propLat && window._propLng) window._initPropMap(17);
       }
     };
@@ -2511,7 +2512,7 @@ function showPropTab(name, btn) {
     mapEl.style.width   = 'auto';
     mapEl.style.height  = '580px';
     mapEl.style.borderRadius = '0';
-    var _mtb = document.getElementById('map-toggle-btn'); if (_mtb) _mtb.textContent = 'Hide Map';
+    document.getElementById('map-toggle-btn').textContent = 'Hide Map';
 
     /* Init map if not yet created */
     if (!window._propMapInit) window._initPropMap(19);
