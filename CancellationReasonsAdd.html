@@ -60,18 +60,6 @@
       </div>
     </div>
 
-    <div class="field-row">
-      <label for="reason-type">Type</label>
-      <div style="flex:1;">
-        <select id="reason-type">
-          <option value="Client">Client</option>
-          <option value="Job">Job</option>
-          <option value="Service">Service</option>
-          <option value="Contract">Contract</option>
-        </select>
-      </div>
-    </div>
-
   </div>
 
   <div class="dialog-footer">
@@ -99,7 +87,6 @@
         existingReason = data;
         document.getElementById('page-title').textContent = 'Edit Cancellation Reason';
         document.getElementById('reason-name').value = data.name || '';
-        document.getElementById('reason-type').value = data.type || 'Client';
       }
     }
     document.getElementById('reason-name').focus();
@@ -108,21 +95,19 @@
   async function saveReason(andNew) {
     var name = document.getElementById('reason-name').value.trim();
     if (!name) { alert('Please enter a name.'); document.getElementById('reason-name').focus(); return; }
-    var type = document.getElementById('reason-type').value;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
 
     if (existingReason) {
-      var { error } = await sb.from('cancellation_reasons').update({ name: name, type: type }).eq('id', existingReason.id);
+      var { error } = await sb.from('cancellation_reasons').update({ name: name }).eq('id', existingReason.id);
       if (error) { alert('Error: ' + error.message); return; }
     } else {
-      var { error } = await sb.from('cancellation_reasons').insert({ name: name, type: type, active: true, user_id: uid });
+      var { error } = await sb.from('cancellation_reasons').insert({ name: name, active: true, user_id: uid });
       if (error) { alert('Error: ' + error.message); return; }
     }
 
     if (andNew) {
       document.getElementById('reason-name').value = '';
-      document.getElementById('reason-type').value = 'Client';
       document.getElementById('reason-name').focus();
       existingReason = null;
       reasonId = null;
