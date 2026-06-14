@@ -898,44 +898,31 @@
     }).catch(function() {}); /* silent — runs in background */
   });
 
-  /* SMS notification bell — timestamp-based: badge shows when there are inbound messages
-     newer than the last time the user read texts */
+  /* SMS notification bell */
   var _notifUserId = null;
-  var _notifLastReadAt = localStorage.getItem('sbp_notif_last_read_at') || null;
   var _notifActivePage = null;
 
   function markTextsRead() {
+    localStorage.setItem('sbp_texts_last_read', new Date().toISOString());
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
-    /* Synchronously stamp the read time — no async query, no race condition */
-    _notifLastReadAt = new Date().toISOString();
-    localStorage.setItem('sbp_notif_last_read_at', _notifLastReadAt);
   }
 
   async function pollSmsNotifications() {
     if (!_notifUserId) return;
-    /* First ever load — treat all existing messages as already read */
-    if (!_notifLastReadAt) {
-      _notifLastReadAt = new Date().toISOString();
-      localStorage.setItem('sbp_notif_last_read_at', _notifLastReadAt);
-    }
-    /* If user is on Texts page, keep marking as read and skip badge update */
-    if (_notifActivePage === 'texts') {
-      markTextsRead();
-      return;
-    }
-    var readAtSnapshot = _notifLastReadAt;
+    if (_notifActivePage === 'texts') { markTextsRead(); return; }
+    var lastRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
     var { count } = await sbMain.from('sms_messages')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
-      .gt('sent_at', readAtSnapshot);
-    var n = count || 0;
-    /* User dismissed while this query was in-flight — discard stale result */
-    if (_notifLastReadAt !== readAtSnapshot) return;
+      .gt('sent_at', lastRead);
+    /* If user dismissed while this query was in-flight, discard the stale result */
+    var nowRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
+    if (nowRead !== lastRead) return;
     var badge = document.getElementById('notif-badge');
-    if (n > 0) {
-      badge.textContent = n > 99 ? '99+' : n;
+    if (count && count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
       badge.style.display = 'flex';
     } else {
       badge.style.display = 'none';
