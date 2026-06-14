@@ -973,11 +973,11 @@
       }
     });
     var pills = Object.keys(svcCounts).map(function(n) {
-      var sqft = svcSqFt[n] ? '<span style="font-size:14px;font-weight:700;color:#000;background:#f5c800;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '<span style="font-size:14px;">&nbsp;</span>';
+      var sqft = svcSqFt[n] ? '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '<span style="font-size:14px;">&nbsp;</span>';
       return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + n + sqft + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
-    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span>Services Total<span style="font-size:14px;font-weight:700;color:#000;background:#f5c800;border-radius:10px;padding:0 7px;display:inline-block;">$' + preTotal.toFixed(2) + '</span></span>';
+    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span>Services Total<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;color:#fff;">$' + preTotal.toFixed(2) + '</span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + pills;
 
     var tbody = document.getElementById('table-body');
