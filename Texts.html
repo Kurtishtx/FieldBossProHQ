@@ -315,12 +315,13 @@
 
     if (prePhone) {
       var formatted = prePhone.length === 10 ? '+1' + prePhone : prePhone.startsWith('+') ? prePhone : '+' + prePhone;
-      // Add a new conversation entry if this client has no prior messages
       var existing = conversations.find(function(c) { return c.phone === formatted || c.phone === prePhone; });
       if (!existing) {
         conversations.unshift({ phone: formatted, client_name: preName || formatted, messages: [] });
       }
       activePhone = existing ? existing.phone : formatted;
+    } else if (conversations.length) {
+      activePhone = conversations[0].phone;
     }
 
     renderConvoList();
