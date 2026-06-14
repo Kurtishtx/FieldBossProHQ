@@ -953,7 +953,8 @@
       return 0;
     });
 
-    var svcCounts = {}, svcSqFt = {}, seenPropForSvc = {};
+    var linearKeys = { mosquito_linear_ft: true, pest_control_linear_ft: true };
+    var svcCounts = {}, svcSqFt = {}, svcLinFt = {}, seenPropForSvc = {};
     filtered.forEach(function(s) {
       var name = resolvedServiceName(s) || 'Unknown';
       svcCounts[name] = (svcCounts[name] || 0) + 1;
@@ -967,14 +968,27 @@
                        : aa === null ? []
                        : Object.keys(aa).filter(function(k) { return aa[k]; });
           areaKeys.forEach(function(k) {
-            if (areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+            if (areaMap[k]) {
+              if (linearKeys[k]) svcLinFt[name] = (svcLinFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+              else svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+            }
           });
         }
       }
     });
     var pills = Object.keys(svcCounts).map(function(n) {
-      var sqft = svcSqFt[n] ? '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>' : '<span style="font-size:14px;">&nbsp;</span>';
-      return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + n + sqft + '</span>';
+      var badge = '';
+      if (svcSqFt[n] && svcLinFt[n]) {
+        badge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>' +
+                '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;margin-top:2px;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
+      } else if (svcSqFt[n]) {
+        badge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>';
+      } else if (svcLinFt[n]) {
+        badge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
+      } else {
+        badge = '<span style="font-size:14px;">&nbsp;</span>';
+      }
+      return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + n + badge + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span>Services Total<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">$' + preTotal.toFixed(2) + '</span></span>';
