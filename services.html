@@ -427,7 +427,7 @@
         '<td>' + (s.active ? 'Active' : 'Inactive') + '</td>';
       tr.addEventListener('click', function(e) {
         if (e.target.type === 'checkbox') return;
-        window.location.href = 'servicescreate.html?id=' + s.id;
+        window.location.href = 'servicescreate.html?id=' + s.id + '&category=' + currentCategory;
       });
       tbody.appendChild(tr);
     });

@@ -80,7 +80,7 @@
       <label for="invoice-name">Name on Invoice</label>
       <div style="flex:1;"><input type="text" id="invoice-name" autocomplete="off"/></div>
     </div>
-    <script>(function(){ var p = new URLSearchParams(window.location.search); if(p.get('category')==='one_time' || p.get('id')) document.getElementById('invoice-name-row').style.display=''; })();</script>
+    <script>(function(){ var p = new URLSearchParams(window.location.search); if(p.get('category')==='one_time') document.getElementById('invoice-name-row').style.display=''; })();</script>
 
     <div class="field-row">
       <label for="service-name">Service Name</label>
