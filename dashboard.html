@@ -901,19 +901,29 @@
   /* SMS notification bell — count-based: badge shows when total inbound > countAtRead */
   var _notifUserId = null;
   var _notifCountAtRead = parseInt(localStorage.getItem('sbp_notif_count_at_read') || '-1', 10);
+  var _notifLastSeenCount = -1;
+  var _notifActivePage = null;
 
   function markTextsRead() {
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
     if (!_notifUserId) return;
+    /* Immediately update to last seen count so any in-flight poll won't re-show the badge */
+    if (_notifLastSeenCount >= 0) {
+      _notifCountAtRead = _notifLastSeenCount;
+      localStorage.setItem('sbp_notif_count_at_read', _notifLastSeenCount);
+    }
+    /* Also query fresh count in case new messages arrived since last poll */
     sbMain.from('sms_messages')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
       .then(function(res) {
         var n = res.count || 0;
-        _notifCountAtRead = n;
-        localStorage.setItem('sbp_notif_count_at_read', n);
+        if (n > _notifCountAtRead) {
+          _notifCountAtRead = n;
+          localStorage.setItem('sbp_notif_count_at_read', n);
+        }
       });
   }
 
@@ -924,10 +934,16 @@
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound');
     var n = count || 0;
+    _notifLastSeenCount = n;
     if (_notifCountAtRead < 0) {
       /* First ever load — treat all existing as read */
       _notifCountAtRead = n;
       localStorage.setItem('sbp_notif_count_at_read', n);
+    }
+    /* If user is already on the Texts page, auto-dismiss instead of showing badge */
+    if (_notifActivePage === 'texts') {
+      markTextsRead();
+      return;
     }
     var badge = document.getElementById('notif-badge');
     var unread = Math.max(0, n - _notifCountAtRead);
@@ -1395,6 +1411,7 @@
     var homeScreen = document.getElementById('home-screen');
     var qIdx    = page.indexOf('?');
     var pageKey = qIdx >= 0 ? page.substring(0, qIdx) : page;
+    _notifActivePage = pageKey;
     if (pageKey === 'texts') markTextsRead();
     var queryStr = qIdx >= 0 ? page.substring(qIdx) : '';
     var file      = pageFiles[pageKey];
