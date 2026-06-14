@@ -905,10 +905,11 @@
   var _notifLatestSentAt = null; /* server sent_at of newest unread — used as dismiss marker */
 
   function markTextsRead() {
-    /* Use server timestamp so clock skew can't cause the badge to re-show */
+    /* Use server timestamp so clock skew can't cause the badge to re-show.
+       Do NOT clear _notifLatestSentAt here — loadPage also calls this function
+       and a second call must still get the server timestamp, not fall back to client now. */
     var readAt = _notifLatestSentAt || new Date().toISOString();
     _notifLastRead = readAt;
-    _notifLatestSentAt = null;
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
     if (_notifUserId) sbMain.from('user_profiles').update({ texts_last_read_at: readAt }).eq('id', _notifUserId).then(function(){});
