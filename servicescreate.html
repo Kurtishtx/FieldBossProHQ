@@ -80,6 +80,7 @@
       <label for="invoice-name">Name on Invoice</label>
       <div style="flex:1;"><input type="text" id="invoice-name" autocomplete="off"/></div>
     </div>
+    <script>(function(){ var p = new URLSearchParams(window.location.search); if(p.get('category')==='package' && !p.get('id')) document.getElementById('invoice-name-row').style.display='none'; })();</script>
 
     <div class="field-row">
       <label for="service-name">Service Name</label>
@@ -138,7 +139,6 @@
   var serviceId = new URLSearchParams(window.location.search).get('id');
   var serviceCategory = new URLSearchParams(window.location.search).get('category') || 'package';
   var existing = null;
-  if (serviceCategory === 'package' && !serviceId) document.getElementById('invoice-name-row').style.display = 'none';
   var mixOptions = '';
 
   /* ── Tab switching ── */
