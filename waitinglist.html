@@ -1057,13 +1057,15 @@
     var pills = Object.keys(svcCounts).map(function(n) {
       var _badgeStyle = 'font-size:20px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:2px 7px;display:inline-block;';
       var _emptyBadge = '<span style="' + _badgeStyle + 'visibility:hidden;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
-      var badge = _emptyBadge;
+      var badge;
       if (svcSqFt[n] && svcLinFt[n]) {
         badge = '<span style="' + _badgeStyle + '">' + Math.round(Number(svcSqFt[n])).toLocaleString() + ' ft²</span>';
       } else if (svcSqFt[n]) {
         badge = '<span style="' + _badgeStyle + '">' + Math.round(Number(svcSqFt[n])).toLocaleString() + ' ft²</span>';
       } else if (svcLinFt[n]) {
         badge = '<span style="' + _badgeStyle + '">' + Math.round(Number(svcLinFt[n])).toLocaleString() + ' ft</span>';
+      } else {
+        badge = '<span style="' + _badgeStyle + '">0 ft²</span>';
       }
       var dollarBadge = '<span style="font-size:18px;font-weight:700;color:#fff;">$' + (svcAmounts[n] || 0).toFixed(2) + '</span>';
       return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span><span>' + n + '</span>' + badge + dollarBadge + '</span>';
