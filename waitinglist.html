@@ -1056,12 +1056,12 @@
     var pills = Object.keys(svcCounts).map(function(n) {
       var badge = '';
       if (svcSqFt[n] && svcLinFt[n]) {
-        badge = '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>' +
-                '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;margin-top:2px;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
+        badge = '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;font-size:16px;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>' +
+                '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;font-size:16px;margin-top:2px;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
       } else if (svcSqFt[n]) {
-        badge = '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>';
+        badge = '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;font-size:16px;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>';
       } else if (svcLinFt[n]) {
-        badge = '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
+        badge = '<span style="font-size:14px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;font-size:16px;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
       } else {
         badge = '<span style="font-size:14px;">&nbsp;</span>';
       }
