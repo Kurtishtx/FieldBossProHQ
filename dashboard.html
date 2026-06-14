@@ -901,32 +901,39 @@
   /* SMS notification bell — last-read stored in user_profiles.texts_last_read_at */
   var _notifUserId = null;
   var _notifActivePage = null;
-  var _notifLastRead = null; /* in-memory; loaded from Supabase on init */
+  var _notifLastRead = null;
+  var _notifLatestSentAt = null; /* server sent_at of newest unread — used as dismiss marker */
 
   function markTextsRead() {
-    var now = new Date().toISOString();
-    _notifLastRead = now;
+    /* Use server timestamp so clock skew can't cause the badge to re-show */
+    var readAt = _notifLatestSentAt || new Date().toISOString();
+    _notifLastRead = readAt;
+    _notifLatestSentAt = null;
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
-    if (_notifUserId) sbMain.from('user_profiles').update({ texts_last_read_at: now }).eq('id', _notifUserId);
+    if (_notifUserId) sbMain.from('user_profiles').update({ texts_last_read_at: readAt }).eq('id', _notifUserId).then(function(){});
   }
 
   async function pollSmsNotifications() {
     if (!_notifUserId || !_notifLastRead) return;
     if (_notifActivePage === 'texts') { markTextsRead(); return; }
     var snapshot = _notifLastRead;
-    var { count } = await sbMain.from('sms_messages')
-      .select('*', { count: 'exact', head: true })
+    var { data: rows, count } = await sbMain.from('sms_messages')
+      .select('sent_at', { count: 'exact' })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
-      .gt('sent_at', snapshot);
+      .gt('sent_at', snapshot)
+      .order('sent_at', { ascending: false })
+      .limit(1);
     /* Discard stale result if user dismissed while query was in-flight */
     if (_notifLastRead !== snapshot) return;
     var badge = document.getElementById('notif-badge');
     if (count && count > 0) {
+      _notifLatestSentAt = rows && rows[0] ? rows[0].sent_at : null;
       badge.textContent = count > 99 ? '99+' : count;
       badge.style.display = 'flex';
     } else {
+      _notifLatestSentAt = null;
       badge.style.display = 'none';
     }
   }
