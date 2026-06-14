@@ -298,7 +298,7 @@
     <button class="orange-btn" onclick="showRouteOrder()">Show Route Order</button>
     <button class="orange-btn" onclick="startRouteOrder()">Set Route Order</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
-      <select id="marker-mode" onchange="loadMarkers()" style="width:100%; padding:7px 28px 7px 10px; background:#e8e4f0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
+      <select id="marker-mode" onchange="saveMarkerMode(this.value); loadMarkers();" style="width:100%; padding:7px 28px 7px 10px; background:#e8e4f0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
         <option value="selected">Show Only Selected</option>
         <option value="all">Show All Markers</option>
       </select>
@@ -427,10 +427,10 @@
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-service" checked onchange="toggleCoreCol('service',this.checked)"/> Service</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-lastsvc" checked onchange="toggleCoreCol('lastsvc',this.checked)"/> Last Svc</label></div>
       <div class="col-panel-row"><label><input type="checkbox" id="core-cb-amount"  checked onchange="toggleCoreCol('amount',this.checked)"/>  Amount</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds Sq Ft</label></div>
-      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito Sq Ft</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-arealawn"      onchange="toggleAreaCol('arealawn',this.checked)"/>     Lawn ft²</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areainsect"   onchange="toggleAreaCol('areainsect',this.checked)"/>   Insect ft²</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areaflower"   onchange="toggleAreaCol('areaflower',this.checked)"/>   Flower Beds ft²</label></div>
+      <div class="col-panel-row"><label><input type="checkbox" id="area-cb-areamosquito" onchange="toggleAreaCol('areamosquito',this.checked)"/> Mosquito ft²</label></div>
     </div>
   </div>
 </div>
@@ -447,10 +447,10 @@
         <th onclick="sortBy('due')">Due Date <span class="sort-arrow">&#9650;</span></th>
         <th onclick="sortBy('lastsvc')">Last Svc <span class="sort-arrow">&#9650;</span></th>
         <th id="amt-th" onclick="sortBy('amount')">Amt <span class="sort-arrow">&#9650;</span></th>
-        <th id="th-arealawn"     style="display:none;" class="area-sep">Lawn Sq Ft</th>
-        <th id="th-areainsect"   style="display:none;">Lawn Insect Sq Ft</th>
-        <th id="th-areaflower"   style="display:none;">Flower Bed(s) Sq Ft</th>
-        <th id="th-areamosquito" style="display:none;">Mosquito Sq Ft</th>
+        <th id="th-arealawn"     style="display:none;" class="area-sep">Lawn ft²</th>
+        <th id="th-areainsect"   style="display:none;">Lawn Insect ft²</th>
+        <th id="th-areaflower"   style="display:none;">Flower Bed(s) ft²</th>
+        <th id="th-areamosquito" style="display:none;">Mosquito ft²</th>
       </tr>
     </thead>
     <tbody id="table-body">
@@ -1547,13 +1547,14 @@
     panel.style.display = '';
     document.getElementById('map-tool-panel').style.left = '280px';
     document.getElementById('marker-mode-wrap').style.display = 'block';
+    if (!window._markerModeRestored) { window._markerModeRestored = true; restoreMarkerMode(); }
 
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
 
     /* area treated totals � only count area types associated with each service */
     var areaTotals = {};
-    var areaLabels = { lawn_care: 'Lawn Sq Ft', lawn_insect: 'Lawn Insect Sq Ft', flower_beds: 'Flower Bed(s) Sq Ft', mosquito: 'Mosquito Control Sq Ft', pest_control: 'Pest Control Sq Ft', pest_control_linear_ft: 'Pest Control Linear Ft' };
+    var areaLabels = { lawn_care: 'Lawn ft²', lawn_insect: 'Lawn Insect ft²', flower_beds: 'Flower Bed(s) ft²', mosquito: 'Mosquito Control ft²', pest_control: 'Pest Control ft²', pest_control_linear_ft: 'Pest Control ft' };
     var seenPropForArea = {};
     selected.forEach(function(svc) {
       var aa = getCatalogAreas(svc);
@@ -1605,6 +1606,20 @@
       '<path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#e07820" stroke="#ffffff" stroke-width="2"/>' +
       '<text x="16" y="14" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Arial,sans-serif">' + num + '</text>' +
       '</svg>';
+  }
+
+  function saveMarkerMode(val) {
+    sb.auth.updateUser({ data: { wl_marker_mode: val } });
+  }
+
+  function restoreMarkerMode() {
+    sb.auth.getUser().then(function(res) {
+      var user = res.data && res.data.user;
+      if (user && user.user_metadata && user.user_metadata.wl_marker_mode) {
+        var el = document.getElementById('marker-mode');
+        if (el) { el.value = user.user_metadata.wl_marker_mode; loadMarkers(); }
+      }
+    });
   }
 
   function loadMarkers() {
