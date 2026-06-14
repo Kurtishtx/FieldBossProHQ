@@ -473,9 +473,17 @@
     var tbody = document.getElementById('client-tbody');
     var emptyMsg = document.getElementById('empty-msg');
     tbody.innerHTML = '';
-    var filtered = search ? clients.filter(function(c) {
-      return (c.name || '').toLowerCase().includes(search) || (c.address || '').toLowerCase().includes(search);
-    }) : clients;
+    var activeTab = (document.querySelector('.ftab.active') || {}).textContent || 'Clients';
+    var filtered = clients.filter(function(c) {
+      if (activeTab === 'Former Clients') return c.active === false;
+      if (activeTab.indexOf('&') >= 0) return true;
+      return c.active !== false;
+    });
+    if (search) {
+      filtered = filtered.filter(function(c) {
+        return (c.name || '').toLowerCase().includes(search) || (c.address || '').toLowerCase().includes(search);
+      });
+    }
     var pageEnd = Math.min(currentPage * PAGE_SIZE, totalCount);
     document.getElementById('results-bar').textContent = pageEnd + ' / ' + totalCount + ' clients';
     if (filtered.length === 0) { emptyMsg.style.display = ''; return; }

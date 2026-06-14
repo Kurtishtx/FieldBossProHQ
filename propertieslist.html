@@ -742,9 +742,16 @@
     var emptyMsg = document.getElementById('empty-msg');
     tbody.innerHTML = '';
 
+    var activeTab = (document.querySelector('.ftab.active') || {}).textContent || 'Properties';
     var tagRules    = activeFilters.filter(function(f) { return f.field === 'tags'; });
     var nonTagFilters = activeFilters.filter(function(f) { return f.field !== 'tags'; });
     var filtered = properties.filter(function(p) {
+      // Tab filter
+      if (activeTab === 'Former Properties') { if (p.active !== false) return false; }
+      else if (activeTab === 'Active Properties') { if (p.active === false) return false; }
+      else if (activeTab === 'Properties') { if (p.active === false) return false; }
+      // 'Properties & Former' and 'All Properties' show everything
+
       // Tag filter: check property_tags array directly
       if (tagRules.length) {
         var propTags = Array.isArray(p.property_tags) ? p.property_tags : [];
