@@ -898,34 +898,47 @@
     }).catch(function() {}); /* silent — runs in background */
   });
 
-  /* SMS notification bell */
+  /* SMS notification bell — count-based: badge shows when total inbound > countAtRead */
   var _notifUserId = null;
-  var _notifVersion = 0;
+  var _notifCountAtRead = parseInt(localStorage.getItem('sbp_notif_count_at_read') || '-1', 10);
+
   function markTextsRead() {
-    _notifVersion++;
-    localStorage.setItem('sbp_texts_last_read', new Date().toISOString());
     var badge = document.getElementById('notif-badge');
     if (badge) badge.style.display = 'none';
-    pollSmsNotifications();
-  }
-  async function pollSmsNotifications() {
     if (!_notifUserId) return;
-    var myVersion = _notifVersion;
-    var lastRead = localStorage.getItem('sbp_texts_last_read') || '2000-01-01T00:00:00Z';
-    var { count } = await sbMain.from('sms_messages')
+    sbMain.from('sms_messages')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', _notifUserId)
       .eq('direction', 'inbound')
-      .gt('sent_at', lastRead);
-    if (myVersion !== _notifVersion) return;
+      .then(function(res) {
+        var n = res.count || 0;
+        _notifCountAtRead = n;
+        localStorage.setItem('sbp_notif_count_at_read', n);
+      });
+  }
+
+  async function pollSmsNotifications() {
+    if (!_notifUserId) return;
+    var { count } = await sbMain.from('sms_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', _notifUserId)
+      .eq('direction', 'inbound');
+    var n = count || 0;
+    if (_notifCountAtRead < 0) {
+      /* First ever load — treat all existing as read */
+      _notifCountAtRead = n;
+      localStorage.setItem('sbp_notif_count_at_read', n);
+    }
     var badge = document.getElementById('notif-badge');
-    if (count && count > 0) {
-      badge.textContent = count > 99 ? '99+' : count;
+    var unread = Math.max(0, n - _notifCountAtRead);
+    if (unread > 0) {
+      badge.textContent = unread > 99 ? '99+' : unread;
       badge.style.display = 'flex';
     } else {
       badge.style.display = 'none';
     }
   }
+
   _dashAuthPromise.then(function(user) {
     if (!user) return;
     _notifUserId = user.id;
