@@ -121,8 +121,8 @@
     .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; }
 
     .jobs-total { padding:5px 10px; font-size:13px; color:#fff; background:#130520; display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
-    .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#130520; border:3px solid #fff; border-radius:12px; padding:4px 9px; font-size:12px; color:#fff; font-weight:700; }
-    .jt-pill-count { background:#e07820; color:#fff; font-weight:700; border-radius:10px; padding:0 6px; font-size:11px; }
+    .jt-pill { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; background:#130520; border:2px solid #fff; border-radius:12px; padding:4px 9px; font-size:14px; color:#fff; font-weight:700; }
+    .jt-pill-count { background:#fff; color:#130520; font-weight:700; border-radius:10px; padding:0 6px; font-size:14px; }
 
     .map-section { position:relative; width:100%; height:491px; background:#e8e8e8; border-bottom:1px solid #ccc; overflow:hidden; }
     .map-toggle { position:absolute; top:10px; right:10px; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; z-index:10; }
@@ -941,29 +941,61 @@
       return 0;
     });
 
-    var svcCounts = {}, svcSqFt = {}, seenPropForSvc = {};
+    var linearKeys = { mosquito_linear_ft: true, pest_control_linear_ft: true };
+    var areaFallbackMap = [
+      ['mosquito', ['mosquito', 'mosquito_linear_ft']],
+      ['insect',   ['lawn_insect']],
+      ['lawn',     ['lawn_care']],
+      ['flower',   ['flower_beds']],
+      ['shrub',    ['flower_beds']],
+      ['bush',     ['flower_beds']],
+      ['pest',     ['pest_control', 'pest_control_linear_ft']]
+    ];
+    function guessPillAreaKeys(n) {
+      var lo = n.toLowerCase();
+      for (var i = 0; i < areaFallbackMap.length; i++) {
+        if (lo.indexOf(areaFallbackMap[i][0]) >= 0) return areaFallbackMap[i][1];
+      }
+      return [];
+    }
+    var svcCounts = {}, svcSqFt = {}, svcLinFt = {}, seenPropForSvc = {};
     filtered.forEach(function(s) {
       var name = resolvedServiceName(s) || 'Unknown';
       svcCounts[name] = (svcCounts[name] || 0) + 1;
       var aa = getCatalogAreas(s);
-      if (aa && s.property_id) {
+      if (s.property_id) {
         var key = s.property_id + '_' + name;
         if (!seenPropForSvc[key]) {
           seenPropForSvc[key] = true;
           var areaMap = areaTreatedByProperty[s.property_id] || {};
-          Object.keys(aa).forEach(function(k) {
-            if (aa[k] && areaMap[k]) svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+          var areaKeys = aa === undefined ? guessPillAreaKeys(name)
+                       : aa === null ? []
+                       : Object.keys(aa).filter(function(k) { return aa[k]; });
+          areaKeys.forEach(function(k) {
+            if (areaMap[k]) {
+              if (linearKeys[k]) svcLinFt[name] = (svcLinFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+              else svcSqFt[name] = (svcSqFt[name] || 0) + (parseFloat(areaMap[k]) || 0);
+            }
           });
         }
       }
     });
     var pills = Object.keys(svcCounts).map(function(n) {
-      var sqft = svcSqFt[n] ? '<span style="font-size:11px;font-weight:700;color:#fff;">' + Number(svcSqFt[n]).toLocaleString() + ' sq ft</span>' : '';
-      var bottom = '<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + sqft + '</span>';
-      return '<span class="jt-pill">' + n + bottom + '</span>';
+      var badge = '';
+      if (svcSqFt[n] && svcLinFt[n]) {
+        badge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>' +
+                '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;margin-top:2px;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
+      } else if (svcSqFt[n]) {
+        badge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcSqFt[n]).toLocaleString() + ' ft²</span>';
+      } else if (svcLinFt[n]) {
+        badge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">' + Number(svcLinFt[n]).toLocaleString() + ' ft</span>';
+      } else {
+        badge = '<span style="font-size:14px;">&nbsp;</span>';
+      }
+      return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + n + badge + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
-    var totalPill = '<span class="jt-pill">Services Total<span style="display:flex;align-items:center;gap:5px;"><span class="jt-pill-count">' + filtered.length + '</span><span style="font-size:11px;font-weight:700;color:#fff;">$' + preTotal.toFixed(2) + '</span></span></span>';
+    var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span>Services Total<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">$' + preTotal.toFixed(2) + '</span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + pills;
 
     var tbody = document.getElementById('table-body');
