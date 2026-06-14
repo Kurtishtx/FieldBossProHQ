@@ -1416,19 +1416,51 @@
   var _searchTab = 'active';
   var _searchQuery = '';
   var _searchDdId = 'global-search-dd';
+  var _recentSearches = [];
+
+  function addRecent(item) {
+    _recentSearches = _recentSearches.filter(function(r) { return !(r.type === item.type && r.id === item.id); });
+    _recentSearches.unshift(item);
+    if (_recentSearches.length > 5) _recentSearches.pop();
+  }
+
+  function srClick(type, id, name, sub, page) {
+    addRecent({ type: type, id: id, name: name, sub: sub, page: page });
+    loadPage(page);
+    closeSearchDD();
+    document.getElementById('global-search').value = '';
+    document.getElementById('mobile-search').value = '';
+  }
+
+  function showRecents(ddId) {
+    if (!_recentSearches.length) return;
+    var dd = document.getElementById(ddId);
+    dd.classList.add('open');
+    var html = '<div class="search-group-label">Recents</div>';
+    _recentSearches.forEach(function(r) {
+      var icon = r.type === 'client' ? '&#128101;' : r.type === 'property' ? '&#127968;' : '&#127919;';
+      var safeName = (r.name||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+      var safeSub  = (r.sub ||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+      html += '<div class="search-result-item" onclick="srClick(\'' + r.type + '\',\'' + r.id + '\',\'' + safeName + '\',\'' + safeSub + '\',\'' + r.page + '\')">' +
+        '<span style="font-size:16px;flex-shrink:0;">' + icon + '</span>' +
+        '<div><div class="sri-main">' + (r.name||'') + '</div>' +
+        '<div class="sri-sub">' + (r.sub||'') + '</div></div></div>';
+    });
+    dd.innerHTML = html;
+  }
 
   function globalSearchInput() {
     clearTimeout(_searchTimer);
     var q = document.getElementById('global-search').value.trim();
     _searchQuery = q; _searchDdId = 'global-search-dd';
-    if (q.length < 2) { closeSearchDD(); return; }
+    if (q.length < 2) { if (_recentSearches.length) showRecents('global-search-dd'); else closeSearchDD(); return; }
     _searchTimer = setTimeout(function() { runGlobalSearch(q, 'global-search-dd'); }, 300);
   }
   function mobileSearchInput() {
     clearTimeout(_searchTimer);
     var q = document.getElementById('mobile-search').value.trim();
     _searchQuery = q; _searchDdId = 'mobile-search-dd';
-    if (q.length < 2) { closeSearchDD(); return; }
+    if (q.length < 2) { if (_recentSearches.length) showRecents('mobile-search-dd'); else closeSearchDD(); return; }
     _searchTimer = setTimeout(function() { runGlobalSearch(q, 'mobile-search-dd'); }, 300);
   }
   function setSearchTab(tab) {
@@ -1443,6 +1475,11 @@
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.global-search-wrap') && !e.target.closest('.mobile-search-wrap')) closeSearchDD();
   });
+
+  function sriSub(parts) {
+    return parts.filter(Boolean).map(function(p) { return '<span>' + p + '</span>'; }).join(' &nbsp;|&nbsp; ');
+  }
+
   async function runGlobalSearch(q, ddId) {
     var dd = document.getElementById(ddId);
     dd.classList.add('open');
@@ -1459,25 +1496,20 @@
     else clientQ = clientQ.eq('active', false);
     clientQ = clientQ.limit(8);
 
-    var results;
+    var clients, props, leads;
     if (_searchTab === 'active') {
       var [cRes, pRes, lRes] = await Promise.all([
         clientQ,
         sbMain.from('Properties').select('id,name,address,city,customer_id').neq('active', false).or('address.ilike.' + like + ',city.ilike.' + like + ',name.ilike.' + like).limit(5),
         sbMain.from('Leads').select('id,name,email,phone,address,city,state').or('name.ilike.' + like + ',email.ilike.' + like + ',phone.ilike.' + like + ',address.ilike.' + like).limit(5)
       ]);
-      results = { clients: cRes.data || [], props: pRes.data || [], leads: lRes.data || [] };
+      clients = cRes.data || []; props = pRes.data || []; leads = lRes.data || [];
     } else {
       var cRes = await clientQ;
-      results = { clients: cRes.data || [], props: [], leads: [] };
+      clients = cRes.data || []; props = []; leads = [];
     }
 
-    function sriSub(parts) {
-      return parts.filter(Boolean).map(function(p) { return '<span>' + p + '</span>'; }).join(' &nbsp;|&nbsp; ');
-    }
     var html = tabsHtml;
-    var { clients, props, leads } = results;
-
     if (!clients.length && !props.length && !leads.length) {
       html += '<div class="search-no-results">No results for "' + q + '"</div>';
       dd.innerHTML = html; return;
@@ -1486,26 +1518,31 @@
       html += '<div class="search-group-label">&#128101; ' + (_searchTab === 'former' ? 'Former ' : '') + 'Clients</div>';
       clients.forEach(function(c) {
         var phone = c.cell || c.phone || '';
-        html += '<div class="search-result-item" onclick="loadPage(\'clientprofile?id=' + c.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
-          '<div><div class="sri-main">' + (c.name||'') + '</div>' +
-          '<div class="sri-sub">' + sriSub([c.address, c.email, phone]) + '</div></div></div>';
+        var sub = sriSub([c.address, c.email, phone]);
+        var safeName = (c.name||'').replace(/'/g,'&#39;');
+        var safeSub  = [c.address, c.email, phone].filter(Boolean).join(' | ').replace(/'/g,'&#39;');
+        html += '<div class="search-result-item" onclick="srClick(\'client\',\'' + c.id + '\',\'' + safeName + '\',\'' + safeSub + '\',\'clientprofile?id=' + c.id + '\')">' +
+          '<div><div class="sri-main">' + (c.name||'') + '</div><div class="sri-sub">' + sub + '</div></div></div>';
       });
     }
     if (props.length) {
       html += '<div class="search-group-label">&#127968; Properties</div>';
       props.forEach(function(p) {
         var addr = [p.address, p.city].filter(Boolean).join(', ');
-        html += '<div class="search-result-item" onclick="loadPage(\'propprofile?id=' + p.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
-          '<div><div class="sri-main">' + (addr || '') + '</div>' +
-          '<div class="sri-sub">' + (p.name || '') + '</div></div></div>';
+        var safeName = (p.name||addr).replace(/'/g,'&#39;');
+        var safeSub  = (p.name ? addr : '').replace(/'/g,'&#39;');
+        html += '<div class="search-result-item" onclick="srClick(\'property\',\'' + p.id + '\',\'' + safeName + '\',\'' + safeSub + '\',\'propprofile?id=' + p.id + '\')">' +
+          '<div><div class="sri-main">' + (addr || '') + '</div><div class="sri-sub">' + (p.name || '') + '</div></div></div>';
       });
     }
     if (leads.length) {
       html += '<div class="search-group-label">&#127919; Leads</div>';
       leads.forEach(function(l) {
-        html += '<div class="search-result-item" onclick="loadPage(\'leadsprofile?id=' + l.id + '\');closeSearchDD();document.getElementById(\'global-search\').value=\'\';document.getElementById(\'mobile-search\').value=\'\'">' +
-          '<div><div class="sri-main">' + (l.name||'') + '</div>' +
-          '<div class="sri-sub">' + sriSub([l.address, l.email, l.phone]) + '</div></div></div>';
+        var sub = sriSub([l.address, l.email, l.phone]);
+        var safeName = (l.name||'').replace(/'/g,'&#39;');
+        var safeSub  = [l.address, l.email, l.phone].filter(Boolean).join(' | ').replace(/'/g,'&#39;');
+        html += '<div class="search-result-item" onclick="srClick(\'lead\',\'' + l.id + '\',\'' + safeName + '\',\'' + safeSub + '\',\'leadsprofile?id=' + l.id + '\')">' +
+          '<div><div class="sri-main">' + (l.name||'') + '</div><div class="sri-sub">' + sub + '</div></div></div>';
       });
     }
     dd.innerHTML = html;
