@@ -76,7 +76,7 @@
   <div class="dialog-body">
     <div class="section-label">Service Info</div>
 
-    <div class="field-row">
+    <div class="field-row" id="invoice-name-row">
       <label for="invoice-name">Name on Invoice</label>
       <div style="flex:1;"><input type="text" id="invoice-name" autocomplete="off"/></div>
     </div>
@@ -138,7 +138,7 @@
   var serviceId = new URLSearchParams(window.location.search).get('id');
   var serviceCategory = new URLSearchParams(window.location.search).get('category') || 'package';
   var existing = null;
-  if (serviceCategory === 'package' && !new URLSearchParams(window.location.search).get('id')) document.getElementById('invoice-name').closest('.field-row').style.display = 'none';
+  if (serviceCategory === 'package' && !serviceId) document.getElementById('invoice-name-row').style.display = 'none';
   var mixOptions = '';
 
   /* ── Tab switching ── */
