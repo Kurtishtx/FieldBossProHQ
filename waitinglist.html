@@ -1024,7 +1024,7 @@
       var notesHtml = activeNotes.length
         ? '<br>' + activeNotes.map(function(n) { return '<span style="font-size:11px;color:#b36000;font-style:italic;">&#9998; ' + n.note + '</span>'; }).join('<br>')
         : '';
-      var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span>' + notesHtml + '</td>' : '';
+      var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td style="white-space:normal;max-width:180px;"><a style="color:#2272c3;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#888;">' + addr + '</span>' + notesHtml + '</td>' : '';
       var displaySvc = resolvedServiceName(svc);
       var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
       var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ?' : '') + '</td>';
