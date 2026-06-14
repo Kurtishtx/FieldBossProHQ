@@ -445,7 +445,7 @@
     var r2 = await sbClient.from('Clients').delete().eq('id', editId);
     if (r2.error) { alert('Error deleting client: ' + r2.error.message); return; }
     if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage('clientlist');
+      window.parent.loadPage('customers');
     } else {
       window.location.href = 'ClientList.html';
     }

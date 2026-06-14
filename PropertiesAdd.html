@@ -512,8 +512,11 @@
     if (r1.error) { alert('Error deleting services: ' + r1.error.message); return; }
     var r2 = await sb.from('Properties').delete().eq('id', editId);
     if (r2.error) { alert('Error deleting property: ' + r2.error.message); return; }
-    if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage('propertieslist');
+    var nav = (window.parent && window.parent.parent && window.parent.parent.loadPage)
+      ? window.parent.parent
+      : (window.parent && window.parent.loadPage ? window.parent : null);
+    if (nav) {
+      nav.loadPage('properties');
     } else {
       window.location.href = 'propertieslist.html';
     }
