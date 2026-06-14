@@ -475,12 +475,7 @@
     if (!reason) { alert('Please select a cancellation reason.'); return; }
     document.getElementById('cancel-overlay').style.display = 'none';
 
-    var r1 = await sbClient.from('Clients').update({ active: false, cancellation_reason: reason }).eq('id', editId);
-    if (r1.error) {
-      var r1b = await sbClient.from('Clients').update({ active: false }).eq('id', editId);
-      if (r1b.error) { alert('Error: ' + r1b.error.message); return; }
-    }
-
+    await sbClient.from('Clients').update({ active: false }).eq('id', editId);
     await sbClient.from('Properties').update({ active: false }).eq('customer_id', editId);
 
     if (window.parent && window.parent.loadPage) {
