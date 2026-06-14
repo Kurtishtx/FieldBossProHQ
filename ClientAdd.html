@@ -70,6 +70,8 @@
     .btn-save:hover { background: #c96a10; }
     .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
     .btn-cancel:hover { text-decoration: underline; }
+    .btn-delete { background: none; border: 1px solid #c0392b; color: #c0392b; padding: 7px 20px; font-size: 13px; font-weight: 600; border-radius: 4px; cursor: pointer; margin-left: auto; }
+    .btn-delete:hover { background: #c0392b; color: #fff; }
 
     /* Tab panels */
     .tab-panel { display: none; }
@@ -236,6 +238,7 @@
   <div class="dialog-footer">
     <button class="btn-save" onclick="saveClient()">Save</button>
     <span class="btn-cancel" onclick="cancelEdit(event)">Cancel</span>
+    <button id="btn-delete-client" class="btn-delete" onclick="deleteClient()" style="display:none;">Delete Client</button>
   </div>
 
 </div>
@@ -249,6 +252,7 @@
   );
 
   var editId = new URLSearchParams(window.location.search).get('id');
+  if (editId) document.getElementById('btn-delete-client').style.display = '';
 
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(function(tab) {
@@ -428,6 +432,20 @@
   function closeModal() {
     if (confirm('Close without saving?')) {
       window.history.back();
+    }
+  }
+
+  async function deleteClient() {
+    if (!editId) return;
+    if (!confirm('Delete this client and all their properties? This cannot be undone.')) return;
+    var r1 = await sbClient.from('Properties').delete().eq('customer_id', editId);
+    if (r1.error) { alert('Error deleting properties: ' + r1.error.message); return; }
+    var r2 = await sbClient.from('Clients').delete().eq('id', editId);
+    if (r2.error) { alert('Error deleting client: ' + r2.error.message); return; }
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('clientlist');
+    } else {
+      window.location.href = 'ClientList.html';
     }
   }
 </script>
