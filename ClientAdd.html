@@ -108,8 +108,8 @@
 
       <div class="section-label">Client Name</div>
       <div class="name-row">
-        <input type="text" id="first-name" placeholder="First Name"/>
-        <input type="text" id="last-name" placeholder="Last Name"/>
+        <input type="text" id="first-name" placeholder="First Name" oninput="syncPropName()"/>
+        <input type="text" id="last-name" placeholder="Last Name" oninput="syncPropName()"/>
         <input type="text" id="nickname" class="name-nick" placeholder="Nickname"/>
         <input type="text" id="display-name" placeholder="Display Name" readonly/>
       </div>
@@ -280,6 +280,16 @@
       if (target) target.classList.add('active');
     });
   });
+
+  // Auto-fill property name from client name (stops if user manually edits prop-name)
+  var _propNameManual = false;
+  document.getElementById('prop-name').addEventListener('input', function() { _propNameManual = true; });
+  function syncPropName() {
+    if (_propNameManual || editId) return;
+    var f = (document.getElementById('first-name').value || '').trim();
+    var l = (document.getElementById('last-name').value || '').trim();
+    document.getElementById('prop-name').value = [f, l].filter(Boolean).join(' ');
+  }
 
   // Auto-build display name from first + last
   var firstNameEl  = document.getElementById('first-name');
