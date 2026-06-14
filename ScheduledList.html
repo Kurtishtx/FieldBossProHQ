@@ -999,7 +999,7 @@
       } else {
         badge = '<span style="font-size:14px;">&nbsp;</span>';
       }
-      var dollarBadge = '<span style="font-size:14px;font-weight:700;color:#fff;background:#e07820;border-radius:10px;padding:0 7px;display:inline-block;">$' + (svcAmounts[n] || 0).toFixed(2) + '</span>';
+      var dollarBadge = '<span style="font-size:14px;font-weight:700;color:#fff;display:inline-block;">$' + (svcAmounts[n] || 0).toFixed(2) + '</span>';
       return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span>' + n + badge + dollarBadge + '</span>';
     }).join('');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
