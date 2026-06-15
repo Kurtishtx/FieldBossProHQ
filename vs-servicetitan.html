@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jobber Alternative for Lawn Care & Pest Control | SprayBossPro vs Jobber</title>
-  <meta name="description" content="Comparing SprayBossPro vs Jobber for lawn care and pest control businesses. SprayBossPro has sq ft waiting lists, chemical compliance logs, and unlimited users at $129/month flat — built specifically for spray businesses."/>
+  <title>ServiceTitan Alternative for Lawn Care & Pest Control | SprayBossPro vs ServiceTitan</title>
+  <meta name="description" content="ServiceTitan is expensive, complex, and built for HVAC and plumbing. SprayBossPro is $129/month, built for lawn care and pest control, and you can set it up in an afternoon. See the full comparison."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,29 +56,11 @@
     .mock-item { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
     .mock-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .mock-dot.orange { background: var(--orange); }
-    .mock-dot.green  { background: #22c55e; }
-    .mock-dot.blue   { background: var(--blue); }
+    .mock-dot.red { background: #ef4444; }
     .mock-label { color: rgba(255,255,255,.85); font-size: 13px; font-weight: 600; }
-    .mock-sub   { color: rgba(255,255,255,.45); font-size: 11px; margin-top: 1px; }
+    .mock-sub { color: rgba(255,255,255,.45); font-size: 11px; margin-top: 1px; }
     .mock-badge { margin-left: auto; background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; flex-shrink: 0; }
-    .mock-badge.green-badge { background: #16a34a; }
-    .mock-badge.blue-badge  { background: #2272c3; }
-
-    .price-card { background: #fff; border: 2px solid var(--border); border-radius: 14px; padding: 36px 32px; position: relative; }
-    .price-card.featured { border-color: var(--orange); background: linear-gradient(180deg, #fff 0%, #fff8f2 100%); }
-    .featured-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
-    .price-tier { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .price-amount { font-size: 48px; font-weight: 800; color: var(--text); line-height: 1; }
-    .price-amount sup { font-size: 22px; vertical-align: super; }
-    .price-period { color: var(--muted); font-size: 13px; margin-bottom: 24px; margin-top: 4px; }
-    .price-desc { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
-    .price-features { list-style: none; margin-bottom: 32px; }
-    .price-features li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); padding: 6px 0; border-bottom: 1px solid var(--border); }
-    .price-features li:last-child { border-bottom: none; }
-    .price-features li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
-    .price-btn { display: block; text-align: center; padding: 13px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: background .2s; }
-    .price-btn-primary { background: var(--orange); color: #fff; }
-    .price-btn-primary:hover { background: var(--orange-dark); }
+    .mock-badge.red-badge { background: #dc2626; }
 
     .premium-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1a0530 100%); padding: 90px 40px; text-align: center; position: relative; overflow: hidden; }
     .premium-band::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.1) 0%, transparent 65%); pointer-events: none; }
@@ -113,6 +95,21 @@
     .simple-card h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
     .simple-card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
 
+    .price-card { background: #fff; border: 2px solid var(--border); border-radius: 14px; padding: 36px 32px; position: relative; }
+    .price-card.featured { border-color: var(--orange); background: linear-gradient(180deg, #fff 0%, #fff8f2 100%); }
+    .featured-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    .price-tier { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .price-amount { font-size: 48px; font-weight: 800; color: var(--text); line-height: 1; }
+    .price-amount sup { font-size: 22px; vertical-align: super; }
+    .price-period { color: var(--muted); font-size: 13px; margin-bottom: 24px; margin-top: 4px; }
+    .price-features { list-style: none; margin-bottom: 32px; }
+    .price-features li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .price-features li:last-child { border-bottom: none; }
+    .price-features li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
+    .price-btn { display: block; text-align: center; padding: 13px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: background .2s; }
+    .price-btn-primary { background: var(--orange); color: #fff; }
+    .price-btn-primary:hover { background: var(--orange-dark); }
+
     .cta-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1e0a35 100%); text-align: center; padding: 100px 40px; position: relative; overflow: hidden; }
     .cta-band::before { content: ''; position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.12) 0%, transparent 70%); pointer-events: none; }
     .cta-band h2 { color: #fff; font-size: clamp(28px, 4vw, 46px); font-weight: 800; margin-bottom: 16px; }
@@ -130,24 +127,24 @@
 
 <!-- ════════════ HERO ════════════ -->
 <div class="hero">
-  <div class="hero-badge">Jobber Alternative</div>
-  <h1>Jobber Is Built for Every Industry.<br><span>SprayBossPro Is Built for Yours.</span></h1>
-  <p>Jobber is a solid general-purpose field service tool. But "general purpose" means it wasn't designed around square footage waiting lists, chemical compliance logs, the lasso route selector, or the way lawn care and pest control businesses actually schedule recurring spray routes. SprayBossPro was.</p>
+  <div class="hero-badge">ServiceTitan Alternative</div>
+  <h1>ServiceTitan Is Built for HVAC and Plumbing.<br><span>SprayBossPro Is Built for Lawn Care.</span></h1>
+  <p>ServiceTitan is an enterprise platform designed for large HVAC, plumbing, and electrical companies. It's powerful — and it's priced and scoped for that world. If you run a lawn care or pest control business, you don't need a 90-day implementation, a six-figure contract, or software designed for a different trade entirely.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial</a>
   </div>
   <div class="hero-stats">
     <div>
       <div class="hero-stat-val">$129</div>
-      <div class="hero-stat-lbl">Flat Monthly vs Jobber's Per-Tier Pricing</div>
+      <div class="hero-stat-lbl">SprayBossPro/month vs ServiceTitan's Enterprise Cost</div>
     </div>
     <div>
-      <div class="hero-stat-val">Unlimited</div>
-      <div class="hero-stat-lbl">Users — No Per-Seat Fees</div>
+      <div class="hero-stat-val">1 Day</div>
+      <div class="hero-stat-lbl">To Set Up vs ServiceTitan's 90-Day Onboarding</div>
     </div>
     <div>
-      <div class="hero-stat-val">Sq Ft</div>
-      <div class="hero-stat-lbl">Waiting List — Jobber Doesn't Have This</div>
+      <div class="hero-stat-val">Built</div>
+      <div class="hero-stat-lbl">For Lawn Care — Not HVAC or Plumbing</div>
     </div>
     <div>
       <div class="hero-stat-val">2006</div>
@@ -160,8 +157,8 @@
 <section>
   <div class="centered" style="max-width:900px; margin:0 auto;">
     <span class="section-label">Side by Side</span>
-    <h2 class="section-title">SprayBossPro vs Jobber</h2>
-    <p class="section-sub">The features that matter most for lawn care and pest control — not general field service.</p>
+    <h2 class="section-title">SprayBossPro vs ServiceTitan</h2>
+    <p class="section-sub">Enterprise complexity vs. a tool that was actually built for your trade.</p>
   </div>
   <div class="compare-wrap">
     <table class="compare-table">
@@ -169,27 +166,25 @@
         <tr>
           <th style="width:50%;">Feature</th>
           <th class="sbp-col" style="width:25%;">SprayBossPro</th>
-          <th style="width:25%;">Jobber</th>
+          <th style="width:25%;">ServiceTitan</th>
         </tr>
       </thead>
       <tbody>
+        <tr><td class="feature-name">Built for Lawn Care & Pest Control</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
         <tr><td class="feature-name">Sq Ft Waiting List by Service Type</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
         <tr><td class="feature-name">Chemical Application Compliance Logs</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
         <tr><td class="feature-name">Lasso Circle Map Route Selector</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
-        <tr><td class="feature-name">Built Specifically for Lawn Care & Pest Control</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
-        <tr><td class="feature-name">True Two-Way SMS Inbox (Included)</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="prt">Grow plan only ($299/mo)</span></td></tr>
+        <tr><td class="feature-name">Set Up in One Afternoon</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
+        <tr><td class="feature-name">Transparent Flat Monthly Pricing</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
+        <tr><td class="feature-name">No Long-Term Contract Required</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
+        <tr><td class="feature-name">Two-Way SMS Inbox (Built In)</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="prt">Add-on</span></td></tr>
         <tr><td class="feature-name">Recurring Treatment Waiting List</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
         <tr><td class="feature-name">Package Plans & Renewal Tracking</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="prt">Limited</span></td></tr>
-        <tr><td class="feature-name">Product Mix & Chemical Catalog</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
-        <tr><td class="feature-name">Estimates & Online Acceptance</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-        <tr><td class="feature-name">Card-on-File Payments</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td class="feature-name">Scheduling & Dispatch</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td class="feature-name">Estimates & Invoicing</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
         <tr><td class="feature-name">Mobile App for Technicians</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-        <tr><td class="feature-name">Automated Review Requests</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-        <tr><td class="feature-name">Automated Estimate Follow-Ups</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-        <tr><td class="feature-name">Unlimited Users at Flat Price</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="crs">✗</span></td></tr>
-        <tr><td class="feature-name">Starting Price (Annual Billing)</td><td class="sbp-col" style="color:var(--orange); font-weight:800; font-size:15px;">$129 / month</td><td style="color:var(--muted);">$29/mo (1 user only)</td></tr>
-        <tr><td class="feature-name">Price for a 5-Person Team (Annual)</td><td class="sbp-col" style="color:var(--orange); font-weight:800;">$129 / month</td><td style="color:var(--muted);">$149/mo (Connect — no SMS)</td></tr>
-        <tr><td class="feature-name">Price with Two-Way SMS (Annual)</td><td class="sbp-col" style="color:var(--orange); font-weight:800;">$129 / month</td><td style="color:var(--muted);">$299/mo (Grow — up to 10 users)</td></tr>
+        <tr><td class="feature-name">Card-on-File Payments</td><td class="sbp-col"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td class="feature-name">Monthly Price</td><td class="sbp-col" style="color:var(--orange); font-weight:800; font-size:15px;">$129 / month</td><td style="color:var(--muted);">$300–$500+ / month</td></tr>
       </tbody>
     </table>
   </div>
@@ -197,38 +192,38 @@
 
 <!-- ════════════ PREMIUM BAND ════════════ -->
 <div class="premium-band">
-  <h2>Jobber Charges More as You Grow.<br><span>SprayBossPro Charges $129. Period.</span></h2>
-  <p>The moment you add your 6th employee on Jobber, you're bumped to a higher tier. Add more features, pay more. Add more users, pay more. SprayBossPro has one price — $129/month — that covers your entire team, every feature, forever. No tiers. No per-seat math. No surprises on your invoice.</p>
+  <h2>ServiceTitan Is an Enterprise Platform.<br><span>Your Lawn Care Business Doesn't Need That.</span></h2>
+  <p>ServiceTitan was built for large home services companies — HVAC fleets, plumbing franchises, electrical contractors with dozens of trucks. It's powerful for that. But if you run lawn care or pest control routes, it's overbuilt, overpriced, and set up for the wrong trade entirely. SprayBossPro is purpose-built for spray routes at a price that makes sense for your business.</p>
   <div class="premium-grid">
     <div class="premium-card">
       <div class="premium-card-icon">📋</div>
       <h4>Sq Ft Waiting List</h4>
-      <p>Before you schedule a single stop, SprayBossPro shows you the total square footage waiting per service type. Know exactly how much Lawn Care 4, Mosquito, or Insect Control you can fit before you call anyone. Jobber has no concept of this.</p>
+      <p>Know exactly how much Lawn Care, Mosquito, or Insect Control is waiting before you build a single route. ServiceTitan has no concept of a sq ft waiting list — it was never designed around the recurring spray model.</p>
     </div>
     <div class="premium-card">
       <div class="premium-card-icon">🧪</div>
       <h4>Chemical Compliance Logs</h4>
-      <p>Every application logged automatically with product, mix rate, gallons, area, weather, and tech license. Pull a print-ready compliance report in 30 seconds. Jobber has job notes. That's not the same thing as a pesticide compliance log.</p>
+      <p>Pesticide application records logged automatically every time a tech completes a service. Product, mix rate, gallons, area, weather, license number. ServiceTitan wasn't designed for chemical compliance — it was designed for HVAC invoices.</p>
     </div>
     <div class="premium-card">
       <div class="premium-card-icon">🗺️</div>
       <h4>Lasso Map Route Selector</h4>
-      <p>Draw a circle on the map, instantly see every property inside with a service due. Stops, service types, sq ft — all calculated before you schedule anything. Jobber has basic route optimization. Not the same as Lasso.</p>
+      <p>Draw a circle on your map and instantly see every property inside with a service due. ServiceTitan has dispatch boards and route tools, but nothing like Lasso — a feature built specifically for geographic spray route planning.</p>
     </div>
     <div class="premium-card">
-      <div class="premium-card-icon">💬</div>
-      <h4>True Two-Way SMS Inbox</h4>
-      <p>Send and receive text messages inside SprayBossPro with full conversation history per contact. Jobber has limited client messaging — not a full SMS inbox with inbound/outbound history organized by customer.</p>
+      <div class="premium-card-icon">⏱️</div>
+      <h4>Set Up in One Afternoon</h4>
+      <p>Add your services, import your clients, and you're running the same day. ServiceTitan's implementation typically takes 60–90 days with dedicated onboarding staff. You don't have 90 days. Your routes are running next week.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💵</div>
+      <h4>$129 Flat — No Surprises</h4>
+      <p>One price, every feature, unlimited users. ServiceTitan's pricing isn't publicly listed — you need a sales call to get a quote, and contracts are typically annual with significant upfront costs. SprayBossPro is $129/month, period.</p>
     </div>
     <div class="premium-card">
       <div class="premium-card-icon">🔁</div>
       <h4>Recurring Treatment Tracking</h4>
-      <p>Set recurring schedules per property, track what's due, and build waiting lists by service type. Jobber handles recurring jobs, but not the lawn care waiting list model that shows you all your due work before you build a route.</p>
-    </div>
-    <div class="premium-card">
-      <div class="premium-card-icon">👥</div>
-      <h4>Unlimited Users, One Price</h4>
-      <p>Every employee — techs, office staff, managers — included at $129/month. Jobber charges per tier based on user count. Add your 6th employee and your bill goes up. Ours doesn't.</p>
+      <p>Recurring spray services tracked per property with automatic waiting list management. ServiceTitan is built around one-time service calls — not the 6-application lawn program or the 21-day mosquito cycle model.</p>
     </div>
   </div>
 </div>
@@ -238,56 +233,40 @@
   <div class="highlight-row">
     <div class="highlight-text">
       <span class="section-label">The Real Difference</span>
-      <h2>Jobber Is a Great Tool for Many Industries.<br>Lawn Care and Pest Control Aren't Really One of Them.</h2>
-      <p>Jobber does a lot of things well. But it was designed to work for cleaning companies, landscapers, HVAC techs, plumbers, and dozens of other trades. When you build software for everyone, you can't build the deep features that spray businesses actually need. SprayBossPro was built by people who ran spray routes — and it shows.</p>
+      <h2>ServiceTitan Requires an Implementation. SprayBossPro Requires an Afternoon.</h2>
+      <p>ServiceTitan is a serious platform for serious enterprise companies. If you're running 50 HVAC trucks across multiple markets, it makes sense. If you're running a lawn care or pest control route, you're paying for complexity you'll never use — and missing the features you actually need every day.</p>
       <ul class="check-list">
-        <li>Sq ft waiting list grouped by service type — know what's due before you schedule</li>
-        <li>Chemical compliance logs that hold up to any state inspector</li>
-        <li>Product mix catalog with mix recipes stored and logged per job</li>
-        <li>Lasso circle map selector — build tight geographic routes fast</li>
-        <li>Recurring treatment tracking with automatic due-date flags</li>
-        <li>Package program renewals tracked per property automatically</li>
-        <li>True inbound/outbound SMS inbox organized by customer</li>
-        <li>$129/month flat — add 20 employees, price doesn't change</li>
+        <li>No sales call required — $129/month, cancel anytime</li>
+        <li>Set up in one afternoon, not a 90-day implementation</li>
+        <li>Sq ft waiting list — built around how spray businesses schedule</li>
+        <li>Chemical compliance logs included, no add-on required</li>
+        <li>Lasso map routing — nothing like this in ServiceTitan</li>
+        <li>Designed for recurring treatment programs, not one-time calls</li>
+        <li>Unlimited users — no per-seat fees as your team grows</li>
+        <li>Built by people who ran spray routes, not enterprise software teams</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.5); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;">Annual Billing — What You Actually Pay</div>
+      <div style="color:rgba(255,255,255,.5); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;">What You're Actually Comparing</div>
       <div class="mock-item">
         <div class="mock-dot orange"></div>
         <div>
           <div class="mock-label">SprayBossPro</div>
-          <div class="mock-sub">Unlimited users — every feature — SMS included</div>
+          <div class="mock-sub">Set up today — built for spray routes</div>
         </div>
         <div class="mock-badge">$129/mo</div>
       </div>
       <div class="mock-item">
-        <div class="mock-dot blue"></div>
+        <div class="mock-dot red"></div>
         <div>
-          <div class="mock-label">Jobber Connect</div>
-          <div class="mock-sub">Up to 5 users — no two-way SMS</div>
+          <div class="mock-label">ServiceTitan</div>
+          <div class="mock-sub">90-day onboarding — built for HVAC</div>
         </div>
-        <div class="mock-badge blue-badge">$149/mo</div>
-      </div>
-      <div class="mock-item">
-        <div class="mock-dot green"></div>
-        <div>
-          <div class="mock-label">Jobber Grow</div>
-          <div class="mock-sub">Up to 10 users — SMS unlocked here</div>
-        </div>
-        <div class="mock-badge green-badge">$299/mo</div>
-      </div>
-      <div class="mock-item">
-        <div class="mock-dot" style="background:#a855f7;"></div>
-        <div>
-          <div class="mock-label">Jobber Plus</div>
-          <div class="mock-sub">Up to 15 users — premium support</div>
-        </div>
-        <div class="mock-badge" style="background:#7c3aed;">$529/mo</div>
+        <div class="mock-badge red-badge">$300–500+/mo</div>
       </div>
       <div style="margin-top:16px; background:rgba(255,255,255,.07); border-radius:8px; padding:14px 16px;">
-        <div style="color:var(--orange); font-size:13px; font-weight:700; margin-bottom:8px;">SprayBossPro also includes things Jobber doesn't:</div>
-        <div style="color:rgba(255,255,255,.6); font-size:12px; line-height:2;">✓ Sq Ft Waiting List by Service Type<br>✓ Chemical Compliance Logs & Reports<br>✓ Lasso Circle Map Route Selector<br>✓ Recurring Treatment Waiting List<br>✓ Package Plan Renewal Tracking</div>
+        <div style="color:var(--orange); font-size:13px; font-weight:700; margin-bottom:8px;">SprayBossPro includes what ServiceTitan doesn't:</div>
+        <div style="color:rgba(255,255,255,.6); font-size:12px; line-height:2;">✓ Sq Ft Waiting List by Service Type<br>✓ Chemical Compliance Logs & Reports<br>✓ Lasso Circle Map Route Selector<br>✓ Recurring Treatment Waiting List<br>✓ Set up in an afternoon, not 90 days</div>
       </div>
     </div>
   </div>
@@ -298,16 +277,16 @@
   <div class="highlight-row">
     <div class="highlight-text">
       <span class="section-label">Lasso — Circle Map Scheduling</span>
-      <h2 style="color:#fff;">One Feature Jobber Can't Match.</h2>
-      <p style="color:rgba(255,255,255,.65);">Draw a circle on your service area map and SprayBossPro instantly shows every property inside that radius with a service due — total stops, service types, sq ft, all calculated before you schedule a single stop. Jobber has route optimization. That's completely different from Lasso. No competitor has built anything like this.</p>
+      <h2 style="color:#fff;">The Feature No Enterprise Platform Has Ever Built.</h2>
+      <p style="color:rgba(255,255,255,.65);">ServiceTitan has dispatch boards, route optimization, and GPS tracking — all built for HVAC and plumbing one-time calls. None of that helps you build a tight geographic spray route from a waiting list. Lasso does. Draw a circle, see every property with a service due inside it, and schedule the entire route in under 5 minutes.</p>
       <ul class="check-list" style="margin-top:20px;">
-        <li style="color:rgba(255,255,255,.75);">Draw any size circle — instantly see all properties with services due inside</li>
-        <li style="color:rgba(255,255,255,.75);">Breaks down stops, sq ft, and service types in real time</li>
+        <li style="color:rgba(255,255,255,.75);">Draw a circle on your map — every due property inside lights up instantly</li>
+        <li style="color:rgba(255,255,255,.75);">See total stops, sq ft, and service types before scheduling anything</li>
         <li style="color:rgba(255,255,255,.75);">One click to schedule all selected stops to a date and truck</li>
-        <li style="color:rgba(255,255,255,.75);">Tighten routes geographically — stop wasting fuel on scattered stops</li>
+        <li style="color:rgba(255,255,255,.75);">Build geographically tight routes — cut drive time and fuel</li>
+        <li style="color:rgba(255,255,255,.75);">Works across all your service types at the same time</li>
         <li style="color:rgba(255,255,255,.75);">Cuts route-building from an hour to under 5 minutes</li>
-        <li style="color:rgba(255,255,255,.75);">Works across all service types simultaneously</li>
-        <li style="color:rgba(255,255,255,.75);">Jobber doesn't have this. FieldRoutes doesn't have this. Nobody does.</li>
+        <li style="color:rgba(255,255,255,.75);">ServiceTitan doesn't have this. Nobody else does either.</li>
       </ul>
     </div>
     <div class="highlight-visual">
@@ -336,29 +315,29 @@
 <section style="background: var(--light-bg);">
   <div class="centered" style="max-width:1100px; margin:0 auto 56px;">
     <span class="section-label">Simplicity</span>
-    <h2 class="section-title">Easier to Learn Than Jobber. More Powerful for Spray Routes.</h2>
-    <p class="section-sub" style="max-width:720px;">Jobber has been around for years and has a solid UI. But SprayBossPro was designed specifically for the way spray businesses work — which means less configuration, less hunting through menus, and a dispatch board that actually makes sense for recurring service routes.</p>
+    <h2 class="section-title">Set Up in an Afternoon. Not 90 Days.</h2>
+    <p class="section-sub" style="max-width:720px;">ServiceTitan's implementation is a project — dedicated onboarding calls, data migration specialists, training programs. SprayBossPro is software. You add your services, import your data, and you're running. Your routes don't wait for an implementation timeline.</p>
   </div>
   <div class="simple-grid">
     <div class="simple-card">
       <div class="simple-num">01</div>
-      <h3>Set Up in One Afternoon</h3>
-      <p>Add your services, import clients and properties, connect payments, set up your SMS alerts — most owners are fully operational the same day. No onboarding call, no implementation consultant, no 90-day timeline to get started.</p>
+      <h3>Operational the Same Day</h3>
+      <p>Add your services, import clients and properties, configure SMS alerts. Most owners are fully running in a single afternoon — no onboarding specialist, no implementation timeline, no waiting.</p>
     </div>
     <div class="simple-card">
       <div class="simple-num">02</div>
-      <h3>Built Around the Dispatch Board</h3>
-      <p>Everything flows through the dispatch board — waiting list, scheduling, map, dispatch, chemical log. It's designed the way a spray business thinks about its day. Not the way a plumber or cleaning company would.</p>
+      <h3>Built Around How You Work</h3>
+      <p>Everything flows through the dispatch board — waiting list, lasso map, scheduling, dispatch, chemical log. Designed for spray businesses, not enterprise HVAC operations that share a distant resemblance to your work.</p>
     </div>
     <div class="simple-card">
       <div class="simple-num">03</div>
-      <h3>Techs Are Up and Running Fast</h3>
-      <p>The mobile app shows your techs exactly what they need — today's stops, the property notes, the complete button. No training videos, no IT ticket, no confused crew. They're using it on day one.</p>
+      <h3>No Training Program Needed</h3>
+      <p>Your techs open the app and see today's route. Your office sees the waiting list and dispatch board. There's no training manual, no certification, no system admin required to manage it.</p>
     </div>
     <div class="simple-card">
       <div class="simple-num">04</div>
-      <h3>Automation That Actually Runs</h3>
-      <p>SMS alerts, estimate follow-ups, payment reminders, review requests — set them up once and SprayBossPro runs them every time, automatically. You're not babysitting automations or configuring Zapier workflows.</p>
+      <h3>Automation Without a Consultant</h3>
+      <p>SMS alerts, estimate follow-ups, review requests — you configure them once inside the app, they run automatically. No workflow builder, no implementation team, no consulting bill.</p>
     </div>
   </div>
 </section>
@@ -367,8 +346,8 @@
 <section>
   <div class="centered" style="max-width:1100px; margin:0 auto;">
     <span class="section-label">Pricing</span>
-    <h2 class="section-title">One Price. Every Feature. Unlimited Users.</h2>
-    <p class="section-sub">No tiers. No per-seat fees. No upgrade prompts. Just $129/month for your entire operation.</p>
+    <h2 class="section-title">$129/Month. No Sales Call. No Contract.</h2>
+    <p class="section-sub">ServiceTitan requires a sales call to get pricing. SprayBossPro doesn't. One price, every feature, cancel anytime.</p>
   </div>
   <div style="max-width:520px; margin:0 auto;">
     <div class="price-card featured" style="width:100%;">
@@ -376,7 +355,6 @@
       <div class="price-tier">One Plan. No Surprises.</div>
       <div class="price-amount"><sup>$</sup>129</div>
       <div class="price-period">per month — flat</div>
-      <div class="price-desc">Every feature. Unlimited clients, properties, employees, and users. No tiers, no per-seat fees, no locked features.</div>
       <ul class="price-features">
         <li>Unlimited Clients, Properties &amp; Leads</li>
         <li>Unlimited Employees &amp; Users</li>
@@ -398,7 +376,7 @@
 
 <!-- ════════════ CTA ════════════ -->
 <div class="cta-band">
-  <h2>Ready to Switch from Jobber to Software<br>Actually Built for Spray Routes?</h2>
+  <h2>You Don't Need an Enterprise Platform.<br>You Need Software Built for Spray Routes.</h2>
   <p>Try SprayBossPro free for 14 days. No credit card required. Set up in an afternoon.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(3, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
