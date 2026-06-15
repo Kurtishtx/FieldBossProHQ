@@ -2467,6 +2467,8 @@ function showPropTab(name, btn) {
   var _measureShapes   = [];   // { id, label, type, value, color, shape (google object) }
   var _measureMode     = null; // 'polygon' | 'polyline' | null
   var _measureNextId   = 1;
+  var _mpOverlay       = null;
+  var _mp = { start: null, last: null, active: false };
 
   var MEASURE_COLORS = [
     '#e07820','#1a7a3c','#1a2b3c','#c0392b',
@@ -2560,6 +2562,50 @@ function showPropTab(name, btn) {
         polylineOptions: { strokeWeight: 3, clickable: true, editable: true, zIndex: 1 }
       });
       _drawingManager.setMap(_measureMap);
+
+      /* OverlayView for pixel↔latLng conversion during pan */
+      _mpOverlay = new google.maps.OverlayView();
+      _mpOverlay.onAdd = _mpOverlay.draw = function(){};
+      _mpOverlay.setMap(_measureMap);
+
+      /* Pan-while-drawing: drag mouse to pan, release restores draw mode */
+      var _mapEl = document.getElementById('prop-map');
+      _mapEl.addEventListener('mousedown', function(e) {
+        if (!_measureMode) return;
+        _mp.start = { x: e.clientX, y: e.clientY };
+        _mp.last  = { x: e.clientX, y: e.clientY };
+        _mp.active = false;
+      }, true);
+      _mapEl.addEventListener('mousemove', function(e) {
+        if (!_mp.start || !_measureMode) return;
+        var ddx = e.clientX - _mp.start.x, ddy = e.clientY - _mp.start.y;
+        if (!_mp.active && Math.sqrt(ddx*ddx + ddy*ddy) > 2) {
+          _mp.active = true;
+          _drawingManager.setDrawingMode(null);
+        }
+        if (_mp.active) {
+          var dx = e.clientX - _mp.last.x, dy = e.clientY - _mp.last.y;
+          _mp.last = { x: e.clientX, y: e.clientY };
+          var proj = _mpOverlay && _mpOverlay.getProjection();
+          if (proj) {
+            var c = _measureMap.getCenter(), cp = proj.fromLatLngToDivPixel(c);
+            _measureMap.setCenter(proj.fromDivPixelToLatLng(new google.maps.Point(cp.x - dx, cp.y - dy)));
+          }
+          e.stopPropagation();
+        }
+      }, true);
+      document.addEventListener('mouseup', function() {
+        var wasActive = _mp.active;
+        _mp.start = null; _mp.last = null; _mp.active = false;
+        if (wasActive && _measureMode && _drawingManager) {
+          setTimeout(function() {
+            _drawingManager.setDrawingMode(
+              _measureMode === 'polygon'  ? google.maps.drawing.OverlayType.POLYGON  :
+              _measureMode === 'polyline' ? google.maps.drawing.OverlayType.POLYLINE : null
+            );
+          }, 50);
+        }
+      });
 
       google.maps.event.addListener(_drawingManager, 'polygoncomplete', function(polygon) {
         /* Stay in polygon mode so they can keep drawing more areas */
