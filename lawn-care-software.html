@@ -25,27 +25,6 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: var(--text); background: #fff; line-height: 1.6; }
 
-    /* ─── NAV ─── */
-    nav {
-      background: var(--purple-dark);
-      padding: 0 40px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .nav-brand-name { color: #fff; font-size: 18px; font-weight: 800; }
-    .nav-links { display: flex; align-items: center; gap: 28px; }
-    .nav-links a { color: rgba(255,255,255,.7); font-size: 14px; text-decoration: none; }
-    .nav-links a:hover { color: #fff; }
-    .nav-cta { background: var(--orange); color: #fff !important; padding: 9px 20px; border-radius: 6px; font-weight: 700 !important; font-size: 14px !important; }
-    .nav-cta:hover { background: var(--orange-dark) !important; }
-
     /* ─── HERO ─── */
     .hero {
       background: linear-gradient(135deg, #080010 0%, #130520 60%, #1e0a35 100%);
@@ -166,8 +145,6 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 700px) {
-      nav { padding: 0 20px; }
-      .nav-links { display: none; }
       section { padding: 60px 20px; }
       .hero { padding: 70px 20px 60px; }
       .hero-stats { gap: 30px; }
@@ -177,20 +154,6 @@
   </style>
 </head>
 <body>
-
-<!-- ════════════ NAV ════════════ -->
-<nav>
-  <a href="https://spraybosspro.com/" class="nav-brand">
-    <span style="font-size:24px;">🌿</span>
-    <span class="nav-brand-name">SprayBossPro</span>
-  </a>
-  <div class="nav-links">
-    <a href="https://spraybosspro.com/features">Features</a>
-    <a href="https://spraybosspro.com/pricing">Pricing</a>
-    <a href="https://spraybosspro.com/pest-control-software">Pest Control</a>
-    <a href="#" onclick="openSignupModal(1, this); return false;" class="nav-cta">Start Free Trial</a>
-  </div>
-</nav>
 
 <!-- ════════════ HERO ════════════ -->
 <div class="hero">
