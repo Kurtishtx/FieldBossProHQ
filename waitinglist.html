@@ -120,6 +120,13 @@
     .sv-modal-save { background:#e07820; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; }
     .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; }
 
+    .top-summary-bar { display:flex; align-items:center; justify-content:space-between; background:#130520; padding:8px 16px; margin:2px 16px; border-radius:8px; }
+    .tsb-left { display:flex; align-items:center; gap:18px; }
+    .tsb-stat { display:flex; flex-direction:column; align-items:center; line-height:1.2; }
+    .tsb-stat-val { font-size:22px; font-weight:700; color:#e07820; }
+    .tsb-stat-lbl { font-size:11px; color:rgba(255,255,255,.65); text-transform:uppercase; letter-spacing:.5px; }
+    .tsb-divider { width:1px; height:36px; background:rgba(255,255,255,.2); }
+    .tsb-right { display:flex; align-items:center; gap:8px; }
     .jobs-total { padding:6px 16px; font-size:13px; color:#fff; background:#130520; display:flex; align-items:flex-end; justify-content:center; gap:0; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
     .jt-pill { display:inline-flex; flex-direction:column; align-items:center; gap:3px; background:transparent; border:none; border-bottom:3px solid #e07820; border-radius:0; padding:6px 16px 8px; font-size:16px; color:#fff; font-weight:700; }
     .jt-pill-count { background:#fff; color:#000; font-weight:700; border-radius:10px; padding:0 8px; font-size:18px; }
@@ -211,6 +218,25 @@
 </div>
 <script>if (window !== window.top) document.getElementById('page-header').style.display = 'none';</script>
 
+<!-- Top summary bar -->
+<div class="top-summary-bar">
+  <div class="tsb-left">
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="summary-props">0</span>
+      <span class="tsb-stat-lbl">Properties</span>
+    </div>
+    <div class="tsb-divider"></div>
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="summary-total">$0.00</span>
+      <span class="tsb-stat-lbl">Total</span>
+    </div>
+  </div>
+  <div class="tsb-right">
+    <button class="btn-map-toggle" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
+    <button class="btn-print" onclick="window.print()">Print</button>
+  </div>
+</div>
+
 <!-- Filter tabs -->
 <div class="filter-bar">
   <strong>Select a Filter:</strong>
@@ -278,10 +304,6 @@
     </div>
   </div>
   <label><input type="checkbox" id="use-min-days" checked onchange="renderTable()"/> Use Min Days Since</label>
-  <div class="toolbar-right">
-    <button class="btn-map-toggle" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
-    <button class="btn-print" onclick="window.print()">Print</button>
-  </div>
 </div>
 
 <!-- Stats panel -->
@@ -1086,6 +1108,10 @@
       return '<span class="jt-pill"><span class="jt-pill-count">' + svcCounts[n] + '</span><span>' + n + '</span>' + badge + dollarBadge + '</span>';
     }).join('<span class="jt-sep"></span>');
     var preTotal = filtered.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
+    var uniquePropIds = {};
+    filtered.forEach(function(s) { if (s.property_id) uniquePropIds[s.property_id] = 1; });
+    document.getElementById('summary-props').textContent = Object.keys(uniquePropIds).length;
+    document.getElementById('summary-total').textContent = '$' + preTotal.toFixed(2);
     var _badgeStyle2 = 'font-size:20px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:2px 7px;display:inline-block;';
     var totalPill = '<span class="jt-pill"><span class="jt-pill-count">' + filtered.length + '</span><span>Services Total</span><span style="' + _badgeStyle2 + 'visibility:hidden;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-size:18px;font-weight:700;color:#fff;border:2px solid #e07820;border-radius:8px;padding:2px 10px;">$' + preTotal.toFixed(2) + '</span></span>';
     document.getElementById('jobs-total').innerHTML = totalPill + (pills ? '<span class="jt-sep"></span>' + pills : '');
