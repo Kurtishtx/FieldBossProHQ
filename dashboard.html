@@ -1085,10 +1085,10 @@
     function fmt(n) { return '$' + (n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
     function sum(rows, col) { return (rows||[]).reduce(function(s,r){ return s + (parseFloat(r[col])||0); }, 0); }
 
-    var { count: c } = await sbMain.from('Clients').select('*', { count: 'exact', head: true }).eq('user_id', uid);
+    var { count: c } = await sbMain.from('Clients').select('*', { count: 'exact', head: true }).eq('user_id', uid).neq('active', false);
     if (c !== null) document.getElementById('stat-customers').textContent = c;
 
-    var { count: p } = await sbMain.from('Properties').select('*', { count: 'exact', head: true }).eq('user_id', uid);
+    var { count: p } = await sbMain.from('Properties').select('*', { count: 'exact', head: true }).eq('user_id', uid).neq('active', false);
     if (p !== null) document.getElementById('stat-properties').textContent = p;
 
     var { count: l } = await sbMain.from('Leads').select('*', { count: 'exact', head: true }).eq('user_id', uid);
