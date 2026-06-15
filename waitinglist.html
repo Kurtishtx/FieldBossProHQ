@@ -915,6 +915,9 @@
       var now2 = new Date(); now2.setHours(0,0,0,0);
       var todayStr2 = now2.getFullYear() + '-' + todayPad(now2.getMonth()+1) + '-' + todayPad(now2.getDate());
       filtered = filtered.filter(function(s) {
+        var key = s.property_id + '_' + s.service;
+        var lastDate = lastDispatchMap[key];
+        if (!lastDate || !(s.min_days > 0)) return false;
         var due = computeDueDateStr(s);
         return due && due < todayStr2;
       });
