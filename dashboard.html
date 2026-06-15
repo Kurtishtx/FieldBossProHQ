@@ -824,13 +824,8 @@
         <div class="stat-sub">This year</div>
       </div>
       <div class="stat-card red" id="stat-card-services-total" style="display:none">
-        <div class="stat-label">Services Completed</div>
+        <div class="stat-label">Services Today</div>
         <div class="stat-value" id="stat-services-total">—</div>
-        <div class="stat-sub">Completed today</div>
-      </div>
-      <div class="stat-card green" id="stat-card-props-total" style="display:none">
-        <div class="stat-label">Properties Completed</div>
-        <div class="stat-value" id="stat-props-total">—</div>
         <div class="stat-sub">Completed today</div>
       </div>
       <div class="stat-card red" id="stat-card-services-week" style="display:none">
@@ -848,20 +843,25 @@
         <div class="stat-value" id="stat-services-year">—</div>
         <div class="stat-sub">Completed this year</div>
       </div>
+      <div class="stat-card green" id="stat-card-props-total" style="display:none">
+        <div class="stat-label">Properties Today</div>
+        <div class="stat-value" id="stat-props-total">—</div>
+        <div class="stat-sub">Completed today</div>
+      </div>
       <div class="stat-card green" id="stat-card-props-serviced-week" style="display:none">
-        <div class="stat-label">Props Serviced (Week)</div>
+        <div class="stat-label">Properties This Week</div>
         <div class="stat-value" id="stat-props-serviced-week">—</div>
-        <div class="stat-sub">Last 7 days</div>
+        <div class="stat-sub">Completed this week</div>
       </div>
       <div class="stat-card indigo" id="stat-card-props-serviced-month" style="display:none">
-        <div class="stat-label">Props Serviced (Month)</div>
+        <div class="stat-label">Properties This Month</div>
         <div class="stat-value" id="stat-props-serviced-month">—</div>
-        <div class="stat-sub">This month</div>
+        <div class="stat-sub">Completed this month</div>
       </div>
       <div class="stat-card purple" id="stat-card-props-serviced-year" style="display:none">
-        <div class="stat-label">Props Serviced (Year)</div>
+        <div class="stat-label">Properties This Year</div>
         <div class="stat-value" id="stat-props-serviced-year">—</div>
-        <div class="stat-sub">This year</div>
+        <div class="stat-sub">Completed this year</div>
       </div>
     </div>
   </div>
@@ -1170,7 +1170,7 @@
       data = settingsData;
     }
 
-    var allStats = ['customers','properties','leads','revenue-today','revenue-week','revenue-month','revenue-year','owed','services-total','props-total','services-week','services-month','services-year','props-serviced-week','props-serviced-month','props-serviced-year'];
+    var allStats = ['customers','properties','leads','owed','revenue-today','revenue-week','revenue-month','revenue-year','services-total','services-week','services-month','services-year','props-total','props-serviced-week','props-serviced-month','props-serviced-year'];
     var allQA = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking','employeelist','employeehours'];
 
     // Always load sidebar quick access regardless of dashboard_settings
