@@ -1204,6 +1204,7 @@
 
       var tr = document.createElement('tr');
       tr.dataset.id = svc.id;
+      tr.dataset.svcName = displaySvc;
       if (isPastDue) tr.style.background = '#ffe8e8';
       tr.style.cursor = 'pointer';
       tr.innerHTML =
@@ -1700,9 +1701,15 @@
       cb.checked = !!insideSet[cb.getAttribute('data-id')];
     });
     loadMarkers();
-    var checkedIds = new Set();
-    document.querySelectorAll('.row-cb:checked').forEach(function(cb) { checkedIds.add(String(cb.getAttribute('data-id'))); });
-    var inside = services.filter(function(s) { return checkedIds.has(String(s.id)); });
+    var inside = [];
+    document.querySelectorAll('.row-cb:checked').forEach(function(cb) {
+      var id = String(cb.getAttribute('data-id'));
+      var svc = services.find(function(s) { return String(s.id) === id; });
+      if (svc) {
+        var tr = cb.closest('tr');
+        inside.push(Object.assign({}, svc, { _dn: (tr && tr.dataset.svcName) || resolvedServiceName(svc) }));
+      }
+    });
     if (inside.length) showStopPanel(inside);
   }
 
@@ -1752,7 +1759,7 @@
 
     /* service name counts */
     var svcCounts = {};
-    selected.forEach(function(x) { var n = resolvedServiceName(x); svcCounts[n] = (svcCounts[n] || 0) + 1; });
+    selected.forEach(function(x) { var n = x._dn || resolvedServiceName(x); svcCounts[n] = (svcCounts[n] || 0) + 1; });
 
     var html = '<div class="sp-row" style="margin-bottom:6px;"><span><strong>Total Revenue</strong></span><span><strong>$' + totalRev.toFixed(2) + '</strong></span></div>';
 
