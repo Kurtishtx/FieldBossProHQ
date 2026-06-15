@@ -758,7 +758,6 @@
           <tr>
             <th>Color</th>
             <th>Label</th>
-            <th>Type</th>
             <th title="+  adds to total&#10;-  deducts from total&#10;0  not counted">+/-/0</th>
             <th>Measurement</th>
             <th></th>
@@ -2768,7 +2767,6 @@ function showPropTab(name, btn) {
           '<input class="measure-label-input" value="' + escHtml(m.label) + '" ' +
             'onchange="updateMeasureLabel(' + m.id + ', this.value)" />' +
         '</td>' +
-        '<td>' + (m.type === 'polygon' ? 'Area' : 'Line') + '</td>' +
         '<td>' +
           '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' — click to change">' + modeLabel + '</button>' +
         '</td>' +
