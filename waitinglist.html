@@ -909,13 +909,14 @@
       });
     }
 
-    /* past due filter */
+    /* past due filter — show only services whose next-due date (last dispatch + min_days) is before today */
     if (pastDueFilter) {
       var todayPad = function(n) { return String(n).padStart(2,'0'); };
       var now2 = new Date(); now2.setHours(0,0,0,0);
       var todayStr2 = now2.getFullYear() + '-' + todayPad(now2.getMonth()+1) + '-' + todayPad(now2.getDate());
       filtered = filtered.filter(function(s) {
-        return s.start_date && s.start_date < todayStr2;
+        var due = computeDueDateStr(s);
+        return due && due < todayStr2;
       });
     }
 
