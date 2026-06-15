@@ -227,6 +227,11 @@
     </div>
     <div class="tsb-divider"></div>
     <div class="tsb-stat">
+      <span class="tsb-stat-val" id="summary-svcs">0</span>
+      <span class="tsb-stat-lbl">Services</span>
+    </div>
+    <div class="tsb-divider"></div>
+    <div class="tsb-stat">
       <span class="tsb-stat-val" id="summary-total">$0.00</span>
       <span class="tsb-stat-lbl">Total</span>
     </div>
@@ -1073,6 +1078,7 @@
     var uniquePropIds = {};
     filtered.forEach(function(s) { if (s.property_id) uniquePropIds[s.property_id] = 1; });
     document.getElementById('summary-props').textContent = Object.keys(uniquePropIds).length;
+    document.getElementById('summary-svcs').textContent = filtered.length;
     document.getElementById('summary-total').textContent = '$' + preTotal.toFixed(2);
     document.getElementById('jobs-total').innerHTML = pills || '';
 
