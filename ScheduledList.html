@@ -935,7 +935,7 @@
         .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, package_service_id, skip_reason, Properties(lat, lng), trucks(name)')
         .not('property_id', 'is', null)
         .eq('dispatched', true)
-        .gte('completed_date', twoYearsAgoStr)
+        .gte('scheduled_date', twoYearsAgoStr)
         .range(from, from + BATCH - 1);
       if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
       all = all.concat(data || []);
