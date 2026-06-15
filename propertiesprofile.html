@@ -756,11 +756,11 @@
       <table class="measure-table" id="measure-table" style="display:none;">
         <thead>
           <tr>
-            <th></th>
             <th>Color</th>
             <th>Label</th>
             <th title="+  adds to total&#10;-  deducts from total&#10;0  not counted">+/-/0</th>
             <th>Measurement</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="measure-tbody"></tbody>
@@ -2760,7 +2760,6 @@ function showPropTab(name, btn) {
 
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td><button class="btn-measure-del" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>' +
         '<td>' +
           '<span class="measure-color-dot" style="background:' + m.color + ';" onclick="openColorPicker(' + m.id + ', this)"></span>' +
         '</td>' +
@@ -2771,7 +2770,8 @@ function showPropTab(name, btn) {
         '<td>' +
           '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' — click to change">' + modeLabel + '</button>' +
         '</td>' +
-        '<td><strong>' + m.value.toLocaleString() + '</strong> ' + (m.type === 'polygon' ? 'sq ft' : 'linear ft') + '</td>';
+        '<td><strong>' + m.value.toLocaleString() + '</strong> ' + (m.type === 'polygon' ? 'sq ft' : 'linear ft') + '</td>' +
+        '<td><button class="btn-measure-del" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>';
       tbody.appendChild(tr);
     });
 
