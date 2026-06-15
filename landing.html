@@ -1038,14 +1038,10 @@
 
 <!-- ════════════ FOOTER ════════════ -->
 
-<!-- ════════════ SIGNUP DROPDOWN ════════════ -->
-<!-- Click-outside backdrop (invisible) -->
-<div id="sbp-backdrop" onclick="closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99997;"></div>
+<!-- ════════════ SIGNUP FORM ════════════ -->
+<div id="sbp-backdrop" onclick="closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:99997;"></div>
 
-<!-- Dropdown card -->
-<div id="sbp-drawer" style="display:none; position:fixed; z-index:99999; width:390px; max-width:calc(100vw - 24px); background:#fff; border-radius:12px; box-shadow:0 12px 48px rgba(0,0,0,.28); overflow:hidden;">
-  <!-- Arrow -->
-  <div id="sbp-arrow" style="position:absolute; width:0; height:0; border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:9px solid #080010;"></div>
+<div id="sbp-drawer" style="display:none; position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; box-shadow:0 16px 60px rgba(0,0,0,.35); overflow:hidden; max-height:calc(100vh - 80px); overflow-y:auto;">
 
   <!-- Header -->
   <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative; flex-shrink:0;">
@@ -1122,66 +1118,16 @@
   }
 
   function openSignupModal(btn) {
-    var dd     = document.getElementById('sbp-drawer');
-    var arrow  = document.getElementById('sbp-arrow');
-
-    // Show hidden to measure
-    dd.style.visibility = 'hidden';
-    dd.style.display    = 'block';
-
-    var rect  = btn.getBoundingClientRect();
-    var ddW   = dd.offsetWidth;
-    var ddH   = dd.offsetHeight;
-    var vw    = window.innerWidth;
-    var vh    = window.innerHeight;
-    var gap   = 10;
-    var arrowH = 9;
-
-    // Horizontal: center under button, clamped inside viewport
-    var left = rect.left + rect.width / 2 - ddW / 2;
-    left = Math.max(12, Math.min(left, vw - ddW - 12));
-
-    // Arrow X position relative to dropdown
-    var arrowX = (rect.left + rect.width / 2) - left - 9;
-    arrowX = Math.max(16, Math.min(arrowX, ddW - 34));
-
-    // Vertical: prefer below button, flip above if needed
-    var fitsBelow = rect.bottom + gap + arrowH + ddH < vh;
-    var top;
-    if (fitsBelow) {
-      top = rect.bottom + gap + arrowH;
-      arrow.style.top    = (-arrowH) + 'px';
-      arrow.style.bottom = 'auto';
-      arrow.style.borderBottom = '9px solid #080010';
-      arrow.style.borderTop    = 'none';
-    } else {
-      top = rect.top - gap - arrowH - ddH;
-      arrow.style.bottom = (-arrowH) + 'px';
-      arrow.style.top    = 'auto';
-      arrow.style.borderTop    = '9px solid #080010';
-      arrow.style.borderBottom = 'none';
-    }
-
-    arrow.style.left = arrowX + 'px';
-    dd.style.top  = top + 'px';
-    dd.style.left = left + 'px';
-    dd.style.visibility = 'visible';
-    dd.style.opacity = '0';
-    dd.style.transform = 'scale(.96) translateY(-4px)';
-    dd.style.transition = 'opacity .18s ease, transform .18s ease';
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        dd.style.opacity   = '1';
-        dd.style.transform = 'scale(1) translateY(0)';
-      });
-    });
-
+    var dd = document.getElementById('sbp-drawer');
+    dd.style.display = 'block';
     document.getElementById('sbp-backdrop').style.display = 'block';
+    document.body.style.overflow = 'hidden';
   }
 
   function closeSignupModal() {
     document.getElementById('sbp-drawer').style.display   = 'none';
     document.getElementById('sbp-backdrop').style.display = 'none';
+    document.body.style.overflow = '';
   }
 
   function sbpStep2() {
