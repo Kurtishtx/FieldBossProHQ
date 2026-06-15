@@ -257,7 +257,6 @@
     .btn-map-toggle { background:#130520; border:2px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:6px 16px; font-size:13px; font-family:inherit; cursor:pointer; }
     .btn-map-toggle:hover { background:#1e0a35; }
 
-
     /* ── Measurement Panel ── */
     #measure-panel {
       background: #fff;
@@ -903,8 +902,14 @@
         </div>
         <div id="cf-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
         <div style="padding:12px 16px 6px; font-size:13px; font-weight:700; color:#555; border-top:1px solid #f0f0f0; text-transform:uppercase; font-size:11px; letter-spacing:.5px;">Area Treated</div>
-        <div class="details-grid" id="at-dynamic-container" style="grid-template-columns:repeat(4,1fr);">
-          <div class="details-cell" style="color:#aaa;font-style:italic;font-size:12px;">Loading...</div>
+        <div class="details-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="details-cell"><span class="dl">Lawn ft²</span><input type="text" class="dv-text at-inp" data-at-key="lawn_care" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Lawn Insect ft²</span><input type="text" class="dv-text at-inp" data-at-key="lawn_insect" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Flower Bed(s) ft²</span><input type="text" class="dv-text at-inp" data-at-key="flower_beds" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Mosquito ft²</span><input type="text" class="dv-text at-inp" data-at-key="mosquito" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Mosquito ft</span><input type="text" class="dv-text at-inp" data-at-key="mosquito_linear_ft" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Pest Control ft²</span><input type="text" class="dv-text at-inp" data-at-key="pest_control" placeholder="—"/></div>
+          <div class="details-cell"><span class="dl">Pest Control ft</span><input type="text" class="dv-text at-inp" data-at-key="pest_control_linear_ft" placeholder="—"/></div>
         </div>
         <div id="at-saved-msg" style="padding:4px 16px 8px; color:#27a567; font-size:12px;"></div>
       </div>
@@ -2260,41 +2265,11 @@ function showPropTab(name, btn) {
   }
 
   /* ── Area Treated ── */
-  var _atTypes = [];
-
-  async function fetchAreaTreatedTypes(uid) {
-    var { data } = await sb.from('area_treated_types')
-      .select('*').eq('user_id', uid).order('sort_order').order('name');
-    if (data && data.length) return data;
-    var defaults = [
-      { user_id: uid, name: 'Lawn Care',           unit: 'ft²', slug: 'lawn_care',              sort_order: 0 },
-      { user_id: uid, name: 'Lawn Insect',          unit: 'ft²', slug: 'lawn_insect',            sort_order: 1 },
-      { user_id: uid, name: 'Flower Beds',          unit: 'ft²', slug: 'flower_beds',            sort_order: 2 },
-      { user_id: uid, name: 'Mosquito',             unit: 'ft²', slug: 'mosquito',               sort_order: 3 },
-      { user_id: uid, name: 'Mosquito Linear',      unit: 'ft',       slug: 'mosquito_linear_ft',     sort_order: 4 },
-      { user_id: uid, name: 'Pest Control',         unit: 'ft²', slug: 'pest_control',           sort_order: 5 },
-      { user_id: uid, name: 'Pest Control Linear',  unit: 'ft',       slug: 'pest_control_linear_ft', sort_order: 6 },
-    ];
-    await sb.from('area_treated_types').insert(defaults);
-    return defaults;
-  }
-
-  function atEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-  async function loadAreaTreated() {
+  function loadAreaTreated() {
     var at = (prop && prop.area_treated) ? prop.area_treated : {};
-    var { data: sessionData } = await sb.auth.getSession();
-    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    if (!uid) return;
-    _atTypes = await fetchAreaTreatedTypes(uid);
-    var container = document.getElementById('at-dynamic-container');
-    container.innerHTML = _atTypes.map(function(t) {
-      var val = atEsc(at[t.slug] || '');
-      return '<div class="details-cell">' +
-        '<span class="dl">' + atEsc(t.name) + ' ' + atEsc(t.unit) + '</span>' +
-        '<input type="text" class="dv-text at-inp" data-at-key="' + atEsc(t.slug) + '" placeholder="—" value="' + val + '"/>' +
-        '</div>';
-    }).join('');
+    document.querySelectorAll('.at-inp').forEach(function(inp) {
+      inp.value = at[inp.dataset.atKey] || '';
+    });
     document.querySelectorAll('.at-inp').forEach(function(inp) {
       inp.addEventListener('change', saveAreaTreated);
       inp.addEventListener('input',  saveAreaTreated);
