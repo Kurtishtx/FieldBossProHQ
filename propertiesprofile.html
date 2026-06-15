@@ -2771,7 +2771,7 @@ function showPropTab(name, btn) {
           '<button class="btn-mode ' + modeCls + '" onclick="toggleMeasureMode(' + m.id + ')" title="' + modeTitle + ' — click to change">' + modeLabel + '</button>' +
         '</td>' +
         '<td><strong>' + m.value.toLocaleString() + '</strong> ' + (m.type === 'polygon' ? 'sq ft' : 'linear ft') + '</td>' +
-        '<td style="padding-right:0;"><button class="btn-measure-del" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>';
+        '<td style="padding-right:0;padding-left:0;"><button class="btn-measure-del" style="margin-left:-6px;" onclick="deleteMeasure(' + m.id + ')">&#10005;</button></td>';
       tbody.appendChild(tr);
     });
 
