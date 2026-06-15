@@ -927,12 +927,19 @@
 
   async function loadServices() {
     document.getElementById('jobs-total').textContent = 'Loading';
-    var { data, error } = await sb.from('Services')
-      .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, package_service_id, skip_reason, Properties(lat, lng), trucks(name)')
-      .not('property_id', 'is', null)
-      .eq('dispatched', true);
-    if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
-    services = data || [];
+    var all = [], from = 0, BATCH = 1000;
+    while (true) {
+      var { data, error } = await sb.from('Services')
+        .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, truck_id, amount, dispatched, service_lines, route_order, completed_date, mix_id, associated_areas, package_service_id, skip_reason, Properties(lat, lng), trucks(name)')
+        .not('property_id', 'is', null)
+        .eq('dispatched', true)
+        .range(from, from + BATCH - 1);
+      if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
+      all = all.concat(data || []);
+      if (!data || data.length < BATCH) break;
+      from += BATCH;
+    }
+    services = all;
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     var catalogIds = [], psIds = [];
     services.forEach(function(s) {

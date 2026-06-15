@@ -791,12 +791,19 @@
   /* -- Load services -- */
   async function loadServices() {
     document.getElementById('jobs-total').textContent = 'Loading';
-    var { data, error } = await sb.from('Services')
-      .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, associated_areas, Properties(lat, lng)')
-      .not('property_id', 'is', null)
-      .not('dispatched', 'is', true);
-    if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
-    services = data || [];
+    var all = [], from = 0, BATCH = 1000;
+    while (true) {
+      var { data, error } = await sb.from('Services')
+        .select('id, property_id, client_name, address, service, name, status, scheduled_date, assigned_to, amount, dispatched, service_lines, route_order, min_days, start_date, end_date, package_service_id, associated_areas, Properties(lat, lng)')
+        .not('property_id', 'is', null)
+        .not('dispatched', 'is', true)
+        .range(from, from + BATCH - 1);
+      if (error) { console.error('loadServices error:', error); document.getElementById('jobs-total').textContent = 'Error loading'; return; }
+      all = all.concat(data || []);
+      if (!data || data.length < BATCH) break;
+      from += BATCH;
+    }
+    services = all;
     var propIds = [...new Set(services.map(function(s) { return s.property_id; }).filter(Boolean))];
     await loadCfValues(propIds);
     await Promise.all([loadPropertyData(propIds), loadLastDispatches(services), loadPackageServiceMeta(services), loadInvoiceNameMap(services)]);
