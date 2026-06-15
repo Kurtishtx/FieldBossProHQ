@@ -1525,8 +1525,30 @@
     projOverlay.setMap(map);
 
     var cap = document.getElementById('draw-capture');
-    cap.addEventListener('click',     function(e) { handleDrawClick(e); });
-    cap.addEventListener('mousemove', function(e) { handleDrawMousemove(e); });
+    var _drawPanning = false, _drawPanStart = null, _drawPanLast = null;
+    cap.addEventListener('mousedown', function(e) {
+      _drawPanning = false;
+      _drawPanStart = { x: e.clientX, y: e.clientY };
+      _drawPanLast  = { x: e.clientX, y: e.clientY };
+    });
+    cap.addEventListener('mousemove', function(e) {
+      if (_drawPanStart && !_drawPanning) {
+        var dx = e.clientX - _drawPanStart.x, dy = e.clientY - _drawPanStart.y;
+        if (Math.sqrt(dx*dx + dy*dy) > 5) { _drawPanning = true; cap.style.cursor = 'grabbing'; }
+      }
+      if (_drawPanning) {
+        map.panBy(-( e.clientX - _drawPanLast.x), -(e.clientY - _drawPanLast.y));
+        _drawPanLast = { x: e.clientX, y: e.clientY };
+        return;
+      }
+      handleDrawMousemove(e);
+    });
+    cap.addEventListener('mouseup', function(e) {
+      var wasPanning = _drawPanning;
+      _drawPanning = false; _drawPanStart = null; _drawPanLast = null;
+      cap.style.cursor = 'crosshair';
+      if (!wasPanning) handleDrawClick(e);
+    });
   }
   google.maps.event.addListenerOnce(map, 'idle', initDrawing);
 
