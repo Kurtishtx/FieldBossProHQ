@@ -823,6 +823,16 @@
         <div class="stat-value" id="stat-revenue-year">—</div>
         <div class="stat-sub">This year</div>
       </div>
+      <div class="stat-card red" id="stat-card-services-total" style="display:none">
+        <div class="stat-label">Services Completed</div>
+        <div class="stat-value" id="stat-services-total">—</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card green" id="stat-card-props-total" style="display:none">
+        <div class="stat-label">Properties Completed</div>
+        <div class="stat-value" id="stat-props-total">—</div>
+        <div class="stat-sub">All time</div>
+      </div>
       <div class="stat-card red" id="stat-card-services-week" style="display:none">
         <div class="stat-label">Services This Week</div>
         <div class="stat-value" id="stat-services-week">—</div>
@@ -1109,6 +1119,12 @@
     var { data: owedData } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gt('inv_bal', 0).neq('deleted', true).neq('incomplete', true);
     if (owedData) document.getElementById('stat-owed').textContent = fmt(sum(owedData,'inv_total'));
 
+    var { count: stotal } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true);
+    if (stotal !== null) document.getElementById('stat-services-total').textContent = stotal;
+
+    var { data: ptotalData } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).not('property_id', 'is', null);
+    if (ptotalData) document.getElementById('stat-props-total').textContent = new Set(ptotalData.map(function(r){return r.property_id;})).size;
+
     var { count: swk } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', weekDate);
     if (swk !== null) document.getElementById('stat-services-week').textContent = swk;
 
@@ -1154,7 +1170,7 @@
       data = settingsData;
     }
 
-    var allStats = ['customers','properties','leads','revenue-today','revenue-week','revenue-month','revenue-year','owed','services-week','services-month','services-year','props-serviced-week','props-serviced-month','props-serviced-year'];
+    var allStats = ['customers','properties','leads','revenue-today','revenue-week','revenue-month','revenue-year','owed','services-total','props-total','services-week','services-month','services-year','props-serviced-week','props-serviced-month','props-serviced-year'];
     var allQA = ['customers','properties','leads','waitinglist','dispatched','services','packageplans','products','productmixes','invoices','payments','alerts','texts','chemtracking','employeelist','employeehours'];
 
     // Always load sidebar quick access regardless of dashboard_settings
