@@ -1106,8 +1106,8 @@
     var { data: payYear } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).eq('status_text', 'Paid').gte('date', yearStr);
     if (payYear) document.getElementById('stat-revenue-year').textContent = fmt(sum(payYear,'inv_total'));
 
-    var { data: owedData } = await sbMain.from('Invoices').select('inv_bal').eq('user_id', uid).neq('status_text', 'Paid');
-    if (owedData) document.getElementById('stat-owed').textContent = fmt(sum(owedData,'inv_bal'));
+    var { data: owedData } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gt('inv_bal', 0).neq('deleted', true).neq('incomplete', true);
+    if (owedData) document.getElementById('stat-owed').textContent = fmt(sum(owedData,'inv_total'));
 
     var { count: swk } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', weekDate);
     if (swk !== null) document.getElementById('stat-services-week').textContent = swk;
