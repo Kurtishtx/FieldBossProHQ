@@ -1094,16 +1094,16 @@
     var { count: l } = await sbMain.from('Leads').select('*', { count: 'exact', head: true }).eq('user_id', uid);
     if (l !== null) document.getElementById('stat-leads').textContent = l;
 
-    var { data: payToday } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', todayStr);
+    var { data: payToday } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).eq('status_text', 'Paid').gte('date', todayStr);
     if (payToday) document.getElementById('stat-revenue-today').textContent = fmt(sum(payToday,'inv_total'));
 
-    var { data: payWeek } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', weekStr);
+    var { data: payWeek } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).eq('status_text', 'Paid').gte('date', weekStr);
     if (payWeek) document.getElementById('stat-revenue-week').textContent = fmt(sum(payWeek,'inv_total'));
 
-    var { data: payMonth } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', monthStr);
+    var { data: payMonth } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).eq('status_text', 'Paid').gte('date', monthStr);
     if (payMonth) document.getElementById('stat-revenue-month').textContent = fmt(sum(payMonth,'inv_total'));
 
-    var { data: payYear } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gte('date', yearStr);
+    var { data: payYear } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).eq('status_text', 'Paid').gte('date', yearStr);
     if (payYear) document.getElementById('stat-revenue-year').textContent = fmt(sum(payYear,'inv_total'));
 
     var { data: owedData } = await sbMain.from('Invoices').select('inv_bal').eq('user_id', uid).neq('status_text', 'Paid');
