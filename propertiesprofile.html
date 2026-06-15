@@ -257,9 +257,6 @@
     .btn-map-toggle { background:#130520; border:2px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:6px 16px; font-size:13px; font-family:inherit; cursor:pointer; }
     .btn-map-toggle:hover { background:#1e0a35; }
 
-    /* Cursor overlay for draw mode — pointer-events:none lets clicks through */
-    #draw-cursor-overlay { position:absolute; inset:0; z-index:999; pointer-events:none; display:none; cursor:crosshair; }
-    #draw-cursor-overlay.pan-mode { cursor:grabbing; }
 
     /* ── Measurement Panel ── */
     #measure-panel {
@@ -2471,7 +2468,6 @@ function showPropTab(name, btn) {
   var _measureShapes   = [];   // { id, label, type, value, color, shape (google object) }
   var _measureMode     = null; // 'polygon' | 'polyline' | null
   var _measureNextId   = 1;
-  var _mp = { start: null, last: null, active: false };
 
   var MEASURE_COLORS = [
     '#e07820','#1a7a3c','#1a2b3c','#c0392b',
@@ -2566,60 +2562,6 @@ function showPropTab(name, btn) {
       });
       _drawingManager.setMap(_measureMap);
 
-      /* Cursor overlay: shows crosshair without blocking DrawingManager events */
-      var _mapEl2 = document.getElementById('prop-map');
-      _mapEl2.style.position = 'relative';
-      var _curDiv = document.createElement('div');
-      _curDiv.id = 'draw-cursor-overlay';
-      _mapEl2.appendChild(_curDiv);
-
-      /* Pan-while-drawing: hold and drag 10px to pan, release restores draw mode */
-      _mapEl2.addEventListener('mousedown', function(e) {
-        if (!_measureMode || e.button !== 0) return;
-        _mp.start = { x: e.clientX, y: e.clientY };
-        _mp.last  = { x: e.clientX, y: e.clientY };
-        _mp.active = false;
-      });
-      _mapEl2.addEventListener('mousemove', function(e) {
-        if (!_mp.start || !_measureMode || !(e.buttons & 1)) {
-          if (!(e.buttons & 1)) _mp.start = null;
-          return;
-        }
-        var ddx = e.clientX - _mp.start.x, ddy = e.clientY - _mp.start.y;
-        if (!_mp.active && Math.sqrt(ddx*ddx + ddy*ddy) > 10) {
-          _mp.active = true;
-          _drawingManager.setDrawingMode(null);
-          _curDiv.classList.add('pan-mode');
-        }
-        if (_mp.active) {
-          var dx = e.clientX - _mp.last.x, dy = e.clientY - _mp.last.y;
-          _mp.last = { x: e.clientX, y: e.clientY };
-          var zoom = _measureMap.getZoom(), c = _measureMap.getCenter();
-          var ws = 256 * Math.pow(2, zoom);
-          var sinLat = Math.sin(c.lat() * Math.PI / 180);
-          var cx = (c.lng() + 180) / 360 * ws;
-          var cy = (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * ws;
-          var nx = cx - dx, ny = cy - dy;
-          var newLng = nx / ws * 360 - 180;
-          var n2 = Math.PI - 2 * Math.PI * ny / ws;
-          var newLat = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n2) - Math.exp(-n2)));
-          _measureMap.setCenter({ lat: newLat, lng: newLng });
-        }
-      });
-      document.addEventListener('mouseup', function() {
-        var wasActive = _mp.active;
-        _mp.start = null; _mp.last = null; _mp.active = false;
-        _curDiv.classList.remove('pan-mode');
-        if (wasActive && _measureMode && _drawingManager) {
-          setTimeout(function() {
-            _drawingManager.setDrawingMode(
-              _measureMode === 'polygon'  ? google.maps.drawing.OverlayType.POLYGON  :
-              _measureMode === 'polyline' ? google.maps.drawing.OverlayType.POLYLINE : null
-            );
-          }, 50);
-        }
-      });
-
       google.maps.event.addListener(_drawingManager, 'polygoncomplete', function(polygon) {
         /* Stay in polygon mode so they can keep drawing more areas */
         _drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
@@ -2671,9 +2613,6 @@ function showPropTab(name, btn) {
 
   function setDrawMode(mode) {
     _measureMode = mode;
-    _mp.start = null; _mp.last = null; _mp.active = false;
-    var _co = document.getElementById('draw-cursor-overlay');
-    if (_co) { _co.style.display = mode ? '' : 'none'; _co.classList.remove('pan-mode'); }
     if (_drawingManager) {
       _drawingManager.setDrawingMode(
         mode === 'polygon'  ? google.maps.drawing.OverlayType.POLYGON  :
