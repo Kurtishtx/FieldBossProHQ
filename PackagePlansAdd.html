@@ -476,14 +476,14 @@
       var endInput = cells[5].querySelector('input[type="text"]');
       var minD = parseInt((cells[6].querySelector('input') || {}).value) || 0;
       var defR = parseFloat((cells[7].querySelector('input') || {}).value) || 0;
+      /* apply orig fallbacks BEFORE the skip check so a renamed service never gets dropped */
+      var trEl = cells[0].closest('tr');
+      if (!svcName && trEl && trEl.dataset.origServiceName) svcName = trEl.dataset.origServiceName;
+      if (!svcId   && trEl && trEl.dataset.origServiceId)   svcId   = parseInt(trEl.dataset.origServiceId) || null;
       if (!rowName && !svcName) return;
-      var tr = cells[0].closest('tr');
-      /* if dropdown is not selected, preserve the originally-loaded service info */
-      if (!svcName && tr && tr.dataset.origServiceName) svcName = tr.dataset.origServiceName;
-      if (!svcId  && tr && tr.dataset.origServiceId)   svcId   = parseInt(tr.dataset.origServiceId) || null;
-      var discType   = tr ? (tr.getAttribute('data-discount-type') || null) : null;
-      var discVal    = tr ? (parseFloat(tr.getAttribute('data-discount-value')) || null) : null;
-      var discExpiry = tr ? (tr.getAttribute('data-discount-expires-at') || null) : null;
+      var discType   = trEl ? (trEl.getAttribute('data-discount-type') || null) : null;
+      var discVal    = trEl ? (parseFloat(trEl.getAttribute('data-discount-value')) || null) : null;
+      var discExpiry = trEl ? (trEl.getAttribute('data-discount-expires-at') || null) : null;
       rows.push({
         user_id:               uid,
         package_id:            savedPkgId,
