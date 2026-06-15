@@ -19,7 +19,7 @@
     .hero h1 span { color: var(--orange); }
     .hero p { color: rgba(255,255,255,.75); font-size: clamp(16px, 2vw, 19px); max-width: 660px; margin: 0 auto 40px; }
     .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .btn-primary { background: var(--orange); color: #fff; padding: 16px 36px; border-radius: 6px; font-size: 16px; font-weight: 700; text-decoration: none; transition: background .2s, transform .1s; display: inline-block; }
+    .btn-primary { background: var(--orange); color: #fff !important; padding: 16px 36px; border-radius: 6px; font-size: 16px; font-weight: 700; text-decoration: none; transition: background .2s, transform .1s; display: inline-block; }
     .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); }
     .hero-stats { display: flex; justify-content: center; gap: 50px; margin-top: 64px; flex-wrap: wrap; }
     .hero-stat-val { color: var(--orange); font-size: 36px; font-weight: 800; }
@@ -77,7 +77,7 @@
     .price-features li:last-child { border-bottom: none; }
     .price-features li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
     .price-btn { display: block; text-align: center; padding: 13px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: background .2s; }
-    .price-btn-primary { background: var(--orange); color: #fff; }
+    .price-btn-primary { background: var(--orange); color: #fff !important; }
     .price-btn-primary:hover { background: var(--orange-dark); }
 
     .premium-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1a0530 100%); padding: 90px 40px; text-align: center; position: relative; overflow: hidden; }
