@@ -454,7 +454,7 @@
   <h1>Run Your Entire Operation<br><span>From One Dashboard</span></h1>
   <p>SprayBossPro is the all-in-one field management platform built specifically for lawn care and pest control businesses. Schedule jobs, send estimates, collect payments, and keep your team coordinated — all in one place.</p>
   <div class="hero-btns">
-    <a href="#" onclick="openSignupModal(this); return false;" class="btn-primary">Start Your 14-Day Free Trial</a>
+    <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial</a>
     <a href="#features" class="btn-secondary">See All Features</a>
   </div>
   <div class="hero-stats">
@@ -580,7 +580,7 @@
         <li>500 Outbound SMS/month included</li>
         <li>+$15 per additional 500 SMS after that</li>
       </ul>
-      <a href="#" onclick="openSignupModal(this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
+      <a href="#" onclick="openSignupModal(2, this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
     </div>
   </div>
   <p style="text-align:center; color:var(--muted); font-size:13px; margin-top:32px;">No contracts. Cancel anytime. No hidden fees — ever.</p>
@@ -1032,134 +1032,195 @@
   <h2>Your Competition Is Already<br>Using Software Like This.</h2>
   <p>Stop running your business out of a notepad and a group text. Get organized, get paid faster, and give your customers an experience that wins referrals.</p>
   <div class="hero-btns">
-    <a href="#" onclick="openSignupModal(this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
+    <a href="#" onclick="openSignupModal(3, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
   </div>
 </div>
 
 <!-- ════════════ FOOTER ════════════ -->
 
-<!-- ════════════ SIGNUP FORM ════════════ -->
-<div id="sbp-backdrop" onclick="closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:99997;"></div>
+<!-- ════════════ SIGNUP FORMS (3 — one per button) ════════════ -->
+<div id="sbp-backdrop" onclick="closeAllModals()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:99997;"></div>
 
-<div id="sbp-drawer" style="display:none; position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; box-shadow:0 16px 60px rgba(0,0,0,.35); overflow:hidden; max-height:calc(100vh - 80px); overflow-y:auto;">
-
-  <!-- Header -->
-  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative; flex-shrink:0;">
+<!-- Form 1 — Hero button -->
+<div id="sbp-form-1" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; box-shadow:0 16px 60px rgba(0,0,0,.35); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
     <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
     <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
-    <button onclick="closeSignupModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
+    <button onclick="closeSignupModal(1)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
   </div>
-
-    <!-- Step 1 -->
-    <div id="sbp-step1" style="padding:24px 28px;">
-      <div id="sbp-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
-      <div style="display:flex; gap:12px; margin-bottom:14px;">
-        <div style="flex:1;">
-          <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label>
-          <input id="sbp-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;">
-        </div>
-        <div style="flex:1;">
-          <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label>
-          <input id="sbp-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;">
-        </div>
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label>
-        <input id="sbp-company" type="text" placeholder="Smith Lawn & Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;">
-      </div>
-      <div style="margin-bottom:20px;">
-        <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label>
-        <input id="sbp-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;">
-      </div>
-      <button onclick="sbpStep2()" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+  <div id="sbp1-step1" style="padding:24px 28px;">
+    <div id="sbp1-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="display:flex; gap:12px; margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp1-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp1-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     </div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp1-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp1-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button onclick="sbpStep2(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+  </div>
+  <div id="sbp1-step2" style="padding:24px 28px; display:none;">
+    <div id="sbp1-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp1-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp1-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp1-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button id="sbp1-create-btn" onclick="sbpCreateAccount(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button onclick="sbpBackToStep1(1)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
+  </div>
+  <div id="sbp1-success" style="padding:48px 28px; text-align:center; display:none;">
+    <div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div>
+    <div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div>
+    <div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div>
+    <div id="sbp1-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
+  </div>
+</div>
 
-    <!-- Step 2 -->
-    <div id="sbp-step2" style="padding:24px 28px; display:none;">
-      <div id="sbp-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
-      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;">
-        <div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div>
-        <div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div>
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label>
-        <input id="sbp-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;">
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label>
-        <input id="sbp-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;">
-      </div>
-      <div style="margin-bottom:20px;">
-        <label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label>
-        <input id="sbp-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;">
-      </div>
-      <button id="sbp-create-btn" onclick="sbpCreateAccount()" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
-      <button onclick="sbpBackToStep1()" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
+<!-- Form 2 — Pricing button -->
+<div id="sbp-form-2" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; box-shadow:0 16px 60px rgba(0,0,0,.35); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
+    <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
+    <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
+    <button onclick="closeSignupModal(2)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
+  </div>
+  <div id="sbp2-step1" style="padding:24px 28px;">
+    <div id="sbp2-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="display:flex; gap:12px; margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp2-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp2-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     </div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp2-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp2-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button onclick="sbpStep2(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+  </div>
+  <div id="sbp2-step2" style="padding:24px 28px; display:none;">
+    <div id="sbp2-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp2-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp2-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp2-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button id="sbp2-create-btn" onclick="sbpCreateAccount(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button onclick="sbpBackToStep1(2)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
+  </div>
+  <div id="sbp2-success" style="padding:48px 28px; text-align:center; display:none;">
+    <div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div>
+    <div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div>
+    <div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div>
+    <div id="sbp2-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
+  </div>
+</div>
 
-    <!-- Success -->
-    <div id="sbp-success" style="padding:48px 28px; text-align:center; display:none;">
-      <div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div>
-      <div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div>
-      <div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div>
-      <div id="sbp-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
+<!-- Form 3 — CTA button -->
+<div id="sbp-form-3" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; box-shadow:0 16px 60px rgba(0,0,0,.35); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
+    <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
+    <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
+    <button onclick="closeSignupModal(3)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
+  </div>
+  <div id="sbp3-step1" style="padding:24px 28px;">
+    <div id="sbp3-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="display:flex; gap:12px; margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp3-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp3-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     </div>
-
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp3-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp3-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button onclick="sbpStep2(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+  </div>
+  <div id="sbp3-step2" style="padding:24px 28px; display:none;">
+    <div id="sbp3-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp3-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp3-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp3-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button id="sbp3-create-btn" onclick="sbpCreateAccount(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button onclick="sbpBackToStep1(3)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
+  </div>
+  <div id="sbp3-success" style="padding:48px 28px; text-align:center; display:none;">
+    <div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div>
+    <div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div>
+    <div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div>
+    <div id="sbp3-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
+  </div>
 </div>
 
 <script>
   var SBP_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
   var SBP_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sbpClient = null;
+  var sbpOpenForm = 0;
 
   function getSbpClient() {
     if (!sbpClient) sbpClient = window.supabase.createClient(SBP_URL, SBP_ANON);
     return sbpClient;
   }
 
-  function openSignupModal(btn) {
-    var dd = document.getElementById('sbp-drawer');
-    dd.style.display = 'block';
+  function openSignupModal(n, btn) {
+    closeAllModals();
+    sbpOpenForm = n;
+    var form = document.getElementById('sbp-form-' + n);
+    var rect = btn.getBoundingClientRect();
+    var formW = Math.min(420, window.innerWidth - 24);
+    var centerX = rect.left + rect.width / 2;
+    var top  = rect.bottom + 12;
+    var left = centerX - formW / 2;
+    // If form would overflow bottom of viewport, flip it above the button
+    if (top + 460 > window.innerHeight) {
+      top = rect.top - 460 - 12;
+      if (top < 12) top = 12;
+    }
+    top  = Math.max(12, top);
+    left = Math.max(12, Math.min(left, window.innerWidth - formW - 12));
+    form.style.top  = top  + 'px';
+    form.style.left = left + 'px';
+    form.style.display = 'block';
     document.getElementById('sbp-backdrop').style.display = 'block';
     document.body.style.overflow = 'hidden';
   }
 
-  function closeSignupModal() {
-    document.getElementById('sbp-drawer').style.display   = 'none';
+  function closeSignupModal(n) {
+    document.getElementById('sbp-form-' + n).style.display = 'none';
     document.getElementById('sbp-backdrop').style.display = 'none';
     document.body.style.overflow = '';
+    sbpOpenForm = 0;
   }
 
-  function sbpStep2() {
-    var err   = document.getElementById('sbp-err1');
+  function closeAllModals() {
+    [1,2,3].forEach(function(i) { document.getElementById('sbp-form-' + i).style.display = 'none'; });
+    document.getElementById('sbp-backdrop').style.display = 'none';
+    document.body.style.overflow = '';
+    sbpOpenForm = 0;
+  }
+
+  function sbpStep2(n) {
+    var err   = document.getElementById('sbp' + n + '-err1');
     err.style.display = 'none';
-    var first = document.getElementById('sbp-first').value.trim();
-    var last  = document.getElementById('sbp-last').value.trim();
-    var comp  = document.getElementById('sbp-company').value.trim();
-    var email = document.getElementById('sbp-email').value.trim();
-    if (!first || !last)             return sbpShowErr(err, 'Please enter your first and last name.');
-    if (!comp)                       return sbpShowErr(err, 'Please enter your company name.');
+    var first = document.getElementById('sbp' + n + '-first').value.trim();
+    var last  = document.getElementById('sbp' + n + '-last').value.trim();
+    var comp  = document.getElementById('sbp' + n + '-company').value.trim();
+    var email = document.getElementById('sbp' + n + '-email').value.trim();
+    if (!first || !last)               return sbpShowErr(err, 'Please enter your first and last name.');
+    if (!comp)                         return sbpShowErr(err, 'Please enter your company name.');
     if (!email || !email.includes('@')) return sbpShowErr(err, 'Please enter a valid email address.');
-    document.getElementById('sbp-login-email').value = email;
-    document.getElementById('sbp-step1').style.display = 'none';
-    document.getElementById('sbp-step2').style.display = 'block';
-    document.getElementById('sbp-password').focus();
+    document.getElementById('sbp' + n + '-login-email').value = email;
+    document.getElementById('sbp' + n + '-step1').style.display = 'none';
+    document.getElementById('sbp' + n + '-step2').style.display = 'block';
+    document.getElementById('sbp' + n + '-password').focus();
   }
 
-  function sbpBackToStep1() {
-    document.getElementById('sbp-step2').style.display = 'none';
-    document.getElementById('sbp-step1').style.display = 'block';
-    document.getElementById('sbp-err2').style.display = 'none';
+  function sbpBackToStep1(n) {
+    document.getElementById('sbp' + n + '-step2').style.display = 'none';
+    document.getElementById('sbp' + n + '-step1').style.display = 'block';
+    document.getElementById('sbp' + n + '-err2').style.display  = 'none';
   }
 
-  async function sbpCreateAccount() {
-    var err = document.getElementById('sbp-err2');
-    var btn = document.getElementById('sbp-create-btn');
+  async function sbpCreateAccount(n) {
+    var err = document.getElementById('sbp' + n + '-err2');
+    var btn = document.getElementById('sbp' + n + '-create-btn');
     err.style.display = 'none';
-    var email    = document.getElementById('sbp-login-email').value.trim();
-    var password = document.getElementById('sbp-password').value;
-    var confirm  = document.getElementById('sbp-confirm').value;
-    if (password.length < 8)   return sbpShowErr(err, 'Password must be at least 8 characters.');
+    var email    = document.getElementById('sbp' + n + '-login-email').value.trim();
+    var password = document.getElementById('sbp' + n + '-password').value;
+    var confirm  = document.getElementById('sbp' + n + '-confirm').value;
+    if (password.length < 8)  return sbpShowErr(err, 'Password must be at least 8 characters.');
     if (password !== confirm)  return sbpShowErr(err, 'Passwords do not match.');
     btn.disabled = true;
     btn.textContent = 'Creating your account…';
@@ -1177,9 +1238,9 @@
       if (signInErr) throw new Error(signInErr.message);
       var uid = signInData.user.id;
 
-      var first = document.getElementById('sbp-first').value.trim();
-      var last  = document.getElementById('sbp-last').value.trim();
-      var comp  = document.getElementById('sbp-company').value.trim();
+      var first = document.getElementById('sbp' + n + '-first').value.trim();
+      var last  = document.getElementById('sbp' + n + '-last').value.trim();
+      var comp  = document.getElementById('sbp' + n + '-company').value.trim();
       await sb.auth.updateUser({ data: { full_name: first + ' ' + last } });
 
       var trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
@@ -1191,13 +1252,13 @@
       await sb.from('company_info').insert({ user_id: uid, company_name: comp, display_name: comp });
 
       var reasons = ['Cancel Maintaining Self','Cancel Sold House','Cancel Too Expensive','Cancel Unknown','Dropping Customer','Sold House']
-        .map(function(n) { return { name: n, active: true, user_id: uid }; });
+        .map(function(nm) { return { name: nm, active: true, user_id: uid }; });
       await sb.from('cancellation_reasons').insert(reasons);
 
-      document.getElementById('sbp-step2').style.display = 'none';
-      document.getElementById('sbp-success').style.display = 'block';
+      document.getElementById('sbp' + n + '-step2').style.display = 'none';
+      document.getElementById('sbp' + n + '-success').style.display = 'block';
       var secs = 4;
-      var cd = document.getElementById('sbp-countdown');
+      var cd = document.getElementById('sbp' + n + '-countdown');
       cd.textContent = 'Redirecting in ' + secs + ' seconds…';
       var iv = setInterval(function() {
         secs--;
@@ -1205,7 +1266,7 @@
         else cd.textContent = 'Redirecting in ' + secs + ' second' + (secs === 1 ? '' : 's') + '…';
       }, 1000);
 
-    } catch (e) {
+    } catch(e) {
       sbpShowErr(err, e.message || 'Something went wrong. Please try again.');
       btn.disabled = false;
       btn.textContent = 'Create My Account';
@@ -1215,10 +1276,11 @@
   function sbpShowErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
 
   document.addEventListener('keydown', function(e) {
-    if (e.key !== 'Enter') return;
-    if (document.getElementById('sbp-drawer').style.display !== 'block') return;
-    if (document.getElementById('sbp-step2').style.display === 'block') sbpCreateAccount();
-    else sbpStep2();
+    if (e.key !== 'Enter' || !sbpOpenForm) return;
+    var n = sbpOpenForm;
+    if (document.getElementById('sbp-form-' + n).style.display !== 'block') return;
+    if (document.getElementById('sbp' + n + '-step2').style.display === 'block') sbpCreateAccount(n);
+    else sbpStep2(n);
   });
 </script>
 
