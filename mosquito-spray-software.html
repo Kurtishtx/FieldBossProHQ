@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mosquito Spray Software | Schedule, Route & Manage Mosquito Treatments | SprayBossPro</title>
+  <meta name="description" content="SprayBossPro is mosquito spray software built for lawn care and pest control businesses. Schedule mosquito treatments, manage recurring programs, track sq ft waiting lists by service type, and send automated SMS alerts — $129/month."/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --purple-dark:#080010; --purple-mid:#0d0318; --purple-deep:#130520; --orange:#e07820; --orange-dark:#c96a10; --text:#1a1a2e; --muted:#555; --light-bg:#f8f7fc; --border:#e4e0f0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: var(--text); background: #fff; line-height: 1.6; }
+
+    .hero { background: linear-gradient(135deg, #080010 0%, #130520 60%, #1e0a35 100%); padding: 100px 40px 80px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -120px; left: 50%; transform: translateX(-50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.15) 0%, transparent 70%); pointer-events: none; }
+    .hero-badge { display: inline-block; background: rgba(224,120,32,.15); border: 1px solid rgba(224,120,32,.4); color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; }
+    .hero h1 { color: #fff; font-size: clamp(28px, 4.5vw, 54px); font-weight: 800; line-height: 1.15; max-width: 960px; margin: 0 auto 20px; }
+    .hero h1 span { color: var(--orange); }
+    .hero p { color: rgba(255,255,255,.75); font-size: clamp(16px, 2vw, 19px); max-width: 720px; margin: 0 auto 40px; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: var(--orange); color: #fff !important; padding: 16px 36px; border-radius: 6px; font-size: 16px; font-weight: 700; text-decoration: none; transition: background .2s, transform .1s; display: inline-block; }
+    .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .hero-stats { display: flex; justify-content: center; gap: 50px; margin-top: 64px; flex-wrap: wrap; }
+    .hero-stat-val { color: var(--orange); font-size: 36px; font-weight: 800; }
+    .hero-stat-lbl { color: rgba(255,255,255,.6); font-size: 13px; margin-top: 2px; }
+
+    section { padding: 90px 40px; }
+    .section-label { display: inline-block; color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-size: clamp(26px, 4vw, 40px); font-weight: 800; line-height: 1.2; margin-bottom: 16px; color: var(--text); }
+    .section-sub { color: var(--muted); font-size: 17px; max-width: 640px; margin-bottom: 56px; }
+    .centered { text-align: center; }
+    .centered .section-sub { margin-left: auto; margin-right: auto; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1100px; margin: 0 auto; }
+    .feature-card { background: #fff; border: 1.5px solid var(--border); border-radius: 14px; padding: 32px 28px; transition: border-color .2s, box-shadow .2s, transform .15s; }
+    .feature-card:hover { border-color: var(--orange); box-shadow: 0 6px 28px rgba(224,120,32,.1); transform: translateY(-2px); }
+    .feature-icon { font-size: 32px; margin-bottom: 16px; }
+    .feature-card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+    .highlight-row { display: flex; align-items: center; gap: 60px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
+    .highlight-row.reverse { flex-direction: row-reverse; }
+    .highlight-text { flex: 1; min-width: 280px; }
+    .highlight-text h2 { font-size: clamp(24px, 3vw, 36px); font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+    .highlight-text p { font-size: 16px; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+    .highlight-visual { flex: 1; min-width: 280px; background: linear-gradient(135deg, var(--purple-deep) 0%, #1e0a35 100%); border-radius: 14px; padding: 36px 32px; border: 2px solid rgba(224,120,32,.3); }
+    .check-list { list-style: none; margin-top: 16px; }
+    .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: var(--muted); margin-bottom: 12px; }
+    .check-list li::before { content: '✓'; background: var(--orange); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* Mosquito route mockup */
+    .mosq-route { display: flex; flex-direction: column; gap: 8px; }
+    .mosq-row { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; }
+    .mosq-num { background: rgba(224,120,32,.2); border: 1px solid rgba(224,120,32,.4); color: var(--orange); font-size: 11px; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .mosq-addr { flex: 1; }
+    .mosq-addr-name { color: rgba(255,255,255,.8); font-size: 12px; font-weight: 600; }
+    .mosq-addr-detail { color: rgba(255,255,255,.35); font-size: 10px; margin-top: 1px; }
+    .mosq-sqft { color: rgba(255,255,255,.5); font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .mosq-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .mosq-header-label { color: rgba(255,255,255,.4); font-size: 10px; text-transform: uppercase; letter-spacing: .8px; }
+    .mosq-header-val { color: #fff; font-size: 13px; font-weight: 700; }
+    .mosq-total { background: rgba(224,120,32,.1); border: 1px solid rgba(224,120,32,.25); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .mosq-total-label { color: rgba(255,255,255,.45); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; }
+    .mosq-total-val { color: var(--orange); font-size: 14px; font-weight: 700; }
+
+    /* Waiting list mockup */
+    .wait-list { display: flex; flex-direction: column; gap: 6px; }
+    .wait-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .wait-service { color: rgba(255,255,255,.75); font-size: 13px; font-weight: 600; }
+    .wait-count { color: rgba(255,255,255,.4); font-size: 11px; margin-top: 2px; }
+    .wait-sqft { color: var(--orange); font-size: 13px; font-weight: 700; }
+    .wait-row.active { border-color: rgba(224,120,32,.35); background: rgba(224,120,32,.07); }
+
+    /* Steps */
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; max-width: 1100px; margin: 0 auto; position: relative; }
+    .steps-grid::before { content: ''; position: absolute; top: 28px; left: 14%; right: 14%; height: 2px; background: linear-gradient(90deg, var(--orange), rgba(224,120,32,.3)); pointer-events: none; }
+    .step-box { text-align: center; padding: 0 20px 0; }
+    .step-circle { width: 56px; height: 56px; border-radius: 50%; background: var(--orange); color: #fff; font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; z-index: 1; }
+    .step-box h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .step-box p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    .premium-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1a0530 100%); padding: 90px 40px; text-align: center; position: relative; overflow: hidden; }
+    .premium-band::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.1) 0%, transparent 65%); pointer-events: none; }
+    .premium-band h2 { color: #fff; font-size: clamp(26px, 4vw, 44px); font-weight: 800; line-height: 1.2; max-width: 860px; margin: 0 auto 18px; }
+    .premium-band h2 span { color: var(--orange); }
+    .premium-band > p { color: rgba(255,255,255,.65); font-size: 17px; max-width: 700px; margin: 0 auto 52px; line-height: 1.8; }
+    .premium-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .premium-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 28px 24px; text-align: left; transition: border-color .2s; }
+    .premium-card:hover { border-color: var(--orange); }
+    .premium-card-icon { font-size: 28px; margin-bottom: 14px; }
+    .premium-card h4 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .premium-card p { color: rgba(255,255,255,.52); font-size: 13px; line-height: 1.6; }
+
+    .price-card { background: #fff; border: 2px solid var(--border); border-radius: 14px; padding: 36px 32px; position: relative; }
+    .price-card.featured { border-color: var(--orange); background: linear-gradient(180deg, #fff 0%, #fff8f2 100%); }
+    .featured-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    .price-tier { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .price-amount { font-size: 48px; font-weight: 800; color: var(--text); line-height: 1; }
+    .price-amount sup { font-size: 22px; vertical-align: super; }
+    .price-period { color: var(--muted); font-size: 13px; margin-bottom: 24px; margin-top: 4px; }
+    .price-features { list-style: none; margin-bottom: 32px; }
+    .price-features li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .price-features li:last-child { border-bottom: none; }
+    .price-features li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
+    .price-btn { display: block; text-align: center; padding: 13px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: background .2s; }
+    .price-btn-primary { background: var(--orange); color: #fff !important; }
+    .price-btn-primary:hover { background: var(--orange-dark); }
+
+    .cta-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1e0a35 100%); text-align: center; padding: 100px 40px; position: relative; overflow: hidden; }
+    .cta-band::before { content: ''; position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.12) 0%, transparent 70%); pointer-events: none; }
+    .cta-band h2 { color: #fff; font-size: clamp(28px, 4vw, 46px); font-weight: 800; margin-bottom: 16px; }
+    .cta-band p { color: rgba(255,255,255,.7); font-size: 18px; margin-bottom: 40px; max-width: 580px; margin-left: auto; margin-right: auto; }
+
+    @media (max-width: 700px) {
+      section { padding: 60px 20px; }
+      .hero { padding: 70px 20px 60px; }
+      .hero-stats { gap: 30px; }
+      .highlight-row, .highlight-row.reverse { flex-direction: column; }
+      .steps-grid::before { display: none; }
+      .steps-grid { gap: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ HERO ════════════ -->
+<div class="hero">
+  <div class="hero-badge">Mosquito Spray Software</div>
+  <h1>The Software Built for<br><span>Mosquito Spray Businesses.</span></h1>
+  <p>Schedule mosquito treatments, manage recurring spray programs, build routes by geography and sq ft, send automated appointment alerts, and log every application — all in one platform designed for lawn care and pest control companies that spray for mosquitoes.</p>
+  <div class="hero-btns">
+    <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial — $129/Month</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-val">$129</div>
+      <div class="hero-stat-lbl">Per month — everything included</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">Unlimited</div>
+      <div class="hero-stat-lbl">Technicians and users</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">14-Day</div>
+      <div class="hero-stat-lbl">Free trial — no credit card</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">Today</div>
+      <div class="hero-stat-lbl">Start scheduling mosquito routes</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ WHAT IT DOES ════════════ -->
+<section>
+  <div class="centered" style="max-width:1100px; margin:0 auto;">
+    <span class="section-label">Mosquito Treatment Software</span>
+    <h2 class="section-title">Everything a Mosquito Spray Business Needs to Schedule, Route, and Manage Treatments</h2>
+    <p class="section-sub" style="max-width:800px;">SprayBossPro is field service software built specifically for lawn care and pest control businesses that apply spray treatments. Every feature is designed around how a mosquito spray company actually operates — recurring program management, sq ft-based route planning, chemical application logs, and automated customer communication.</p>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🗺️</div>
+      <h3>Lasso — Build Mosquito Routes by Drawing a Circle</h3>
+      <p>Draw a circle on any area of your map and instantly see every property with a mosquito treatment due inside — total stops, total sq ft, and route revenue. Add them all to a route in one click. Stop building mosquito routes one address at a time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3>Mosquito Sq Ft Waiting List</h3>
+      <p>Before you build a route, see exactly how many square feet of mosquito service are waiting to be scheduled. SprayBossPro organizes your waiting list by service type — Mosquito 3, Mosquito 4, any program name you use — so you know exactly what's pending.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <h3>Recurring Mosquito Program Management</h3>
+      <p>Mosquito spray businesses run recurring treatment programs — monthly, every 21 days, seasonal. When a mosquito treatment is marked complete, SprayBossPro automatically puts the next scheduled treatment back on the waiting list. Programs manage themselves.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <h3>Automated Mosquito Treatment Alerts</h3>
+      <p>Send automated SMS alerts when a mosquito treatment is scheduled, when your technician is en route, and when service is complete. Pre-built alert templates for every touchpoint — set them up once and they send automatically on every job.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧪</div>
+      <h3>Mosquito Application Compliance Logs</h3>
+      <p>Log every mosquito spray application — product name, application rate, gallons applied, total area treated, weather conditions at time of application, and applicator license number. Generate print-ready compliance reports whenever you need them.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <h3>Mosquito Package Plans & Renewals</h3>
+      <p>Sell seasonal mosquito packages — 6-treatment programs, monthly plans, or custom service packages. SprayBossPro tracks treatments remaining, notifies you when packages expire, and makes renewing a customer's mosquito program a two-click process.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ LASSO SECTION ════════════ -->
+<section style="background: var(--light-bg);">
+  <div class="highlight-row">
+    <div class="highlight-text">
+      <span class="section-label">Lasso — Route Building for Mosquito Spray</span>
+      <h2>Draw a Circle. See Every Mosquito Treatment Due Inside. Build the Route.</h2>
+      <p>Most mosquito spray businesses build routes the slow way — searching the schedule, pulling up addresses one by one, trying to remember which neighborhoods are clustered together. Lasso changes that.</p>
+      <p>Open your map, draw a circle around any area — a neighborhood, a subdivision, a zip code — and SprayBossPro instantly shows you every property with a mosquito treatment due inside that boundary: how many stops, how many sq ft, and how much revenue. Add them all to a route in one click.</p>
+      <ul class="check-list">
+        <li>Draw any shape on the map — no fixed zones</li>
+        <li>Instantly see stops, sq ft, and revenue inside the boundary</li>
+        <li>Filter by service type — mosquito only, or any combination</li>
+        <li>Add all selected properties to a route in one click</li>
+        <li>Optimize the route for drive time automatically</li>
+        <li>Share the route to your technician's mobile app</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div class="mosq-header">
+        <div class="mosq-header-label">Lasso Selection — North Side</div>
+        <div class="mosq-header-val">Mosquito 3 · 8 stops</div>
+      </div>
+      <div class="mosq-route">
+        <div class="mosq-row">
+          <div class="mosq-num">1</div>
+          <div class="mosq-addr"><div class="mosq-addr-name">142 Maplewood Dr</div><div class="mosq-addr-detail">Mosquito 3 · Due today</div></div>
+          <div class="mosq-sqft">6,200 ft²</div>
+        </div>
+        <div class="mosq-row">
+          <div class="mosq-num">2</div>
+          <div class="mosq-addr"><div class="mosq-addr-name">218 Birchwood Ln</div><div class="mosq-addr-detail">Mosquito 3 · Due today</div></div>
+          <div class="mosq-sqft">8,450 ft²</div>
+        </div>
+        <div class="mosq-row">
+          <div class="mosq-num">3</div>
+          <div class="mosq-addr"><div class="mosq-addr-name">304 Cedar Ridge Ct</div><div class="mosq-addr-detail">Mosquito 3 · Due today</div></div>
+          <div class="mosq-sqft">5,800 ft²</div>
+        </div>
+        <div class="mosq-row">
+          <div class="mosq-num">4</div>
+          <div class="mosq-addr"><div class="mosq-addr-name">91 Willow Creek Rd</div><div class="mosq-addr-detail">Mosquito 3 · Due today</div></div>
+          <div class="mosq-sqft">11,200 ft²</div>
+        </div>
+        <div class="mosq-row" style="opacity:.55;">
+          <div class="mosq-num" style="background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.1); color:rgba(255,255,255,.3);">+</div>
+          <div class="mosq-addr"><div class="mosq-addr-name" style="color:rgba(255,255,255,.3);">4 more properties…</div></div>
+          <div class="mosq-sqft" style="color:rgba(255,255,255,.3);">31,400 ft²</div>
+        </div>
+      </div>
+      <div class="mosq-total">
+        <div class="mosq-total-label">Total Selected</div>
+        <div class="mosq-total-val">8 stops · 63,050 ft² · $1,120</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ WAITING LIST SECTION ════════════ -->
+<section>
+  <div class="highlight-row reverse">
+    <div class="highlight-text">
+      <span class="section-label">Mosquito Sq Ft Waiting List</span>
+      <h2>Know Exactly How Much Mosquito Treatment Is Waiting — Before You Build a Single Route.</h2>
+      <p>Before you open the map and start building a mosquito spray route, SprayBossPro shows you a waiting list organized by service type and total square footage. You can see at a glance how much Mosquito 3 is due, how much Mosquito 4 is waiting, and how many properties of each type are in the queue.</p>
+      <p>That number tells you what your day needs to look like — how many routes to build, how many technicians to send out, and which service type to prioritize. No more guessing. No more counting addresses manually.</p>
+      <ul class="check-list">
+        <li>Waiting list organized by service type — Mosquito 3, Mosquito 4, any name you use</li>
+        <li>Shows total sq ft and total stops waiting per service type</li>
+        <li>Updates in real time as treatments are completed and rescheduled</li>
+        <li>Helps you plan crew size before building routes</li>
+        <li>Separate waiting lists for each spray service you offer</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Waiting List — Services Due</div>
+      <div class="wait-list">
+        <div class="wait-row active">
+          <div><div class="wait-service">Mosquito 3</div><div class="wait-count">14 properties waiting</div></div>
+          <div class="wait-sqft">127,400 ft²</div>
+        </div>
+        <div class="wait-row active">
+          <div><div class="wait-service">Mosquito 4</div><div class="wait-count">8 properties waiting</div></div>
+          <div class="wait-sqft">74,800 ft²</div>
+        </div>
+        <div class="wait-row">
+          <div><div class="wait-service">Lawn Care 4</div><div class="wait-count">22 properties waiting</div></div>
+          <div class="wait-sqft" style="color:rgba(255,255,255,.4);">198,600 ft²</div>
+        </div>
+        <div class="wait-row">
+          <div><div class="wait-service">Lawn Insect 3</div><div class="wait-count">6 properties waiting</div></div>
+          <div class="wait-sqft" style="color:rgba(255,255,255,.4);">53,200 ft²</div>
+        </div>
+        <div class="wait-row">
+          <div><div class="wait-service">Flower Beds 4</div><div class="wait-count">4 properties waiting</div></div>
+          <div class="wait-sqft" style="color:rgba(255,255,255,.4);">18,900 ft²</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:rgba(255,255,255,.45); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Mosquito Total</div>
+        <div style="color:var(--orange); font-size:13px; font-weight:700;">22 stops · 202,200 ft²</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ HOW IT WORKS ════════════ -->
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto 64px;">
+    <span class="section-label">How It Works</span>
+    <h2 class="section-title">From Waiting List to Completed Mosquito Routes — Same Day</h2>
+    <p class="section-sub">SprayBossPro is designed so that building and completing a full day of mosquito spray routes takes minutes, not hours.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-box">
+      <div class="step-circle">1</div>
+      <h3>Check the Waiting List</h3>
+      <p>Open SprayBossPro and see exactly how many sq ft of mosquito treatment is waiting — organized by service type. Know your day before you build anything.</p>
+    </div>
+    <div class="step-box">
+      <div class="step-circle">2</div>
+      <h3>Lasso a Neighborhood</h3>
+      <p>Open the map and draw a circle around any area. See all properties with mosquito treatment due inside — stops, sq ft, revenue — and add them to a route.</p>
+    </div>
+    <div class="step-box">
+      <div class="step-circle">3</div>
+      <h3>Send to Your Technician</h3>
+      <p>Push the route to your technician's mobile app. They see the stops in order, property details, access notes, and the chemical application log for each address.</p>
+    </div>
+    <div class="step-box">
+      <div class="step-circle">4</div>
+      <h3>Treatment Complete — Next One Scheduled</h3>
+      <p>When the technician marks a mosquito treatment complete, SprayBossPro automatically schedules the next treatment and puts it back on the waiting list.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ PREMIUM BAND ════════════ -->
+<div class="premium-band">
+  <h2>Every Feature a Mosquito Spray Business Needs.<br><span>$129/Month. Nothing Locked Behind Upgrades.</span></h2>
+  <p>SprayBossPro isn't a general field service platform that happens to work for mosquito spray. It's built specifically for businesses that apply chemical treatments — with the route planning, compliance logging, and program management that mosquito spray companies actually use.</p>
+  <div class="premium-grid">
+    <div class="premium-card">
+      <div class="premium-card-icon">🗺️</div>
+      <h4>Lasso Circle Map Route Builder</h4>
+      <p>Draw a circle on your map and see every mosquito treatment due inside — stops, sq ft, revenue. Build a full day of mosquito routes in minutes instead of hours.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">📋</div>
+      <h4>Sq Ft Waiting List by Service</h4>
+      <p>See how many sq ft of Mosquito 3, Mosquito 4, and every other service type is waiting to be scheduled. Know your workload before you build a single route.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">🔄</div>
+      <h4>Auto-Rescheduling Mosquito Programs</h4>
+      <p>When a mosquito treatment is complete, the next one automatically goes back on the waiting list. Recurring programs manage themselves — no manual rescheduling.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💬</div>
+      <h4>Automated SMS Alerts</h4>
+      <p>Appointment reminders, on-the-way alerts, and completion notifications sent automatically on every mosquito spray job. 10+ pre-built alert types included.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">🧪</div>
+      <h4>Chemical Application Logs</h4>
+      <p>Log product, rate, gallons, area treated, weather, and applicator license on every mosquito application. Print-ready compliance reports on demand.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">📦</div>
+      <h4>Mosquito Package Programs</h4>
+      <p>Sell seasonal mosquito programs and track treatments remaining. SprayBossPro notifies you before packages expire and makes renewals fast.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">📱</div>
+      <h4>Mobile App for Technicians</h4>
+      <p>Your technicians see their mosquito route, property details, application notes, and chemical log form on their phone. No paper, no clipboard.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💳</div>
+      <h4>Card-on-File Payments</h4>
+      <p>Collect payment automatically after each mosquito treatment. Card-on-file payments included at $129/month — no payment add-on required.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">👥</div>
+      <h4>Unlimited Technicians</h4>
+      <p>Add as many technicians as you run mosquito routes. SprayBossPro doesn't cap users. Run 1 truck or 10 — the price stays the same.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ SMS ALERTS SECTION ════════════ -->
+<section>
+  <div class="highlight-row">
+    <div class="highlight-text">
+      <span class="section-label">Automated Customer Communication</span>
+      <h2>Automated SMS Alerts for Every Mosquito Treatment — Set Up Once, Send Forever.</h2>
+      <p>Mosquito spray customers want to know when their treatment is coming and what to do after the technician leaves. SprayBossPro includes pre-built SMS alert templates for every touchpoint in the mosquito treatment process — appointment reminders the day before, on-the-way notifications when your technician is 30 minutes out, and completion messages with any re-entry instructions.</p>
+      <ul class="check-list">
+        <li>Day-before appointment reminder — "Your mosquito treatment is tomorrow"</li>
+        <li>On-the-way alert — "Your technician is 30 minutes away"</li>
+        <li>Service complete notification with re-entry time if needed</li>
+        <li>Renewal reminder when a mosquito program is about to expire</li>
+        <li>Two-way SMS inbox — customers can reply and you see every thread</li>
+        <li>500 outbound SMS messages per month included — no add-on fee</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px;">SMS Alerts — Mosquito Treatment</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:12px 14px;">
+          <div style="color:var(--orange); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px;">Day Before Reminder</div>
+          <div style="color:rgba(255,255,255,.7); font-size:12px; line-height:1.6;">"Hi Sarah — your Mosquito 3 treatment is scheduled for tomorrow between 9–11am. Please ensure pets are kept indoors during service. Reply STOP to opt out."</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:12px 14px;">
+          <div style="color:var(--orange); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px;">On-the-Way Alert</div>
+          <div style="color:rgba(255,255,255,.7); font-size:12px; line-height:1.6;">"Your technician is about 30 minutes away for your mosquito treatment. Please unlock any gates before they arrive."</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:12px 14px;">
+          <div style="color:var(--orange); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px;">Service Complete</div>
+          <div style="color:rgba(255,255,255,.7); font-size:12px; line-height:1.6;">"Your mosquito treatment is complete! Please keep pets off treated areas for 30 minutes. Your next treatment is in 21 days."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ PRICING ════════════ -->
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto;">
+    <span class="section-label">Pricing</span>
+    <h2 class="section-title">$129/Month. Every Mosquito Spray Feature Included.</h2>
+    <p class="section-sub">One plan. No add-ons for SMS, route building, or compliance logs. No user caps. No per-technician fees.</p>
+  </div>
+  <div style="max-width:520px; margin:0 auto;">
+    <div class="price-card featured">
+      <div class="featured-badge">Everything Included — No Add-Ons</div>
+      <div class="price-tier">Mosquito Spray Software — One Plan</div>
+      <div class="price-amount"><sup>$</sup>129</div>
+      <div class="price-period">per month — cancel anytime</div>
+      <ul class="price-features">
+        <li>Lasso Circle Map Route Builder for Mosquito Routes</li>
+        <li>Sq Ft Waiting List by Service Type</li>
+        <li>Recurring Mosquito Program Management</li>
+        <li>Chemical Application Compliance Logs</li>
+        <li>Automated SMS Alerts — 10+ pre-built types</li>
+        <li>Two-Way SMS Customer Inbox</li>
+        <li>Package Plans &amp; Renewal Tracking</li>
+        <li>Full Scheduling, Dispatch &amp; Route Map</li>
+        <li>Estimates, Invoices &amp; Card-on-File Payments</li>
+        <li>Mobile App for Technicians</li>
+        <li>Unlimited Technicians — no per-user fees</li>
+        <li>500 Outbound SMS/month included</li>
+        <li>14-day free trial — no credit card required</li>
+      </ul>
+      <a href="#" onclick="openSignupModal(2, this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
+    </div>
+  </div>
+  <p style="text-align:center; color:var(--muted); font-size:13px; margin-top:32px;">No contracts. No add-ons. No per-technician fees. Cancel anytime.</p>
+</section>
+
+<!-- ════════════ CTA ════════════ -->
+<div class="cta-band">
+  <h2>Ready to Run Mosquito Spray Routes<br><span style="color:var(--orange);">The Way They Should Be Run?</span></h2>
+  <p>SprayBossPro is $129/month — schedule mosquito treatments, build routes with Lasso, log every application, and send automated SMS alerts from day one. No add-ons required.</p>
+  <div class="hero-btns">
+    <a href="#" onclick="openSignupModal(3, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
+  </div>
+</div>
+
+<!-- ════════════ SIGNUP FORMS ════════════ -->
+<div id="sbp-backdrop" onclick="closeAllModals()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:99997;"></div>
+<div id="sbp-form-1" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;"><div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div><div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div><button onclick="closeSignupModal(1)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button></div>
+  <div id="sbp1-step1" style="padding:24px 28px;"><div id="sbp1-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp1-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp1-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp1-company" type="text" placeholder="Smith Lawn Care" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp1-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
+  <div id="sbp1-step2" style="padding:24px 28px; display:none;"><div id="sbp1-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp1-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp1-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp1-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;"><input type="checkbox" id="sbp1-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;"><label for="sbp1-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label></div><button id="sbp1-create-btn" onclick="sbpCreateAccount(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button><button onclick="sbpBackToStep1(1)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button></div>
+  <div id="sbp1-success" style="padding:48px 28px; text-align:center; display:none;"><div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div><div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div><div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div><div id="sbp1-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div></div>
+</div>
+<div id="sbp-form-2" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;"><div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div><div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div><button onclick="closeSignupModal(2)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button></div>
+  <div id="sbp2-step1" style="padding:24px 28px;"><div id="sbp2-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp2-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp2-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp2-company" type="text" placeholder="Smith Lawn Care" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp2-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
+  <div id="sbp2-step2" style="padding:24px 28px; display:none;"><div id="sbp2-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp2-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp2-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp2-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;"><input type="checkbox" id="sbp2-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;"><label for="sbp2-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label></div><button id="sbp2-create-btn" onclick="sbpCreateAccount(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button><button onclick="sbpBackToStep1(2)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button></div>
+  <div id="sbp2-success" style="padding:48px 28px; text-align:center; display:none;"><div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div><div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div><div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div><div id="sbp2-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div></div>
+</div>
+<div id="sbp-form-3" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;"><div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div><div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div><button onclick="closeSignupModal(3)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button></div>
+  <div id="sbp3-step1" style="padding:24px 28px;"><div id="sbp3-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp3-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp3-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp3-company" type="text" placeholder="Smith Lawn Care" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp3-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
+  <div id="sbp3-step2" style="padding:24px 28px; display:none;"><div id="sbp3-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp3-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp3-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp3-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;"><input type="checkbox" id="sbp3-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;"><label for="sbp3-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label></div><button id="sbp3-create-btn" onclick="sbpCreateAccount(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button><button onclick="sbpBackToStep1(3)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button></div>
+  <div id="sbp3-success" style="padding:48px 28px; text-align:center; display:none;"><div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div><div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div><div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div><div id="sbp3-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div></div>
+</div>
+
+<script>
+  var SBP_URL='https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SBP_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sbpClient=null,sbpOpenForm=0;
+  function getSbpClient(){if(!sbpClient)sbpClient=window.supabase.createClient(SBP_URL,SBP_ANON);return sbpClient;}
+  function openSignupModal(n,btn){closeAllModals();sbpOpenForm=n;var form=document.getElementById('sbp-form-'+n);var rect=btn.getBoundingClientRect();var formW=Math.min(420,window.innerWidth-24);var centerX=rect.left+rect.width/2;var top=rect.bottom+12;var left=centerX-formW/2;if(top+460>window.innerHeight){top=rect.top-460-12;if(top<12)top=12;}top=Math.max(12,top);left=Math.max(12,Math.min(left,window.innerWidth-formW-12));form.style.top=top+'px';form.style.left=left+'px';form.style.display='block';document.getElementById('sbp-backdrop').style.display='block';document.body.style.overflow='hidden';}
+  function closeSignupModal(n){document.getElementById('sbp-form-'+n).style.display='none';document.getElementById('sbp-backdrop').style.display='none';document.body.style.overflow='';sbpOpenForm=0;}
+  function closeAllModals(){[1,2,3].forEach(function(i){document.getElementById('sbp-form-'+i).style.display='none';});document.getElementById('sbp-backdrop').style.display='none';document.body.style.overflow='';sbpOpenForm=0;}
+  function sbpStep2(n){var err=document.getElementById('sbp'+n+'-err1');err.style.display='none';var first=document.getElementById('sbp'+n+'-first').value.trim();var last=document.getElementById('sbp'+n+'-last').value.trim();var comp=document.getElementById('sbp'+n+'-company').value.trim();var email=document.getElementById('sbp'+n+'-email').value.trim();if(!first||!last)return sbpShowErr(err,'Please enter your first and last name.');if(!comp)return sbpShowErr(err,'Please enter your company name.');if(!email||!email.includes('@'))return sbpShowErr(err,'Please enter a valid email address.');document.getElementById('sbp'+n+'-login-email').value=email;document.getElementById('sbp'+n+'-step1').style.display='none';document.getElementById('sbp'+n+'-step2').style.display='block';document.getElementById('sbp'+n+'-password').focus();}
+  function sbpBackToStep1(n){document.getElementById('sbp'+n+'-step2').style.display='none';document.getElementById('sbp'+n+'-step1').style.display='block';document.getElementById('sbp'+n+'-err2').style.display='none';}
+  async function sbpCreateAccount(n){var err=document.getElementById('sbp'+n+'-err2');var btn=document.getElementById('sbp'+n+'-create-btn');err.style.display='none';var email=document.getElementById('sbp'+n+'-login-email').value.trim();var password=document.getElementById('sbp'+n+'-password').value;var confirm=document.getElementById('sbp'+n+'-confirm').value;if(password.length<8)return sbpShowErr(err,'Password must be at least 8 characters.');if(password!==confirm)return sbpShowErr(err,'Passwords do not match.');if(!document.getElementById('sbp'+n+'-agree').checked)return sbpShowErr(err,'Please agree to the Terms of Service and Privacy Policy.');btn.disabled=true;btn.textContent='Creating your account…';try{var res=await fetch(SBP_URL+'/functions/v1/manage-users',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SBP_ANON,'apikey':SBP_ANON},body:JSON.stringify({action:'create',email:email,password:password})});var result=await res.json();if(result.error)throw new Error(result.error);var sb=getSbpClient();var{data:signInData,error:signInErr}=await sb.auth.signInWithPassword({email,password});if(signInErr)throw new Error(signInErr.message);var uid=signInData.user.id;var first=document.getElementById('sbp'+n+'-first').value.trim();var last=document.getElementById('sbp'+n+'-last').value.trim();var comp=document.getElementById('sbp'+n+'-company').value.trim();await sb.auth.updateUser({data:{full_name:first+' '+last}});var trialEnd=new Date(Date.now()+14*24*60*60*1000).toISOString();await sb.from('user_profiles').upsert({id:uid,email,role:'full_access',is_primary_owner:true,tenant_id:null,trial_ends_at:trialEnd},{onConflict:'id'});await sb.from('company_info').insert({user_id:uid,company_name:comp,display_name:comp});var reasons=['Cancel Maintaining Self','Cancel Sold House','Cancel Too Expensive','Cancel Unknown','Dropping Customer','Sold House'].map(function(nm){return{name:nm,active:true,user_id:uid};});await sb.from('cancellation_reasons').insert(reasons);document.getElementById('sbp'+n+'-step2').style.display='none';document.getElementById('sbp'+n+'-success').style.display='block';var secs=4;var cd=document.getElementById('sbp'+n+'-countdown');cd.textContent='Redirecting in '+secs+' seconds…';var iv=setInterval(function(){secs--;if(secs<=0){clearInterval(iv);window.location.href='https://my.spraybosspro.com/dashboard.html';}else cd.textContent='Redirecting in '+secs+' second'+(secs===1?'':'s')+'…';},1000);}catch(e){sbpShowErr(err,e.message||'Something went wrong. Please try again.');btn.disabled=false;btn.textContent='Create My Account';}}
+  function sbpShowErr(el,msg){el.textContent=msg;el.style.display='block';}
+  document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!sbpOpenForm)return;var n=sbpOpenForm;if(document.getElementById('sbp-form-'+n).style.display!=='block')return;if(document.getElementById('sbp'+n+'-step2').style.display==='block')sbpCreateAccount(n);else sbpStep2(n);});
+</script>
+</body>
+</html>
