@@ -2568,18 +2568,21 @@ function showPropTab(name, btn) {
       _mpOverlay.onAdd = _mpOverlay.draw = function(){};
       _mpOverlay.setMap(_measureMap);
 
-      /* Pan-while-drawing: drag mouse to pan, release restores draw mode */
+      /* Pan-while-drawing: hold and drag 10px to pan, release restores draw mode */
       var _mapEl = document.getElementById('prop-map');
       _mapEl.addEventListener('mousedown', function(e) {
-        if (!_measureMode) return;
+        if (!_measureMode || e.button !== 0) return;
         _mp.start = { x: e.clientX, y: e.clientY };
         _mp.last  = { x: e.clientX, y: e.clientY };
         _mp.active = false;
       }, true);
       _mapEl.addEventListener('mousemove', function(e) {
-        if (!_mp.start || !_measureMode) return;
+        if (!_mp.start || !_measureMode || !(e.buttons & 1)) {
+          if (!(e.buttons & 1)) _mp.start = null;
+          return;
+        }
         var ddx = e.clientX - _mp.start.x, ddy = e.clientY - _mp.start.y;
-        if (!_mp.active && Math.sqrt(ddx*ddx + ddy*ddy) > 2) {
+        if (!_mp.active && Math.sqrt(ddx*ddx + ddy*ddy) > 10) {
           _mp.active = true;
           _drawingManager.setDrawingMode(null);
         }
@@ -2591,7 +2594,6 @@ function showPropTab(name, btn) {
             var c = _measureMap.getCenter(), cp = proj.fromLatLngToDivPixel(c);
             _measureMap.setCenter(proj.fromDivPixelToLatLng(new google.maps.Point(cp.x - dx, cp.y - dy)));
           }
-          e.stopPropagation();
         }
       }, true);
       document.addEventListener('mouseup', function() {
@@ -2658,6 +2660,7 @@ function showPropTab(name, btn) {
 
   function setDrawMode(mode) {
     _measureMode = mode;
+    _mp.start = null; _mp.last = null; _mp.active = false;
     if (_drawingManager) {
       _drawingManager.setDrawingMode(
         mode === 'polygon'  ? google.maps.drawing.OverlayType.POLYGON  :
