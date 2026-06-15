@@ -2637,13 +2637,15 @@ function showPropTab(name, btn) {
         strokeColor: '#333', strokeWeight: 1.5
       };
 
+      var _previewColor = _nextColor();
+
       _drawClickLs = google.maps.event.addListener(_measureMap, 'click', function(e) {
         _drawPoints.push(e.latLng);
         var isFirst = _drawPoints.length === 1;
         var dot = new google.maps.Marker({
           position: e.latLng, map: _measureMap,
           icon: isFirst
-            ? { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: '#e07820', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+            ? { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: _previewColor, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
             : dotIcon,
           clickable: isFirst && mode === 'polygon',
           zIndex: 10
@@ -2656,7 +2658,7 @@ function showPropTab(name, btn) {
         _drawDots.push(dot);
         if (!_drawPreview) {
           _drawPreview = new google.maps.Polyline({
-            path: _drawPoints, strokeColor: '#e07820',
+            path: _drawPoints, strokeColor: _previewColor,
             strokeWeight: 2, strokeOpacity: 0.8, map: _measureMap
           });
         } else {
