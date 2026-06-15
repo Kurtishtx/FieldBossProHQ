@@ -130,6 +130,12 @@
     .jobs-total { padding:6px 16px; font-size:13px; color:#fff; background:#130520; display:flex; align-items:flex-end; justify-content:center; gap:0; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
     .jt-pill { display:inline-flex; flex-direction:column; align-items:center; gap:3px; background:transparent; border:none; border-bottom:3px solid #e07820; border-radius:0; padding:6px 16px 8px; font-size:16px; color:#fff; font-weight:700; }
     .jt-pill-count { background:#fff; color:#000; font-weight:700; border-radius:10px; padding:0 8px; font-size:18px; }
+    .jobs-total.compact .jt-pill { font-size:14px; padding:5px 10px 7px; }
+    .jobs-total.compact .jt-pill-count { font-size:16px; }
+    .jobs-total.compact .jt-sep { height:42px; }
+    .jobs-total.mini .jt-pill { font-size:12px; padding:4px 8px 6px; }
+    .jobs-total.mini .jt-pill-count { font-size:14px; }
+    .jobs-total.mini .jt-sep { height:36px; }
     .jt-sep { width:2px; height:50px; background:#fff; align-self:center; flex-shrink:0; }
 
     .map-section { position:relative; width:calc(100% - 32px); height:500px; background:#e8e8e8; border:1px solid #ccc; border-radius:8px; overflow:hidden; margin:2px 16px; }
@@ -1128,7 +1134,16 @@
     document.getElementById('summary-svcs').textContent = filtered.length;
     document.getElementById('summary-total').textContent = '$' + preTotal.toFixed(2);
     var _badgeStyle2 = 'font-size:20px;font-weight:700;color:#000;background:#e07820;border-radius:10px;padding:2px 7px;display:inline-block;';
-    document.getElementById('jobs-total').innerHTML = pills || '';
+    var jtEl = document.getElementById('jobs-total');
+    jtEl.classList.remove('compact', 'mini');
+    jtEl.innerHTML = pills || '';
+    if (jtEl.scrollWidth > jtEl.clientWidth) {
+      jtEl.classList.add('compact');
+      if (jtEl.scrollWidth > jtEl.clientWidth) {
+        jtEl.classList.remove('compact');
+        jtEl.classList.add('mini');
+      }
+    }
 
     var tbody = document.getElementById('table-body');
     var totalsRow = document.getElementById('totals-row');
