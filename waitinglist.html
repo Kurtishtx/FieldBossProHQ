@@ -295,7 +295,8 @@
       </div>
     </div>
   </div>
-  <div class="drp-wrap" id="drp-wrap">
+  <label style="margin-left:8px;"><input type="checkbox" id="use-min-days" checked onchange="renderTable()"/> Use Min Days Since</label>
+  <div class="drp-wrap" id="drp-wrap" style="margin-left:auto;">
     <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading</div>
     <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
       <div class="drp-months">
@@ -303,7 +304,6 @@
       </div>
     </div>
   </div>
-  <label><input type="checkbox" id="use-min-days" checked onchange="renderTable()"/> Use Min Days Since</label>
 </div>
 
 <!-- Stats panel -->
