@@ -831,7 +831,7 @@
       <div class="stat-card green" id="stat-card-props-total" style="display:none">
         <div class="stat-label">Properties Completed</div>
         <div class="stat-value" id="stat-props-total">—</div>
-        <div class="stat-sub">All time</div>
+        <div class="stat-sub">Completed today</div>
       </div>
       <div class="stat-card red" id="stat-card-services-week" style="display:none">
         <div class="stat-label">Services This Week</div>
@@ -1122,7 +1122,7 @@
     var { count: stotal } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', todayDate);
     if (stotal !== null) document.getElementById('stat-services-total').textContent = stotal;
 
-    var { data: ptotalData } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).not('property_id', 'is', null);
+    var { data: ptotalData } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).not('property_id', 'is', null).gte('scheduled_date', todayDate);
     if (ptotalData) document.getElementById('stat-props-total').textContent = new Set(ptotalData.map(function(r){return r.property_id;})).size;
 
     var { count: swk } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', weekDate);
