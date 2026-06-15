@@ -143,6 +143,41 @@
     .footer-bottom { color: rgba(255,255,255,.3); font-size: 12px; margin-top: 24px; text-align: center; }
     .footer-bottom a { color: rgba(255,255,255,.4); text-decoration: none; }
 
+    /* ─── PREMIUM BAND ─── */
+    .premium-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1a0530 100%); padding: 90px 40px; text-align: center; position: relative; overflow: hidden; }
+    .premium-band::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.1) 0%, transparent 65%); pointer-events: none; }
+    .premium-band h2 { color: #fff; font-size: clamp(26px, 4vw, 44px); font-weight: 800; line-height: 1.2; max-width: 860px; margin: 0 auto 18px; }
+    .premium-band h2 span { color: var(--orange); }
+    .premium-band > p { color: rgba(255,255,255,.65); font-size: 17px; max-width: 700px; margin: 0 auto 52px; line-height: 1.8; }
+    .premium-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .premium-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 28px 24px; text-align: left; transition: border-color .2s; }
+    .premium-card:hover { border-color: var(--orange); }
+    .premium-card-icon { font-size: 28px; margin-bottom: 14px; }
+    .premium-card h4 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .premium-card p { color: rgba(255,255,255,.52); font-size: 13px; line-height: 1.6; }
+
+    /* ─── LASSO MAP MOCK ─── */
+    .lasso-map { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 20px; margin-bottom: 14px; position: relative; min-height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .lasso-ring { position: absolute; top: 14px; left: 18px; right: 18px; bottom: 14px; border: 2.5px dashed var(--orange); border-radius: 50%; opacity: .7; }
+    .lasso-pins { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+    .lpin { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .lpin.s { background: var(--orange); box-shadow: 0 0 0 3px rgba(224,120,32,.3); }
+    .lpin.u { background: rgba(255,255,255,.2); }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-cell { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 12px 14px; }
+    .stat-val { color: var(--orange); font-size: 18px; font-weight: 800; }
+    .stat-lbl { color: rgba(255,255,255,.42); font-size: 11px; margin-top: 1px; }
+    .stat-cell.full { grid-column: span 2; }
+    .stat-cell.full .stat-val { color: #fff; font-size: 13px; font-weight: 600; }
+
+    /* ─── SIMPLE GRID (ease of use) ─── */
+    .simple-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+    .simple-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 30px 26px; transition: border-color .2s, box-shadow .2s, transform .15s; }
+    .simple-card:hover { border-color: var(--orange); box-shadow: 0 6px 24px rgba(224,120,32,.1); transform: translateY(-2px); }
+    .simple-num { font-size: 40px; font-weight: 800; color: var(--orange); opacity: .25; line-height: 1; margin-bottom: 12px; }
+    .simple-card h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .simple-card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 700px) {
       section { padding: 60px 20px; }
@@ -182,6 +217,133 @@
     </div>
   </div>
 </div>
+
+<!-- ════════════ PREMIUM BAND ════════════ -->
+<div class="premium-band">
+  <h2>Affordable Doesn't Mean Cheap.<br><span>This Is Enterprise-Level Lawn Care Software.</span></h2>
+  <p>$129/month sounds modest. But what you're getting isn't modest at all. SprayBossPro is built to the same standard as software that costs 10 times more — the difference is we built it ourselves, for ourselves, and we don't have a sales team, investor overhead, or a $500/month add-on for every feature you actually need.</p>
+  <div class="premium-grid">
+    <div class="premium-card">
+      <div class="premium-card-icon">🗺️</div>
+      <h4>Route Intelligence</h4>
+      <p>Live route maps, drag-and-drop stop ordering, geographic clustering, and a waiting list that shows you total square footage per service type before you schedule a single stop. No other lawn care software has this.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">🧪</div>
+      <h4>Chemical Compliance</h4>
+      <p>Every application logged automatically with product mix, gallons applied, area treated, weather conditions, and tech license number. Pull a print-ready compliance report in under 30 seconds for any state inspector.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💬</div>
+      <h4>Communication Suite</h4>
+      <p>Two-way SMS inbox, 10+ automated alert types, estimate follow-up sequences, payment reminders, review requests — all built in at the flat price. No Twilio account, no Mailchimp, no third-party setup.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💳</div>
+      <h4>Stripe Payments</h4>
+      <p>Cards on file, invoicing, charge after service, payment tracking, overdue reports — the full Stripe integration is wired in. Your customers can pay instantly and you can see every dollar collected in one place.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">🔐</div>
+      <h4>Role-Based Access</h4>
+      <p>Owner, Manager, Office Staff, Technician, and Mobile-only roles. Granular permission control so your field techs only see what they need and your office manager can't accidentally delete a client record.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">📱</div>
+      <h4>Mobile App for Your Crew</h4>
+      <p>Your technicians get a mobile-optimized dashboard with their stops for the day. Complete, skip, reschedule, log chemicals, and mark notes — all from the truck without calling the office once.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ LASSO FEATURE ════════════ -->
+<section id="lasso" class="dark-section">
+  <div class="highlight-row">
+    <div class="highlight-text">
+      <span class="section-label">Lasso — Circle Map Scheduling</span>
+      <h2 style="color:#fff;">Draw a Circle on the Map. See Every Property Inside It.</h2>
+      <p style="color:rgba(255,255,255,.65);">Lasso is the fastest way to build a lawn care route we've ever seen. Draw a circle on your service area map and SprayBossPro instantly surfaces every property inside that radius that has a service due — with total square footage, service types, stops, and revenue all calculated in real time before you commit to a single schedule.</p>
+      <ul class="check-list" style="margin-top:20px;">
+        <li style="color:rgba(255,255,255,.75);">Draw any size circle on the map — instantly see all properties inside</li>
+        <li style="color:rgba(255,255,255,.75);">Breaks out stops, sq ft, and linear ft by service type automatically</li>
+        <li style="color:rgba(255,255,255,.75);">Shows you what's already scheduled vs. what's still waiting</li>
+        <li style="color:rgba(255,255,255,.75);">One click to schedule all selected properties to a date and truck</li>
+        <li style="color:rgba(255,255,255,.75);">Tighten your routes geographically — no more scattered stops burning fuel</li>
+        <li style="color:rgba(255,255,255,.75);">Works across all your service types simultaneously in one view</li>
+        <li style="color:rgba(255,255,255,.75);">Cuts route-building time from an hour to under 5 minutes</li>
+        <li style="color:rgba(255,255,255,.75);">No competitor has this. It doesn't exist anywhere else in lawn care software.</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div style="color:rgba(255,255,255,.5); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Lasso — Route Selector</div>
+      <div class="lasso-map">
+        <div class="lasso-ring"></div>
+        <div class="lasso-pins">
+          <div class="lpin s"></div><div class="lpin s"></div><div class="lpin u"></div>
+          <div class="lpin s"></div><div class="lpin s"></div><div class="lpin s"></div>
+          <div class="lpin u"></div><div class="lpin s"></div><div class="lpin s"></div>
+          <div class="lpin u"></div><div class="lpin s"></div><div class="lpin s"></div>
+          <div class="lpin s"></div><div class="lpin u"></div><div class="lpin s"></div>
+          <div class="lpin s"></div><div class="lpin s"></div><div class="lpin u"></div>
+          <div class="lpin s"></div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-cell">
+          <div class="stat-val">14</div>
+          <div class="stat-lbl">Stops Selected</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val">19</div>
+          <div class="stat-lbl">Total Services</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val">118,400</div>
+          <div class="stat-lbl">Sq Ft (Lawn)</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val">4,200</div>
+          <div class="stat-lbl">Linear Ft (Beds)</div>
+        </div>
+        <div class="stat-cell full">
+          <div class="stat-val">Lawn Care 4 · 8 &nbsp;|&nbsp; Mosquito · 6 &nbsp;|&nbsp; Insect · 5</div>
+          <div class="stat-lbl">Breakdown by Service Type</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ EASIER TO USE ════════════ -->
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto 56px;">
+    <span class="section-label">Simplicity</span>
+    <h2 class="section-title">The Most Capable Lawn Care Software Is Also the Easiest to Learn</h2>
+    <p class="section-sub" style="max-width:720px;">Most powerful software is complicated. SprayBossPro is the exception. Every screen was designed by people who ran lawn care routes — not UX designers who've never touched a spray rig. Your team will be using it confidently on day one.</p>
+  </div>
+  <div class="simple-grid">
+    <div class="simple-card">
+      <div class="simple-num">01</div>
+      <h3>Set Up in One Afternoon</h3>
+      <p>Add your services, import your clients and properties, set up your automated alerts, and connect Stripe — most owners are fully operational the same day they sign up. No implementation consultant, no onboarding call, no 90-day setup timeline.</p>
+    </div>
+    <div class="simple-card">
+      <div class="simple-num">02</div>
+      <h3>One Screen Does Everything</h3>
+      <p>Scheduling, dispatch, waiting list, map, and chemical log are all connected. You're not jumping between five different modules or browser tabs. Pull up the dispatch board and everything you need for the day is right there in a single view.</p>
+    </div>
+    <div class="simple-card">
+      <div class="simple-num">03</div>
+      <h3>Your Techs Learn It in Minutes</h3>
+      <p>The mobile app your technicians use shows them exactly what they need and nothing they don't. Their stops for the day, the property info, the job notes, and the complete button. No training videos, no IT ticket, no frustrated crew members.</p>
+    </div>
+    <div class="simple-card">
+      <div class="simple-num">04</div>
+      <h3>Automation Runs Without You</h3>
+      <p>Set up your SMS alerts, estimate follow-ups, and payment reminders once. After that, SprayBossPro handles every notification, every follow-up, and every review request automatically — whether you're on a route, at home, or on vacation.</p>
+    </div>
+  </div>
+</section>
 
 <!-- ════════════ THE PROBLEM ════════════ -->
 <section style="background: var(--light-bg);">
