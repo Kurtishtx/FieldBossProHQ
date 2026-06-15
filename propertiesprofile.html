@@ -2639,10 +2639,21 @@ function showPropTab(name, btn) {
 
       _drawClickLs = google.maps.event.addListener(_measureMap, 'click', function(e) {
         _drawPoints.push(e.latLng);
-        _drawDots.push(new google.maps.Marker({
+        var isFirst = _drawPoints.length === 1;
+        var dot = new google.maps.Marker({
           position: e.latLng, map: _measureMap,
-          icon: dotIcon, clickable: false, zIndex: 10
-        }));
+          icon: isFirst
+            ? { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: '#e07820', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+            : dotIcon,
+          clickable: isFirst && mode === 'polygon',
+          zIndex: 10
+        });
+        if (isFirst && mode === 'polygon') {
+          google.maps.event.addListener(dot, 'click', function() {
+            if (_drawPoints.length >= 3) _finishDraw();
+          });
+        }
+        _drawDots.push(dot);
         if (!_drawPreview) {
           _drawPreview = new google.maps.Polyline({
             path: _drawPoints, strokeColor: '#e07820',
