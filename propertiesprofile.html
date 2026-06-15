@@ -697,6 +697,7 @@
         <button class="btn-draw" id="btn-draw-area" onclick="setDrawMode('polygon')" style="width:100%; text-align:left; padding:8px 12px;">&#11041; Draw Area (sq ft)</button>
         <button class="btn-draw" id="btn-draw-line" onclick="setDrawMode('polyline')" style="width:100%; text-align:left; padding:8px 12px;">&#8213; Draw Line (linear ft)</button>
         <button class="btn-draw" id="btn-draw-stop" onclick="_finishDraw()" style="display:none; width:100%; text-align:left; padding:8px 12px;">&#9632; Stop Drawing</button>
+        <button class="btn-draw" onclick="clearAllMeasurements()" style="width:100%; text-align:left; padding:8px 12px; background:#7a1a1a; border-color:#7a1a1a;">&#128465; Clear Map</button>
       </div>
       <span style="color:#fff; font-size:11px;">Click a button again to draw another area or line</span>
     </div>
@@ -2574,6 +2575,17 @@ function showPropTab(name, btn) {
     mapEl.style.height       = '355px';
     mapEl.style.borderRadius = '';
     if (window._propMapObj) google.maps.event.trigger(window._propMapObj, 'resize');
+  }
+
+  function clearAllMeasurements() {
+    if (!confirm('Clear all measurements from the map?')) return;
+    _clearDraw();
+    setDrawMode(null);
+    _measureShapes.forEach(function(m) { m.shape.setMap(null); });
+    _measureShapes = [];
+    _measureNextId = 1;
+    renderMeasureTable();
+    saveMeasurements();
   }
 
   function _clearDraw() {
