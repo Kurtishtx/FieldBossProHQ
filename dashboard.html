@@ -826,7 +826,7 @@
       <div class="stat-card red" id="stat-card-services-total" style="display:none">
         <div class="stat-label">Services Completed</div>
         <div class="stat-value" id="stat-services-total">—</div>
-        <div class="stat-sub">All time</div>
+        <div class="stat-sub">Completed today</div>
       </div>
       <div class="stat-card green" id="stat-card-props-total" style="display:none">
         <div class="stat-label">Properties Completed</div>
@@ -1119,7 +1119,7 @@
     var { data: owedData } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gt('inv_bal', 0).neq('deleted', true).neq('incomplete', true);
     if (owedData) document.getElementById('stat-owed').textContent = fmt(sum(owedData,'inv_total'));
 
-    var { count: stotal } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true);
+    var { count: stotal } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', todayDate);
     if (stotal !== null) document.getElementById('stat-services-total').textContent = stotal;
 
     var { data: ptotalData } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).not('property_id', 'is', null);
