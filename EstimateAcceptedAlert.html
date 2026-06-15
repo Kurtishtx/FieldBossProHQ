@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -35,7 +35,7 @@
     .status-msg.ok  { color: #28a745; }
     .status-msg.err { color: #d9534f; }
   </style>
-  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
 </head>
 <body>
@@ -63,18 +63,18 @@
   <div class="var-row">
     <label>Insert Variable</label>
     <select class="var-select" id="var-select">
-      <option value="">— choose a variable to insert —</option>
+      <option value="">â€” choose a variable to insert â€”</option>
       <optgroup label="Client">
-        <option value="[clientname]">[clientname] — Full name</option>
-        <option value="[clientfirstname]">[clientfirstname] — First name</option>
-        <option value="[clientphone]">[clientphone] — Client phone</option>
+        <option value="[clientname]">[clientname] â€” Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] â€” First name</option>
+        <option value="[clientphone]">[clientphone] â€” Client phone</option>
       </optgroup>
       <optgroup label="Estimate">
-        <option value="[estimateamount]">[estimateamount] — Estimate total</option>
-        <option value="[estimatenumber]">[estimatenumber] — Estimate number</option>
+        <option value="[estimateamount]">[estimateamount] â€” Estimate total</option>
+        <option value="[estimatenumber]">[estimatenumber] â€” Estimate number</option>
       </optgroup>
       <optgroup label="Company">
-        <option value="[companyname]">[companyname] — Company name</option>
+        <option value="[companyname]">[companyname] â€” Company name</option>
       </optgroup>
     </select>
     <button class="insert-btn" onclick="insertVar()">Insert</button>
@@ -149,7 +149,7 @@
   async function save() {
     var btn = document.getElementById('save-btn');
     var statusEl = document.getElementById('status-msg');
-    btn.disabled = true; btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Savingâ€¦';
     statusEl.textContent = ''; statusEl.className = 'status-msg';
     await sb.auth.refreshSession();
     var { data: sessionData } = await sb.auth.getSession();
@@ -166,7 +166,7 @@
       btn.textContent = 'Save';
       statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
     } else {
-      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      btn.textContent = 'Saved âœ“'; btn.classList.add('saved');
       statusEl.textContent = 'Alert saved.'; statusEl.className = 'status-msg ok';
       setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -316,7 +316,7 @@
       padding: 14px 16px; color: #aaa; font-size: 13px; font-style: italic;
     }
   </style>
-  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM"></script>
   <link rel="stylesheet" href="theme.css"/>
 </head>
@@ -675,11 +675,11 @@
       if (f.type === 'Checkbox') {
         inp = '<input type="checkbox" class="dv-check" data-key="' + cfEscAttr(f.key) + '"' + (val ? ' checked' : '') + '/>';
       } else if (f.type === 'Number') {
-        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+        inp = '<input type="number" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="â€”"/>';
       } else if (f.type === 'Date') {
         inp = '<input type="date" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '"/>';
       } else {
-        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="—"/>';
+        inp = '<input type="text" class="dv-text" data-key="' + cfEscAttr(f.key) + '" value="' + cfEscAttr(val) + '" placeholder="â€”"/>';
       }
       cell.innerHTML = '<span class="dl">' + cfEscHtml(f.name) + '</span>' + inp;
       grid.appendChild(cell);
@@ -763,7 +763,7 @@
       return !filter || t.name.toLowerCase().includes(filter.toLowerCase());
     });
     if (!filtered.length) {
-      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet — use Create Tag.') + '</div>';
+      list.innerHTML = '<div class="tag-dd-empty">' + (allTags.length ? 'No matches.' : 'No tags yet â€” use Create Tag.') + '</div>';
       return;
     }
     list.innerHTML = '';

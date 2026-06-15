@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -32,7 +32,7 @@
     .days-input { width: 72px; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; font-size: 16px; font-family: inherit; font-weight: 700; outline: none; text-align: center; color: #130520; }
     .days-input:focus { border-color: #2272c3; }
   </style>
-  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
 </head>
 <body>
@@ -44,20 +44,20 @@
   <div class="var-row">
     <label>Insert Variable</label>
     <select class="var-select" id="var-select">
-      <option value="">— choose a variable to insert —</option>
+      <option value="">â€” choose a variable to insert â€”</option>
       <optgroup label="Client">
-        <option value="[clientname]">[clientname] — Full name</option>
-        <option value="[clientfirstname]">[clientfirstname] — First name</option>
-        <option value="[clientlastname]">[clientlastname] — Last name</option>
+        <option value="[clientname]">[clientname] â€” Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] â€” First name</option>
+        <option value="[clientlastname]">[clientlastname] â€” Last name</option>
       </optgroup>
       <optgroup label="Estimate">
-        <option value="[estimateamount]">[estimateamount] — Estimate total</option>
-        <option value="[estimatenumber]">[estimatenumber] — Estimate number</option>
+        <option value="[estimateamount]">[estimateamount] â€” Estimate total</option>
+        <option value="[estimatenumber]">[estimatenumber] â€” Estimate number</option>
       </optgroup>
       <optgroup label="Company">
-        <option value="[companyname]">[companyname] — Company name</option>
-        <option value="[companyphone]">[companyphone] — Company phone</option>
-        <option value="[companywebsite]">[companywebsite] — Company website</option>
+        <option value="[companyname]">[companyname] â€” Company name</option>
+        <option value="[companyphone]">[companyphone] â€” Company phone</option>
+        <option value="[companywebsite]">[companywebsite] â€” Company website</option>
       </optgroup>
     </select>
     <button class="insert-btn" onclick="insertVar()">Insert</button>
@@ -71,8 +71,8 @@
 
   <div class="days-row">
     <span style="font-size:13px; font-weight:600; color:#555; white-space:nowrap;">Days After Sent</span>
-    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="—"/>
-    <span style="font-size:13px; color:#222;">days after estimate sent (1–90). Leave blank to disable.</span>
+    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="â€”"/>
+    <span style="font-size:13px; color:#222;">days after estimate sent (1â€“90). Leave blank to disable.</span>
   </div>
 
   <button class="save-btn" id="save-btn" onclick="save()">Save</button>
@@ -127,7 +127,7 @@
   async function save() {
     var btn = document.getElementById('save-btn');
     var statusEl = document.getElementById('status-msg');
-    btn.disabled = true; btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Savingâ€¦';
     statusEl.textContent = ''; statusEl.className = 'status-msg';
     await sb.auth.refreshSession();
     var { data: sessionData } = await sb.auth.getSession();
@@ -150,7 +150,7 @@
       btn.textContent = 'Save';
       statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
     } else {
-      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      btn.textContent = 'Saved âœ“'; btn.classList.add('saved');
       statusEl.textContent = 'Follow-up saved.'; statusEl.className = 'status-msg ok';
       setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
     }

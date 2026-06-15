@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -50,7 +50,7 @@
     .status-msg.ok  { color: #28a745; }
     .status-msg.err { color: #d9534f; }
   </style>
-  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
 </head>
 <body>
@@ -86,7 +86,7 @@
       <div class="inline-row">
         <span style="font-size:13px; font-weight:600; color:#555;">Tag:</span>
         <select id="tag-select" class="tag-select">
-          <option value="">— loading tags… —</option>
+          <option value="">â€” loading tagsâ€¦ â€”</option>
         </select>
       </div>
     </div>
@@ -107,18 +107,18 @@
   <div class="var-row">
     <label>Insert Variable</label>
     <select class="var-select" id="var-select">
-      <option value="">— choose a variable to insert —</option>
+      <option value="">â€” choose a variable to insert â€”</option>
       <optgroup label="Client">
-        <option value="[clientname]">[clientname] — Full name</option>
-        <option value="[clientfirstname]">[clientfirstname] — First name</option>
-        <option value="[clientlastname]">[clientlastname] — Last name</option>
+        <option value="[clientname]">[clientname] â€” Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] â€” First name</option>
+        <option value="[clientlastname]">[clientlastname] â€” Last name</option>
       </optgroup>
       <optgroup label="Review">
-        <option value="[reviewlink]">[reviewlink] — Your Google review link</option>
+        <option value="[reviewlink]">[reviewlink] â€” Your Google review link</option>
       </optgroup>
       <optgroup label="Company">
-        <option value="[companyname]">[companyname] — Company name</option>
-        <option value="[companyphone]">[companyphone] — Company phone</option>
+        <option value="[companyname]">[companyname] â€” Company name</option>
+        <option value="[companyphone]">[companyphone] â€” Company phone</option>
       </optgroup>
     </select>
     <button class="insert-btn" onclick="insertVar()">Insert</button>
@@ -157,7 +157,7 @@
     // Load tags
     var { data: tags } = await sb.from('tags').select('name').eq('user_id', uid).eq('active', true).order('name');
     var tagSel = document.getElementById('tag-select');
-    tagSel.innerHTML = '<option value="">— select a tag —</option>';
+    tagSel.innerHTML = '<option value="">â€” select a tag â€”</option>';
     (tags || []).forEach(function(t) {
       tagSel.innerHTML += '<option value="' + t.name + '">' + t.name + '</option>';
     });
@@ -204,7 +204,7 @@
   async function save() {
     var btn = document.getElementById('save-btn');
     var statusEl = document.getElementById('status-msg');
-    btn.disabled = true; btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Savingâ€¦';
     statusEl.textContent = ''; statusEl.className = 'status-msg';
     await sb.auth.refreshSession();
     var { data: sessionData } = await sb.auth.getSession();
@@ -232,7 +232,7 @@
       btn.textContent = 'Save';
       statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
     } else {
-      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      btn.textContent = 'Saved âœ“'; btn.classList.add('saved');
       statusEl.textContent = 'Saved successfully.'; statusEl.className = 'status-msg ok';
       setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -36,7 +36,7 @@
     .status-msg.ok  { color: #28a745; }
     .status-msg.err { color: #d9534f; }
   </style>
-  <link rel="stylesheet" href="mobile.css"/>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
 </head>
 <body>
@@ -48,18 +48,18 @@
   <div class="var-row">
     <label>Insert Variable</label>
     <select class="var-select" id="var-select">
-      <option value="">— choose a variable to insert —</option>
+      <option value="">â€” choose a variable to insert â€”</option>
       <optgroup label="Client">
-        <option value="[clientname]">[clientname] — Full name</option>
-        <option value="[clientfirstname]">[clientfirstname] — First name</option>
+        <option value="[clientname]">[clientname] â€” Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] â€” First name</option>
       </optgroup>
       <optgroup label="Invoice">
-        <option value="[invoiceamount]">[invoiceamount] — Invoice total</option>
-        <option value="[invoicenumber]">[invoicenumber] — Invoice number</option>
+        <option value="[invoiceamount]">[invoiceamount] â€” Invoice total</option>
+        <option value="[invoicenumber]">[invoicenumber] â€” Invoice number</option>
       </optgroup>
       <optgroup label="Company">
-        <option value="[companyname]">[companyname] — Company name</option>
-        <option value="[companyphone]">[companyphone] — Company phone</option>
+        <option value="[companyname]">[companyname] â€” Company name</option>
+        <option value="[companyphone]">[companyphone] â€” Company phone</option>
       </optgroup>
     </select>
     <button class="insert-btn" onclick="insertVar()">Insert</button>
@@ -73,8 +73,8 @@
 
   <div class="days-row">
     <span style="font-size:13px; font-weight:600; color:#555; white-space:nowrap;">Days After Decline</span>
-    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="—"/>
-    <span style="font-size:13px; color:#222;">days after payment declined (1–90). Leave blank to disable.</span>
+    <input type="number" id="days-after" class="days-input" min="1" max="90" placeholder="â€”"/>
+    <span style="font-size:13px; color:#222;">days after payment declined (1â€“90). Leave blank to disable.</span>
   </div>
 
   <div class="pause-box">
@@ -135,7 +135,7 @@
   async function save() {
     var btn = document.getElementById('save-btn');
     var statusEl = document.getElementById('status-msg');
-    btn.disabled = true; btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Savingâ€¦';
     statusEl.textContent = ''; statusEl.className = 'status-msg';
     await sb.auth.refreshSession();
     var { data: sessionData } = await sb.auth.getSession();
@@ -145,7 +145,7 @@
     var daysVal = daysRaw ? parseInt(daysRaw) : null;
     if (daysVal !== null && (isNaN(daysVal) || daysVal < 1 || daysVal > 90)) {
       btn.disabled = false; btn.textContent = 'Save';
-      statusEl.textContent = 'Days must be 1–90.'; statusEl.className = 'status-msg err'; return;
+      statusEl.textContent = 'Days must be 1â€“90.'; statusEl.className = 'status-msg err'; return;
     }
     var { data: saved, error } = await sb.from('alert_settings').upsert(
       { user_id: uid, alert_type: ALERT_TYPE, message: document.getElementById('msg-area').value,
@@ -158,7 +158,7 @@
       btn.textContent = 'Save';
       statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
     } else {
-      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      btn.textContent = 'Saved âœ“'; btn.classList.add('saved');
       statusEl.textContent = 'Saved.'; statusEl.className = 'status-msg ok';
       setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
     }
