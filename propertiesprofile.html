@@ -258,8 +258,8 @@
     .btn-map-toggle:hover { background:#1e0a35; }
 
     /* Force crosshair on map when drawing */
-    #prop-map.draw-active, #prop-map.draw-active * { cursor: crosshair !important; }
-    #prop-map.draw-pan, #prop-map.draw-pan * { cursor: grabbing !important; }
+    #prop-map.draw-active { cursor: crosshair !important; }
+    #prop-map.draw-pan { cursor: grabbing !important; }
 
     /* ── Measurement Panel ── */
     #measure-panel {
@@ -2573,7 +2573,7 @@ function showPropTab(name, btn) {
         _mp.start = { x: e.clientX, y: e.clientY };
         _mp.last  = { x: e.clientX, y: e.clientY };
         _mp.active = false;
-      }, true);
+      });
       _mapEl2.addEventListener('mousemove', function(e) {
         if (!_mp.start || !_measureMode || !(e.buttons & 1)) {
           if (!(e.buttons & 1)) _mp.start = null;
@@ -2600,7 +2600,7 @@ function showPropTab(name, btn) {
           var newLat = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
           _measureMap.setCenter({ lat: newLat, lng: newLng });
         }
-      }, true);
+      });
       document.addEventListener('mouseup', function() {
         var wasActive = _mp.active;
         _mp.start = null; _mp.last = null; _mp.active = false;
