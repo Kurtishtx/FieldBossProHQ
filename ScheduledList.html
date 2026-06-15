@@ -41,7 +41,7 @@
     .drp-wrap { position:relative; display:inline-block; }
     .drp-input { border:1px solid #bbb; padding:7px 16px; font-size:13.5px; cursor:pointer; background:#fff; min-width:190px; color:#333; border-radius:6px; display:flex; align-items:center; user-select:none; white-space:nowrap; }
     .drp-input:hover { background:#f5f5f5; }
-    .drp-popup { display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.2); z-index:600; padding:10px 12px 8px; min-width:560px; max-width:98vw; overflow-x:auto; }
+    .drp-popup { display:none; position:absolute; top:calc(100% + 4px); right:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.2); z-index:600; padding:10px 12px 8px; min-width:560px; max-width:98vw; overflow-x:auto; }
     .drp-popup.open { display:block; }
     .drp-close-btn { background:#e07820; color:#fff; border:2px solid #000; padding:4px 16px; cursor:pointer; font-size:12px; font-weight:700; border-radius:2px; }
     .drp-months { display:flex; gap:12px; width:100%; }
@@ -312,25 +312,25 @@
       </div>
     </div>
   </div>
-  <div class="drp-wrap" id="drp-wrap">
-    <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading</div>
-    <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <div class="drp-quick-row" style="margin-top:0; flex-wrap:wrap;">
-          <span>Past</span> <a onclick="drpQuick(1,0)">1Day</a> <a onclick="drpQuick(3,0)">3Days</a> <a onclick="drpQuick(5,0)">5Days</a>
-          &nbsp;&nbsp;<span>Next</span> <a onclick="drpQuick(0,3)">3Days</a> <a onclick="drpQuick(0,5)">5Days</a> <a onclick="drpQuick(0,7)">7Days</a>
-          &nbsp;&nbsp;<span>Weekly</span> <a onclick="drpThisWeek()">This Week</a> <a onclick="drpNextWeek()">Next Week</a>
-        </div>
-        <button class="drp-close-btn" onclick="closeDRP()" style="flex-shrink:0; margin-left:16px;">Apply</button>
-      </div>
-      <div class="drp-months">
-        <div id="drp-month-left"></div>
-        <div id="drp-month-right"></div>
-      </div>
-    </div>
-  </div>
   <input type="checkbox" id="use-min-days" checked style="display:none;"/>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <div class="drp-wrap" id="drp-wrap">
+      <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading</div>
+      <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="drp-quick-row" style="margin-top:0; flex-wrap:wrap;">
+            <span>Past</span> <a onclick="drpQuick(1,0)">1Day</a> <a onclick="drpQuick(3,0)">3Days</a> <a onclick="drpQuick(5,0)">5Days</a>
+            &nbsp;&nbsp;<span>Next</span> <a onclick="drpQuick(0,3)">3Days</a> <a onclick="drpQuick(0,5)">5Days</a> <a onclick="drpQuick(0,7)">7Days</a>
+            &nbsp;&nbsp;<span>Weekly</span> <a onclick="drpThisWeek()">This Week</a> <a onclick="drpNextWeek()">Next Week</a>
+          </div>
+          <button class="drp-close-btn" onclick="closeDRP()" style="flex-shrink:0; margin-left:16px;">Apply</button>
+        </div>
+        <div class="drp-months">
+          <div id="drp-month-left"></div>
+          <div id="drp-month-right"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
