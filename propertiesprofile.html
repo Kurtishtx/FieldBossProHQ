@@ -257,6 +257,10 @@
     .btn-map-toggle { background:#130520; border:2px solid #e07820; color:#fff; font-weight:700; border-radius:6px; padding:6px 16px; font-size:13px; font-family:inherit; cursor:pointer; }
     .btn-map-toggle:hover { background:#1e0a35; }
 
+    /* ── Measurement cursor ── */
+    #prop-map.draw-active,
+    #prop-map.draw-active * { cursor: crosshair !important; }
+
     /* ── Measurement Panel ── */
     #measure-panel {
       background: #fff;
@@ -2619,6 +2623,7 @@ function showPropTab(name, btn) {
         null
       );
     }
+    document.getElementById('prop-map').classList.toggle('draw-active', !!mode);
     document.getElementById('btn-draw-area').classList.toggle('active', mode === 'polygon');
     document.getElementById('btn-draw-line').classList.toggle('active', mode === 'polyline');
     document.getElementById('btn-draw-stop').style.display = mode ? 'inline-block' : 'none';
