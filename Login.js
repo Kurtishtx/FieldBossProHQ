@@ -30,12 +30,20 @@ async function login() {
     return;
   }
 
-  // Check role — Mobile Users cannot access the web app
+  // Check role and trial — Mobile Users cannot access the web app
   var userId = data.user.id;
-  var { data: prof } = await client.from('user_profiles').select('role').eq('id', userId).single();
+  var { data: prof } = await client.from('user_profiles').select('role, trial_ends_at').eq('id', userId).single();
   if (prof && prof.role === 'mobile') {
     await client.auth.signOut();
     alert('This account is for the mobile app only. Please use the SprayBossPro mobile app to log in.');
+    return;
+  }
+
+  // Check trial expiry
+  if (prof && prof.trial_ends_at && new Date(prof.trial_ends_at) < new Date()) {
+    await client.auth.signOut();
+    var screen = document.getElementById('trial-expired-screen');
+    if (screen) { screen.style.display = 'flex'; }
     return;
   }
 

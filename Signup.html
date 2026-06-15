@@ -266,7 +266,7 @@
 
     <button class="btn btn-primary" id="next-btn" onclick="goToStep2()">Next: Create Login &rarr;</button>
 
-    <div class="login-link">Already have an account? <a href="LOGIN_URL_HERE">Sign in</a></div>
+    <div class="login-link">Already have an account? <a href="https://my.spraybosspro.com">Sign in</a></div>
   </div>
 </div>
 
@@ -314,7 +314,7 @@
 <script>
   var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
-  var APP_URL       = 'LOGIN_URL_HERE'; /* ← replace with your app login page URL before going live */
+  var APP_URL       = 'https://my.spraybosspro.com/dashboard.html';
 
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -390,13 +390,15 @@
       var lastName  = document.getElementById('last-name').value.trim();
       await sb.auth.updateUser({ data: { full_name: firstName + ' ' + lastName } });
 
-      /* 4. Create user profile as primary full_access owner */
+      /* 4. Create user profile as primary full_access owner with 14-day trial */
+      var trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
       await sb.from('user_profiles').upsert({
         id:               uid,
         email:            loginEmail,
         role:             'full_access',
         is_primary_owner: true,
-        tenant_id:        null
+        tenant_id:        null,
+        trial_ends_at:    trialEnd
       }, { onConflict: 'id' });
 
       /* 6. Insert company info row so their account is ready on first login */
