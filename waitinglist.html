@@ -1752,7 +1752,7 @@
 
     /* service name counts */
     var svcCounts = {};
-    selected.forEach(function(x) { var n = x.name || x.service; svcCounts[n] = (svcCounts[n] || 0) + 1; });
+    selected.forEach(function(x) { var n = resolvedServiceName(x); svcCounts[n] = (svcCounts[n] || 0) + 1; });
 
     var html = '<div class="sp-row" style="margin-bottom:6px;"><span><strong>Total Revenue</strong></span><span><strong>$' + totalRev.toFixed(2) + '</strong></span></div>';
 
