@@ -1038,17 +1038,22 @@
 
 <!-- ════════════ FOOTER ════════════ -->
 
-<!-- ════════════ SIGNUP MODAL ════════════ -->
-<div id="sbp-signup-modal" onclick="if(event.target===this)closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:999999; overflow-y:auto;">
-  <div style="min-height:100%; display:flex; align-items:center; justify-content:center; padding:16px; pointer-events:none;">
-  <div style="background:#fff; border-radius:14px; width:100%; max-width:480px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4); pointer-events:all;">
+<!-- ════════════ SIGNUP DRAWER ════════════ -->
+<!-- Backdrop -->
+<div id="sbp-backdrop" onclick="closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:99998;"></div>
 
-    <!-- Header -->
-    <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:24px 28px 20px; position:relative;">
-      <div style="color:#fff; font-size:20px; font-weight:800;">Start Your 14-Day Free Trial</div>
-      <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:4px;">No credit card required. Full access. Cancel anytime.</div>
-      <button onclick="closeSignupModal()" style="position:absolute; top:14px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
-    </div>
+<!-- Drawer panel -->
+<div id="sbp-drawer" style="position:fixed; top:0; right:0; width:420px; max-width:100%; height:100%; background:#fff; z-index:99999; box-shadow:-8px 0 40px rgba(0,0,0,.25); display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1);">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative; flex-shrink:0;">
+    <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
+    <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
+    <button onclick="closeSignupModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
+  </div>
+
+  <!-- Scrollable body -->
+  <div style="flex:1; overflow-y:auto;">
 
     <!-- Step 1 -->
     <div id="sbp-step1" style="padding:24px 28px;">
@@ -1106,7 +1111,6 @@
     </div>
 
   </div>
-  </div>
 </div>
 
 <script>
@@ -1120,26 +1124,14 @@
   }
 
   function openSignupModal() {
-    var modal = document.getElementById('sbp-signup-modal');
-    var card  = modal.querySelector('div > div');
-    modal.style.display = 'flex';
-    modal.style.opacity = '0';
-    card.style.transform = 'scale(.92) translateY(-12px)';
-    card.style.transition = 'transform .22s ease, opacity .22s ease';
-    card.style.opacity = '0';
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        modal.style.transition = 'opacity .2s ease';
-        modal.style.opacity = '1';
-        card.style.transform = 'scale(1) translateY(0)';
-        card.style.opacity = '1';
-      });
-    });
+    document.getElementById('sbp-backdrop').style.display = 'block';
+    document.getElementById('sbp-drawer').style.transform = 'translateX(0)';
     document.body.style.overflow = 'hidden';
   }
 
   function closeSignupModal() {
-    document.getElementById('sbp-signup-modal').style.display = 'none';
+    document.getElementById('sbp-drawer').style.transform = 'translateX(100%)';
+    document.getElementById('sbp-backdrop').style.display = 'none';
     document.body.style.overflow = '';
   }
 
@@ -1229,8 +1221,8 @@
 
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter') return;
-    var modal = document.getElementById('sbp-signup-modal');
-    if (modal.style.display !== 'flex') return;
+    var drawer = document.getElementById('sbp-drawer');
+    if (drawer.style.transform !== 'translateX(0px)' && drawer.style.transform !== 'translateX(0)') return;
     if (document.getElementById('sbp-step2').style.display === 'block') sbpCreateAccount();
     else sbpStep2();
   });
