@@ -454,7 +454,7 @@
   <h1>Run Your Entire Operation<br><span>From One Dashboard</span></h1>
   <p>SprayBossPro is the all-in-one field management platform built specifically for lawn care and pest control businesses. Schedule jobs, send estimates, collect payments, and keep your team coordinated — all in one place.</p>
   <div class="hero-btns">
-    <a href="#" onclick="openSignupModal(); return false;" class="btn-primary">Start Your 14-Day Free Trial</a>
+    <a href="#" onclick="openSignupModal(this); return false;" class="btn-primary">Start Your 14-Day Free Trial</a>
     <a href="#features" class="btn-secondary">See All Features</a>
   </div>
   <div class="hero-stats">
@@ -580,7 +580,7 @@
         <li>500 Outbound SMS/month included</li>
         <li>+$15 per additional 500 SMS after that</li>
       </ul>
-      <a href="#" onclick="openSignupModal(); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
+      <a href="#" onclick="openSignupModal(this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
     </div>
   </div>
   <p style="text-align:center; color:var(--muted); font-size:13px; margin-top:32px;">No contracts. Cancel anytime. No hidden fees — ever.</p>
@@ -1032,18 +1032,20 @@
   <h2>Your Competition Is Already<br>Using Software Like This.</h2>
   <p>Stop running your business out of a notepad and a group text. Get organized, get paid faster, and give your customers an experience that wins referrals.</p>
   <div class="hero-btns">
-    <a href="#" onclick="openSignupModal(); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
+    <a href="#" onclick="openSignupModal(this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
   </div>
 </div>
 
 <!-- ════════════ FOOTER ════════════ -->
 
-<!-- ════════════ SIGNUP DRAWER ════════════ -->
-<!-- Backdrop -->
-<div id="sbp-backdrop" onclick="closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:99998;"></div>
+<!-- ════════════ SIGNUP DROPDOWN ════════════ -->
+<!-- Click-outside backdrop (invisible) -->
+<div id="sbp-backdrop" onclick="closeSignupModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99997;"></div>
 
-<!-- Drawer panel -->
-<div id="sbp-drawer" style="position:fixed; top:0; right:0; width:420px; max-width:100%; height:100%; background:#fff; z-index:99999; box-shadow:-8px 0 40px rgba(0,0,0,.25); display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1);">
+<!-- Dropdown card -->
+<div id="sbp-drawer" style="display:none; position:fixed; z-index:99999; width:390px; max-width:calc(100vw - 24px); background:#fff; border-radius:12px; box-shadow:0 12px 48px rgba(0,0,0,.28); overflow:hidden;">
+  <!-- Arrow -->
+  <div id="sbp-arrow" style="position:absolute; width:0; height:0; border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:9px solid #080010;"></div>
 
   <!-- Header -->
   <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative; flex-shrink:0;">
@@ -1051,9 +1053,6 @@
     <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
     <button onclick="closeSignupModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
   </div>
-
-  <!-- Scrollable body -->
-  <div style="flex:1; overflow-y:auto;">
 
     <!-- Step 1 -->
     <div id="sbp-step1" style="padding:24px 28px;">
@@ -1110,7 +1109,6 @@
       <div id="sbp-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
     </div>
 
-  </div>
 </div>
 
 <script>
@@ -1123,16 +1121,67 @@
     return sbpClient;
   }
 
-  function openSignupModal() {
+  function openSignupModal(btn) {
+    var dd     = document.getElementById('sbp-drawer');
+    var arrow  = document.getElementById('sbp-arrow');
+
+    // Show hidden to measure
+    dd.style.visibility = 'hidden';
+    dd.style.display    = 'block';
+
+    var rect  = btn.getBoundingClientRect();
+    var ddW   = dd.offsetWidth;
+    var ddH   = dd.offsetHeight;
+    var vw    = window.innerWidth;
+    var vh    = window.innerHeight;
+    var gap   = 10;
+    var arrowH = 9;
+
+    // Horizontal: center under button, clamped inside viewport
+    var left = rect.left + rect.width / 2 - ddW / 2;
+    left = Math.max(12, Math.min(left, vw - ddW - 12));
+
+    // Arrow X position relative to dropdown
+    var arrowX = (rect.left + rect.width / 2) - left - 9;
+    arrowX = Math.max(16, Math.min(arrowX, ddW - 34));
+
+    // Vertical: prefer below button, flip above if needed
+    var fitsBelow = rect.bottom + gap + arrowH + ddH < vh;
+    var top;
+    if (fitsBelow) {
+      top = rect.bottom + gap + arrowH;
+      arrow.style.top    = (-arrowH) + 'px';
+      arrow.style.bottom = 'auto';
+      arrow.style.borderBottom = '9px solid #080010';
+      arrow.style.borderTop    = 'none';
+    } else {
+      top = rect.top - gap - arrowH - ddH;
+      arrow.style.bottom = (-arrowH) + 'px';
+      arrow.style.top    = 'auto';
+      arrow.style.borderTop    = '9px solid #080010';
+      arrow.style.borderBottom = 'none';
+    }
+
+    arrow.style.left = arrowX + 'px';
+    dd.style.top  = top + 'px';
+    dd.style.left = left + 'px';
+    dd.style.visibility = 'visible';
+    dd.style.opacity = '0';
+    dd.style.transform = 'scale(.96) translateY(-4px)';
+    dd.style.transition = 'opacity .18s ease, transform .18s ease';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        dd.style.opacity   = '1';
+        dd.style.transform = 'scale(1) translateY(0)';
+      });
+    });
+
     document.getElementById('sbp-backdrop').style.display = 'block';
-    document.getElementById('sbp-drawer').style.transform = 'translateX(0)';
-    document.body.style.overflow = 'hidden';
   }
 
   function closeSignupModal() {
-    document.getElementById('sbp-drawer').style.transform = 'translateX(100%)';
+    document.getElementById('sbp-drawer').style.display   = 'none';
     document.getElementById('sbp-backdrop').style.display = 'none';
-    document.body.style.overflow = '';
   }
 
   function sbpStep2() {
@@ -1221,8 +1270,7 @@
 
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter') return;
-    var drawer = document.getElementById('sbp-drawer');
-    if (drawer.style.transform !== 'translateX(0px)' && drawer.style.transform !== 'translateX(0)') return;
+    if (document.getElementById('sbp-drawer').style.display !== 'block') return;
     if (document.getElementById('sbp-step2').style.display === 'block') sbpCreateAccount();
     else sbpStep2();
   });
