@@ -2642,15 +2642,16 @@ function showPropTab(name, btn) {
       _drawClickLs = google.maps.event.addListener(_measureMap, 'click', function(e) {
         _drawPoints.push(e.latLng);
         var isFirst = _drawPoints.length === 1;
+        var isCloseDot = isFirst && mode === 'polygon';
         var dot = new google.maps.Marker({
           position: e.latLng, map: _measureMap,
-          icon: isFirst
+          icon: isCloseDot
             ? { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: _previewColor, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
             : dotIcon,
-          clickable: isFirst && mode === 'polygon',
+          clickable: isCloseDot,
           zIndex: 10
         });
-        if (isFirst && mode === 'polygon') {
+        if (isCloseDot) {
           google.maps.event.addListener(dot, 'click', function() {
             if (_drawPoints.length >= 3) _finishDraw();
           });
