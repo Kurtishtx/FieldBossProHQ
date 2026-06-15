@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing | SprayBossPro — $129/Month, Everything Included</title>
+  <meta name="description" content="SprayBossPro is $129/month flat. No per-seat fees, no add-ons, no contracts. Unlimited users, clients, and properties. Full scheduling, SMS, chemical tracking, estimates, and more — all in one price."/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple-dark: #080010;
+      --purple-mid:  #0d0318;
+      --purple-deep: #130520;
+      --orange:      #e07820;
+      --orange-dark: #c96a10;
+      --text:        #1a1a2e;
+      --muted:       #555;
+      --light-bg:    #f8f7fc;
+      --border:      #e4e0f0;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: var(--text); background: #fff; line-height: 1.6; }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, #080010 0%, #130520 60%, #1e0a35 100%);
+      padding: 100px 40px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(224,120,32,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(224,120,32,.15);
+      border: 1px solid rgba(224,120,32,.4);
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    .hero h1 { color: #fff; font-size: clamp(32px, 5vw, 56px); font-weight: 800; line-height: 1.15; max-width: 800px; margin: 0 auto 20px; }
+    .hero h1 span { color: var(--orange); }
+    .hero p { color: rgba(255,255,255,.75); font-size: clamp(16px, 2vw, 19px); max-width: 600px; margin: 0 auto 16px; }
+    .hero-note { color: rgba(255,255,255,.45); font-size: 14px; margin-bottom: 40px; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: var(--orange); color: #fff; padding: 16px 36px; border-radius: 6px; font-size: 16px; font-weight: 700; text-decoration: none; transition: background .2s, transform .1s; display: inline-block; border: none; cursor: pointer; font-family: inherit; }
+    .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 90px 40px; }
+    .section-label { display: inline-block; color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-size: clamp(26px, 4vw, 40px); font-weight: 800; line-height: 1.2; margin-bottom: 16px; color: var(--text); }
+    .section-sub { color: var(--muted); font-size: 17px; max-width: 620px; margin-bottom: 56px; }
+    .centered { text-align: center; }
+    .centered .section-sub { margin-left: auto; margin-right: auto; }
+
+    /* ─── PRICE CARD ─── */
+    .price-card {
+      background: #fff;
+      border: 3px solid var(--orange);
+      border-radius: 20px;
+      padding: 52px 48px;
+      max-width: 620px;
+      margin: 0 auto;
+      position: relative;
+      box-shadow: 0 0 0 6px rgba(224,120,32,.1), 0 24px 80px rgba(8,0,16,.12);
+    }
+    .price-card-badge {
+      position: absolute;
+      top: -16px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--orange);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 5px 20px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .price-tier { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .price-amount { font-size: 72px; font-weight: 800; color: var(--text); line-height: 1; }
+    .price-amount sup { font-size: 30px; vertical-align: super; }
+    .price-period { color: var(--muted); font-size: 15px; margin-bottom: 8px; margin-top: 6px; }
+    .price-tagline { font-size: 16px; color: var(--text); font-weight: 600; margin-bottom: 32px; }
+
+    .include-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+      margin-bottom: 36px;
+      text-align: left;
+    }
+    .include-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); }
+    .include-item::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; font-size: 15px; }
+
+    .price-divider { border: none; border-top: 1.5px solid var(--border); margin: 28px 0; }
+
+    .sms-note { background: var(--light-bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 20px; font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+    .sms-note strong { color: var(--text); }
+
+    /* ─── WHAT'S INCLUDED TABLE ─── */
+    .include-table { width: 100%; max-width: 900px; margin: 0 auto; border-collapse: collapse; }
+    .include-table th { background: var(--purple-dark); color: #fff; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 14px 20px; text-align: left; }
+    .include-table th:last-child { text-align: center; }
+    .include-table td { padding: 13px 20px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text); }
+    .include-table tr:last-child td { border-bottom: none; }
+    .include-table tr:nth-child(even) td { background: var(--light-bg); }
+    .include-table td:last-child { text-align: center; color: var(--orange); font-weight: 700; font-size: 18px; }
+    .include-table td.muted-cell { color: var(--muted); font-size: 13px; }
+
+    /* ─── PAIN POINT BAND ─── */
+    .pain-band {
+      background: linear-gradient(135deg, var(--purple-dark) 0%, #1e0a35 100%);
+      padding: 80px 40px;
+      text-align: center;
+    }
+    .pain-band h2 { color: #fff; font-size: clamp(24px, 3.5vw, 38px); font-weight: 800; margin-bottom: 48px; max-width: 700px; margin-left: auto; margin-right: auto; }
+    .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
+    .pain-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 24px 20px; }
+    .pain-old { color: rgba(255,255,255,.35); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-decoration: line-through; }
+    .pain-new { color: var(--orange); font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .pain-desc { color: rgba(255,255,255,.55); font-size: 13px; }
+
+    /* ─── FAQ ─── */
+    .faq-list { max-width: 780px; margin: 0 auto; }
+    .faq-item { border-bottom: 1.5px solid var(--border); padding: 24px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .faq-a { font-size: 15px; color: var(--muted); line-height: 1.7; }
+
+    /* ─── CTA BAND ─── */
+    .cta-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1e0a35 100%); text-align: center; padding: 100px 40px; position: relative; overflow: hidden; }
+    .cta-band::before { content: ''; position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.12) 0%, transparent 70%); pointer-events: none; }
+    .cta-band h2 { color: #fff; font-size: clamp(28px, 4vw, 46px); font-weight: 800; margin-bottom: 16px; }
+    .cta-band p { color: rgba(255,255,255,.7); font-size: 18px; margin-bottom: 40px; max-width: 520px; margin-left: auto; margin-right: auto; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 700px) {
+      section { padding: 60px 20px; }
+      .hero { padding: 70px 20px 60px; }
+      .price-card { padding: 40px 24px; }
+      .include-grid { grid-template-columns: 1fr; }
+      .pain-band { padding: 60px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ HERO ════════════ -->
+<div class="hero">
+  <div class="hero-badge">Simple, Honest Pricing</div>
+  <h1>$129/Month.<br><span>Everything Included.</span></h1>
+  <p>One flat price covers your entire operation — unlimited users, unlimited clients, every feature. No tiers, no add-ons, no surprises.</p>
+  <p class="hero-note">14-day free trial · No credit card required · Cancel anytime</p>
+  <div class="hero-btns">
+    <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial</a>
+  </div>
+</div>
+
+<!-- ════════════ PRICE CARD ════════════ -->
+<section>
+  <div class="price-card">
+    <div class="price-card-badge">One Plan — No Surprises</div>
+    <div class="price-tier">SprayBossPro</div>
+    <div class="price-amount"><sup>$</sup>129</div>
+    <div class="price-period">per month</div>
+    <div class="price-tagline">Your entire lawn care or pest control operation. One price.</div>
+    <div class="include-grid">
+      <div class="include-item">Unlimited Users</div>
+      <div class="include-item">Unlimited Clients</div>
+      <div class="include-item">Unlimited Properties</div>
+      <div class="include-item">Unlimited Leads</div>
+      <div class="include-item">Scheduling &amp; Dispatch</div>
+      <div class="include-item">Live Route Map</div>
+      <div class="include-item">Sq Ft Waiting List</div>
+      <div class="include-item">Chemical Tracking</div>
+      <div class="include-item">Estimates &amp; Invoices</div>
+      <div class="include-item">Stripe Payments</div>
+      <div class="include-item">Two-Way SMS Inbox</div>
+      <div class="include-item">Automated Alerts</div>
+      <div class="include-item">Package Programs</div>
+      <div class="include-item">Mobile App for Techs</div>
+      <div class="include-item">Chemical Compliance Reports</div>
+      <div class="include-item">Role-Based Access</div>
+      <div class="include-item">Truck Management</div>
+      <div class="include-item">Hour Tracking</div>
+      <div class="include-item">Review Requests</div>
+      <div class="include-item">Dashboard &amp; Reports</div>
+    </div>
+    <hr class="price-divider">
+    <div class="sms-note">
+      <strong>500 outbound SMS/month included.</strong> Need more? Add blocks of 500 for <strong>$15 each</strong>. Most businesses never exceed the included 500. The SMS credit rolls month to month — you only pay when you actually use it.
+    </div>
+    <button onclick="openSignupModal(1, this)" class="btn-primary" style="width:100%; font-size:16px; padding:16px;">Start Your 14-Day Free Trial</button>
+    <p style="text-align:center; color:var(--muted); font-size:13px; margin-top:14px;">No credit card required. No contracts. Cancel anytime.</p>
+  </div>
+</section>
+
+<!-- ════════════ PAIN POINT BAND ════════════ -->
+<div class="pain-band">
+  <h2>We Were Paying $500–$700/Month for Software<br>That Still Didn't Do What We Needed.</h2>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="pain-old">$149/user/mo</div>
+      <div class="pain-new">$129 flat</div>
+      <div class="pain-desc">Unlimited users. Add every tech and office staff at no extra cost.</div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-old">Locked features</div>
+      <div class="pain-new">All features</div>
+      <div class="pain-desc">No tiers. No "upgrade to access chemical tracking." Everything is included.</div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-old">Annual contracts</div>
+      <div class="pain-new">Month to month</div>
+      <div class="pain-desc">No contracts. No cancellation fees. Stop whenever you want.</div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-old">Generic software</div>
+      <div class="pain-new">Built for spray</div>
+      <div class="pain-desc">Sq ft waiting lists, chemical logs, spray-specific workflows. Not adapted from a plumbing app.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ WHAT'S INCLUDED ════════════ -->
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:900px; margin:0 auto 48px;">
+    <span class="section-label">Everything Included</span>
+    <h2 class="section-title">Every Feature. One Price.</h2>
+    <p class="section-sub">Here's exactly what you get for $129/month — nothing hidden, nothing locked behind a higher tier.</p>
+  </div>
+  <table class="include-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th class="muted-cell" style="color:rgba(255,255,255,.6); font-weight:400;">What it does</th>
+        <th>Included</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Scheduling &amp; Dispatch Board</strong></td><td class="muted-cell">Schedule stops, assign techs, build routes, view day summary</td><td>✓</td></tr>
+      <tr><td><strong>Sq Ft Waiting List</strong></td><td class="muted-cell">See total sq ft waiting per service type before you build a route</td><td>✓</td></tr>
+      <tr><td><strong>Live Route Map</strong></td><td class="muted-cell">Interactive map with all stops pinned — drag to reorder</td><td>✓</td></tr>
+      <tr><td><strong>Chemical Application Tracking</strong></td><td class="muted-cell">Log product, rate, gallons, weather, and tech per stop</td><td>✓</td></tr>
+      <tr><td><strong>Compliance Reports</strong></td><td class="muted-cell">Print-ready pesticide application reports for any inspector</td><td>✓</td></tr>
+      <tr><td><strong>Estimates</strong></td><td class="muted-cell">Build, email, and track estimates with a service catalog</td><td>✓</td></tr>
+      <tr><td><strong>Invoices &amp; Payments</strong></td><td class="muted-cell">Stripe card-on-file billing, payment history, partial payments</td><td>✓</td></tr>
+      <tr><td><strong>Two-Way SMS Inbox</strong></td><td class="muted-cell">Send and receive texts with customers inside the app</td><td>✓</td></tr>
+      <tr><td><strong>Automated SMS Alerts (10+ types)</strong></td><td class="muted-cell">Service scheduled, completed, estimate sent, review request, and more</td><td>✓</td></tr>
+      <tr><td><strong>Estimate Follow-Up Sequence</strong></td><td class="muted-cell">3 automated texts if a client doesn't respond to an estimate</td><td>✓</td></tr>
+      <tr><td><strong>Payment Follow-Up Sequence</strong></td><td class="muted-cell">3 automated texts for unpaid invoices</td><td>✓</td></tr>
+      <tr><td><strong>Package Programs</strong></td><td class="muted-cell">Multi-treatment packages with renewal tracking</td><td>✓</td></tr>
+      <tr><td><strong>Client &amp; Lead Management</strong></td><td class="muted-cell">Full CRM for existing customers and open prospects</td><td>✓</td></tr>
+      <tr><td><strong>Property Profiles</strong></td><td class="muted-cell">Service history, chemical logs, notes, sq ft, GPS per address</td><td>✓</td></tr>
+      <tr><td><strong>Mobile App for Technicians</strong></td><td class="muted-cell">Field-optimized stop list, mark complete, log chemicals</td><td>✓</td></tr>
+      <tr><td><strong>Role-Based Access</strong></td><td class="muted-cell">Owner, Manager, Office, Tech, Mobile — granular permissions</td><td>✓</td></tr>
+      <tr><td><strong>Truck Management</strong></td><td class="muted-cell">Assign vehicles to routes, track by truck</td><td>✓</td></tr>
+      <tr><td><strong>Employee Hour Tracking</strong></td><td class="muted-cell">Hours per job, payroll-ready reports</td><td>✓</td></tr>
+      <tr><td><strong>Google Review Requests</strong></td><td class="muted-cell">Auto-sent after every completed service</td><td>✓</td></tr>
+      <tr><td><strong>Dashboard &amp; Reports</strong></td><td class="muted-cell">Revenue, stops, money owed, properties served — at a glance</td><td>✓</td></tr>
+      <tr><td><strong>Discount Codes &amp; Sales Tax</strong></td><td class="muted-cell">Percentage or flat discounts, auto tax calculation per invoice</td><td>✓</td></tr>
+      <tr><td><strong>Unlimited Users</strong></td><td class="muted-cell">Add every employee at no per-seat cost</td><td>✓</td></tr>
+      <tr><td><strong>Unlimited Clients &amp; Properties</strong></td><td class="muted-cell">No caps — 50 accounts or 5,000, same price</td><td>✓</td></tr>
+      <tr><td><strong>500 SMS/month</strong></td><td class="muted-cell">Outbound SMS included; +$15 per additional 500 after that</td><td>✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════════════ FAQ ════════════ -->
+<section>
+  <div class="centered" style="max-width:780px; margin:0 auto 48px;">
+    <span class="section-label">FAQ</span>
+    <h2 class="section-title">Common Questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">Is there really just one plan?</div>
+      <div class="faq-a">Yes. $129/month, everything included. We don't believe in tiers that lock you out of features you need to run your business. You get the full platform from day one.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What happens after the 14-day free trial?</div>
+      <div class="faq-a">You'll be prompted to enter a card and continue for $129/month. If you decide not to continue, your account simply stops — no charges, no cancellation fees. We don't auto-charge without you knowing it's coming.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Do I need a credit card to start the trial?</div>
+      <div class="faq-a">No. Create your account and get full access for 14 days with no card required. You only enter payment info if you decide to keep going after the trial.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How many users can I add?</div>
+      <div class="faq-a">Unlimited. Add every tech, office staff member, and manager at no extra cost. No per-seat fees. Ever.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's the SMS pricing?</div>
+      <div class="faq-a">500 outbound SMS messages per month are included in your $129. If you go over, you can add blocks of 500 for $15 each. Most businesses with under 300 active properties never hit the 500 limit.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Are there any contracts or annual commitments?</div>
+      <div class="faq-a">None. Month to month, always. Cancel anytime from your account settings — no forms, no phone calls, no fees.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Does this work for both lawn care and pest control?</div>
+      <div class="faq-a">Yes. SprayBossPro was built for spray businesses — lawn care, pest control, mosquito treatment, or any combination. The service types, chemical tracking, and waiting list work the same way regardless of what you spray.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What if I have questions or need help getting set up?</div>
+      <div class="faq-a">We're a small team and we respond fast. Reach us anytime at <a href="mailto:support@spraybosspro.com" style="color:var(--orange);">support@spraybosspro.com</a>. We've run routes ourselves — we know what setup actually looks like and we're here to help.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ CTA ════════════ -->
+<div class="cta-band">
+  <h2>Start Free. No Card. No Commitment.</h2>
+  <p>14 days of full access — every feature, unlimited everything. See if SprayBossPro fits your operation before you spend a dollar.</p>
+  <div class="hero-btns">
+    <a href="#" onclick="openSignupModal(2, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
+  </div>
+</div>
+
+<!-- ════════════ SIGNUP FORMS ════════════ -->
+<div id="sbp-backdrop" onclick="closeAllModals()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:99997;"></div>
+
+<!-- Form 1 -->
+<div id="sbp-form-1" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
+    <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
+    <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
+    <button onclick="closeSignupModal(1)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
+  </div>
+  <div id="sbp1-step1" style="padding:24px 28px;">
+    <div id="sbp1-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="display:flex; gap:12px; margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp1-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp1-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp1-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp1-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button onclick="sbpStep2(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+  </div>
+  <div id="sbp1-step2" style="padding:24px 28px; display:none;">
+    <div id="sbp1-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp1-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp1-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp1-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;">
+      <input type="checkbox" id="sbp1-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;">
+      <label for="sbp1-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label>
+    </div>
+    <button id="sbp1-create-btn" onclick="sbpCreateAccount(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button onclick="sbpBackToStep1(1)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
+  </div>
+  <div id="sbp1-success" style="padding:48px 28px; text-align:center; display:none;">
+    <div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div>
+    <div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div>
+    <div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div>
+    <div id="sbp1-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- Form 2 -->
+<div id="sbp-form-2" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
+    <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
+    <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
+    <button onclick="closeSignupModal(2)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
+  </div>
+  <div id="sbp2-step1" style="padding:24px 28px;">
+    <div id="sbp2-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="display:flex; gap:12px; margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp2-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp2-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp2-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp2-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <button onclick="sbpStep2(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+  </div>
+  <div id="sbp2-step2" style="padding:24px 28px; display:none;">
+    <div id="sbp2-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp2-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp2-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp2-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
+    <div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;">
+      <input type="checkbox" id="sbp2-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;">
+      <label for="sbp2-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label>
+    </div>
+    <button id="sbp2-create-btn" onclick="sbpCreateAccount(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button onclick="sbpBackToStep1(2)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
+  </div>
+  <div id="sbp2-success" style="padding:48px 28px; text-align:center; display:none;">
+    <div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div>
+    <div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div>
+    <div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div>
+    <div id="sbp2-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div>
+  </div>
+</div>
+
+<script>
+  var SBP_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SBP_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sbpClient = null;
+  var sbpOpenForm = 0;
+
+  function getSbpClient() {
+    if (!sbpClient) sbpClient = window.supabase.createClient(SBP_URL, SBP_ANON);
+    return sbpClient;
+  }
+
+  function openSignupModal(n, btn) {
+    closeAllModals();
+    sbpOpenForm = n;
+    var form = document.getElementById('sbp-form-' + n);
+    var rect = btn.getBoundingClientRect();
+    var formW = Math.min(420, window.innerWidth - 24);
+    var centerX = rect.left + rect.width / 2;
+    var top  = rect.bottom + 12;
+    var left = centerX - formW / 2;
+    if (top + 460 > window.innerHeight) { top = rect.top - 460 - 12; if (top < 12) top = 12; }
+    top  = Math.max(12, top);
+    left = Math.max(12, Math.min(left, window.innerWidth - formW - 12));
+    form.style.top  = top  + 'px';
+    form.style.left = left + 'px';
+    form.style.display = 'block';
+    document.getElementById('sbp-backdrop').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSignupModal(n) {
+    document.getElementById('sbp-form-' + n).style.display = 'none';
+    document.getElementById('sbp-backdrop').style.display = 'none';
+    document.body.style.overflow = '';
+    sbpOpenForm = 0;
+  }
+
+  function closeAllModals() {
+    [1,2].forEach(function(i) { document.getElementById('sbp-form-' + i).style.display = 'none'; });
+    document.getElementById('sbp-backdrop').style.display = 'none';
+    document.body.style.overflow = '';
+    sbpOpenForm = 0;
+  }
+
+  function sbpStep2(n) {
+    var err = document.getElementById('sbp' + n + '-err1');
+    err.style.display = 'none';
+    var first = document.getElementById('sbp' + n + '-first').value.trim();
+    var last  = document.getElementById('sbp' + n + '-last').value.trim();
+    var comp  = document.getElementById('sbp' + n + '-company').value.trim();
+    var email = document.getElementById('sbp' + n + '-email').value.trim();
+    if (!first || !last)                return sbpShowErr(err, 'Please enter your first and last name.');
+    if (!comp)                          return sbpShowErr(err, 'Please enter your company name.');
+    if (!email || !email.includes('@')) return sbpShowErr(err, 'Please enter a valid email address.');
+    document.getElementById('sbp' + n + '-login-email').value = email;
+    document.getElementById('sbp' + n + '-step1').style.display = 'none';
+    document.getElementById('sbp' + n + '-step2').style.display = 'block';
+    document.getElementById('sbp' + n + '-password').focus();
+  }
+
+  function sbpBackToStep1(n) {
+    document.getElementById('sbp' + n + '-step2').style.display = 'none';
+    document.getElementById('sbp' + n + '-step1').style.display = 'block';
+    document.getElementById('sbp' + n + '-err2').style.display  = 'none';
+  }
+
+  async function sbpCreateAccount(n) {
+    var err = document.getElementById('sbp' + n + '-err2');
+    var btn = document.getElementById('sbp' + n + '-create-btn');
+    err.style.display = 'none';
+    var email    = document.getElementById('sbp' + n + '-login-email').value.trim();
+    var password = document.getElementById('sbp' + n + '-password').value;
+    var confirm  = document.getElementById('sbp' + n + '-confirm').value;
+    if (password.length < 8)  return sbpShowErr(err, 'Password must be at least 8 characters.');
+    if (password !== confirm)  return sbpShowErr(err, 'Passwords do not match.');
+    if (!document.getElementById('sbp' + n + '-agree').checked) return sbpShowErr(err, 'Please agree to the Terms of Service and Privacy Policy.');
+    btn.disabled = true;
+    btn.textContent = 'Creating your account…';
+    try {
+      var res = await fetch(SBP_URL + '/functions/v1/manage-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SBP_ANON, 'apikey': SBP_ANON },
+        body: JSON.stringify({ action: 'create', email: email, password: password })
+      });
+      var result = await res.json();
+      if (result.error) throw new Error(result.error);
+      var sb = getSbpClient();
+      var { data: signInData, error: signInErr } = await sb.auth.signInWithPassword({ email, password });
+      if (signInErr) throw new Error(signInErr.message);
+      var uid = signInData.user.id;
+      var first = document.getElementById('sbp' + n + '-first').value.trim();
+      var last  = document.getElementById('sbp' + n + '-last').value.trim();
+      var comp  = document.getElementById('sbp' + n + '-company').value.trim();
+      await sb.auth.updateUser({ data: { full_name: first + ' ' + last } });
+      var trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+      await sb.from('user_profiles').upsert({ id: uid, email, role: 'full_access', is_primary_owner: true, tenant_id: null, trial_ends_at: trialEnd }, { onConflict: 'id' });
+      await sb.from('company_info').insert({ user_id: uid, company_name: comp, display_name: comp });
+      var reasons = ['Cancel Maintaining Self','Cancel Sold House','Cancel Too Expensive','Cancel Unknown','Dropping Customer','Sold House'].map(function(nm) { return { name: nm, active: true, user_id: uid }; });
+      await sb.from('cancellation_reasons').insert(reasons);
+      document.getElementById('sbp' + n + '-step2').style.display = 'none';
+      document.getElementById('sbp' + n + '-success').style.display = 'block';
+      var secs = 4;
+      var cd = document.getElementById('sbp' + n + '-countdown');
+      cd.textContent = 'Redirecting in ' + secs + ' seconds…';
+      var iv = setInterval(function() {
+        secs--;
+        if (secs <= 0) { clearInterval(iv); window.location.href = 'https://my.spraybosspro.com/dashboard.html'; }
+        else cd.textContent = 'Redirecting in ' + secs + ' second' + (secs === 1 ? '' : 's') + '…';
+      }, 1000);
+    } catch(e) {
+      sbpShowErr(err, e.message || 'Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Create My Account';
+    }
+  }
+
+  function sbpShowErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' || !sbpOpenForm) return;
+    var n = sbpOpenForm;
+    if (document.getElementById('sbp-form-' + n).style.display !== 'block') return;
+    if (document.getElementById('sbp' + n + '-step2').style.display === 'block') sbpCreateAccount(n);
+    else sbpStep2(n);
+  });
+</script>
+
+</body>
+</html>
