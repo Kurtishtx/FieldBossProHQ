@@ -696,7 +696,7 @@
       <div class="measure-draw-btns" style="flex-direction:column; gap:6px;">
         <button class="btn-draw" id="btn-draw-area" onclick="setDrawMode('polygon')" style="width:100%; text-align:left; padding:8px 12px;">&#11041; Draw Area (sq ft)</button>
         <button class="btn-draw" id="btn-draw-line" onclick="setDrawMode('polyline')" style="width:100%; text-align:left; padding:8px 12px;">&#8213; Draw Line (linear ft)</button>
-        <button class="btn-draw" id="btn-draw-stop" onclick="setDrawMode(null)" style="display:none; width:100%; text-align:left; padding:8px 12px;">&#9632; Stop Drawing</button>
+        <button class="btn-draw" id="btn-draw-stop" onclick="_finishDraw()" style="display:none; width:100%; text-align:left; padding:8px 12px;">&#9632; Stop Drawing</button>
       </div>
       <span style="color:#fff; font-size:11px;">Click a button again to draw another area or line</span>
     </div>
@@ -2466,6 +2466,7 @@ function showPropTab(name, btn) {
   var _measureNextId   = 1;
   var _drawPoints      = [];   // LatLng points being collected
   var _drawPreview     = null; // Polyline shown while drawing
+  var _drawDots        = [];   // Markers shown at each vertex while drawing
   var _drawClickLs     = null; // map click listener
   var _drawDblLs       = null; // map dblclick listener
 
@@ -2579,7 +2580,10 @@ function showPropTab(name, btn) {
     if (_drawClickLs) { google.maps.event.removeListener(_drawClickLs); _drawClickLs = null; }
     if (_drawDblLs)   { google.maps.event.removeListener(_drawDblLs);   _drawDblLs   = null; }
     if (_drawPreview) { _drawPreview.setMap(null); _drawPreview = null; }
+    _drawDots.forEach(function(m) { m.setMap(null); });
+    _drawDots = [];
     _drawPoints = [];
+    if (_measureMap) _measureMap.setOptions({ disableDoubleClickZoom: false });
   }
 
   function _finishDraw() {
@@ -2625,8 +2629,20 @@ function showPropTab(name, btn) {
     }
 
     if (mode && _measureMap) {
+      _measureMap.setOptions({ disableDoubleClickZoom: true });
+
+      var dotIcon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 5, fillColor: '#fff', fillOpacity: 1,
+        strokeColor: '#333', strokeWeight: 1.5
+      };
+
       _drawClickLs = google.maps.event.addListener(_measureMap, 'click', function(e) {
         _drawPoints.push(e.latLng);
+        _drawDots.push(new google.maps.Marker({
+          position: e.latLng, map: _measureMap,
+          icon: dotIcon, clickable: false, zIndex: 10
+        }));
         if (!_drawPreview) {
           _drawPreview = new google.maps.Polyline({
             path: _drawPoints, strokeColor: '#e07820',
@@ -2637,8 +2653,13 @@ function showPropTab(name, btn) {
         }
       });
 
-      _drawDblLs = google.maps.event.addListener(_measureMap, 'dblclick', function() {
-        if (_drawPoints.length > 0) _drawPoints.pop(); // remove duplicate from dblclick's second click
+      _drawDblLs = google.maps.event.addListener(_measureMap, 'dblclick', function(e) {
+        // dblclick also fires a click first — pop that duplicate point
+        if (_drawPoints.length > 0) {
+          _drawPoints.pop();
+          var dot = _drawDots.pop();
+          if (dot) dot.setMap(null);
+        }
         _finishDraw();
       });
     }
