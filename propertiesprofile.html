@@ -2654,18 +2654,18 @@ function showPropTab(name, btn) {
       _drawClickLs = google.maps.event.addListener(_measureMap, 'click', function(e) {
         _drawPoints.push(e.latLng);
         var isFirst = _drawPoints.length === 1;
-        var isCloseDot = isFirst && mode === 'polygon';
         var dot = new google.maps.Marker({
           position: e.latLng, map: _measureMap,
-          icon: isCloseDot
+          icon: isFirst
             ? { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: _previewColor, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
             : dotIcon,
-          clickable: isCloseDot,
+          clickable: isFirst,
           zIndex: 10
         });
-        if (isCloseDot) {
+        if (isFirst) {
           google.maps.event.addListener(dot, 'click', function() {
-            if (_drawPoints.length >= 3) _finishDraw();
+            var minPts = mode === 'polygon' ? 3 : 2;
+            if (_drawPoints.length >= minPts) _finishDraw();
           });
         }
         _drawDots.push(dot);
