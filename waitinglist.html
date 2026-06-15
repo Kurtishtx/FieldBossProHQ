@@ -217,6 +217,7 @@
   <button class="filter-tab" id="filter-tab-services" onclick="setFilter(this,'services')">Services</button>
   <button class="filter-tab" id="filter-tab-tags" onclick="setFilter(this,'tags')">Tags</button>
   <button class="filter-tab" id="filter-tab-status" onclick="setFilter(this,'status')">Status</button>
+  <button class="filter-tab" id="filter-tab-pastdue" onclick="togglePastDueFilter(this)">Past Due</button>
 </div>
 
 <!-- Services sub-filter -->
@@ -531,7 +532,7 @@
   var serviceCatalog = [];
   var selectedServices = [];
   var sortCol = 'order', sortDir = 1;
-  var activeServiceFilter = [], activeTagFilter = [], activeStatusFilter = [];
+  var activeServiceFilter = [], activeTagFilter = [], activeStatusFilter = [], pastDueFilter = false;
   var mapMarkers = [];
   var routeOrderMode = false, routeCounter = 0, routeOrderMap = {};
 
@@ -905,6 +906,16 @@
       filtered = filtered.filter(function(s) {
         var st = s.status || 'pending';
         return activeStatusFilter.indexOf(st) >= 0;
+      });
+    }
+
+    /* past due filter */
+    if (pastDueFilter) {
+      var todayPad = function(n) { return String(n).padStart(2,'0'); };
+      var now2 = new Date(); now2.setHours(0,0,0,0);
+      var todayStr2 = now2.getFullYear() + '-' + todayPad(now2.getMonth()+1) + '-' + todayPad(now2.getDate());
+      filtered = filtered.filter(function(s) {
+        return s.start_date && s.start_date < todayStr2;
       });
     }
 
@@ -1291,6 +1302,12 @@
   }
   function closeStatusDropdown() {
     document.getElementById('status-ms-dropdown').classList.remove('open');
+  }
+
+  function togglePastDueFilter(btn) {
+    pastDueFilter = !pastDueFilter;
+    btn.classList.toggle('active', pastDueFilter);
+    renderTable();
   }
 
   /* -- Stats toggle -- */
