@@ -826,17 +826,17 @@
       <div class="stat-card red" id="stat-card-services-week" style="display:none">
         <div class="stat-label">Services This Week</div>
         <div class="stat-value" id="stat-services-week">—</div>
-        <div class="stat-sub">Scheduled this week</div>
+        <div class="stat-sub">Completed this week</div>
       </div>
       <div class="stat-card pink" id="stat-card-services-month" style="display:none">
         <div class="stat-label">Services This Month</div>
         <div class="stat-value" id="stat-services-month">—</div>
-        <div class="stat-sub">Scheduled this month</div>
+        <div class="stat-sub">Completed this month</div>
       </div>
       <div class="stat-card orange" id="stat-card-services-year" style="display:none">
         <div class="stat-label">Services This Year</div>
         <div class="stat-value" id="stat-services-year">—</div>
-        <div class="stat-sub">Scheduled this year</div>
+        <div class="stat-sub">Completed this year</div>
       </div>
       <div class="stat-card green" id="stat-card-props-serviced-week" style="display:none">
         <div class="stat-label">Props Serviced (Week)</div>
@@ -1109,13 +1109,13 @@
     var { data: owedData } = await sbMain.from('Invoices').select('inv_total').eq('user_id', uid).gt('inv_bal', 0).neq('deleted', true).neq('incomplete', true);
     if (owedData) document.getElementById('stat-owed').textContent = fmt(sum(owedData,'inv_total'));
 
-    var { count: swk } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', weekDate);
+    var { count: swk } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', weekDate);
     if (swk !== null) document.getElementById('stat-services-week').textContent = swk;
 
-    var { count: smo } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', monthDate);
+    var { count: smo } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', monthDate);
     if (smo !== null) document.getElementById('stat-services-month').textContent = smo;
 
-    var { count: syr } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).gte('scheduled_date', yearDate);
+    var { count: syr } = await sbMain.from('Services').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', yearDate);
     if (syr !== null) document.getElementById('stat-services-year').textContent = syr;
 
     var { data: pswk } = await sbMain.from('Services').select('property_id').eq('user_id', uid).eq('dispatched', true).gte('scheduled_date', weekDate);
