@@ -432,6 +432,54 @@
     .footer-links a { color: rgba(255,255,255,.5); text-decoration: none; }
     .footer-links a:hover { color: #fff; }
 
+    /* ─── PREMIUM BAND ─── */
+    .premium-band {
+      background: linear-gradient(135deg, var(--purple-dark) 0%, #1a0530 100%);
+      padding: 90px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .premium-band::before {
+      content: '';
+      position: absolute; top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(224,120,32,.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .premium-band h2 { color: #fff; font-size: clamp(26px, 4vw, 44px); font-weight: 800; line-height: 1.2; max-width: 860px; margin: 0 auto 18px; }
+    .premium-band h2 span { color: var(--orange); }
+    .premium-band > p { color: rgba(255,255,255,.65); font-size: 17px; max-width: 700px; margin: 0 auto 52px; line-height: 1.8; }
+    .premium-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .premium-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 28px 24px; text-align: left; transition: border-color .2s; }
+    .premium-card:hover { border-color: var(--orange); }
+    .premium-card-icon { font-size: 28px; margin-bottom: 14px; }
+    .premium-card h4 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .premium-card p  { color: rgba(255,255,255,.52); font-size: 13px; line-height: 1.6; }
+
+    /* ─── LASSO MAP MOCK ─── */
+    .lasso-map { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 20px; margin-bottom: 14px; position: relative; min-height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .lasso-ring { position: absolute; top: 14px; left: 18px; right: 18px; bottom: 14px; border: 2.5px dashed var(--orange); border-radius: 50%; opacity: .7; }
+    .lasso-pins { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+    .lpin { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .lpin.s { background: var(--orange); box-shadow: 0 0 0 3px rgba(224,120,32,.3); }
+    .lpin.u { background: rgba(255,255,255,.2); }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-cell { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 12px 14px; }
+    .stat-val { color: var(--orange); font-size: 18px; font-weight: 800; }
+    .stat-lbl { color: rgba(255,255,255,.42); font-size: 11px; margin-top: 1px; }
+    .stat-cell.full { grid-column: span 2; }
+    .stat-cell.full .stat-val { color: #fff; font-size: 13px; font-weight: 600; }
+
+    /* ─── SIMPLE GRID (ease of use) ─── */
+    .simple-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+    .simple-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 30px 26px; transition: border-color .2s, box-shadow .2s, transform .15s; }
+    .simple-card:hover { border-color: var(--orange); box-shadow: 0 6px 24px rgba(224,120,32,.1); transform: translateY(-2px); }
+    .simple-num { font-size: 40px; font-weight: 800; color: var(--orange); opacity: .25; line-height: 1; margin-bottom: 12px; }
+    .simple-card h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .simple-card p  { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 700px) {
       nav { padding: 0 20px; }
@@ -475,6 +523,118 @@
     </div>
   </div>
 </div>
+
+<!-- ════════════ PREMIUM BAND ════════════ -->
+<div class="premium-band">
+  <h2>Affordable Doesn't Mean Cheap.<br><span>This Is Enterprise-Level Software.</span></h2>
+  <p>We charged less because we've been the customer. We know what it feels like to pay $600 a month for software that still doesn't do what your business actually needs. SprayBossPro does everything the enterprise platforms do — route mapping, chemical compliance, automated SMS, Stripe payments, role-based access, mobile app — built specifically for spray businesses, and priced for the real world. $129 a month isn't a cheap price. It's a fair price. The big platforms aren't charging $500 because they're better. They're charging $500 because they can — and because their customers don't have a better option. Now you do.</p>
+  <div class="premium-grid">
+    <div class="premium-card">
+      <div class="premium-card-icon">🗺️</div>
+      <h4>Enterprise Route Intelligence</h4>
+      <p>Live route maps, drag-and-drop stop ordering, and circle-to-schedule map selection — tools that cost thousands per month at other platforms are standard in SprayBossPro at every plan level.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">🧪</div>
+      <h4>Full Chemical Compliance Engine</h4>
+      <p>Pesticide application logs, technician license tracking, weather conditions per application, print-ready compliance reports — built to hold up to any state inspector, at no extra charge.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💬</div>
+      <h4>Automated Communication Suite</h4>
+      <p>10+ automated SMS alert types, a two-way texting inbox, 3-step estimate follow-up sequences, 3-step payment follow-up sequences — all running without you every single day.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">💳</div>
+      <h4>Stripe Payment Processing</h4>
+      <p>Card-on-file storage, post-service billing, partial payments, automated payment reminders, and full payment history. The same billing infrastructure the big guys use — included in your $129.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">👑</div>
+      <h4>Role-Based Access Control</h4>
+      <p>Owner, Manager, Office, Technician, and Mobile roles — the same granular permission system as platforms charging 5× more per month. Your office staff sees what they need. Your techs see only their stops.</p>
+    </div>
+    <div class="premium-card">
+      <div class="premium-card-icon">📱</div>
+      <h4>Full Mobile App for Field Techs</h4>
+      <p>Your technicians manage their stops, log chemicals, mark complete, add notes, and skip stops from their phone — all in a mobile-optimized view purpose-built for someone in a truck.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ LASSO FEATURE ════════════ -->
+<section id="lasso">
+  <div class="highlight-row">
+    <div class="highlight-text">
+      <span class="section-label">Only in SprayBossPro</span>
+      <h2>Circle Any Area on the Map.<br>Instantly Know Everything Inside It.</h2>
+      <p>No other lawn care or pest control software has this. On the waiting list map, draw a circle around any geographic area — a neighborhood, a ZIP code, a corridor — and SprayBossPro instantly calculates every detail of what's inside before you schedule a single stop or mix a single gallon.</p>
+      <p style="margin-top:12px;">This isn't just a map feature. It's a business intelligence tool. You can look at a section of your service area and know in seconds whether it's worth building a route around, how many trucks to send, what to load, and how much chemical to mix. No calls. No guesses. No wasted time.</p>
+      <ul class="check-list">
+        <li>Total sq ft and linear ft for all properties inside the circle</li>
+        <li>Total stop count and total number of services across all types</li>
+        <li>Breakdown by service type — Lawn Care 4 · 8, Mosquito · 6, Insect · 5, etc.</li>
+        <li>Per-service sq ft totals so you know exactly how much chemical to mix before loading</li>
+        <li>Schedule all circled stops at once — they drop straight to the dispatch board with a full route map</li>
+        <li>All service types are fully customizable to match exactly how your operation runs</li>
+        <li>The system calculates how much to do per day and how many gallons to mix per service</li>
+        <li>Know before you load the truck. Know before you mix a gallon. Stop wasting both.</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div style="color:rgba(255,255,255,.45); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Waiting List Map — Circle Selection</div>
+      <div class="lasso-map">
+        <div class="lasso-ring"></div>
+        <div class="lasso-pins">
+          <div class="lpin s"></div><div class="lpin s"></div><div class="lpin u"></div>
+          <div class="lpin s"></div><div class="lpin s"></div><div class="lpin u"></div>
+          <div class="lpin s"></div><div class="lpin s"></div><div class="lpin s"></div>
+          <div class="lpin u"></div><div class="lpin s"></div><div class="lpin s"></div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-cell"><div class="stat-val">14</div><div class="stat-lbl">Stops Selected</div></div>
+        <div class="stat-cell"><div class="stat-val">19</div><div class="stat-lbl">Total Services</div></div>
+        <div class="stat-cell"><div class="stat-val">118,400</div><div class="stat-lbl">Sq Ft</div></div>
+        <div class="stat-cell"><div class="stat-val">4,200</div><div class="stat-lbl">Linear Ft</div></div>
+        <div class="stat-cell full"><div class="stat-val">Lawn Care 4 · 8 &nbsp;|&nbsp; Mosquito · 6 &nbsp;|&nbsp; Insect · 5</div><div class="stat-lbl">Breakdown by Service Type</div></div>
+      </div>
+      <button style="width:100%; margin-top:12px; background:var(--orange); color:#fff; border:none; border-radius:8px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;">Schedule These 14 Stops →</button>
+      <div style="margin-top:10px; text-align:center; color:rgba(255,255,255,.35); font-size:11px;">Drops to dispatch board with full route map</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ EASIER TO USE ════════════ -->
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto;">
+    <span class="section-label">Built Different</span>
+    <h2 class="section-title">Powerful Doesn't Have to Mean Complicated.</h2>
+    <p class="section-sub">The big enterprise platforms take weeks to learn, months to set up, and require a dedicated person just to manage them. SprayBossPro is designed so any owner or office manager can be running real routes on day one — without training, without a consultant, without an IT department.</p>
+  </div>
+  <div class="simple-grid">
+    <div class="simple-card">
+      <div class="simple-num">01</div>
+      <h3>Set Up in One Afternoon</h3>
+      <p>Add your service types, import your clients and properties, set up your chemical mixes, and configure your SMS alert templates. Most businesses are scheduling real routes the same day they sign up. No implementation fee. No onboarding consultant. No 6-hour kickoff call.</p>
+    </div>
+    <div class="simple-card">
+      <div class="simple-num">02</div>
+      <h3>One Screen Does Everything</h3>
+      <p>The dispatch board shows your waiting list, your scheduled stops, your route map, your day summary, and your chemical needs all in one place. Your crew gets their stops on their phone. You're not switching between six different apps to run your day.</p>
+    </div>
+    <div class="simple-card">
+      <div class="simple-num">03</div>
+      <h3>Your Techs Learn It in Minutes</h3>
+      <p>The mobile tech view is built for people in trucks, not office managers at desks. Big buttons, clear status, one tap to mark complete, log chemicals, skip a stop, or add a note. We've had technicians learn the system while sitting in the parking lot before their first stop.</p>
+    </div>
+    <div class="simple-card">
+      <div class="simple-num">04</div>
+      <h3>Automation Runs Without You</h3>
+      <p>Set your alert templates once — scheduled, completed, skipped, estimate follow-ups, payment follow-ups, review requests. After that, SprayBossPro handles customer communication automatically on every single job, every single day, without you having to think about it again.</p>
+    </div>
+  </div>
+</section>
 
 <!-- ════════════ FEATURES OVERVIEW ════════════ -->
 <section id="features" style="background: var(--light-bg);">
