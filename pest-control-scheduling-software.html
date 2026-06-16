@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pest Control Scheduling Software | Route Building, Recurring Programs & SMS Alerts | SprayBossPro</title>
-  <meta name="description" content="SprayBossPro is pest control scheduling software built for companies that run recurring programs. Manage quarterly, monthly, and bi-monthly pest routes with Lasso circle routing, automated SMS alerts, compliance logs, and card-on-file payments. $129/month, everything included."/>
+  <title>Pest Control Scheduling Software | Route Building, Recurring Programs & Compliance Logs | SprayBossPro</title>
+  <meta name="description" content="SprayBossPro is pest control scheduling software for companies running quarterly, bi-monthly, and monthly recurring programs. Build Lasso circle routes, log EPA reg numbers on every application, auto-reschedule treatments, and send automated SMS alerts. $129/month."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,6 +29,11 @@
     .section-sub { color: var(--muted); font-size: 17px; max-width: 640px; margin-bottom: 56px; }
     .centered { text-align: center; }
     .centered .section-sub { margin-left: auto; margin-right: auto; }
+    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .audience-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 28px 24px; }
+    .audience-card h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .audience-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .audience-tag { display: inline-block; background: rgba(224,120,32,.1); border: 1px solid rgba(224,120,32,.25); color: var(--orange); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; margin-bottom: 12px; }
     .highlight-row { display: flex; align-items: center; gap: 60px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
     .highlight-row.reverse { flex-direction: row-reverse; }
     .highlight-text { flex: 1; min-width: 280px; }
@@ -39,13 +44,17 @@
     .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: var(--muted); margin-bottom: 12px; }
     .check-list li::before { content: '✓'; background: var(--orange); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
     .svc-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-    .svc-row.active { border-color: rgba(224,120,32,.35); background: rgba(224,120,32,.07); }
     .svc-name { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
     .svc-sub { color: rgba(255,255,255,.38); font-size: 11px; margin-top: 2px; }
-    .svc-status { color: var(--orange); font-size: 12px; font-weight: 700; }
-    .sms-bubble { border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; max-width: 82%; font-size: 12px; line-height: 1.5; }
+    .svc-ft { color: var(--orange); font-size: 13px; font-weight: 700; }
+    .log-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
+    .log-label { color: rgba(255,255,255,.38); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 3px; }
+    .log-value { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
+    .sms-bubble { border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; max-width: 85%; font-size: 12px; line-height: 1.5; }
     .sms-out { background: var(--orange); color: #fff; margin-left: auto; border-bottom-right-radius: 3px; }
-    .sms-label { color: rgba(255,255,255,.35); font-size: 10px; text-align: right; margin-top: 2px; margin-bottom: 6px; }
+    .sms-in { background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); border-bottom-left-radius: 3px; }
+    .sms-label { color: rgba(255,255,255,.35); font-size: 10px; margin-top: 2px; margin-bottom: 6px; }
+    .sms-label.right { text-align: right; }
     .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; max-width: 1100px; margin: 0 auto; position: relative; }
     .steps-grid::before { content: ''; position: absolute; top: 28px; left: 14%; right: 14%; height: 2px; background: linear-gradient(90deg, var(--orange), rgba(224,120,32,.3)); pointer-events: none; }
     .step-box { text-align: center; padding: 0 20px; }
@@ -87,44 +96,75 @@
 <body>
 <div class="hero">
   <div class="hero-badge">Pest Control Scheduling Software</div>
-  <h1>Pest Control Scheduling Software<br><span>Built for Companies Running Recurring Service Programs.</span></h1>
-  <p>SprayBossPro is pest control scheduling software built around the way pest companies actually operate — recurring quarterly, bi-monthly, and monthly programs that auto-reschedule, Lasso circle routes for dense residential stops, automated service reminder and on-the-way SMS alerts, and compliance logs with EPA reg numbers. $129/month, everything included.</p>
+  <h1>Pest Control Scheduling Software for<br><span>Quarterly, Bi-Monthly, and Monthly Programs.</span></h1>
+  <p>SprayBossPro is scheduling software for pest control companies running recurring programs. Every customer's next treatment auto-schedules when the previous one is completed. Build Lasso circle routes, log EPA reg numbers and application rates on every job, and send automated SMS alerts without your team ever touching a text message. $129/month, everything included.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial — $129/Month</a>
   </div>
   <div class="hero-stats">
     <div><div class="hero-stat-val">$129</div><div class="hero-stat-lbl">Per month — everything included</div></div>
-    <div><div class="hero-stat-val">Unlimited</div><div class="hero-stat-lbl">Technicians and routes</div></div>
-    <div><div class="hero-stat-val">Auto</div><div class="hero-stat-lbl">SMS alerts on every scheduled service</div></div>
+    <div><div class="hero-stat-val">Auto</div><div class="hero-stat-lbl">Reschedule on every completed job</div></div>
     <div><div class="hero-stat-val">14-Day</div><div class="hero-stat-lbl">Free trial — no credit card</div></div>
+    <div><div class="hero-stat-val">0</div><div class="hero-stat-lbl">Add-ons or per-technician fees</div></div>
   </div>
 </div>
+
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto 48px;">
+    <span class="section-label">Built for Every Recurring Pest Control Program</span>
+    <h2 class="section-title">Quarterly, Bi-Monthly, Monthly, and Mosquito Add-On — All in One Platform. $129/Month.</h2>
+    <p class="section-sub">SprayBossPro handles the scheduling, routing, compliance logging, and automated SMS alerts for every recurring pest control program your company runs — with auto-rescheduling after every treatment so your waiting list stays accurate all year without anyone managing it manually.</p>
+  </div>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <div class="audience-tag">Quarterly Programs</div>
+      <h3>Quarterly Pest Control — 4 Treatments Per Year</h3>
+      <p>SprayBossPro auto-schedules each quarterly treatment approximately 13 weeks after the previous one completes. Your waiting list stays accurate year-round without your office ever manually scheduling a single follow-up visit between quarterly rounds for any customer.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Bi-Monthly Programs</div>
+      <h3>Bi-Monthly Pest Control — 6 Treatments Per Year</h3>
+      <p>Bi-monthly programs auto-reschedule every 8 weeks on completion. The waiting list manages the entire year automatically — all 6 visits per customer, all customers. When a bi-monthly treatment is done, the next one appears on the waiting list at the right date without anyone touching anything.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Monthly Programs</div>
+      <h3>Monthly Recurring Pest Control Programs</h3>
+      <p>Monthly pest control programs are the highest-frequency scheduling challenge. SprayBossPro manages monthly recurrence automatically — 12 treatments per customer per year, each auto-scheduled 4 weeks after the previous. Your waiting list shows every monthly treatment due each day without any manual scheduling.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Mosquito Add-On</div>
+      <h3>Mosquito Add-On for Existing Pest Control Customers</h3>
+      <p>Many pest control companies add mosquito programs to existing quarterly or bi-monthly customers. SprayBossPro tracks both services under the same customer account — each on its own schedule, its own compliance log, its own SMS template — without mixing them together in a confusing combined schedule.</p>
+    </div>
+  </div>
+</section>
 
 <section>
   <div class="highlight-row">
     <div class="highlight-text">
-      <span class="section-label">Recurring Pest Control Program Scheduling</span>
-      <h2>Quarterly, Bi-Monthly, Monthly. Set the Program Once — Every Service Auto-Schedules Forever.</h2>
-      <p>Set up your pest control programs — quarterly general pest, bi-monthly interior/exterior, monthly mosquito add-on, annual termite inspection — and SprayBossPro auto-schedules every appointment at the right interval when the previous one is completed. No manual re-booking. No calls asking "when is my next service?"</p>
-      <p>The waiting list shows every pest control service due today, organized by program type. Quarterly General Pest, Bi-Monthly Perimeter, Mosquito Add-On — each on its own row with total stops and service revenue. You see your entire company's pest workload at a glance before you build a single route.</p>
+      <span class="section-label">Waiting List — Every Pest Control Treatment Due Today, Organized by Program</span>
+      <h2>See Every Pest Control Visit Due Today — By Program Type, With Route Revenue, Before You Build a Single Route.</h2>
+      <p>Before you build any pest control routes, SprayBossPro shows you a waiting list of every treatment due — organized by program type (quarterly, bi-monthly, monthly, mosquito) with total stops and route revenue per program. You know the full scope of the day and how to split work between crews before you ever open Lasso or dispatch anything.</p>
+      <p>When a treatment is completed, the next one auto-schedules at your set interval — 13 weeks for quarterly, 8 weeks for bi-monthly, 4 weeks for monthly. The waiting list updates automatically. There's no manual scheduling between visits for any recurring program.</p>
       <ul class="check-list">
-        <li>Set any interval — quarterly, bi-monthly, monthly, or custom</li>
-        <li>Services auto-reschedule when the previous treatment is completed</li>
-        <li>Waiting list organized by program type with stop count and revenue</li>
-        <li>Overdue services highlighted — never let a quarterly slip to five months</li>
-        <li>Multiple programs per property — quarterly pest plus monthly mosquito</li>
-        <li>Track service history per property — how many treatments, which products</li>
+        <li>Waiting list organized by program type — quarterly, bi-monthly, monthly all separated</li>
+        <li>Total stops and route revenue per program — know the day's full scope instantly</li>
+        <li>Next treatment auto-schedules at your interval when the previous completes</li>
+        <li>Overdue visits highlighted — nothing falls through the cracks on any recurring program</li>
+        <li>Filter by technician or crew to split the route workload between trucks</li>
+        <li>Mix program types on one route or keep quarterly and monthly routes separate</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Pest Control — Today's Service Queue</div>
-      <div class="svc-row active"><div><div class="svc-name">Quarterly General Pest Q3</div><div class="svc-sub">52 properties due</div></div><div class="svc-status">$4,940</div></div>
-      <div class="svc-row active"><div><div class="svc-name">Bi-Monthly Perimeter 4</div><div class="svc-sub">28 properties due</div></div><div class="svc-status">$2,100</div></div>
-      <div class="svc-row"><div><div class="svc-name">Monthly Mosquito Add-On</div><div class="svc-sub">19 properties due</div></div><div class="svc-status" style="color:rgba(255,255,255,.4);">$1,425</div></div>
-      <div class="svc-row"><div><div class="svc-name">Quarterly Commercial Q3</div><div class="svc-sub">7 properties due — overdue</div></div><div class="svc-status" style="color:#f87171;">$2,100</div></div>
-      <div style="margin-top:10px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Total Queue</div>
-        <div style="color:var(--orange); font-size:12px; font-weight:700;">106 stops · $10,565 scheduled revenue</div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Waiting List — Today's Pest Control Queue by Program</div>
+      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Quarterly Treatment Q3</div><div class="svc-sub">34 properties · auto-scheduled</div></div><div class="svc-ft">$3,060</div></div>
+      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Bi-Monthly Treatment 4</div><div class="svc-sub">21 properties · auto-scheduled</div></div><div class="svc-ft">$1,890</div></div>
+      <div class="svc-row"><div><div class="svc-name">Monthly Service — June</div><div class="svc-sub">18 properties waiting</div></div><div class="svc-ft" style="color:rgba(255,255,255,.4);">$1,620</div></div>
+      <div class="svc-row"><div><div class="svc-name">Mosquito Treatment 4</div><div class="svc-sub">12 properties waiting</div></div><div class="svc-ft" style="color:rgba(255,255,255,.4);">$1,080</div></div>
+      <div class="svc-row"><div><div class="svc-name">Quarterly Treatment — Overdue</div><div class="svc-sub">6 properties past due date</div></div><div class="svc-ft" style="color:#f87171;">$540</div></div>
+      <div style="margin-top:12px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Total Due Today</div>
+        <div style="color:var(--orange); font-size:12px; font-weight:700;">91 stops · $8,190 route revenue</div>
       </div>
     </div>
   </div>
@@ -133,46 +173,46 @@
 <section style="background: var(--light-bg);">
   <div class="highlight-row reverse">
     <div class="highlight-text">
-      <span class="section-label">Lasso Route Builder — Pest Control</span>
-      <h2>Circle Any Neighborhood. Pull Every Pest Control Service Due Inside Into a Route. Dispatch in Minutes.</h2>
-      <p>Pest control routes are dense — 20 to 40 stops in a tight residential area. Open Lasso on the map, draw a circle around any neighborhood or subdivision, and SprayBossPro shows you every property with a pest treatment due inside — program type, interval, and revenue — before you pull a single stop into a route.</p>
-      <p>Filter by program type to keep general pest on one tech and commercial perimeter on another. Optimize drive order. Push to your technician's phone. Your route for the entire morning is built before you've left the office. No pencil routing, no re-explaining stops over the phone.</p>
+      <span class="section-label">Lasso — Circle Map Route Builder for Pest Control Routes</span>
+      <h2>Draw a Circle on Any Neighborhood. Pull Every Pest Control Stop Due Inside. Dispatch in Minutes.</h2>
+      <p>Open Lasso on the map, draw a circle around any neighborhood or service zone, and SprayBossPro instantly shows you every property with a pest control treatment due inside that boundary — program type, stop count, and total route revenue — before you commit to building the route.</p>
+      <p>Filter by program type — pull only quarterly stops, only bi-monthly, or mix programs together on the same route. Select all, drive order optimizes automatically, and you push the route to your technician's phone in one click. Building a full day of pest control routes takes minutes. Lasso is the fastest way to build recurring pest control routes from any scheduling software on the market.</p>
       <ul class="check-list">
-        <li>Circle any neighborhood — see every pest treatment due inside instantly</li>
-        <li>Filter by program — quarterly, bi-monthly, monthly, or commercial separately</li>
-        <li>Revenue per stop and route total displayed before committing</li>
-        <li>Drive order auto-optimized — minimize windshield time on dense residential routes</li>
-        <li>Push to tech's phone with one click — they see stops in order with property notes and gate codes</li>
-        <li>Build routes for multiple crews simultaneously without overlap</li>
+        <li>Draw a circle on any neighborhood, subdivision, or zip code boundary</li>
+        <li>See every pest control stop due inside — program, revenue, overdue status</li>
+        <li>Filter by program type — quarterly, bi-monthly, monthly, or mosquito</li>
+        <li>Drive order optimized automatically to minimize windshield time and fuel</li>
+        <li>Push the complete route to the technician's phone with one click</li>
+        <li>Build routes for multiple crews simultaneously without stop overlap</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;">Lasso — Brookhaven Pest Route</div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;">Lasso — Northside Pest Route · Quarterly Q3</div>
       <div style="display:flex; flex-direction:column; gap:7px;">
         <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
           <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">1401 Brookhaven Ct</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Quarterly General Pest Q3</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$95</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">512 Maplewood Ct</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Quarterly Treatment Q3 · General Pest · Due today</div></div>
+          <div style="color:var(--orange); font-size:11px; font-weight:700;">$89</div>
         </div>
         <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
           <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">1318 Brookhaven Dr</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Bi-Monthly Perimeter 4</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$75</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">88 Ridgeview Dr</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Quarterly Treatment Q3 · General Pest · Due today</div></div>
+          <div style="color:var(--orange); font-size:11px; font-weight:700;">$89</div>
         </div>
         <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
           <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">229 Magnolia Glen Ln</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Quarterly General Pest Q3</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$95</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">204 Thornwood Blvd</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Bi-Monthly Treatment 4 · General Pest · Due today</div></div>
+          <div style="color:var(--orange); font-size:11px; font-weight:700;">$79</div>
         </div>
         <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px; opacity:.5;">
           <div style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.3); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">+</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.3); font-size:12px;">21 more stops…</div></div>
-          <div style="color:rgba(255,255,255,.3); font-size:11px; font-weight:700;">$1,840</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.3); font-size:12px;">17 more stops in this circle…</div></div>
+          <div style="color:rgba(255,255,255,.3); font-size:11px; font-weight:600;">$1,490</div>
         </div>
       </div>
       <div style="margin-top:10px; background:rgba(224,120,32,.1); border:1px solid rgba(224,120,32,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
         <div style="color:rgba(255,255,255,.45); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Route Total</div>
-        <div style="color:var(--orange); font-size:13px; font-weight:700;">24 stops · $2,105 route revenue</div>
+        <div style="color:var(--orange); font-size:13px; font-weight:700;">20 stops · $1,747 route revenue</div>
       </div>
     </div>
   </div>
@@ -181,58 +221,93 @@
 <section>
   <div class="highlight-row">
     <div class="highlight-text">
-      <span class="section-label">Automated Pest Control SMS Alerts</span>
-      <h2>Day-Before, On-the-Way, and Service Complete Alerts — Automatic on Every Pest Control Job.</h2>
-      <p>Pest control customers want to know when you're coming and when they can come home. SprayBossPro fires service reminder, on-the-way, and service complete SMS alerts automatically on every scheduled pest control visit — no one on your team sends a single text manually.</p>
-      <p>Set re-entry intervals per product and SprayBossPro alerts the customer when it's safe to return home. Two-way SMS inbox keeps the whole conversation in one place. Every inbound customer reply goes to your team, not to a dead phone number.</p>
+      <span class="section-label">Chemical Application Compliance Logs on Every Pest Control Job</span>
+      <h2>EPA Reg Numbers, Application Rates, and Re-Entry Intervals Logged In-Field on Every Pest Control Visit.</h2>
+      <p>Your technician logs the complete application record on their phone at the property — product name, EPA registration number, application rate per linear ft or per sq ft, target pest, treatment areas, re-entry interval, and applicator license. Logged at the property, saved to the permanent service record. Your team never reconstructs records after the fact.</p>
+      <p>Pest control compliance requirements vary by state — but they all require product records, application rates, and applicator license numbers. SprayBossPro captures all of it in a structured log tied to every service visit. Pull a compliance report for any date range, any product, any technician, or any property in seconds — ready to show a state inspector on the spot.</p>
       <ul class="check-list">
-        <li>Day-before service reminder SMS fires automatically — customers don't have to call to confirm</li>
-        <li>On-the-way SMS fires when the tech marks the job started on their phone</li>
-        <li>Service complete and re-entry interval SMS fires after the application log is saved</li>
-        <li>10+ pre-built pest control alert templates — ready to use out of the box</li>
-        <li>Two-way SMS inbox — customer replies come back to your team</li>
-        <li>500 outbound SMS/month included in $129/month</li>
+        <li>Product name and EPA registration number captured on every application</li>
+        <li>Application rate per linear ft, per sq ft, or per unit — matches your application method</li>
+        <li>Target pest, treatment areas (interior/exterior/perimeter), and method logged</li>
+        <li>Re-entry interval captured and used to send the automatic SMS to the customer</li>
+        <li>Applicator license and certification type required per log for state compliance</li>
+        <li>Print compliance reports by date, product, applicator, or property in seconds</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px;">Automated Pest Control SMS Thread</div>
-      <div class="sms-bubble sms-out">Hi Mary! Just a reminder — your quarterly pest service is scheduled for tomorrow. We'll have a tech at 1401 Brookhaven Ct between 9am–11am. Reply STOP to cancel. — Smith Pest Control</div>
-      <div class="sms-label">Day before · Sent automatically</div>
-      <div class="sms-bubble sms-out">Mary, your technician is on the way! Estimated arrival: 15 minutes. — Smith Pest Control</div>
-      <div class="sms-label">On the way · Sent automatically</div>
-      <div class="sms-bubble sms-out">Your pest control service is complete! Please stay off treated surfaces for 30 minutes. Questions? Reply here. — Smith Pest Control</div>
-      <div class="sms-label">Re-entry · Sent automatically after log saved</div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Pest Control Application Log — Filed In-Field on Tech's Phone</div>
+      <div class="log-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div class="log-label">Property</div><div class="log-value">512 Maplewood Ct — Quarterly Q3</div></div>
+      <div class="log-row"><div class="log-label">Service</div><div class="log-value">General Pest Control — Exterior + Perimeter</div></div>
+      <div class="log-row"><div class="log-label">Product Applied</div><div class="log-value">Bifen IT Bifenthrin 7.9%</div></div>
+      <div class="log-row"><div class="log-label">EPA Reg Number</div><div class="log-value">53883-284</div></div>
+      <div class="log-row"><div class="log-label">Rate Applied</div><div class="log-value">0.5 oz / gallon · 2 gal perimeter</div></div>
+      <div class="log-row"><div class="log-label">Re-Entry Interval</div><div class="log-value">30 minutes — SMS queued to customer</div></div>
+      <div class="log-row"><div class="log-label">Applicator License</div><div class="log-value">TX-GEN-38812 · General Pest Category</div></div>
+      <div style="margin-top:12px; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Log Status</div>
+        <div style="color:#22c55e; font-size:12px; font-weight:700;">✓ Saved — Next Q4 Scheduled in 13 Weeks</div>
+      </div>
     </div>
   </div>
 </section>
 
 <section style="background: var(--light-bg);">
+  <div class="highlight-row reverse">
+    <div class="highlight-text">
+      <span class="section-label">Automated SMS Alerts on Every Pest Control Visit</span>
+      <h2>Day-Before, On-the-Way, and Service Complete Texts Fire Automatically. Your Team Sends Zero of Them.</h2>
+      <p>SprayBossPro sends a day-before service reminder the evening before every pest control visit, an on-the-way alert when the tech is headed to the property, and a service complete notification with re-entry interval automatically when the compliance log is saved. Your technicians never touch a text message. Your office never follows up after a job.</p>
+      <p>Customers stop calling your office about when you're coming — they already know. The day-before text tells them what day. The on-the-way text tells them 15 minutes out. The complete text tells them the re-entry interval and confirms the next visit is scheduled. Three automated texts per job, every job, no manual effort from your team.</p>
+      <ul class="check-list">
+        <li>Day-before reminder fires the evening before every scheduled pest control visit</li>
+        <li>On-the-way text fires when the tech marks the stop started on their phone</li>
+        <li>Service complete with re-entry interval fires automatically when the log is saved</li>
+        <li>10+ pre-built pest control SMS templates — ready out of the box on day one</li>
+        <li>Two-way SMS inbox — customer replies go into one organized inbox for your team</li>
+        <li>500 outbound SMS/month included in $129/month flat</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px;">Pest Control SMS Thread — Sent Automatically by SprayBossPro</div>
+      <div class="sms-bubble sms-out">Hi Dave! Your quarterly pest control service is scheduled for tomorrow between 8am–11am. Please ensure access to the exterior perimeter. We'll text when your tech is on the way. — Elite Pest Control</div>
+      <div class="sms-label right">Day before · Sent automatically · 6:00 PM</div>
+      <div class="sms-bubble sms-in">Will do! Side gate code is 4418.</div>
+      <div class="sms-label">Dave · 6:24 PM</div>
+      <div class="sms-bubble sms-out">Your pest tech is on the way — about 15 minutes out. — Elite Pest Control</div>
+      <div class="sms-label right">On the way · Fires automatically · 8:32 AM</div>
+      <div class="sms-bubble sms-out">Quarterly pest control complete! Re-entry interval is 30 minutes after application dries. Your next quarterly service is scheduled for approximately 13 weeks from today. — Elite Pest Control</div>
+      <div class="sms-label right">Complete · Fires automatically when log is saved</div>
+    </div>
+  </div>
+</section>
+
+<section>
   <div class="centered" style="max-width:1100px; margin:0 auto 64px;">
     <span class="section-label">How It Works</span>
-    <h2 class="section-title">From Program Setup to Dispatched Pest Route — Same Morning</h2>
-    <p class="section-sub">SprayBossPro is designed so that scheduling a full day of pest control routes takes minutes — not your entire morning before your first truck leaves the lot.</p>
+    <h2 class="section-title">From Waiting List to Compliance Log — Every Recurring Pest Control Program, Managed Automatically</h2>
+    <p class="section-sub">SprayBossPro manages quarterly, bi-monthly, and monthly pest control programs end-to-end — routing, compliance logging, SMS alerts, and auto-rescheduling — without your team manually managing the schedule between any visits.</p>
   </div>
   <div class="steps-grid">
-    <div class="step-box"><div class="step-circle">1</div><h3>Set Up Programs</h3><p>Build your quarterly, bi-monthly, and monthly pest programs once. Services auto-reschedule at the right interval when each one is completed — no manual re-booking ever.</p></div>
-    <div class="step-box"><div class="step-circle">2</div><h3>Check the Waiting List</h3><p>See every pest treatment due today organized by program type with stop count and revenue. Know the full scope of your day before you open the map.</p></div>
-    <div class="step-box"><div class="step-circle">3</div><h3>Lasso &amp; Dispatch</h3><p>Circle a neighborhood with Lasso. Every pest stop due inside appears instantly. Filter by program, optimize drive order, and push the route to your tech's phone.</p></div>
-    <div class="step-box"><div class="step-circle">4</div><h3>SMS &amp; Auto-Reschedule</h3><p>Tech completes the application log on their phone. Re-entry SMS fires automatically. The next quarterly auto-schedules on the waiting list. Card charges automatically.</p></div>
+    <div class="step-box"><div class="step-circle">1</div><h3>Check the Waiting List</h3><p>See every pest control visit due today — quarterly, bi-monthly, monthly, mosquito — organized by program with stop count and route revenue. Know the day's full scope before you build any routes.</p></div>
+    <div class="step-box"><div class="step-circle">2</div><h3>Lasso the Neighborhood</h3><p>Draw a circle on any area of the map. See every pest control stop due inside — program type, revenue, overdue status. Filter by program. Optimize drive order. Push to the tech in one click.</p></div>
+    <div class="step-box"><div class="step-circle">3</div><h3>Log the Application In-Field</h3><p>Tech logs product, EPA reg number, rate, treatment areas, re-entry interval, and applicator license at the property on their phone. Re-entry SMS fires automatically when the log is saved.</p></div>
+    <div class="step-box"><div class="step-circle">4</div><h3>Auto-Schedule the Next Visit</h3><p>The next visit auto-schedules at your set interval — 13 weeks for quarterly, 8 for bi-monthly, 4 for monthly. The waiting list updates itself. Nobody on your team schedules the follow-up manually.</p></div>
   </div>
 </section>
 
 <div class="premium-band">
-  <h2>Pest Control Scheduling Software<br><span>Built for Recurring Programs — Not One-Off Jobs.</span></h2>
-  <p>SprayBossPro is built for pest control companies that run quarterly, bi-monthly, and monthly programs. The recurring auto-scheduling, Lasso routing, automated SMS alerts, and compliance logging are all designed for companies with a dense recurring client base, not random one-off service calls.</p>
+  <h2>Pest Control Scheduling Software Built for Recurring Programs.<br><span>$129/Month. Everything Included.</span></h2>
+  <p>SprayBossPro isn't a generic job board adapted for pest control. Recurring program auto-rescheduling, compliance logs, Lasso circle route building, and automated SMS alerts are built specifically for pest control companies running quarterly, bi-monthly, and monthly programs at scale.</p>
   <div class="premium-grid">
-    <div class="premium-card"><div class="premium-card-icon">🔄</div><h4>Recurring Program Auto-Scheduling</h4><p>Quarterly, bi-monthly, monthly, or any interval. Services auto-reschedule when completed. Your recurring pest programs run themselves.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">🗺️</div><h4>Lasso Circle Route Builder</h4><p>Circle any neighborhood and pull every pest control stop due inside into a tight, optimized route. Build a full day of pest routes in under 10 minutes.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">💬</div><h4>Automated SMS Alerts</h4><p>Day-before, on-the-way, service complete, and re-entry interval SMS fires automatically on every job. 10+ pre-built pest control templates included.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">🧪</div><h4>Chemical Compliance Logs</h4><p>Product name, EPA reg number, application rate, area treated, and applicator license logged on every pest treatment. Print compliance reports on demand.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📋</div><h4>Pest Control Waiting List</h4><p>Every service due today organized by program type with stop count and revenue. See quarterly, bi-monthly, and monthly programs in one view before touching the map.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📦</div><h4>Pest Control Package Plans</h4><p>Sell annual pest packages — quarterly visits bundled at a flat rate. Track treatments remaining and alert customers before programs expire.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📱</div><h4>Mobile App for Technicians</h4><p>Techs see their optimized route, property notes, gate codes, past service history, and the application log form on their phone. No paper, no calls back to the office.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">💳</div><h4>Card-on-File Payments</h4><p>Charge cards automatically after each pest service is completed. Included at $129/month — no separate payment add-on needed.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">👥</div><h4>Unlimited Technicians</h4><p>Run 1 pest tech or 15. SprayBossPro never charges per user — every technician in your company is included at $129/month flat.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🔄</div><h4>Recurring Program Auto-Scheduling</h4><p>Quarterly, bi-monthly, and monthly programs auto-reschedule when treatments complete. Every customer's next visit schedules itself — your waiting list stays accurate all year automatically.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🗺️</div><h4>Lasso Circle Map Route Builder</h4><p>Draw a circle on any neighborhood — see every pest control stop due inside. Filter by program. Build and dispatch a full day of recurring routes in minutes from one map view.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📋</div><h4>EPA Compliance Logs In-Field</h4><p>Product, EPA reg number, rate, treatment areas, re-entry interval, applicator license — all logged in-field on every application. Print compliance reports on demand by date, product, or applicator.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">💬</div><h4>Automated SMS Alerts</h4><p>Day-before, on-the-way, and re-entry interval complete texts fire automatically on every job. 10+ pre-built pest control templates. Zero sent manually by your team or your office.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📊</div><h4>Revenue-Visible Waiting List</h4><p>Waiting list shows route revenue per program — know the dollar value of every day's pest control work before you build the first route or assign the first truck.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📦</div><h4>Pest Control Package Plans</h4><p>Sell quarterly, bi-monthly, and monthly programs as packages. Track visits remaining per customer, alert when a program is nearing its end, and renew with one click.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📱</div><h4>Mobile App for Technicians</h4><p>Techs see their optimized route, customer property notes, access codes, service history, and the compliance log form on their phone. No paper. No calls back to the office.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">💳</div><h4>Card-on-File Payments</h4><p>Charge customer cards automatically when each pest control visit is completed. Included in $129/month flat — no separate billing module, no extra percentage per transaction ever.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">👥</div><h4>Unlimited Technicians</h4><p>Run 1 pest control truck or 10. Every technician is included in the flat $129/month. The price never changes no matter how many people use the software.</p></div>
   </div>
 </div>
 
@@ -240,7 +315,7 @@
   <div class="centered" style="max-width:1100px; margin:0 auto;">
     <span class="section-label">Pricing</span>
     <h2 class="section-title">$129/Month. Every Feature. No Add-Ons.</h2>
-    <p class="section-sub">Recurring program scheduling, Lasso routing, automated SMS alerts, compliance logs, and card-on-file payments — all included at $129/month. No per-technician fees. No contracts.</p>
+    <p class="section-sub">One flat price covers recurring program scheduling, compliance logs, Lasso routing, automated SMS alerts, card-on-file payments, and unlimited technicians. No per-user fees. No contracts. No surprises.</p>
   </div>
   <div style="max-width:520px; margin:0 auto;">
     <div class="price-card featured">
@@ -249,20 +324,21 @@
       <div class="price-amount"><sup>$</sup>129</div>
       <div class="price-period">per month — cancel anytime</div>
       <ul class="price-features">
-        <li>Recurring Pest Program Auto-Scheduling</li>
-        <li>Quarterly, Bi-Monthly &amp; Monthly Programs</li>
-        <li>Lasso Circle Map Route Builder</li>
-        <li>Pest Control Waiting List by Program Type</li>
-        <li>Automated SMS Alerts — 10+ Pre-Built Types</li>
-        <li>Re-Entry Interval SMS — Automatic After Each Job</li>
-        <li>Chemical Application Compliance Logs</li>
-        <li>EPA Reg Number &amp; Rate Logging on Every Job</li>
+        <li>Quarterly, Bi-Monthly &amp; Monthly Program Auto-Rescheduling</li>
+        <li>Revenue-Visible Waiting List Organized by Program Type</li>
+        <li>Lasso Circle Map Route Builder — Build Pest Routes in Minutes</li>
+        <li>EPA Reg Number &amp; Application Rate Logging on Every Job</li>
+        <li>Treatment Area, Target Pest &amp; Applicator License In-Field Logging</li>
+        <li>Re-Entry Interval Captured &amp; Used to Trigger Auto-SMS</li>
+        <li>Compliance Reports — Print by Date, Product, or Applicator</li>
+        <li>Day-Before, On-the-Way &amp; Service Complete SMS Alerts</li>
+        <li>10+ Pre-Built Pest Control SMS Templates — Ready Out of the Box</li>
         <li>Two-Way SMS Customer Inbox</li>
-        <li>Pest Control Package Plans &amp; Treatment Tracking</li>
-        <li>Estimates, Invoices &amp; Card-on-File Payments</li>
-        <li>Mobile App for Technicians</li>
-        <li>Unlimited Technicians — no per-user fees</li>
-        <li>14-day free trial — no credit card required</li>
+        <li>Mosquito Add-On Program Support Under Same Customer Account</li>
+        <li>Mobile App for Technicians — Route, Log &amp; Complete</li>
+        <li>Card-on-File Payments — Charge Automatically on Completion</li>
+        <li>Unlimited Technicians — No Per-User Fees Ever</li>
+        <li>14-Day Free Trial — No Credit Card Required</li>
       </ul>
       <a href="#" onclick="openSignupModal(2, this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
     </div>
@@ -271,8 +347,8 @@
 </section>
 
 <div class="cta-band">
-  <h2>Pest Control Scheduling Software<br><span style="color:var(--orange);">That Runs Your Recurring Programs on Autopilot.</span></h2>
-  <p>$129/month gets you recurring program auto-scheduling, Lasso routing, automated SMS alerts, compliance logs, and card-on-file payments — all built for pest control companies that run dense recurring route-based programs.</p>
+  <h2>Pest Control Scheduling Software That Runs<br><span style="color:var(--orange);">Your Recurring Programs Without the Manual Work.</span></h2>
+  <p>$129/month covers quarterly, bi-monthly, and monthly program auto-scheduling, compliance logs, Lasso circle route building, and automated SMS alerts — everything built for pest control companies running recurring programs. No add-ons. No contracts.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(3, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
   </div>

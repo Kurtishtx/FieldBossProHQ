@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fertilizer Software for Lawn Care Companies | Programs, Compliance Logs & Routes | SprayBossPro</title>
-  <meta name="description" content="SprayBossPro is fertilizer software built for lawn care companies. Manage fertilizer programs, log EPA reg numbers and application rates, build Lasso circle routes, and track sq ft or linear ft treated per stop. $129/month, everything included."/>
+  <title>Fertilizer Software for Lawn Care Companies | Round Tracking, Compliance Logs & Auto-Scheduling | SprayBossPro</title>
+  <meta name="description" content="SprayBossPro is fertilizer software built for lawn care companies. Track 5-round and 6-round programs, log EPA reg numbers on every application, auto-schedule the next round on completion, and send re-entry SMS automatically. $129/month."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,6 +29,11 @@
     .section-sub { color: var(--muted); font-size: 17px; max-width: 640px; margin-bottom: 56px; }
     .centered { text-align: center; }
     .centered .section-sub { margin-left: auto; margin-right: auto; }
+    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .audience-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 28px 24px; }
+    .audience-card h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .audience-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .audience-tag { display: inline-block; background: rgba(224,120,32,.1); border: 1px solid rgba(224,120,32,.25); color: var(--orange); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; margin-bottom: 12px; }
     .highlight-row { display: flex; align-items: center; gap: 60px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
     .highlight-row.reverse { flex-direction: row-reverse; }
     .highlight-text { flex: 1; min-width: 280px; }
@@ -38,14 +43,18 @@
     .check-list { list-style: none; margin-top: 16px; }
     .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: var(--muted); margin-bottom: 12px; }
     .check-list li::before { content: '✓'; background: var(--orange); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-    .log-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
-    .log-label { color: rgba(255,255,255,.38); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 3px; }
-    .log-value { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
-    .log-row.highlight { border-color: rgba(224,120,32,.35); background: rgba(224,120,32,.07); }
     .svc-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .svc-name { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
     .svc-sub { color: rgba(255,255,255,.38); font-size: 11px; margin-top: 2px; }
     .svc-ft { color: var(--orange); font-size: 13px; font-weight: 700; }
+    .log-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
+    .log-label { color: rgba(255,255,255,.38); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 3px; }
+    .log-value { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
+    .sms-bubble { border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; max-width: 85%; font-size: 12px; line-height: 1.5; }
+    .sms-out { background: var(--orange); color: #fff; margin-left: auto; border-bottom-right-radius: 3px; }
+    .sms-in { background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); border-bottom-left-radius: 3px; }
+    .sms-label { color: rgba(255,255,255,.35); font-size: 10px; margin-top: 2px; margin-bottom: 6px; }
+    .sms-label.right { text-align: right; }
     .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; max-width: 1100px; margin: 0 auto; position: relative; }
     .steps-grid::before { content: ''; position: absolute; top: 28px; left: 14%; right: 14%; height: 2px; background: linear-gradient(90deg, var(--orange), rgba(224,120,32,.3)); pointer-events: none; }
     .step-box { text-align: center; padding: 0 20px; }
@@ -86,48 +95,78 @@
 </head>
 <body>
 <div class="hero">
-  <div class="hero-badge">Fertilizer Software</div>
-  <h1>Fertilizer Software That Knows<br><span>Sq Ft, Rates, and Every Round in Your Program.</span></h1>
-  <p>SprayBossPro tracks every fertilizer application from program setup to compliance log. Sq ft or linear ft per stop, product EPA reg numbers, application rates, re-entry intervals — all logged automatically by your technician at the door. Lasso routes, automated SMS alerts, and card-on-file payments included. $129/month, everything in.</p>
+  <div class="hero-badge">Fertilizer Software for Lawn Care Companies</div>
+  <h1>Fertilizer Software That Tracks Every Round,<br><span>Logs Every Application, and Schedules the Next.</span></h1>
+  <p>SprayBossPro tracks 5-round and 6-round fertilizer programs from start to finish. Log product name, EPA reg number, application rate per 1,000 sq ft, and applicator license on every visit. When a round is completed, the next round reschedules itself on the waiting list automatically. $129/month, everything included.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial — $129/Month</a>
   </div>
   <div class="hero-stats">
     <div><div class="hero-stat-val">$129</div><div class="hero-stat-lbl">Per month — everything included</div></div>
-    <div><div class="hero-stat-val">Sq Ft</div><div class="hero-stat-lbl">Or linear ft — your choice per property</div></div>
-    <div><div class="hero-stat-val">EPA</div><div class="hero-stat-lbl">Reg numbers and rates logged on every job</div></div>
+    <div><div class="hero-stat-val">5 &amp; 6</div><div class="hero-stat-lbl">Round program tracking built-in</div></div>
     <div><div class="hero-stat-val">14-Day</div><div class="hero-stat-lbl">Free trial — no credit card</div></div>
+    <div><div class="hero-stat-val">0</div><div class="hero-stat-lbl">Add-ons or per-user fees</div></div>
   </div>
 </div>
+
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto 48px;">
+    <span class="section-label">Built for Every Type of Fertilizer Program</span>
+    <h2 class="section-title">Whether You Run 5 Rounds or 6, Granular or Liquid — SprayBossPro Has You Covered.</h2>
+    <p class="section-sub">SprayBossPro tracks every fertilizer program type your lawn care company runs — round-by-round scheduling, compliance logging, auto-rescheduling, and automated re-entry SMS — all in one platform at one flat price.</p>
+  </div>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <div class="audience-tag">5-Round Programs</div>
+      <h3>Classic 5-Round Lawn Fertilizer Program</h3>
+      <p>Early spring, late spring, summer, fall, and winterizer — SprayBossPro tracks each round, auto-schedules the next when the previous is complete, and logs EPA reg numbers and rates on every application from the technician's phone.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">6-Round Programs</div>
+      <h3>6-Round Programs with Pre-Emergent Combo</h3>
+      <p>Run a 6-round fertilizer program that includes pre-emergent in rounds 1 and 2? SprayBossPro tracks each round individually — different products, different rates, same compliance log format — all under one customer account and one sq ft measurement.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Granular vs. Liquid</div>
+      <h3>Granular, Liquid, or Mixed Application Programs</h3>
+      <p>Granular programs tracked per 1,000 sq ft. Liquid programs tracked per linear ft or per gallon per 1,000 sq ft. Log the exact rate and formulation your tech used in the field — no generic notes, actual application data tied to the compliance record.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Multi-Property Accounts</div>
+      <h3>Commercial &amp; Multi-Property Fertilizer Accounts</h3>
+      <p>Manage commercial accounts with multiple properties, each on its own sq ft measurement and fertilizer program. All properties under one client account. Each gets its own waiting list entry, its own compliance log history, and its own auto-scheduled rounds.</p>
+    </div>
+  </div>
+</section>
 
 <section>
   <div class="highlight-row">
     <div class="highlight-text">
-      <span class="section-label">Chemical Compliance Logs — Built Into Every Application</span>
-      <h2>Every Fertilizer Application Logged at the Door. EPA Reg Numbers, Rates, and Sq Ft — Automatically.</h2>
-      <p>Your technician completes the application log on their phone before they leave the property. Product name, EPA registration number, application rate per 1,000 sq ft or per linear ft, total area treated, wind speed, temperature, applicator license — all of it captured in the field, tied to the service record, and printable on demand.</p>
-      <p>When a state inspector comes knocking, you print a compliance report for any date range in seconds. No paper logs, no binders, no scrambling to reconstruct records. SprayBossPro keeps your company clean.</p>
+      <span class="section-label">EPA Compliance Logs — Captured In-Field on Every Application</span>
+      <h2>Log EPA Reg Numbers, Application Rates, and Sq Ft Treated on Every Fertilizer Job. At the Property.</h2>
+      <p>Your technician opens the application log on their phone when they arrive and fills it out before they leave — product name, EPA registration number, application rate per 1,000 sq ft or per linear ft, total area treated, wind speed, temperature, and their applicator license number. Submitted from the property. Saved permanently to the service record.</p>
+      <p>When a state inspector shows up asking for fertilizer application records, you pull a compliance report in seconds — not binders. Filter by date range, product, property, or applicator license and print or export on demand. Every fertilizer application your company has ever done is in one searchable place.</p>
       <ul class="check-list">
-        <li>Product name and EPA registration number logged on every job</li>
-        <li>Application rate per 1,000 sq ft or per linear ft — your mix type</li>
-        <li>Total area treated in sq ft or linear ft auto-calculated from property record</li>
-        <li>Wind speed, temperature, and applicator license number</li>
-        <li>Print compliance reports by date range, applicator, or product</li>
-        <li>Zero paper required — logs live in the cloud forever</li>
+        <li>Product name and EPA reg number required on every fertilizer application log</li>
+        <li>Rate per 1,000 sq ft or per linear ft — matches your specific formulation</li>
+        <li>Total area treated auto-calculated from property square footage record</li>
+        <li>Wind speed, temperature, and conditions captured at time of application</li>
+        <li>Applicator license number logged — required for state compliance audits</li>
+        <li>Pull compliance reports by date, product, applicator, or property in seconds</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Fertilizer Application Log — Completed In-Field</div>
-      <div class="log-row highlight"><div class="log-label">Property</div><div class="log-value">204 Oakwood Blvd — 8,200 ft²</div></div>
-      <div class="log-row"><div class="log-label">Service</div><div class="log-value">Lawn Fertilizer — Round 4 (Fall)</div></div>
-      <div class="log-row"><div class="log-label">Product</div><div class="log-value">Lesco Fertilizer 32-3-8 SCU</div></div>
-      <div class="log-row"><div class="log-label">EPA Reg Number</div><div class="log-value">10631-42</div></div>
-      <div class="log-row"><div class="log-label">Rate Applied</div><div class="log-value">4.6 lbs / 1,000 ft² — 37.7 lbs total</div></div>
-      <div class="log-row"><div class="log-label">Conditions</div><div class="log-value">Wind: 3 mph · Temp: 68°F</div></div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Fertilizer Application Log — Filled Out In-Field</div>
+      <div class="log-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div class="log-label">Property</div><div class="log-value">412 Crestwood Dr — 9,400 ft²</div></div>
+      <div class="log-row"><div class="log-label">Service</div><div class="log-value">Lawn Fertilizer — Round 5 (Winterizer)</div></div>
+      <div class="log-row"><div class="log-label">Product Applied</div><div class="log-value">Lesco Winterizer 32-0-10 SCU</div></div>
+      <div class="log-row"><div class="log-label">EPA Reg Number</div><div class="log-value">10631-119</div></div>
+      <div class="log-row"><div class="log-label">Rate Applied</div><div class="log-value">4.0 lbs / 1,000 ft² — 37.6 lbs total</div></div>
+      <div class="log-row"><div class="log-label">Conditions at Application</div><div class="log-value">Wind: 4 mph · Temp: 52°F · Clear</div></div>
       <div class="log-row"><div class="log-label">Applicator License</div><div class="log-value">TX-LAW-20419</div></div>
-      <div style="margin-top:12px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="margin-top:12px; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
         <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Log Status</div>
-        <div style="color:#22c55e; font-size:12px; font-weight:700;">✓ Complete &amp; Saved</div>
+        <div style="color:#22c55e; font-size:12px; font-weight:700;">✓ Saved — Program Complete</div>
       </div>
     </div>
   </div>
@@ -136,28 +175,46 @@
 <section style="background: var(--light-bg);">
   <div class="highlight-row reverse">
     <div class="highlight-text">
-      <span class="section-label">Fertilizer Program Management</span>
-      <h2>Sell Fertilizer Programs. SprayBossPro Tracks Every Round — Start to Finish, No Manual Scheduling.</h2>
-      <p>Build your fertilizer programs — 5-round, 6-round, or any combination — and SprayBossPro auto-schedules every round on completion. When your tech logs Round 3, Round 4 automatically appears on the waiting list at the right interval. Nothing falls through the cracks. No one has to remember to reschedule.</p>
-      <p>The waiting list shows every fertilizer treatment due today, organized by service name with total sq ft or linear ft and stop count for your whole company. You see Lawn Fertilizer Round 4, Starter Fertilizer, and Winterizer all at a glance — then Lasso-route them into tight neighborhood routes.</p>
+      <span class="section-label">Lasso — Circle Map Route Builder for Fertilizer Routes</span>
+      <h2>Draw a Circle Around Any Neighborhood. See Every Fertilizer Round Due Inside. Build the Route.</h2>
+      <p>Open Lasso on the map, draw a circle around any neighborhood or service zone, and SprayBossPro shows you every property with a fertilizer treatment due inside that boundary — round number, sq ft, and route revenue all visible before you commit to the route.</p>
+      <p>Filter by round — pull only Round 4 stops, only Round 5 winterizer stops, or any round combination you want to run together. Select all stops, drive order gets optimized automatically, and the route is pushed to your technician's phone. An entire day of fertilizer routes gets built in minutes — not the first two hours of every morning.</p>
       <ul class="check-list">
-        <li>Build any fertilizer program — 4-round, 5-round, 6-round, custom intervals</li>
-        <li>Rounds auto-schedule when the previous round is completed</li>
-        <li>Waiting list shows every round due by service type with sq ft or linear ft totals</li>
-        <li>Track treatments remaining per customer, per program</li>
-        <li>Alert customers when programs are due for renewal</li>
-        <li>Different interval rules per program — every 6 weeks, every 8 weeks, seasonal</li>
+        <li>Draw a circle on any neighborhood, subdivision, or commercial zone</li>
+        <li>See every fertilizer round due inside — round number, sq ft, revenue</li>
+        <li>Filter by round — pull only Round 4 or only winterizer stops at once</li>
+        <li>Drive order optimized automatically to cut windshield time and fuel costs</li>
+        <li>Push route to technician's phone with one click — they see stops in order</li>
+        <li>Build routes for multiple crews simultaneously without overlap</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Fertilizer Programs — Waiting List View</div>
-      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Lawn Fertilizer 4 (Fall)</div><div class="svc-sub">41 properties due</div></div><div class="svc-ft">378,200 ft²</div></div>
-      <div class="svc-row"><div><div class="svc-name">Starter Fertilizer 1</div><div class="svc-sub">18 properties due</div></div><div class="svc-ft" style="color:rgba(255,255,255,.45);">156,000 ft²</div></div>
-      <div class="svc-row"><div><div class="svc-name">Winterizer App 1</div><div class="svc-sub">12 properties due</div></div><div class="svc-ft" style="color:rgba(255,255,255,.45);">108,400 ft²</div></div>
-      <div class="svc-row"><div><div class="svc-name">Lawn Fertilizer 5 (Late Fall)</div><div class="svc-sub">6 properties due — overdue</div></div><div class="svc-ft" style="color:#f87171;">52,000 ft²</div></div>
-      <div style="margin-top:10px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Programs Active</div>
-        <div style="color:var(--orange); font-size:12px; font-weight:700;">77 stops · 694,600 ft² total</div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;">Lasso — Eastside Fertilizer Route · Round 5</div>
+      <div style="display:flex; flex-direction:column; gap:7px;">
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">412 Crestwood Dr</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Fertilizer Round 5 · 9,400 ft² · Winterizer</div></div>
+          <div style="color:var(--orange); font-size:11px; font-weight:700;">$79</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">88 Ridgewood Ct</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Fertilizer Round 5 · 7,800 ft² · Winterizer</div></div>
+          <div style="color:var(--orange); font-size:11px; font-weight:700;">$67</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">301 Elmwood Blvd</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Fertilizer Round 5 · 11,200 ft² · Winterizer</div></div>
+          <div style="color:var(--orange); font-size:11px; font-weight:700;">$88</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px; opacity:.5;">
+          <div style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.3); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">+</div>
+          <div style="flex:1;"><div style="color:rgba(255,255,255,.3); font-size:12px;">19 more stops in this circle…</div></div>
+          <div style="color:rgba(255,255,255,.3); font-size:11px; font-weight:600;">$1,480</div>
+        </div>
+      </div>
+      <div style="margin-top:10px; background:rgba(224,120,32,.1); border:1px solid rgba(224,120,32,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:rgba(255,255,255,.45); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Route Total</div>
+        <div style="color:var(--orange); font-size:13px; font-weight:700;">22 stops · 196,600 ft² · $1,715</div>
       </div>
     </div>
   </div>
@@ -166,72 +223,91 @@
 <section>
   <div class="highlight-row">
     <div class="highlight-text">
-      <span class="section-label">Lasso Route Builder for Fertilizer Companies</span>
-      <h2>Circle Any Neighborhood. Pull Every Fertilizer Stop Due Inside. Build the Route in Under a Minute.</h2>
-      <p>Open Lasso on the map and draw a circle around any neighborhood or subdivision. SprayBossPro shows every property with a fertilizer treatment due inside — service round, sq ft or linear ft, and revenue — before you commit to a single stop.</p>
-      <p>Filter by fertilizer round to keep similar applications on the same truck (same product, same spreader setting), optimize drive order, and push to your tech's phone. No pencil routing, no printed lists, no re-explaining the route in the morning.</p>
+      <span class="section-label">Waiting List — Every Fertilizer Round Due, Organized Before You Route</span>
+      <h2>See Every Fertilizer Treatment Due Today — By Round, By Sq Ft, Before You Open the Map.</h2>
+      <p>Before you build a single fertilizer route, SprayBossPro shows you a waiting list of every treatment due — organized by round number with total sq ft and total stops for each round. Round 3 summer fertilizer has 31 stops at 278,000 sq ft. Round 5 winterizer has 22 stops at 196,000 sq ft. You know the exact scope of your day before you ever open Lasso.</p>
+      <p>When a round is completed, the next round schedules itself automatically at your set interval — 6 weeks, 8 weeks, whatever your program calls for. You don't touch anything between rounds. The waiting list handles it and shows the round on the right day when it's due.</p>
       <ul class="check-list">
-        <li>Circle any neighborhood — see every fertilizer stop due inside</li>
-        <li>Filter by round — keep same-product applications on the same truck</li>
-        <li>Sq ft or linear ft and revenue per stop before you pull the trigger</li>
-        <li>Drive order auto-optimized to cut windshield time</li>
-        <li>Push directly to tech's phone — they see stops in order with property notes</li>
+        <li>Waiting list organized by fertilizer round — see all rounds due today at a glance</li>
+        <li>Total sq ft and stops per round so you know how big each route needs to be</li>
+        <li>Rounds auto-schedule at your set interval when the previous round is completed</li>
+        <li>Overdue rounds highlighted — nothing slips through the cracks between seasons</li>
+        <li>Filter by technician or crew to split routes between multiple trucks</li>
+        <li>Program-complete alerts when a customer finishes their final round of the season</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;">Lasso — Oak Hills Fertilizer Route</div>
-      <div style="display:flex; flex-direction:column; gap:7px;">
-        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">412 Autumn Ridge Ct</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Lawn Fertilizer 4 · 7,800 ft²</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$68</div>
-        </div>
-        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">318 Autumn Ridge Dr</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Lawn Fertilizer 4 · 9,100 ft²</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$75</div>
-        </div>
-        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">205 Copper Beech Blvd</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Winterizer App 1 · 10,400 ft²</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$82</div>
-        </div>
-      </div>
-      <div style="margin-top:10px; background:rgba(224,120,32,.1); border:1px solid rgba(224,120,32,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="color:rgba(255,255,255,.45); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Route Total</div>
-        <div style="color:var(--orange); font-size:13px; font-weight:700;">21 stops · 192,600 ft² · $1,680</div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Waiting List — Today's Fertilizer Queue by Round</div>
+      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Fertilizer Round 5 — Winterizer</div><div class="svc-sub">22 properties · season close round</div></div><div class="svc-ft">196,600 ft²</div></div>
+      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Fertilizer Round 4 — Fall</div><div class="svc-sub">31 properties waiting</div></div><div class="svc-ft">278,400 ft²</div></div>
+      <div class="svc-row"><div><div class="svc-name">Pre-Emergent Round 2</div><div class="svc-sub">14 properties waiting</div></div><div class="svc-ft" style="color:rgba(255,255,255,.4);">124,200 ft²</div></div>
+      <div class="svc-row"><div><div class="svc-name">Weed Control Round 3</div><div class="svc-sub">19 properties waiting</div></div><div class="svc-ft" style="color:rgba(255,255,255,.4);">168,800 ft²</div></div>
+      <div class="svc-row"><div><div class="svc-name">Fertilizer Round 3 — Overdue</div><div class="svc-sub">7 properties — past due date</div></div><div class="svc-ft" style="color:#f87171;">62,400 ft²</div></div>
+      <div style="margin-top:12px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Total Due Today</div>
+        <div style="color:var(--orange); font-size:12px; font-weight:700;">93 stops across 5 round types</div>
       </div>
     </div>
   </div>
 </section>
 
 <section style="background: var(--light-bg);">
+  <div class="highlight-row reverse">
+    <div class="highlight-text">
+      <span class="section-label">Automated SMS Alerts on Every Fertilizer Visit</span>
+      <h2>Re-Entry Interval Texts Fire Automatically After Every Fertilizer Application. Your Team Sends Zero.</h2>
+      <p>SprayBossPro sends a day-before service reminder the evening before every fertilizer visit, an on-the-way alert when the tech heads to the property, and a service complete notification with re-entry interval and lawn care instructions automatically when the application log is saved. Your team never manually sends a single one of these texts.</p>
+      <p>Re-entry interval SMS is especially important for fertilizer programs — customers need to know when it's safe to bring kids and pets back on the lawn. SprayBossPro handles that communication automatically on every visit, every customer, every round — without anyone on your team doing anything.</p>
+      <ul class="check-list">
+        <li>Day-before reminder fires the evening before every scheduled fertilizer visit</li>
+        <li>On-the-way alert fires when the tech marks the stop started on their phone</li>
+        <li>Service complete with re-entry interval fires after the compliance log is saved</li>
+        <li>10+ pre-built fertilizer SMS templates — ready to use on day one</li>
+        <li>Two-way inbox — all customer replies organized for your team to see</li>
+        <li>500 outbound SMS/month included in $129/month flat</li>
+      </ul>
+    </div>
+    <div class="highlight-visual">
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px;">Fertilizer SMS Thread — Sent Automatically by SprayBossPro</div>
+      <div class="sms-bubble sms-out">Hi Mike! Your lawn fertilizer service (Round 4 – Fall) is scheduled for tomorrow. Please mow first if needed. We'll let you know when the tech is on the way. — Green Valley Lawn</div>
+      <div class="sms-label right">Day before · Sent automatically · 5:00 PM</div>
+      <div class="sms-bubble sms-in">Great, thanks for the heads up!</div>
+      <div class="sms-label">Mike · 5:22 PM</div>
+      <div class="sms-bubble sms-out">Your lawn tech is on the way — about 20 minutes out. — Green Valley Lawn</div>
+      <div class="sms-label right">On the way · Fires automatically · 9:12 AM</div>
+      <div class="sms-bubble sms-out">Fertilizer Round 4 is complete! Please keep kids and pets off the lawn for 24 hours while the granules work in. Next round is in approximately 6–8 weeks. — Green Valley Lawn</div>
+      <div class="sms-label right">Complete · Fires automatically when log is saved</div>
+    </div>
+  </div>
+</section>
+
+<section>
   <div class="centered" style="max-width:1100px; margin:0 auto 64px;">
     <span class="section-label">How It Works</span>
-    <h2 class="section-title">From Fertilizer Program to Logged Application in 4 Steps</h2>
-    <p class="section-sub">SprayBossPro handles the scheduling, routing, compliance logging, and SMS alerts automatically so your team can focus on making applications, not managing paperwork.</p>
+    <h2 class="section-title">From Waiting List to Compliance Log — Every Fertilizer Round, Every Customer</h2>
+    <p class="section-sub">SprayBossPro manages your fertilizer programs from the first round of the season to the final winterizer — round tracking, routing, compliance logging, and auto-SMS all handled automatically.</p>
   </div>
   <div class="steps-grid">
-    <div class="step-box"><div class="step-circle">1</div><h3>Set Up Your Program</h3><p>Build your fertilizer rounds — 5-round, 6-round, any interval. Enter sq ft or linear ft for each property once. Programs auto-schedule every round on completion.</p></div>
-    <div class="step-box"><div class="step-circle">2</div><h3>Lasso a Route</h3><p>See every fertilizer treatment due on the waiting list by round. Circle a neighborhood with Lasso. Pull every stop due inside into a route and dispatch to your tech's phone.</p></div>
-    <div class="step-box"><div class="step-circle">3</div><h3>Tech Logs the Application</h3><p>Technician completes the application log on their phone at the property — product, EPA reg number, rate, area treated, conditions. Takes 30 seconds.</p></div>
-    <div class="step-box"><div class="step-circle">4</div><h3>Reschedule &amp; SMS Fire</h3><p>Next round auto-schedules on the waiting list. Completion SMS fires to the customer automatically. Invoice charges the card on file. Nothing left for your office to touch.</p></div>
+    <div class="step-box"><div class="step-circle">1</div><h3>Check the Waiting List</h3><p>See every fertilizer round due today — organized by round number with total sq ft and stop count. Know the full scope of the day's fertilizer work before you build any routes.</p></div>
+    <div class="step-box"><div class="step-circle">2</div><h3>Lasso the Neighborhood</h3><p>Draw a circle on any area of the map. See every fertilizer stop due inside — round number, sq ft, revenue. Filter by round. Pull all stops into a route and dispatch to the tech.</p></div>
+    <div class="step-box"><div class="step-circle">3</div><h3>Log the Application In-Field</h3><p>Tech logs product, EPA reg number, rate per 1,000 sq ft, area treated, conditions, and applicator license at the property before leaving. Re-entry SMS fires automatically on save.</p></div>
+    <div class="step-box"><div class="step-circle">4</div><h3>Auto-Schedule the Next Round</h3><p>When a round is completed, the next round auto-schedules at your set interval on the waiting list. Programs manage themselves through the entire season — no manual scheduling between rounds.</p></div>
   </div>
 </section>
 
 <div class="premium-band">
-  <h2>Fertilizer Software Built for Companies<br><span>That Apply, Track, and Comply.</span></h2>
-  <p>SprayBossPro isn't generic scheduling software adapted for lawn care. The compliance logs, sq ft or linear ft tracking, program auto-scheduling, and Lasso routing are all built for the way fertilizer companies actually operate.</p>
+  <h2>Fertilizer Software Built for Lawn Care Companies That Apply Chemicals.<br><span>$129/Month. Everything Included.</span></h2>
+  <p>SprayBossPro isn't a generic scheduling tool with fertilizer tags added on. Round tracking, EPA compliance logs, auto-rescheduling, Lasso routing, and re-entry SMS are all built specifically for companies running recurring fertilizer programs.</p>
   <div class="premium-grid">
-    <div class="premium-card"><div class="premium-card-icon">🧪</div><h4>Chemical Compliance Logs</h4><p>Product name, EPA reg number, application rate, area treated, conditions, and applicator license — logged on every job. Print compliance reports on demand.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📋</div><h4>Sq Ft or Linear Ft Per Property</h4><p>Set each property as sq ft or linear ft once. Every waiting list total, route summary, and compliance log uses the right measurement automatically.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">🔄</div><h4>Fertilizer Program Auto-Scheduling</h4><p>Rounds reschedule automatically when the previous one is completed. Your 5-round fertilizer program manages itself through the season.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">🗺️</div><h4>Lasso Circle Route Builder</h4><p>Circle any neighborhood and see every fertilizer stop due inside. Build tight, efficient routes by round and neighborhood — minimize drive time.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">💬</div><h4>Automated SMS Alerts</h4><p>Day-before, on-the-way, and application complete SMS alerts fire automatically. Re-entry interval alerts remind customers when they can return to the lawn.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📦</div><h4>Fertilizer Package Plans</h4><p>Sell full-season fertilizer packages — bundle rounds into a flat-fee plan. Track treatments remaining and alert customers before programs expire.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📱</div><h4>Mobile App for Technicians</h4><p>Techs see their optimized fertilizer route, property notes, gate codes, and the application log form on their phone. No paper, no re-entering data at the office.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">💳</div><h4>Card-on-File Payments</h4><p>Charge the card automatically after each round is completed. Included in $129/month — no separate payment processing add-on needed.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">👥</div><h4>Unlimited Technicians</h4><p>Run one fertilizer truck or ten. SprayBossPro never charges per user — every technician in your company included at $129/month.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📋</div><h4>EPA Compliance Logs</h4><p>Product name, EPA reg number, rate per 1,000 sq ft, applicator license — logged in-field on every application. Print compliance reports by date, product, or applicator on demand.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🔄</div><h4>Round Auto-Rescheduling</h4><p>The next round schedules itself when the previous one is completed. 5-round and 6-round programs manage themselves all season without your team manually scheduling a single treatment.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🗺️</div><h4>Lasso Circle Map Routing</h4><p>Draw a circle on any neighborhood — see every fertilizer round due inside. Filter by round. Build and dispatch a full day of routes in minutes from one map view.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📊</div><h4>Sq Ft Waiting List by Round</h4><p>See every round due today — organized by round number with total sq ft and stops. Know your full day's fertilizer scope before you build a single route.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">💬</div><h4>Automated SMS Alerts</h4><p>Day-before, on-the-way, and re-entry interval complete texts fire automatically on every fertilizer visit. 10+ pre-built templates. Your team sends zero manually.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📦</div><h4>Fertilizer Package Plans</h4><p>Sell 5-round, 6-round, and custom seasonal programs as packages. Track rounds remaining per customer and alert when the final round of the season is approaching.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📱</div><h4>Mobile App for Technicians</h4><p>Techs see their route in order, property notes, gate codes, past service history, and the compliance log form on their phone. No paper tickets. No calls back to the office.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">💳</div><h4>Card-on-File Payments</h4><p>Charge cards automatically when each fertilizer round is completed. No separate billing step — included in $129/month flat, no extra percentage per transaction.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">👥</div><h4>Unlimited Technicians</h4><p>Run 1 fertilizer truck or 10. Every tech is included in the flat $129/month. The price never changes based on how many people use the software.</p></div>
   </div>
 </div>
 
@@ -239,7 +315,7 @@
   <div class="centered" style="max-width:1100px; margin:0 auto;">
     <span class="section-label">Pricing</span>
     <h2 class="section-title">$129/Month. Every Feature. No Add-Ons.</h2>
-    <p class="section-sub">Fertilizer compliance logs, sq ft tracking, program auto-scheduling, Lasso routing, SMS alerts, and card-on-file payments — all included at $129/month. No per-technician fees. No contracts.</p>
+    <p class="section-sub">One flat price covers round tracking, EPA compliance logs, Lasso routing, automated SMS alerts, card-on-file payments, and unlimited technicians. No per-user fees. No contracts.</p>
   </div>
   <div style="max-width:520px; margin:0 auto;">
     <div class="price-card featured">
@@ -248,19 +324,21 @@
       <div class="price-amount"><sup>$</sup>129</div>
       <div class="price-period">per month — cancel anytime</div>
       <ul class="price-features">
-        <li>Chemical Application Compliance Logs</li>
-        <li>EPA Reg Number &amp; Rate Logging on Every Job</li>
-        <li>Sq Ft or Linear Ft Per Property — Your Choice</li>
-        <li>Fertilizer Program Auto-Scheduling</li>
+        <li>5-Round &amp; 6-Round Program Round Tracking</li>
+        <li>EPA Reg Number &amp; Rate Logging on Every Application</li>
+        <li>Applicator License &amp; Conditions Captured In-Field</li>
+        <li>Compliance Reports — Print by Date, Product, or Applicator</li>
+        <li>Round Auto-Rescheduling — Manage All Season Automatically</li>
+        <li>Sq Ft or Linear Ft Waiting List by Round Number</li>
         <li>Lasso Circle Map Route Builder</li>
-        <li>Waiting List by Service Type with Sq Ft Totals</li>
-        <li>Automated SMS Alerts — Re-Entry Interval Alerts Included</li>
+        <li>Automated Re-Entry Interval SMS on Every Application</li>
+        <li>Day-Before &amp; On-the-Way SMS Alerts — 10+ Pre-Built Templates</li>
         <li>Two-Way SMS Customer Inbox</li>
-        <li>Fertilizer Package Plans &amp; Round Tracking</li>
-        <li>Estimates, Invoices &amp; Card-on-File Payments</li>
-        <li>Mobile App for Technicians</li>
-        <li>Unlimited Technicians — no per-user fees</li>
-        <li>14-day free trial — no credit card required</li>
+        <li>Fertilizer Package Plans &amp; Round Tracking per Customer</li>
+        <li>Mobile App for Technicians — Route, Log &amp; Complete in Field</li>
+        <li>Card-on-File Payments — Charge on Completion Automatically</li>
+        <li>Unlimited Technicians — No Per-User Fees</li>
+        <li>14-Day Free Trial — No Credit Card Required</li>
       </ul>
       <a href="#" onclick="openSignupModal(2, this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
     </div>
@@ -269,8 +347,8 @@
 </section>
 
 <div class="cta-band">
-  <h2>Fertilizer Software That Tracks<br><span style="color:var(--orange);">Every Sq Ft and Every Compliance Log.</span></h2>
-  <p>$129/month gets you chemical compliance logs, fertilizer program auto-scheduling, Lasso routing, and automated SMS alerts — all built for lawn care companies that apply fertilizer on recurring programs.</p>
+  <h2>Fertilizer Software That Runs Your Rounds<br><span style="color:var(--orange);">From First App to Winterizer. Every Season.</span></h2>
+  <p>$129/month covers round tracking, compliance logs, Lasso routing, and automated re-entry SMS — everything built for lawn care companies running recurring fertilizer programs. No add-ons. No contracts.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(3, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
   </div>

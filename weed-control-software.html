@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Weed Control Software for Lawn Care Companies | Pre-Emergent, Post-Emergent & Compliance Logs | SprayBossPro</title>
-  <meta name="description" content="SprayBossPro is weed control software built for lawn care companies. Manage pre-emergent and post-emergent programs by sq ft or linear ft, log EPA reg numbers on every application, build Lasso routes, and send automated SMS alerts. $129/month, everything included."/>
+  <title>Weed Control Software for Lawn Care Companies | Pre-Emergent, Post-Emergent & Re-Entry SMS | SprayBossPro</title>
+  <meta name="description" content="SprayBossPro is weed control software built for lawn care companies. Schedule pre-emergent and post-emergent programs, log EPA reg numbers on every application, auto-reschedule at your interval, and send re-entry interval SMS automatically. $129/month."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,6 +29,11 @@
     .section-sub { color: var(--muted); font-size: 17px; max-width: 640px; margin-bottom: 56px; }
     .centered { text-align: center; }
     .centered .section-sub { margin-left: auto; margin-right: auto; }
+    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .audience-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 28px 24px; }
+    .audience-card h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .audience-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .audience-tag { display: inline-block; background: rgba(224,120,32,.1); border: 1px solid rgba(224,120,32,.25); color: var(--orange); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; margin-bottom: 12px; }
     .highlight-row { display: flex; align-items: center; gap: 60px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
     .highlight-row.reverse { flex-direction: row-reverse; }
     .highlight-text { flex: 1; min-width: 280px; }
@@ -38,13 +43,18 @@
     .check-list { list-style: none; margin-top: 16px; }
     .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: var(--muted); margin-bottom: 12px; }
     .check-list li::before { content: '✓'; background: var(--orange); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-    .log-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
-    .log-label { color: rgba(255,255,255,.38); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 3px; }
-    .log-value { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
     .svc-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .svc-name { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
     .svc-sub { color: rgba(255,255,255,.38); font-size: 11px; margin-top: 2px; }
     .svc-ft { color: var(--orange); font-size: 13px; font-weight: 700; }
+    .log-row { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
+    .log-label { color: rgba(255,255,255,.38); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 3px; }
+    .log-value { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
+    .sms-bubble { border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; max-width: 85%; font-size: 12px; line-height: 1.5; }
+    .sms-out { background: var(--orange); color: #fff; margin-left: auto; border-bottom-right-radius: 3px; }
+    .sms-in { background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); border-bottom-left-radius: 3px; }
+    .sms-label { color: rgba(255,255,255,.35); font-size: 10px; margin-top: 2px; margin-bottom: 6px; }
+    .sms-label.right { text-align: right; }
     .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; max-width: 1100px; margin: 0 auto; position: relative; }
     .steps-grid::before { content: ''; position: absolute; top: 28px; left: 14%; right: 14%; height: 2px; background: linear-gradient(90deg, var(--orange), rgba(224,120,32,.3)); pointer-events: none; }
     .step-box { text-align: center; padding: 0 20px; }
@@ -85,45 +95,76 @@
 </head>
 <body>
 <div class="hero">
-  <div class="hero-badge">Weed Control Software</div>
-  <h1>Weed Control Software for Lawn Care Companies<br><span>Pre-Emergent, Post-Emergent. Sq Ft or Linear Ft. Every Application Logged.</span></h1>
-  <p>SprayBossPro tracks every weed control application from program setup through compliance log. Organize pre-emergent and post-emergent treatments by sq ft or linear ft, log EPA reg numbers and rates at the door, build Lasso neighborhood routes, and send automated re-entry interval SMS alerts. $129/month — no add-ons, no per-tech fees.</p>
+  <div class="hero-badge">Weed Control Software for Lawn Care Companies</div>
+  <h1>Weed Control Software with Pre-Emergent Programs,<br><span>Compliance Logs, and Auto Re-Entry SMS.</span></h1>
+  <p>SprayBossPro manages pre-emergent and post-emergent weed control programs for lawn care companies. Set up your timing windows once — pre-emergent rounds schedule at the right seasonal dates, post-emergent rounds reschedule at your interval after completion. Log EPA reg numbers and re-entry intervals on every application. Re-entry SMS fires automatically to every customer. $129/month, everything included.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(1, this); return false;" class="btn-primary">Start Your 14-Day Free Trial — $129/Month</a>
   </div>
   <div class="hero-stats">
-    <div><div class="hero-stat-val">Pre &amp;</div><div class="hero-stat-lbl">Post-emergent programs tracked</div></div>
-    <div><div class="hero-stat-val">Sq Ft</div><div class="hero-stat-lbl">Or linear ft — set per property</div></div>
-    <div><div class="hero-stat-val">EPA</div><div class="hero-stat-lbl">Reg numbers logged on every job</div></div>
     <div><div class="hero-stat-val">$129</div><div class="hero-stat-lbl">Per month — everything included</div></div>
+    <div><div class="hero-stat-val">Pre &amp; Post</div><div class="hero-stat-lbl">Emergent programs — both handled</div></div>
+    <div><div class="hero-stat-val">14-Day</div><div class="hero-stat-lbl">Free trial — no credit card</div></div>
+    <div><div class="hero-stat-val">Auto</div><div class="hero-stat-lbl">Re-entry SMS on every application</div></div>
   </div>
 </div>
+
+<section style="background: var(--light-bg);">
+  <div class="centered" style="max-width:1100px; margin:0 auto 48px;">
+    <span class="section-label">Built for Every Weed Control Program Type</span>
+    <h2 class="section-title">Pre-Emergent, Post-Emergent, Broadleaf, and Multi-Service Combo — All in One Platform.</h2>
+    <p class="section-sub">SprayBossPro handles the scheduling, routing, compliance logging, and re-entry SMS for every weed control program your lawn care company runs — alongside fertilizer, insect, and any other service you offer. One platform. One price.</p>
+  </div>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <div class="audience-tag">Pre-Emergent Programs</div>
+      <h3>Seasonal Pre-Emergent Scheduling with Timing Windows</h3>
+      <p>Pre-emergent rounds need to hit the right soil temperature window — SprayBossPro lets you schedule them at your target seasonal date and shows them on the waiting list when they're due. Early spring and fall pre-emergent rounds tracked separately with their own compliance logs and re-entry SMS.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Post-Emergent Programs</div>
+      <h3>Post-Emergent Weed Control on Auto-Reschedule</h3>
+      <p>Post-emergent rounds reschedule automatically at your set interval when the previous round is completed. 4-week, 6-week, or 8-week cycles — SprayBossPro manages the timing between rounds so your team never manually reschedules a weed control visit between applications.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Broadleaf Control</div>
+      <h3>Broadleaf Weed, Sedge &amp; Specialty Programs</h3>
+      <p>Track broadleaf weed programs, nutsedge control, and specialty weed treatments alongside your main weed control rounds. Each service type has its own line on the waiting list, its own route filter in Lasso, its own compliance log with product-specific EPA reg numbers, and its own re-entry interval SMS template.</p>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Multi-Service Combo</div>
+      <h3>Weed Control + Fertilizer Combo Programs</h3>
+      <p>Run weed control and fertilizer on the same route? SprayBossPro lets you mix service types on any Lasso route or keep them on separate routes. All services share one waiting list, one map, and one dispatch flow — your tech sees all services for each stop in one place on their phone.</p>
+    </div>
+  </div>
+</section>
 
 <section>
   <div class="highlight-row">
     <div class="highlight-text">
-      <span class="section-label">Pre-Emergent &amp; Post-Emergent Program Management</span>
-      <h2>Track Every Weed Control Round — Pre-Emergent Timing, Post-Emergent Follow-Ups, All on One Waiting List.</h2>
-      <p>Weed control programs have timing requirements that generic scheduling software doesn't understand. SprayBossPro manages pre-emergent applications by seasonal timing — your spring pre-emergent shows up on the waiting list at exactly the right window. Post-emergent follow-ups auto-schedule at your specified interval after the previous round.</p>
-      <p>The waiting list shows every weed control treatment due today — Pre-Emergent 1, Post-Emergent 2, Spot Treatment, Grassy Weed — each on its own row with total sq ft or linear ft and stop count. You see the scope of your weed control day in seconds.</p>
+      <span class="section-label">Pre-Emergent &amp; Post-Emergent Program Scheduling</span>
+      <h2>Pre-Emergent Hits the Right Timing Window. Post-Emergent Reschedules Itself. You Manage Neither.</h2>
+      <p>SprayBossPro handles the timing differences between pre-emergent and post-emergent weed control automatically. Pre-emergent rounds appear on the waiting list when they hit your set seasonal date — spring pre-emergent at the right soil temp window, fall pre-emergent before the window closes. You set the date once when building the program; SprayBossPro takes it from there.</p>
+      <p>Post-emergent rounds reschedule at your set interval — 4 weeks, 6 weeks, 8 weeks — whenever the previous round is completed. No manual scheduling between rounds. The waiting list shows them when they're due, ready to pull into a Lasso route and dispatch to your technician.</p>
       <ul class="check-list">
-        <li>Pre-emergent programs auto-schedule at seasonal timing windows</li>
-        <li>Post-emergent rounds reschedule automatically on completion</li>
-        <li>Waiting list organized by round type — see pre-emergent vs. post-emergent at a glance</li>
-        <li>Sq ft or linear ft totals per round type before building a single route</li>
-        <li>Overdue treatments highlighted — never miss a critical timing window</li>
-        <li>Spot treatment follow-ups tracked per property</li>
+        <li>Pre-emergent rounds schedule at your seasonal timing window — set once per program</li>
+        <li>Post-emergent rounds auto-reschedule at your interval when the previous completes</li>
+        <li>Waiting list separates pre-emergent and post-emergent for easy filtering and routing</li>
+        <li>Early spring and fall pre-emergent tracked as separate rounds on each property</li>
+        <li>Mix weed control rounds with fertilizer and insect on the same Lasso route</li>
+        <li>Overdue weed control rounds highlighted — nothing slips through between seasons</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Weed Control — Today's Waiting List</div>
-      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Pre-Emergent 1 (Spring)</div><div class="svc-sub">44 properties due</div></div><div class="svc-ft">401,600 ft²</div></div>
-      <div class="svc-row"><div><div class="svc-name">Post-Emergent Broadleaf 2</div><div class="svc-sub">31 properties due</div></div><div class="svc-ft" style="color:rgba(255,255,255,.45);">278,200 ft²</div></div>
-      <div class="svc-row"><div><div class="svc-name">Grassy Weed Control 1</div><div class="svc-sub">19 properties due</div></div><div class="svc-ft" style="color:rgba(255,255,255,.45);">171,000 ft²</div></div>
-      <div class="svc-row"><div><div class="svc-name">Spot Treatment Follow-Up</div><div class="svc-sub">8 properties — overdue</div></div><div class="svc-ft" style="color:#f87171;">72,400 ft²</div></div>
-      <div style="margin-top:10px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Total Queue</div>
-        <div style="color:var(--orange); font-size:12px; font-weight:700;">102 stops · 923,200 ft² across 4 services</div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Waiting List — Weed Control Queue by Program Type</div>
+      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Pre-Emergent Round 2 — Fall</div><div class="svc-sub">28 properties · seasonal window open</div></div><div class="svc-ft">249,600 ft²</div></div>
+      <div class="svc-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div><div class="svc-name">Post-Emergent Broadleaf 4</div><div class="svc-sub">19 properties waiting</div></div><div class="svc-ft">168,800 ft²</div></div>
+      <div class="svc-row"><div><div class="svc-name">Weed Control Round 3</div><div class="svc-sub">14 properties waiting</div></div><div class="svc-ft" style="color:rgba(255,255,255,.4);">124,200 ft²</div></div>
+      <div class="svc-row"><div><div class="svc-name">Nutsedge / Sedge Control 2</div><div class="svc-sub">8 properties waiting</div></div><div class="svc-ft" style="color:rgba(255,255,255,.4);">71,400 ft²</div></div>
+      <div class="svc-row"><div><div class="svc-name">Pre-Emergent Round 2 — Overdue</div><div class="svc-sub">5 properties — past window</div></div><div class="svc-ft" style="color:#f87171;">44,600 ft²</div></div>
+      <div style="margin-top:12px; background:rgba(224,120,32,.08); border:1px solid rgba(224,120,32,.2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Total Due Today</div>
+        <div style="color:var(--orange); font-size:12px; font-weight:700;">74 stops across 5 weed control programs</div>
       </div>
     </div>
   </div>
@@ -132,31 +173,31 @@
 <section style="background: var(--light-bg);">
   <div class="highlight-row reverse">
     <div class="highlight-text">
-      <span class="section-label">Compliance Logs for Weed Control Applications</span>
-      <h2>Product, EPA Reg Number, Rate per 1,000 Sq Ft or Linear Ft — Logged by Your Tech at Every Stop.</h2>
-      <p>Your technician completes the weed control application log on their phone before leaving the property. Product name, EPA registration number, application rate, total area treated in sq ft or linear ft, re-entry interval, wind speed, temperature, and applicator license — all of it captured on-site, tied to the property record forever.</p>
-      <p>Weed control chemicals carry strict compliance requirements. SprayBossPro gives you a searchable log of every application your company has ever made — printable by date range, by product, by applicator, or by property. You're covered at inspection.</p>
+      <span class="section-label">Chemical Compliance Logs — EPA Reg Numbers on Every Weed Control Application</span>
+      <h2>Product, EPA Reg Number, Re-Entry Interval, and Sq Ft Treated — Logged at the Property on Every Visit.</h2>
+      <p>Your technician logs the full weed control application record on their phone before leaving the property — product name, EPA registration number, application rate per 1,000 sq ft or per linear ft, total area treated, re-entry interval, wind speed, temperature, and applicator license. All captured in the field, tied permanently to the service record.</p>
+      <p>Weed control products often have specific re-entry interval requirements that vary by product formulation. SprayBossPro captures the re-entry interval from the application log and uses it to trigger the right re-entry SMS to the customer automatically — "please stay off the lawn for 4 hours" — specific to the product your tech actually applied.</p>
       <ul class="check-list">
-        <li>Product and EPA reg number logged on every weed control application</li>
-        <li>Application rate per 1,000 sq ft or per linear ft — your formulation</li>
-        <li>Re-entry interval captured and used to trigger customer SMS alerts</li>
-        <li>Wind speed, temp, and applicator license at time of application</li>
-        <li>Full compliance reports printable on demand — any date range, any filter</li>
-        <li>Logs stored permanently in the cloud — no paper to lose</li>
+        <li>Product name and EPA reg number required on every weed control application</li>
+        <li>Re-entry interval captured from the log and used to trigger the SMS automatically</li>
+        <li>Rate per 1,000 sq ft or per linear ft — log exactly what your tech applied</li>
+        <li>Wind speed, temperature, and conditions at time of application — all logged in-field</li>
+        <li>Applicator license number and certification type captured for compliance</li>
+        <li>Print or export compliance records by date, product, property, or applicator on demand</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Weed Control Application Log</div>
-      <div class="log-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div class="log-label">Property</div><div class="log-value">317 Maple Creek Dr — 11,400 ft²</div></div>
-      <div class="log-row"><div class="log-label">Service</div><div class="log-value">Post-Emergent Broadleaf 2</div></div>
-      <div class="log-row"><div class="log-label">Product</div><div class="log-value">Speedzone Southern EW Herbicide</div></div>
-      <div class="log-row"><div class="log-label">EPA Reg Number</div><div class="log-value">228-366</div></div>
-      <div class="log-row"><div class="log-label">Rate Applied</div><div class="log-value">1.1 fl oz / 1,000 ft² — 12.5 fl oz total</div></div>
-      <div class="log-row"><div class="log-label">Re-Entry Interval</div><div class="log-value">24 hours — customer SMS scheduled</div></div>
-      <div class="log-row"><div class="log-label">Conditions</div><div class="log-value">Wind: 5 mph · Temp: 74°F</div></div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;">Weed Control Application Log — Logged In-Field on Tech's Phone</div>
+      <div class="log-row" style="border-color:rgba(224,120,32,.35); background:rgba(224,120,32,.07);"><div class="log-label">Property</div><div class="log-value">319 Birchwood Dr — 8,800 ft²</div></div>
+      <div class="log-row"><div class="log-label">Service</div><div class="log-value">Pre-Emergent Round 2 — Fall Application</div></div>
+      <div class="log-row"><div class="log-label">Product Applied</div><div class="log-value">Dimension 2EW Pre-Emergent Herbicide</div></div>
+      <div class="log-row"><div class="log-label">EPA Reg Number</div><div class="log-value">62719-527</div></div>
+      <div class="log-row"><div class="log-label">Rate Applied</div><div class="log-value">0.5 oz / 1,000 ft² — 4.4 oz total</div></div>
+      <div class="log-row"><div class="log-label">Re-Entry Interval</div><div class="log-value">4 hours — SMS queued to customer</div></div>
+      <div class="log-row"><div class="log-label">Conditions</div><div class="log-value">Wind: 5 mph · Temp: 61°F · Partly Cloudy</div></div>
       <div style="margin-top:12px; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
         <div style="color:rgba(255,255,255,.4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Log Status</div>
-        <div style="color:#22c55e; font-size:12px; font-weight:700;">✓ Complete — Re-Entry SMS Queued</div>
+        <div style="color:#22c55e; font-size:12px; font-weight:700;">✓ Saved — Re-Entry SMS Queued</div>
       </div>
     </div>
   </div>
@@ -165,42 +206,29 @@
 <section>
   <div class="highlight-row">
     <div class="highlight-text">
-      <span class="section-label">Lasso Route Builder — Weed Control</span>
-      <h2>Circle Any Neighborhood. See Every Weed Control Treatment Due Inside. Build the Route in 60 Seconds.</h2>
-      <p>Open Lasso on the map and draw a circle around any subdivision. SprayBossPro shows you every property with a weed control treatment due inside — pre-emergent, post-emergent, spot treatment — with sq ft or linear ft and route revenue displayed before you commit.</p>
-      <p>Filter by weed control type to keep pre-emergent applications on one truck and post-emergent on another. Optimize drive order. Push to your tech's phone. Your entire morning weed control route is built before most companies have finished their first cup of coffee.</p>
+      <span class="section-label">Automated Re-Entry Interval SMS on Every Weed Control Visit</span>
+      <h2>Re-Entry Interval Texts Fire Automatically After Every Weed Control Application. Specific to the Product. Sent Without Your Team.</h2>
+      <p>When the compliance log is saved after a weed control application, SprayBossPro uses the re-entry interval from the log to build the right customer SMS — "please stay off the lawn for 4 hours" or "24 hours" depending on what your tech actually applied. The text goes out automatically. Your team doesn't touch it.</p>
+      <p>Pre-emergent and post-emergent applications often have different re-entry intervals. SprayBossPro captures the correct interval from the application log and sends the matching SMS. Every customer gets the right message for the specific product used on their lawn — not a generic template that's wrong for half your products.</p>
       <ul class="check-list">
-        <li>Circle any neighborhood — see all weed control stops due inside</li>
-        <li>Filter by round type — pre-emergent, post-emergent, or any combo</li>
-        <li>Sq ft or linear ft and revenue displayed before pulling stops into a route</li>
-        <li>Drive order auto-optimized to minimize windshield time</li>
-        <li>Push route to technician's phone in one click</li>
-        <li>Build multiple crew routes side-by-side without overlap</li>
+        <li>Re-entry interval pulled from the compliance log — sends the right interval, not a generic one</li>
+        <li>Service complete SMS fires automatically when the application log is saved</li>
+        <li>Day-before reminder fires the evening before every weed control visit</li>
+        <li>On-the-way alert fires when tech marks the job started on their phone</li>
+        <li>Pre-built SMS templates for pre-emergent, post-emergent, and broadleaf control</li>
+        <li>Two-way SMS inbox — all customer replies go into one organized inbox for your team</li>
       </ul>
     </div>
     <div class="highlight-visual">
-      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;">Lasso — Ridgewood Weed Control Route</div>
-      <div style="display:flex; flex-direction:column; gap:7px;">
-        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">101 Ridgewood Trace</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Pre-Emergent 1 · 9,200 ft²</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$82</div>
-        </div>
-        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">220 Ridgewood Pkwy</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Pre-Emergent 1 · 12,100 ft²</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$96</div>
-        </div>
-        <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-          <div style="background:rgba(224,120,32,.2); border:1px solid rgba(224,120,32,.4); color:var(--orange); font-size:10px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
-          <div style="flex:1;"><div style="color:rgba(255,255,255,.8); font-size:12px; font-weight:600;">309 Stonebrook Dr</div><div style="color:rgba(255,255,255,.35); font-size:10px;">Post-Emergent Broadleaf 2 · 8,600 ft²</div></div>
-          <div style="color:var(--orange); font-size:11px; font-weight:700;">$75</div>
-        </div>
-      </div>
-      <div style="margin-top:10px; background:rgba(224,120,32,.1); border:1px solid rgba(224,120,32,.25); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="color:rgba(255,255,255,.45); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;">Route Total</div>
-        <div style="color:var(--orange); font-size:13px; font-weight:700;">19 stops · 174,800 ft² · $1,540</div>
-      </div>
+      <div style="color:rgba(255,255,255,.45); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px;">Weed Control SMS Thread — Sent Automatically by SprayBossPro</div>
+      <div class="sms-bubble sms-out">Hi Karen! Your fall pre-emergent weed control service is scheduled for tomorrow between 9am–12pm. No watering needed for 24 hours after. We'll text when the tech is on the way. — Green Valley Lawn</div>
+      <div class="sms-label right">Day before · Sent automatically · 6:00 PM</div>
+      <div class="sms-bubble sms-in">Perfect, thank you! Gate will be unlocked.</div>
+      <div class="sms-label">Karen · 6:17 PM</div>
+      <div class="sms-bubble sms-out">Your lawn tech is on the way — about 10 minutes. — Green Valley Lawn</div>
+      <div class="sms-label right">On the way · Fires automatically · 9:44 AM</div>
+      <div class="sms-bubble sms-out">Pre-emergent weed control is complete! Please keep people and pets off the lawn for 4 hours. Safe to water after that. Your next weed control visit is in approximately 6 weeks. — Green Valley Lawn</div>
+      <div class="sms-label right">Complete · Re-entry interval from log · Auto-sent</div>
     </div>
   </div>
 </section>
@@ -208,30 +236,30 @@
 <section style="background: var(--light-bg);">
   <div class="centered" style="max-width:1100px; margin:0 auto 64px;">
     <span class="section-label">How It Works</span>
-    <h2 class="section-title">From Weed Control Program to Logged Application — Same Day</h2>
-    <p class="section-sub">SprayBossPro handles the timing, routing, compliance logging, and customer SMS alerts for your weed control programs so your team focuses on the applications, not the paperwork.</p>
+    <h2 class="section-title">From Waiting List to Re-Entry SMS — Every Weed Control Round, Every Customer</h2>
+    <p class="section-sub">SprayBossPro manages pre-emergent and post-emergent weed control programs from first application to compliance log to automatic re-entry SMS — with no manual scheduling between rounds ever.</p>
   </div>
   <div class="steps-grid">
-    <div class="step-box"><div class="step-circle">1</div><h3>Set Up Your Programs</h3><p>Build pre-emergent and post-emergent programs with your timing intervals. Enter sq ft or linear ft for each property once. Rounds auto-schedule at the right timing window going forward.</p></div>
-    <div class="step-box"><div class="step-circle">2</div><h3>Lasso a Neighborhood Route</h3><p>See every weed control treatment due on the waiting list by round type. Circle a neighborhood with Lasso. Filter by service type. Add stops to a route and dispatch to your tech's phone.</p></div>
-    <div class="step-box"><div class="step-circle">3</div><h3>Tech Logs the Application</h3><p>Technician completes the compliance log at the property — product, EPA reg number, rate, area treated, re-entry interval, conditions. Takes under a minute on their phone.</p></div>
-    <div class="step-box"><div class="step-circle">4</div><h3>Re-Entry SMS Fires Automatically</h3><p>Re-entry interval SMS goes to the customer automatically after the log is saved. Next treatment schedules itself on the waiting list. Invoice charges the card on file.</p></div>
+    <div class="step-box"><div class="step-circle">1</div><h3>Check the Waiting List</h3><p>See every weed control treatment due today — pre-emergent, post-emergent, broadleaf — organized by program type with sq ft totals and stop count. Know the day's scope before you build any routes.</p></div>
+    <div class="step-box"><div class="step-circle">2</div><h3>Lasso the Neighborhood</h3><p>Draw a circle on any area of the map. See every weed control stop due inside. Filter by program type — pull only pre-emergent, only post-emergent, or mix. Dispatch to your tech in one click.</p></div>
+    <div class="step-box"><div class="step-circle">3</div><h3>Log the Application In-Field</h3><p>Tech logs product, EPA reg number, rate, re-entry interval, conditions, and applicator license at the property. Re-entry SMS fires to the customer automatically when the log is saved.</p></div>
+    <div class="step-box"><div class="step-circle">4</div><h3>Auto-Schedule the Next Round</h3><p>Post-emergent rounds auto-reschedule at your set interval on completion. Pre-emergent rounds schedule at your seasonal timing window. Neither requires your team to touch anything between rounds.</p></div>
   </div>
 </section>
 
 <div class="premium-band">
-  <h2>Weed Control Software Built for Companies<br><span>That Spray Pre- and Post-Emergent Programs.</span></h2>
-  <p>SprayBossPro isn't a generic field service app. The compliance logs, pre-emergent timing windows, sq ft or linear ft tracking, and re-entry interval SMS alerts are all designed for weed control companies that apply licensed herbicide programs on a recurring schedule.</p>
+  <h2>Weed Control Software Built for Lawn Care Companies.<br><span>$129/Month. Everything Included.</span></h2>
+  <p>SprayBossPro isn't a generic scheduling app with a weed control tag. Pre-emergent timing windows, post-emergent auto-rescheduling, EPA compliance logs, re-entry interval SMS, and Lasso routing are built specifically for companies running recurring weed control programs on residential and commercial lawns.</p>
   <div class="premium-grid">
-    <div class="premium-card"><div class="premium-card-icon">🌿</div><h4>Pre &amp; Post-Emergent Programs</h4><p>Pre-emergent rounds auto-schedule at seasonal timing windows. Post-emergent rounds reschedule on completion at your set interval. No manual rescheduling.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">🧪</div><h4>Chemical Compliance Logs</h4><p>EPA reg number, rate per 1,000 sq ft or per linear ft, re-entry interval, conditions, and applicator license logged on every weed control job.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📋</div><h4>Sq Ft or Linear Ft Per Property</h4><p>Set each property's measurement type once. Every waiting list total, route summary, application rate calculation, and compliance log uses the right unit automatically.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">🗺️</div><h4>Lasso Circle Route Builder</h4><p>Draw a circle on any neighborhood and pull every weed control stop due inside into a tight route. Filter by pre-emergent or post-emergent. Build and dispatch in minutes.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">💬</div><h4>Re-Entry Interval SMS Alerts</h4><p>Re-entry interval SMS fires automatically after each application. Day-before and on-the-way alerts also included. 10+ pre-built weed control alert templates.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📦</div><h4>Weed Control Package Plans</h4><p>Sell full-season weed control packages — pre-emergent plus post-emergent rounds bundled into one flat-fee plan. Track rounds remaining per customer.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">📱</div><h4>Mobile App for Technicians</h4><p>Techs see their route, property notes, gate codes, past application history, and the compliance log form on their phone. No paper, no office calls.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">💳</div><h4>Card-on-File Payments</h4><p>Charge cards automatically after each weed control application is completed. Included in $129/month — no separate payment processor add-on needed.</p></div>
-    <div class="premium-card"><div class="premium-card-icon">👥</div><h4>Unlimited Technicians</h4><p>Add every applicator in your company at no extra charge. SprayBossPro doesn't charge per tech — the price is $129/month no matter how many people you run.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🌱</div><h4>Pre-Emergent Timing Windows</h4><p>Pre-emergent rounds schedule at your seasonal target date and appear on the waiting list when due. Spring and fall rounds tracked separately per property, each with its own compliance log.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🔄</div><h4>Post-Emergent Auto-Rescheduling</h4><p>Post-emergent rounds auto-reschedule at your interval when completed. 4, 6, or 8-week cycles — the waiting list handles them automatically all season without your team touching anything.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📋</div><h4>EPA Compliance Logs</h4><p>Product, EPA reg number, rate per 1,000 sq ft, re-entry interval, applicator license — all logged in-field on every application. Print compliance reports by date, product, or property on demand.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">💬</div><h4>Re-Entry Interval SMS</h4><p>Re-entry interval pulled from the compliance log and used to send the right customer SMS automatically. Not a generic template — the actual interval for the product your tech applied.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">🗺️</div><h4>Lasso Circle Map Routing</h4><p>Draw a circle on any neighborhood and see every weed control stop due inside. Filter by program type. Pull all stops into a route and dispatch to your tech in minutes from one map view.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📊</div><h4>Sq Ft Waiting List by Program</h4><p>Every weed control program due today in one list — pre-emergent, post-emergent, broadleaf all separated with sq ft totals. Know your full scope before you build the first route.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">📱</div><h4>Mobile App for Technicians</h4><p>Techs see their route in order, property notes, gate codes, service history, and compliance log form on their phone. No paper. No calls to the office asking what product to use.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">💳</div><h4>Card-on-File Payments</h4><p>Charge cards automatically when each weed control round is completed. Included in $129/month flat — no separate billing module and no extra transaction percentage.</p></div>
+    <div class="premium-card"><div class="premium-card-icon">👥</div><h4>Unlimited Technicians</h4><p>Run one weed control truck or multiple crews. Every tech is included in the $129/month price. No per-user fee ever — the price stays flat no matter how many people use it.</p></div>
   </div>
 </div>
 
@@ -239,7 +267,7 @@
   <div class="centered" style="max-width:1100px; margin:0 auto;">
     <span class="section-label">Pricing</span>
     <h2 class="section-title">$129/Month. Every Feature. No Add-Ons.</h2>
-    <p class="section-sub">Pre-emergent programs, compliance logs, sq ft or linear ft tracking, Lasso routing, re-entry interval SMS, and card-on-file payments — all in at $129/month. No contracts. No per-tech fees.</p>
+    <p class="section-sub">One flat price covers pre-emergent and post-emergent scheduling, compliance logs, re-entry interval SMS, Lasso routing, and unlimited technicians. No per-user fees. No contracts. No surprises.</p>
   </div>
   <div style="max-width:520px; margin:0 auto;">
     <div class="price-card featured">
@@ -248,19 +276,21 @@
       <div class="price-amount"><sup>$</sup>129</div>
       <div class="price-period">per month — cancel anytime</div>
       <ul class="price-features">
-        <li>Pre-Emergent &amp; Post-Emergent Program Management</li>
-        <li>Chemical Application Compliance Logs</li>
-        <li>EPA Reg Number &amp; Rate Logging on Every Job</li>
-        <li>Re-Entry Interval SMS Alerts — Automated</li>
-        <li>Sq Ft or Linear Ft Per Property — Your Choice</li>
+        <li>Pre-Emergent Seasonal Timing Window Scheduling</li>
+        <li>Post-Emergent Auto-Rescheduling at Your Set Interval</li>
+        <li>EPA Reg Number &amp; Rate Logging on Every Application</li>
+        <li>Re-Entry Interval Captured &amp; Used to Trigger Auto-SMS</li>
+        <li>Applicator License &amp; Conditions Logged In-Field</li>
+        <li>Compliance Reports — Print by Date, Product, or Applicator</li>
+        <li>Sq Ft or Linear Ft Waiting List by Weed Control Program</li>
         <li>Lasso Circle Map Route Builder</li>
-        <li>Waiting List by Round Type with Sq Ft Totals</li>
-        <li>Weed Control Package Plans &amp; Round Tracking</li>
+        <li>Day-Before, On-the-Way &amp; Re-Entry Interval SMS Alerts</li>
+        <li>10+ Pre-Built Weed Control SMS Templates</li>
         <li>Two-Way SMS Customer Inbox</li>
-        <li>Estimates, Invoices &amp; Card-on-File Payments</li>
-        <li>Mobile App for Technicians</li>
-        <li>Unlimited Technicians — no per-user fees</li>
-        <li>14-day free trial — no credit card required</li>
+        <li>Mobile App for Technicians — Route, Log &amp; Complete</li>
+        <li>Card-on-File Payments — Charge on Completion</li>
+        <li>Unlimited Technicians — No Per-User Fees Ever</li>
+        <li>14-Day Free Trial — No Credit Card Required</li>
       </ul>
       <a href="#" onclick="openSignupModal(2, this); return false;" class="price-btn price-btn-primary">Start Your 14-Day Free Trial</a>
     </div>
@@ -269,8 +299,8 @@
 </section>
 
 <div class="cta-band">
-  <h2>Weed Control Software That Logs<br><span style="color:var(--orange);">Every Application and Keeps You Compliant.</span></h2>
-  <p>$129/month gets you pre-emergent and post-emergent program management, compliance logging with EPA reg numbers, Lasso routing, re-entry interval SMS alerts, and card-on-file payments — everything built for weed control companies that spray on recurring programs.</p>
+  <h2>Weed Control Software That Handles Pre-Emergent Timing,<br><span style="color:var(--orange);">Post-Emergent Auto-Scheduling, and Re-Entry SMS.</span></h2>
+  <p>$129/month gets you pre-emergent seasonal scheduling, post-emergent auto-rescheduling, compliance logs, re-entry interval SMS, and Lasso routing — all built for lawn care companies running recurring weed control programs. No add-ons. No contracts.</p>
   <div class="hero-btns">
     <a href="#" onclick="openSignupModal(3, this); return false;" class="btn-primary" style="font-size:17px; padding:18px 44px;">Start Your 14-Day Free Trial</a>
   </div>
@@ -285,13 +315,13 @@
 </div>
 <div id="sbp-form-2" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
   <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;"><div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div><div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div><button onclick="closeSignupModal(2)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button></div>
-  <div id="sbp2-step1" style="padding:24px 28px;"><div id="sbp2-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp2-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp2-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp2-company" type="text" placeholder="Smith Pest Control" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp2-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
+  <div id="sbp2-step1" style="padding:24px 28px;"><div id="sbp2-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp2-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp2-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp2-company" type="text" placeholder="Smith Lawn Care" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp2-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
   <div id="sbp2-step2" style="padding:24px 28px; display:none;"><div id="sbp2-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp2-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp2-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp2-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;"><input type="checkbox" id="sbp2-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;"><label for="sbp2-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label></div><button id="sbp2-create-btn" onclick="sbpCreateAccount(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button><button onclick="sbpBackToStep1(2)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button></div>
   <div id="sbp2-success" style="padding:48px 28px; text-align:center; display:none;"><div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div><div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div><div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div><div id="sbp2-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div></div>
 </div>
 <div id="sbp-form-3" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
   <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;"><div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div><div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div><button onclick="closeSignupModal(3)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button></div>
-  <div id="sbp3-step1" style="padding:24px 28px;"><div id="sbp3-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp3-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp3-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp3-company" type="text" placeholder="Smith Pest Control" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp3-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
+  <div id="sbp3-step1" style="padding:24px 28px;"><div id="sbp3-err1" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="display:flex; gap:12px; margin-bottom:14px;"><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">First Name</label><input id="sbp3-first" type="text" placeholder="John" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="flex:1;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Last Name</label><input id="sbp3-last" type="text" placeholder="Smith" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp3-company" type="text" placeholder="Smith Lawn Care" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp3-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><button onclick="sbpStep2(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button></div>
   <div id="sbp3-step2" style="padding:24px 28px; display:none;"><div id="sbp3-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div><div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:16px;"><div style="font-size:12px; color:#16a34a; font-weight:700;">14-Day Free Trial — No Credit Card Required</div><div style="font-size:12px; color:#555; margin-top:2px;">Full access to every feature. $129/month after trial.</div></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Login Email</label><input id="sbp3-login-email" type="email" readonly style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8f8f8; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp3-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp3-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div><div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;"><input type="checkbox" id="sbp3-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;"><label for="sbp3-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://spraybosspro.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://spraybosspro.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label></div><button id="sbp3-create-btn" onclick="sbpCreateAccount(3)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button><button onclick="sbpBackToStep1(3)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button></div>
   <div id="sbp3-success" style="padding:48px 28px; text-align:center; display:none;"><div style="width:64px; height:64px; background:#16a34a; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin-bottom:16px;">✓</div><div style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:10px;">You're In!</div><div style="font-size:15px; color:#555; line-height:1.6; margin-bottom:6px;">Your 14-day free trial has started.<br>Taking you to your dashboard…</div><div id="sbp3-countdown" style="font-size:12px; color:#aaa; margin-top:10px;"></div></div>
 </div>
