@@ -91,13 +91,8 @@
     <div class="section-title">Service Category</div>
     <div class="field-row" style="align-items:flex-start;">
       <label style="padding-top:6px;">Category</label>
-      <div class="cat-pills">
-        <button class="cat-pill" data-cat="chemical"   onclick="selectCat('chemical',   this)">&#9879; Chemical</button>
-        <button class="cat-pill" data-cat="mowing"     onclick="selectCat('mowing',     this)">&#128118; Mowing</button>
-        <button class="cat-pill" data-cat="landscape"  onclick="selectCat('landscape',  this)">&#127795; Landscape</button>
-        <button class="cat-pill" data-cat="irrigation" onclick="selectCat('irrigation', this)">&#128167; Irrigation</button>
-        <button class="cat-pill" data-cat="snow"       onclick="selectCat('snow',       this)">&#10052; Snow</button>
-        <button class="cat-pill" data-cat="other"      onclick="selectCat('other',      this)">&#128295; Other</button>
+      <div class="cat-pills" id="cat-pills">
+        <span style="color:#aaa;font-size:12px;">Loading categories…</span>
       </div>
     </div>
     <input type="hidden" id="service-category" value=""/>
@@ -191,23 +186,51 @@
   var existing   = null;
   var mixOptions = '';
 
-  var CAT_COLORS = {
-    chemical:   'selected',
-    mowing:     'sel-mowing',
-    landscape:  'sel-landscape',
-    irrigation: 'sel-irrigation',
-    snow:       'sel-snow',
-    other:      'sel-other',
-  };
-
   function selectCat(cat, btn) {
     document.querySelectorAll('.cat-pill').forEach(function(p) {
-      p.className = 'cat-pill';
+      p.classList.remove('selected');
     });
-    btn.classList.add(CAT_COLORS[cat] || 'selected');
+    btn.classList.add('selected');
     document.getElementById('service-category').value = cat;
     document.getElementById('chem-section').style.display = cat === 'chemical' ? '' : 'none';
     document.getElementById('cat-hint').style.display = 'none';
+  }
+
+  async function loadCategories() {
+    var { data: s } = await sb.auth.getSession();
+    var u = s && s.session ? s.session.user.id : null;
+    var pillsWrap = document.getElementById('cat-pills');
+    pillsWrap.innerHTML = '';
+
+    // Chemical is always first — hardcoded system category
+    var chemBtn = document.createElement('button');
+    chemBtn.className = 'cat-pill';
+    chemBtn.dataset.cat = 'chemical';
+    chemBtn.innerHTML = '&#9879; Chemical';
+    chemBtn.onclick = function() { selectCat('chemical', chemBtn); };
+    pillsWrap.appendChild(chemBtn);
+
+    // Load user-defined Job Board categories
+    if (u) {
+      var { data: cats } = await sb.from('service_categories').select('*').eq('user_id', u).eq('active', true).order('sort_order').order('name');
+      (cats || []).forEach(function(cat) {
+        var key = cat.name.toLowerCase().replace(/\s+/g, '_');
+        var btn = document.createElement('button');
+        btn.className = 'cat-pill';
+        btn.dataset.cat = key;
+        btn.dataset.catName = cat.name;
+        btn.textContent = cat.name;
+        btn.onclick = function() { selectCat(key, btn); };
+        pillsWrap.appendChild(btn);
+      });
+    }
+
+    // If editing, re-select the saved category
+    if (existing) {
+      var savedCat = (existing.service_category || 'chemical').toLowerCase();
+      var match = pillsWrap.querySelector('[data-cat="' + savedCat + '"]');
+      if (match) selectCat(savedCat, match);
+    }
   }
 
   document.getElementById('active-toggle').addEventListener('change', function() {
@@ -254,6 +277,7 @@
     uid = s && s.session ? s.session.user.id : null;
 
     await loadMixes();
+    await loadCategories();
 
     if (!serviceId) return;
 

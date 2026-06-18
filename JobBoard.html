@@ -89,14 +89,9 @@
   </div>
 </div>
 
-<div class="filter-bar">
+<div class="filter-bar" id="filter-bar">
   <span class="filter-bar-label">Category:</span>
   <button class="filter-tab active" onclick="setCategory('all', this)">All</button>
-  <button class="filter-tab" onclick="setCategory('mowing', this)">Mowing</button>
-  <button class="filter-tab" onclick="setCategory('landscape', this)">Landscape</button>
-  <button class="filter-tab" onclick="setCategory('irrigation', this)">Irrigation</button>
-  <button class="filter-tab" onclick="setCategory('snow', this)">Snow</button>
-  <button class="filter-tab" onclick="setCategory('other', this)">Other</button>
 </div>
 
 <div class="toolbar">
@@ -345,12 +340,25 @@
     }
   }
 
+  async function loadCategoryPills() {
+    var { data: cats } = await sb.from('service_categories').select('*').eq('user_id', uid).eq('active', true).order('sort_order').order('name');
+    var bar = document.getElementById('filter-bar');
+    (cats || []).forEach(function(cat) {
+      var key = cat.name.toLowerCase().replace(/\s+/g, '_');
+      var btn = document.createElement('button');
+      btn.className = 'filter-tab';
+      btn.textContent = cat.name;
+      btn.onclick = function() { setCategory(key, btn); };
+      bar.appendChild(btn);
+    });
+  }
+
   async function init() {
     var { data: s } = await sb.auth.getSession();
     uid = s && s.session ? s.session.user.id : null;
     if (!uid) return;
     updateWeekLabel();
-    await Promise.all([loadTrucks(), loadEmployees(), loadJobs()]);
+    await Promise.all([loadCategoryPills(), loadTrucks(), loadEmployees(), loadJobs()]);
   }
 
   init();
