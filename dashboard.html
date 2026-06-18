@@ -1236,8 +1236,6 @@
       return;
     }
 
-    if (data.welcome_title)    document.getElementById('welcome-title').textContent    = data.welcome_title;
-    if (data.welcome_subtitle) document.getElementById('welcome-subtitle').textContent = data.welcome_subtitle;
     if (data.show_banner === false) document.getElementById('welcome-banner').style.display = 'none';
 
     allStats.forEach(function(k) {
