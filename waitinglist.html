@@ -20,7 +20,7 @@
     .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
     .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
 
-    .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#a49ac0; margin:2px 16px; border-radius:8px; overflow:visible; }
+    .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#8a7055; margin:2px 16px; border-radius:8px; overflow:visible; }
     .subfilter-bar.visible { display:flex; }
     .sf-x-btn { width:20px; height:20px; border-radius:3px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0; }
     .sf-x-btn:hover { background:rgba(255,255,255,.25); }
@@ -34,7 +34,7 @@
     .ms-item:hover { background:#f5f5f5; }
     .ms-item input { cursor:pointer; accent-color:#888888; }
     .apply-btn { background:none; border:none; padding:0; font-size:13px; cursor:pointer; color:#8a5518; text-decoration:underline; }
-    .apply-btn:hover { color:#1a5ea0; }
+    .apply-btn:hover { color:#8a5518; }
     .apply-btn:disabled { opacity:.6; cursor:default; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
@@ -96,11 +96,11 @@
     .sfp-body { overflow-y:auto; max-height:280px; padding:8px 10px; }
     .sfp-title { font-weight:700; font-size:13px; color:#333; margin-bottom:6px; }
     .sfp-create { display:block; color:#8a5518; text-decoration:underline; font-size:13px; margin-bottom:8px; }
-    .sfp-create:hover { color:#1a5ea0; }
+    .sfp-create:hover { color:#8a5518; }
     .sfp-group-label { font-weight:700; font-size:12.5px; color:#333; margin:8px 0 4px; text-transform:uppercase; font-size:11px; color:#777; letter-spacing:.4px; }
     .sfp-item { display:grid; grid-template-columns:40px 1fr 36px 22px; align-items:center; padding:2px 0; font-size:13px; }
     .sfp-item a { color:#8a5518; text-decoration:underline; cursor:pointer; }
-    .sfp-item a:hover { color:#1a5ea0; }
+    .sfp-item a:hover { color:#8a5518; }
     .sfp-save-link { color:#8a5518; text-decoration:underline; font-size:12px; cursor:pointer; white-space:nowrap; }
     .sfp-del { background:none; border:none; color:#555; font-size:13px; cursor:pointer; padding:0; line-height:1; }
     .sfp-del:hover { color:#e04040; }
@@ -188,10 +188,10 @@
 
     .table-wrap { overflow-x:auto; background:#fff; margin:0 16px 0; }
     table.data-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:auto; }
-    .data-table thead th { background:#e8e4f0; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
+    .data-table thead th { background:#e8ddd0; color:#222; padding:5px 8px; text-align:left; white-space:nowrap; border-right:1px solid #bbb; font-weight:600; cursor:pointer; user-select:none; }
     .area-sep { border-left: 3px solid #1e1208 !important; }
-    .totals-row .area-sep { border-left-color: #e8e4f0 !important; }
-    .data-table thead th:hover { background:#ddd8ec; }
+    .totals-row .area-sep { border-left-color: #e8ddd0 !important; }
+    .data-table thead th:hover { background:#d8cfc0; }
     .data-table thead th .sort-arrow { font-size:10px; margin-left:3px; }
     .data-table .totals-row td { background:#1e1208; color:#fff; padding:5px 8px; font-weight:600; border-right:1px solid #555; }
     .data-table tbody tr { border-bottom:1px solid #e8e8e8; }
@@ -336,7 +336,7 @@
     <button class="orange-btn" onclick="startRouteOrder()">Set Route Order</button>
     <button class="orange-btn" onclick="scheduleSelected(null)">Schedule</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
-      <select id="marker-mode" onchange="saveMarkerMode(this.value); loadMarkers();" style="width:100%; padding:7px 28px 7px 10px; background:#e8e4f0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
+      <select id="marker-mode" onchange="saveMarkerMode(this.value); loadMarkers();" style="width:100%; padding:7px 28px 7px 10px; background:#e8ddd0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
         <option value="selected">Show Only Selected</option>
         <option value="all">Show All Markers</option>
       </select>
