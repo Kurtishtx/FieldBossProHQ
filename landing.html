@@ -1444,7 +1444,8 @@
       var trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
       await sb.from('user_profiles').upsert({
         id: uid, email: email, role: 'full_access',
-        is_primary_owner: true, tenant_id: null, trial_ends_at: trialEnd
+        is_primary_owner: true, tenant_id: null, trial_ends_at: trialEnd,
+        product: 'spraybosspro'
       }, { onConflict: 'id' });
 
       await sb.from('company_info').insert({ user_id: uid, company_name: comp, display_name: comp });

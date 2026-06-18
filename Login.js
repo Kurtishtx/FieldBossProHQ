@@ -30,12 +30,21 @@ async function login() {
     return;
   }
 
-  // Check role and trial — Mobile Users cannot access the web app
+  // Check role, product, and trial
   var userId = data.user.id;
-  var { data: prof } = await client.from('user_profiles').select('role, trial_ends_at').eq('id', userId).single();
+  var { data: prof } = await client.from('user_profiles').select('role, trial_ends_at, product').eq('id', userId).single();
+
+  // Block mobile-only accounts
   if (prof && prof.role === 'mobile') {
     await client.auth.signOut();
     alert('This account is for the mobile app only. Please use the SprayBossPro mobile app to log in.');
+    return;
+  }
+
+  // Block accounts that belong to a different product
+  if (prof && prof.product && prof.product !== 'spraybosspro') {
+    await client.auth.signOut();
+    alert('This account is not registered for SprayBossPro. Please log in at the correct software.');
     return;
   }
 
