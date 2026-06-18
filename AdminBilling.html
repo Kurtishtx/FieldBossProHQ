@@ -79,6 +79,13 @@
     }
     .setup-notice code { background:rgba(0,0,0,.07); border-radius:3px; padding:1px 5px; font-family:monospace; font-size:12px; }
 
+    .toggle-switch { position:relative; display:inline-block; width:38px; height:20px; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:20px; transition:.2s; }
+    .toggle-slider:before { position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.2s; }
+    .toggle-switch input:checked + .toggle-slider { background:#27a567; }
+    .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
+
     /* Modal */
     .modal-overlay {
       display:none; position:fixed; inset:0;
@@ -144,6 +151,10 @@
     .btn-inv-save:hover, .btn-inv-save-new:hover { background:#c96a15; }
     .btn-inv-cancel { background:none; border:none; font-size:13.5px; color:#2272c3; cursor:pointer; text-decoration:underline; font-family:inherit; }
     .btn-inv-cancel:hover { color:#1a5ea0; }
+
+    .rec-action-btn { background:none; border:1px solid #ccc; border-radius:3px; padding:3px 10px; font-size:12px; font-family:inherit; cursor:pointer; color:#555; }
+    .rec-action-btn:hover { background:#f0f0f0; }
+    .rec-action-btn.danger:hover { background:#fff0f0; color:#c0392b; border-color:#e0a0a0; }
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
@@ -155,32 +166,21 @@
     <button class="back-btn" onclick="nav('admin')">&#8592; Back</button>
     <span class="showing-count" id="showing-count">(Showing 0 of 0)</span>
   </div>
-  <button class="btn-orange-filled" onclick="openAddInvoiceModal()">Add Invoice</button>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-orange-filled" id="btn-add-invoice" onclick="openAddInvoiceModal()">Add Invoice</button>
+    <button class="btn-orange-filled" id="btn-add-recurring" onclick="openAddRecurringModal()" style="display:none;">Add Recurring Client</button>
+  </div>
 </div>
 
 <div id="setup-notice" class="setup-notice" style="display:none">
-  One-time setup: run this SQL in Supabase &rarr; SQL Editor to create the platform invoices table:<br/><br/>
+  One-time setup: run this SQL in Supabase &rarr; SQL Editor:<br/><br/>
+  <strong>1. Platform invoices table:</strong><br/>
   <code>
-    CREATE TABLE platform_invoices (<br/>
-    &nbsp;&nbsp;id uuid PRIMARY KEY DEFAULT gen_random_uuid(),<br/>
-    &nbsp;&nbsp;account_email text,<br/>
-    &nbsp;&nbsp;account_user_id uuid,<br/>
-    &nbsp;&nbsp;date date,<br/>
-    &nbsp;&nbsp;due_date date,<br/>
-    &nbsp;&nbsp;inv_num text,<br/>
-    &nbsp;&nbsp;payment text,<br/>
-    &nbsp;&nbsp;notes text,<br/>
-    &nbsp;&nbsp;inv_total numeric(10,2) DEFAULT 0,<br/>
-    &nbsp;&nbsp;inv_bal numeric(10,2) DEFAULT 0,<br/>
-    &nbsp;&nbsp;service_lines jsonb,<br/>
-    &nbsp;&nbsp;status_text text,<br/>
-    &nbsp;&nbsp;failed_charge boolean DEFAULT false,<br/>
-    &nbsp;&nbsp;deleted boolean DEFAULT false,<br/>
-    &nbsp;&nbsp;past_due boolean DEFAULT false,<br/>
-    &nbsp;&nbsp;to_print boolean DEFAULT false,<br/>
-    &nbsp;&nbsp;to_email boolean DEFAULT false,<br/>
-    &nbsp;&nbsp;created_at timestamptz DEFAULT now()<br/>
-    );
+    CREATE TABLE platform_invoices (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), account_email text, account_user_id uuid, date date, due_date date, inv_num text, payment text, notes text, inv_total numeric(10,2) DEFAULT 0, inv_bal numeric(10,2) DEFAULT 0, service_lines jsonb, status_text text, failed_charge boolean DEFAULT false, deleted boolean DEFAULT false, past_due boolean DEFAULT false, to_print boolean DEFAULT false, to_email boolean DEFAULT false, created_at timestamptz DEFAULT now());
+  </code><br/><br/>
+  <strong>2. Recurring billing table:</strong><br/>
+  <code>
+    CREATE TABLE platform_accounts (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, email text, plan text, monthly_amount numeric(10,2), billing_day int, active boolean DEFAULT true, created_at timestamptz DEFAULT now());
   </code>
 </div>
 
@@ -188,9 +188,10 @@
   <button class="tab-btn active" onclick="setTab(this,'open')">Open Invoices</button>
   <button class="tab-btn" onclick="setTab(this,'30days')">30 Days</button>
   <button class="tab-btn" onclick="setTab(this,'60days')">60 Days</button>
+  <button class="tab-btn" onclick="setTab(this,'recurring')">Recurring Clients</button>
 </div>
 
-<div class="toolbar">
+<div class="toolbar" id="invoice-toolbar">
   <div class="toolbar-left">
     <div style="display:flex;position:relative;">
       <button class="btn-green-main">Actions</button>
@@ -208,7 +209,8 @@
   </div>
 </div>
 
-<div class="table-container">
+<!-- Invoice table -->
+<div class="table-container" id="invoice-container">
   <table>
     <thead>
       <tr>
@@ -230,6 +232,25 @@
   </table>
   <div class="empty-msg" id="empty-msg">No invoices found.</div>
 </div>
+
+<!-- Recurring clients table -->
+<div class="table-container" id="recurring-container" style="display:none;">
+  <table style="table-layout:auto;">
+    <thead>
+      <tr>
+        <th style="width:35%;">Email</th>
+        <th style="width:20%;">Plan</th>
+        <th style="width:14%;">Billing Day</th>
+        <th style="width:14%;">Monthly Amount</th>
+        <th style="width:10%;">Active</th>
+        <th style="width:7%;cursor:default;"></th>
+      </tr>
+    </thead>
+    <tbody id="recurring-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="recurring-empty-msg">No recurring clients set up. Click "Add Recurring Client" to get started.</div>
+</div>
+
 <div style="height:28px;background:#130520;margin:0 16px 16px;border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -274,7 +295,20 @@
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     currentTab = tab;
-    renderTable();
+
+    var isRecurring = tab === 'recurring';
+    document.getElementById('invoice-container').style.display  = isRecurring ? 'none' : '';
+    document.getElementById('recurring-container').style.display = isRecurring ? '' : 'none';
+    document.getElementById('invoice-toolbar').style.display     = isRecurring ? 'none' : '';
+    document.getElementById('btn-add-invoice').style.display     = isRecurring ? 'none' : '';
+    document.getElementById('btn-add-recurring').style.display   = isRecurring ? '' : 'none';
+    document.getElementById('showing-count').style.display       = isRecurring ? 'none' : '';
+
+    if (isRecurring) {
+      loadRecurring();
+    } else {
+      renderTable();
+    }
   }
 
   function daysAgo(n) {
@@ -297,6 +331,60 @@
     document.getElementById('setup-notice').style.display = 'none';
     invoices = data || [];
     renderTable();
+  }
+
+  // Auto-create invoices for recurring clients whose billing day matches today
+  async function autoCreateInvoices() {
+    var today = new Date();
+    var dayOfMonth = today.getDate();
+    var monthStart = today.toISOString().slice(0, 7) + '-01';
+    var nextMonth  = new Date(today.getFullYear(), today.getMonth() + 1, 1).toISOString().split('T')[0];
+    var todayStr   = today.toISOString().split('T')[0];
+
+    var { data: accounts, error } = await sb
+      .from('platform_accounts')
+      .select('*')
+      .eq('billing_day', dayOfMonth)
+      .eq('active', true);
+
+    if (error || !accounts || !accounts.length) return;
+
+    // Get next invoice number
+    var { data: allInvs } = await sb.from('platform_invoices').select('inv_num');
+    var maxNum = (allInvs || []).map(function(r) { return parseInt(r.inv_num); }).filter(function(n) { return !isNaN(n) && n > 0; });
+    var nextNum = maxNum.length ? Math.max.apply(null, maxNum) + 1 : 1;
+
+    var created = 0;
+    for (var i = 0; i < accounts.length; i++) {
+      var acct = accounts[i];
+
+      // Skip if an invoice already exists for this account this month
+      var { data: existing } = await sb
+        .from('platform_invoices')
+        .select('id')
+        .eq('account_user_id', acct.user_id)
+        .gte('date', monthStart)
+        .lt('date', nextMonth)
+        .limit(1);
+
+      if (existing && existing.length) continue;
+
+      var amount = parseFloat(acct.monthly_amount) || 0;
+      await sb.from('platform_invoices').insert({
+        account_email:   acct.email,
+        account_user_id: acct.user_id,
+        date:            todayStr,
+        inv_num:         String(nextNum++),
+        inv_total:       amount,
+        inv_bal:         amount,
+        service_lines:   [{ name: acct.plan || 'Monthly Subscription', description: '', date: todayStr, rate: amount, qty: 1, amount: amount }],
+        deleted:         false,
+        failed_charge:   false
+      });
+      created++;
+    }
+
+    if (created > 0) loadInvoices();
   }
 
   function fmt(v) {
@@ -341,21 +429,15 @@
         '<td>' + (inv.date || '') + '</td>' +
         '<td>' + chargeStatusCell(inv) + '</td>' +
         '<td>' + sentStatusCell(inv) + '</td>' +
-        '<td>' +
-          '<span class="inv-link">' + (inv.account_email || '') + '</span>' +
-        '</td>' +
+        '<td><span class="inv-link">' + (inv.account_email || '') + '</span></td>' +
         '<td class="money">' + fmt(inv.inv_total) + '</td>';
       tbody.appendChild(tr);
     });
   }
 
   function chargeStatusCell(inv) {
-    if (inv.failed_charge) {
-      return '<div style="color:#c0392b;font-weight:600;font-size:12.5px;">Declined</div>';
-    }
-    if ((parseFloat(inv.inv_bal) || 0) <= 0) {
-      return '<span style="color:#27a567;font-weight:600;font-size:13px;">Paid</span>';
-    }
+    if (inv.failed_charge) return '<div style="color:#c0392b;font-weight:600;font-size:12.5px;">Declined</div>';
+    if ((parseFloat(inv.inv_bal) || 0) <= 0) return '<span style="color:#27a567;font-weight:600;font-size:13px;">Paid</span>';
     return '<span style="color:#e07820;font-weight:600;font-size:13px;">Pending Charge</span>';
   }
 
@@ -394,7 +476,77 @@
     loadInvoices();
   }
 
-  loadInvoices();
+  // Recurring clients
+  var recurringClients = [];
+
+  async function loadRecurring() {
+    var { data, error } = await sb.from('platform_accounts').select('*').order('email');
+    if (error) {
+      if (error.code === '42P01') document.getElementById('setup-notice').style.display = '';
+      console.error(error);
+      return;
+    }
+    document.getElementById('setup-notice').style.display = 'none';
+    recurringClients = data || [];
+    renderRecurring();
+  }
+
+  function dayLabel(d) {
+    if (!d) return '';
+    var s = String(d);
+    var last = parseInt(s.slice(-1));
+    var suffix = 'th';
+    if (d % 10 === 1 && d !== 11) suffix = 'st';
+    else if (d % 10 === 2 && d !== 12) suffix = 'nd';
+    else if (d % 10 === 3 && d !== 13) suffix = 'rd';
+    return d + suffix;
+  }
+
+  function renderRecurring() {
+    var tbody    = document.getElementById('recurring-tbody');
+    var emptyMsg = document.getElementById('recurring-empty-msg');
+    tbody.innerHTML = '';
+
+    if (!recurringClients.length) {
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    recurringClients.forEach(function(acct) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (acct.email || '') + '</td>' +
+        '<td>' + (acct.plan || '') + '</td>' +
+        '<td>' + dayLabel(acct.billing_day) + ' of month</td>' +
+        '<td>' + fmt(acct.monthly_amount) + '</td>' +
+        '<td>' +
+          '<label class="toggle-switch">' +
+            '<input type="checkbox"' + (acct.active ? ' checked' : '') + ' onchange="toggleActive(\'' + acct.id + '\', this.checked)"/>' +
+            '<span class="toggle-slider"></span>' +
+          '</label>' +
+        '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="rec-action-btn" onclick="openEditRecurringModal(\'' + acct.id + '\')">Edit</button> ' +
+          '<button class="rec-action-btn danger" onclick="deleteRecurring(\'' + acct.id + '\')">Delete</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function toggleActive(id, val) {
+    await sb.from('platform_accounts').update({ active: val }).eq('id', id);
+    loadRecurring();
+  }
+
+  async function deleteRecurring(id) {
+    if (!confirm('Remove this recurring client?')) return;
+    await sb.from('platform_accounts').delete().eq('id', id);
+    loadRecurring();
+  }
+
+  // Init
+  autoCreateInvoices().then(function() { loadInvoices(); });
 </script>
 
 <!-- Add Invoice Modal -->
@@ -412,7 +564,6 @@
     <div style="background:#555;color:#fff;padding:7px 16px;font-size:13.5px;font-weight:600;">&#9783;&nbsp; New Invoice</div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e0e0e0;">
-      <!-- Left: Account -->
       <div style="padding:10px 16px;border-right:1px solid #e0e0e0;">
         <div class="fi-row">
           <span class="fi-label">Account</span>
@@ -427,7 +578,6 @@
           <span class="fi-val" id="inv-acct-id-display" style="font-size:11.5px;color:#999;word-break:break-all;"></span>
         </div>
       </div>
-      <!-- Right: Invoice fields -->
       <div style="padding:10px 16px;">
         <div class="fi-row">
           <span class="fi-label">Date of Invoice</span>
@@ -459,7 +609,6 @@
       </div>
     </div>
 
-    <!-- Line items -->
     <div style="overflow-x:auto;">
       <table class="li-table">
         <thead>
@@ -497,6 +646,61 @@
       <button class="btn-inv-save-new" onclick="saveInvoice(true)">Save And New</button>
       <span style="color:#555;font-size:13px;">or</span>
       <button class="btn-inv-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Recurring Client Modal -->
+<div class="modal-overlay" id="recurring-modal" onclick="if(event.target===this)closeRecurringModal()">
+  <div class="modal-box" style="max-width:520px;" onclick="event.stopPropagation()">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px;">
+      <h2 style="font-size:20px;font-weight:900;color:#111;margin:0;" id="rec-modal-title">Add Recurring Client</h2>
+      <button onclick="closeRecurringModal()" style="background:none;border:1px solid #ccc;border-radius:3px;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;">&#10005;</button>
+    </div>
+
+    <div style="background:#555;color:#fff;padding:7px 16px;font-size:13.5px;font-weight:600;">Billing Schedule</div>
+
+    <div style="padding:16px 20px;">
+      <div class="fi-row">
+        <span class="fi-label">Account</span>
+        <div class="acct-search-wrap">
+          <input type="text" class="fi-input" id="rec-acct-search" placeholder="Search accounts..." autocomplete="off"
+            oninput="searchAccountsRec(this.value)"/>
+          <div class="acct-results" id="rec-acct-results"></div>
+        </div>
+      </div>
+      <div class="fi-row">
+        <span class="fi-label">Plan</span>
+        <select class="fi-select" id="rec-plan">
+          <option value="Monthly Subscription">Monthly Subscription</option>
+          <option value="Annual Subscription">Annual Subscription</option>
+          <option value="Custom">Custom</option>
+        </select>
+      </div>
+      <div class="fi-row">
+        <span class="fi-label">Monthly Amount</span>
+        <input type="number" class="fi-input" id="rec-amount" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="fi-row">
+        <span class="fi-label">Billing Day</span>
+        <div style="flex:1;display:flex;align-items:center;gap:8px;">
+          <input type="number" class="fi-input" id="rec-billing-day" placeholder="e.g. 20" min="1" max="31" style="width:80px;flex:none;"/>
+          <span style="font-size:12.5px;color:#888;">of each month (1–31)</span>
+        </div>
+      </div>
+      <div class="fi-row">
+        <span class="fi-label">Active</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="rec-active" checked/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="inv-action-row">
+      <button class="btn-inv-save" onclick="saveRecurring()">Save</button>
+      <button class="btn-inv-cancel" onclick="closeRecurringModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -599,6 +803,8 @@
   document.addEventListener('click', function(e) {
     var wrap = document.querySelector('.acct-search-wrap');
     if (wrap && !wrap.contains(e.target)) document.getElementById('acct-results').classList.remove('open');
+    var recWrap = document.getElementById('rec-acct-results');
+    if (recWrap && !recWrap.parentElement.contains(e.target)) recWrap.classList.remove('open');
   });
 
   function addLineItem(name, description, date, rate, qty) {
@@ -700,6 +906,108 @@
       closeModal();
     }
     loadInvoices();
+  }
+
+  // Recurring modal
+  var editingRecurringId = null;
+  var recSelectedEmail = null;
+  var recSelectedUserId = null;
+
+  function openAddRecurringModal() {
+    editingRecurringId = null;
+    recSelectedEmail = null;
+    recSelectedUserId = null;
+    document.getElementById('rec-modal-title').textContent = 'Add Recurring Client';
+    document.getElementById('rec-acct-search').value = '';
+    document.getElementById('rec-acct-search').disabled = false;
+    document.getElementById('rec-plan').value = 'Monthly Subscription';
+    document.getElementById('rec-amount').value = '';
+    document.getElementById('rec-billing-day').value = '';
+    document.getElementById('rec-active').checked = true;
+    document.getElementById('recurring-modal').classList.add('open');
+    document.getElementById('rec-acct-search').focus();
+    loadAccounts();
+  }
+
+  function openEditRecurringModal(id) {
+    var acct = recurringClients.find(function(a) { return a.id === id; });
+    if (!acct) return;
+    editingRecurringId = id;
+    recSelectedEmail = acct.email;
+    recSelectedUserId = acct.user_id;
+    document.getElementById('rec-modal-title').textContent = 'Edit Recurring Client';
+    document.getElementById('rec-acct-search').value = acct.email || '';
+    document.getElementById('rec-acct-search').disabled = true;
+    document.getElementById('rec-plan').value = acct.plan || 'Monthly Subscription';
+    document.getElementById('rec-amount').value = acct.monthly_amount || '';
+    document.getElementById('rec-billing-day').value = acct.billing_day || '';
+    document.getElementById('rec-active').checked = !!acct.active;
+    document.getElementById('recurring-modal').classList.add('open');
+  }
+
+  function closeRecurringModal() {
+    document.getElementById('recurring-modal').classList.remove('open');
+    document.getElementById('rec-acct-results').classList.remove('open');
+  }
+
+  var recSearchTimer = null;
+  function searchAccountsRec(val) {
+    clearTimeout(recSearchTimer);
+    var resultsEl = document.getElementById('rec-acct-results');
+    if (val.length < 1) { resultsEl.classList.remove('open'); return; }
+    recSearchTimer = setTimeout(function() {
+      var lower = val.toLowerCase();
+      var matches = allAccounts.filter(function(a) {
+        return a.email && a.email.toLowerCase().indexOf(lower) >= 0;
+      }).slice(0, 20);
+      resultsEl.innerHTML = '';
+      if (!matches.length) {
+        resultsEl.innerHTML = '<div class="acct-result-item"><span class="cri-name" style="color:#aaa;">No accounts found</span></div>';
+        resultsEl.classList.add('open');
+        return;
+      }
+      matches.forEach(function(a) {
+        var item = document.createElement('div');
+        item.className = 'acct-result-item';
+        item.innerHTML = '<div class="cri-name">' + a.email + '</div>';
+        item.addEventListener('click', function() {
+          recSelectedEmail = a.email;
+          recSelectedUserId = a.user_id;
+          document.getElementById('rec-acct-search').value = a.email;
+          resultsEl.classList.remove('open');
+        });
+        resultsEl.appendChild(item);
+      });
+      resultsEl.classList.add('open');
+    }, 150);
+  }
+
+  async function saveRecurring() {
+    var email = recSelectedEmail || document.getElementById('rec-acct-search').value.trim();
+    var billingDay = parseInt(document.getElementById('rec-billing-day').value);
+    var amount = parseFloat(document.getElementById('rec-amount').value);
+
+    if (!email)           { alert('Please select an account.'); return; }
+    if (!billingDay || billingDay < 1 || billingDay > 31) { alert('Enter a billing day between 1 and 31.'); return; }
+    if (!amount || amount <= 0) { alert('Enter a monthly amount.'); return; }
+
+    var payload = {
+      email:          email,
+      user_id:        recSelectedUserId || null,
+      plan:           document.getElementById('rec-plan').value,
+      monthly_amount: amount,
+      billing_day:    billingDay,
+      active:         document.getElementById('rec-active').checked
+    };
+
+    var { error } = editingRecurringId
+      ? await sb.from('platform_accounts').update(payload).eq('id', editingRecurringId)
+      : await sb.from('platform_accounts').insert(payload);
+
+    if (error) { alert('Error saving: ' + error.message); return; }
+
+    closeRecurringModal();
+    loadRecurring();
   }
 </script>
 
