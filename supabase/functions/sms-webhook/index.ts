@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+﻿import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 serve(async (req: Request) => {
@@ -161,7 +161,7 @@ serve(async (req: Request) => {
                   method: "POST",
                   headers: { Authorization: "Bearer " + co.resend_api_key, "Content-Type": "application/json" },
                   body: JSON.stringify({
-                    from: (co.company_name || "SprayBossPro") + " <mail@spraybosspro.com>",
+                    from: (co.company_name || "FieldBossPro") + " <mail@fieldbossprohq.com>",
                     to: [ownerEmail],
                     subject: "Text Received: " + displayName,
                     html: `<!DOCTYPE html><html><body style="max-width:600px;margin:0 auto;padding:24px">${htmlBody}</body></html>`,

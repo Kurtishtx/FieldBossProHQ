@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+﻿import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const CORS = {
   'Access-Control-Allow-Origin':  '*',
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
         customer: customerId,
         setup_future_usage: 'off_session',
         'payment_method_types[]': 'card',
-        description: 'SprayBossPro Monthly Subscription',
+        description: 'FieldBossPro Monthly Subscription',
         'metadata[user_id]': user_id,
       })
       if (payment.error) throw new Error(payment.error.message)
@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
         status_text:     'sent',
         failed_charge:   false,
         deleted:         false,
-        service_lines:   [{ name: 'Monthly Subscription', description: 'SprayBossPro — first month', date: todayStr, rate: 129, qty: 1, amount: 129 }],
+        service_lines:   [{ name: 'Monthly Subscription', description: 'FieldBossPro — first month', date: todayStr, rate: 129, qty: 1, amount: 129 }],
       })
 
       return new Response(

@@ -1,7 +1,7 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+﻿import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API_KEY = 're_apd6qCQb_LerK8x5aS84YU4J7jj6WarnM'
-const BILLING_URL   = 'https://my.spraybosspro.com/billing-setup.html'
+const BILLING_URL   = 'https://my.fieldbossprohq.com/billing-setup.html'
 
 const sb = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -18,7 +18,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'SprayBossPro <mail@spraybosspro.com>',
+      from: 'FieldBossPro <mail@fieldbossprohq.com>',
       to: [to],
       subject,
       html,
@@ -33,7 +33,7 @@ function emailTemplate(headline: string, body: string, urgency: 'normal' | 'warn
   return `
     <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff;">
       <div style="background:#130520;padding:20px 32px;">
-        <span style="color:#fff;font-size:18px;font-weight:900;letter-spacing:-.3px;">SprayBoss<span style="color:#e07820;">Pro</span></span>
+        <span style="color:#fff;font-size:18px;font-weight:900;letter-spacing:-.3px;">FieldBoss<span style="color:#e07820;">Pro</span></span>
       </div>
       <div style="padding:32px 32px 24px;">
         <h2 style="font-size:22px;font-weight:800;color:${accent};margin:0 0 16px;">${headline}</h2>
@@ -41,7 +41,7 @@ function emailTemplate(headline: string, body: string, urgency: 'normal' | 'warn
         <p style="margin:24px 0 0;"><a href="${BILLING_URL}" style="${btn}">Add Payment Info →</a></p>
       </div>
       <div style="background:#f5f5f5;padding:14px 32px;font-size:12px;color:#999;">
-        SprayBossPro &middot; $129/month &middot; Cancel anytime &middot; All your data is saved
+        FieldBossPro &middot; $129/month &middot; Cancel anytime &middot; All your data is saved
       </div>
     </div>`
 }
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
     if (daysLeft === 2 && !acct.email_sent_2day) {
       await sendEmail(
         acct.email,
-        'Your SprayBossPro trial ends in 2 days',
+        'Your FieldBossPro trial ends in 2 days',
         emailTemplate(
           'Your trial ends in 2 days',
           `<p style="color:#444;line-height:1.6;margin:0 0 12px;">Your 14-day free trial ends on <strong>${endDateStr}</strong>.</p>
@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     } else if (daysLeft === 1 && !acct.email_sent_1day) {
       await sendEmail(
         acct.email,
-        'Last day of your SprayBossPro trial — add your card today',
+        'Last day of your FieldBossPro trial — add your card today',
         emailTemplate(
           'Your trial ends tomorrow',
           `<p style="color:#444;line-height:1.6;margin:0 0 12px;">Tomorrow your account will be paused until payment info is added.</p>
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
     } else if (daysLeft <= 0 && !acct.email_sent_paused) {
       await sendEmail(
         acct.email,
-        'Your SprayBossPro account has been paused',
+        'Your FieldBossPro account has been paused',
         emailTemplate(
           'Your account is paused',
           `<p style="color:#444;line-height:1.6;margin:0 0 12px;">Your free trial has ended. Your account is paused but all your data is saved.</p>

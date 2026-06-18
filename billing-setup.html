@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SprayBossPro — Add Payment Info</title>
+  <title>FieldBossPro — Add Payment Info</title>
   <script src="https://js.stripe.com/v3/"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -39,13 +39,13 @@
 
 <div class="card">
   <div class="card-header">
-    <div class="logo">SprayBoss<span>Pro</span></div>
+    <div class="logo">FieldBoss<span>Pro</span></div>
     <div class="card-header-sub">Activate your subscription — $129/month</div>
   </div>
 
   <!-- Login view (shown if not authenticated) -->
   <div class="login-view" id="login-view" style="display:none;">
-    <p style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.5;">Sign in to your SprayBossPro account to add your payment info.</p>
+    <p style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.5;">Sign in to your FieldBossPro account to add your payment info.</p>
     <div id="login-err" class="error-msg"></div>
     <label>Email</label>
     <input type="email" class="inp" id="login-email" placeholder="you@yourcompany.com"/>
@@ -59,7 +59,7 @@
     <div class="already-paid-icon">✅</div>
     <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:8px;">You're all set!</div>
     <p style="font-size:14px;color:#666;line-height:1.6;">Your payment info is already on file. Your account is active.</p>
-    <a href="https://my.spraybosspro.com/dashboard.html" style="display:inline-block;margin-top:20px;color:#e07820;font-weight:700;text-decoration:none;">Go to Dashboard →</a>
+    <a href="https://my.fieldbossprohq.com/dashboard.html" style="display:inline-block;margin-top:20px;color:#e07820;font-weight:700;text-decoration:none;">Go to Dashboard →</a>
   </div>
 
   <!-- Card form -->
@@ -86,7 +86,7 @@
 <script>
   var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
-  // ⚠️ Replace with your SprayBossPro platform Stripe publishable key
+  // ⚠️ Replace with your FieldBossPro platform Stripe publishable key
   var STRIPE_PK     = 'pk_live_51T0nM2QnKYEOoI1iDgLsivEeeJK85WKLqRZwF6lZNCZX2amaiIAz794Bmw2f6Gj9p4zBsus6Cl669y0QC7BsJcLO00VNhUlBL1';
   var EDGE_BASE     = SUPABASE_URL + '/functions/v1';
 
@@ -202,7 +202,7 @@
       cd.textContent = 'Redirecting in ' + secs + ' seconds…';
       var iv = setInterval(function() {
         secs--;
-        if (secs <= 0) { clearInterval(iv); window.location.href = 'https://my.spraybosspro.com/dashboard.html'; }
+        if (secs <= 0) { clearInterval(iv); window.location.href = 'https://my.fieldbossprohq.com/dashboard.html'; }
         else cd.textContent = 'Redirecting in ' + secs + ' second' + (secs === 1 ? '' : 's') + '…';
       }, 1000);
 

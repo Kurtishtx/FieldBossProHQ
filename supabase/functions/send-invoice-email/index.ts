@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+﻿import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CORS = {
@@ -37,7 +37,7 @@ serve(async (req) => {
 
     // Load company info for sender name
     const { data: co } = await supabase.from("company_info").select("company_name, display_name").eq("user_id", inv.user_id).single();
-    const compName = co?.display_name || co?.company_name || "SprayBossPro";
+    const compName = co?.display_name || co?.company_name || "FieldBossPro";
 
     // Find client email: try property → client chain, then search Clients by name
     let toEmail = "";
@@ -121,7 +121,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: "Bearer " + RESEND_API_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: compName + " <Mail@spraybosspro.com>",
+        from: compName + " <Mail@fieldbossprohq.com>",
         to: [toEmail],
         subject: `Invoice from ${compName}`,
         html: html,

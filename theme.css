@@ -1,12 +1,12 @@
-/* ── SprayBossPro Global Theme ── */
+﻿/* ── FieldBossPro Global Theme ── */
 
 /* Body background */
-body { background: #d4cfe0 !important; }
+body { background: #ede5d8 !important; }
 
 /* ── Top bar ── */
 .page-topbar {
-  background: #130520 !important;
-  border-bottom: 1px solid #1e0a35 !important;
+  background: #1e1208 !important;
+  border-bottom: 1px solid #2a1a0a !important;
   box-shadow: none !important;
   margin: 8px 16px !important;
   border-radius: 10px !important;
@@ -29,9 +29,9 @@ body { background: #d4cfe0 !important; }
 .property-search:focus, .lead-search:focus, .client-search:focus,
 .schedule-search:focus, .invoice-search:focus, .estimate-search:focus,
 .topbar-search:focus, .list-search:focus {
-  border-color: #e07820 !important;
+  border-color: #c47d0a !important;
   background: rgba(255,255,255,.15) !important;
-  box-shadow: 0 0 0 3px rgba(224,120,32,.2) !important;
+  box-shadow: 0 0 0 3px rgba(196,125,10,.2) !important;
 }
 
 /* Filter icon button */
@@ -44,16 +44,16 @@ body { background: #d4cfe0 !important; }
 
 /* ── Filters bar ── */
 .filters-bar {
-  background: #130520 !important;
+  background: #1e1208 !important;
   color: rgba(255,255,255,.8) !important;
   margin: 0 16px !important;
   border-radius: 8px !important;
 }
-.filters-bar:hover { background: #1e0a35 !important; }
+.filters-bar:hover { background: #2a1a0a !important; }
 
 /* ── Filters row ── */
 .filters-row {
-  background: #1a0a30 !important;
+  background: #241508 !important;
   border-bottom: 1px solid rgba(255,255,255,.06) !important;
   margin: 2px 16px !important;
   border-radius: 8px !important;
@@ -84,14 +84,14 @@ body { background: #d4cfe0 !important; }
 
 /* ── Toolbar ── */
 .toolbar {
-  background: #130520 !important;
+  background: #1e1208 !important;
   margin: 4px 16px 0 !important;
   border-radius: 10px 10px 0 0 !important;
 }
 
 /* ── Filter tab pills ── */
 .filter-tabs {
-  background: #1a0a30 !important;
+  background: #241508 !important;
   border-bottom: 1px solid rgba(255,255,255,.06) !important;
   margin: 0 16px !important;
 }
@@ -101,7 +101,7 @@ body { background: #d4cfe0 !important; }
   color: rgba(255,255,255,.6) !important;
 }
 .ftab:hover { background: rgba(255,255,255,.12) !important; color: #fff !important; }
-.ftab.active { background: #e07820 !important; border-color: #e07820 !important; color: #fff !important; }
+.ftab.active { background: #c47d0a !important; border-color: #c47d0a !important; color: #fff !important; }
 
 /* ── Table container ── */
 .table-container {

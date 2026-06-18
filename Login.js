@@ -1,4 +1,4 @@
-// Correct Supabase client initialization
+﻿// Correct Supabase client initialization
 const client = supabase.createClient(
   "https://knjdbgroiyhvqwrpqzcx.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
@@ -37,14 +37,14 @@ async function login() {
   // Block mobile-only accounts
   if (prof && prof.role === 'mobile') {
     await client.auth.signOut();
-    alert('This account is for the mobile app only. Please use the SprayBossPro mobile app to log in.');
+    alert('This account is for the mobile app only. Please use the FieldBossPro mobile app to log in.');
     return;
   }
 
   // Block accounts that belong to a different product
-  if (prof && prof.product && prof.product !== 'spraybosspro') {
+  if (prof && prof.product && prof.product !== 'fieldbosspro') {
     await client.auth.signOut();
-    alert('This account is not registered for SprayBossPro. Please log in at the correct software.');
+    alert('This account is not registered for FieldBossPro. Please log in at the correct software.');
     return;
   }
 

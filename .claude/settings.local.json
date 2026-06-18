@@ -1,9 +1,9 @@
-{
+﻿{
   "permissions": {
     "allow": [
-      "PowerShell(Select-String -Path \"c:\\\\Users\\\\Haman\\\\OneDrive\\\\Desktop\\\\SprayBossPro-Backend\\\\waitinglist.html\" -Pattern \"button|btn|action\" -CaseSensitive:$false | Select-Object -First 20 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
-      "PowerShell(Select-String -Path \"c:\\\\Users\\\\Haman\\\\OneDrive\\\\Desktop\\\\SprayBossPro-Backend\\\\ScheduledList.html\" -Pattern \"Actions|action|Delete|Schedule\" -CaseSensitive:$false | Select-Object -First 20 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
-      "PowerShell(Select-String -Path \"c:\\\\Users\\\\Haman\\\\OneDrive\\\\Desktop\\\\SprayBossPro-Backend\\\\waitinglist.html\" -Pattern \"checkbox|select-all|cb-cell\" -CaseSensitive:$false | Select-Object -First 10 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
+      "PowerShell(Select-String -Path \"c:\\\\Users\\\\Haman\\\\OneDrive\\\\Desktop\\\\FieldBossPro-Backend\\\\waitinglist.html\" -Pattern \"button|btn|action\" -CaseSensitive:$false | Select-Object -First 20 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
+      "PowerShell(Select-String -Path \"c:\\\\Users\\\\Haman\\\\OneDrive\\\\Desktop\\\\FieldBossPro-Backend\\\\ScheduledList.html\" -Pattern \"Actions|action|Delete|Schedule\" -CaseSensitive:$false | Select-Object -First 20 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
+      "PowerShell(Select-String -Path \"c:\\\\Users\\\\Haman\\\\OneDrive\\\\Desktop\\\\FieldBossPro-Backend\\\\waitinglist.html\" -Pattern \"checkbox|select-all|cb-cell\" -CaseSensitive:$false | Select-Object -First 10 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
       "Bash(vercel --version)",
       "Bash(git add *)",
       "Bash(git commit *)",
