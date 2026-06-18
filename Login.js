@@ -41,10 +41,15 @@ async function login() {
 
   // Check trial expiry
   if (prof && prof.trial_ends_at && new Date(prof.trial_ends_at) < new Date()) {
-    await client.auth.signOut();
-    var screen = document.getElementById('trial-expired-screen');
-    if (screen) { screen.style.display = 'flex'; }
-    return;
+    var { data: acct } = await client.from('platform_accounts').select('active').eq('user_id', userId).single();
+    if (!acct || !acct.active) {
+      var screen = document.getElementById('trial-expired-screen');
+      if (screen) {
+        screen.style.display = 'flex';
+        if (typeof initTrialCardForm === 'function') initTrialCardForm(userId);
+      }
+      return;
+    }
   }
 
   var stayLoggedIn = document.getElementById('stay-logged-in').checked;

@@ -109,16 +109,93 @@
 
   <!-- Trial Expired Screen -->
   <div id="trial-expired-screen" style="display:none; position:fixed; inset:0; background:linear-gradient(135deg,#080010,#1e0a35); z-index:9999; align-items:center; justify-content:center; padding:24px;">
-    <div style="background:#fff; border-radius:14px; max-width:480px; width:100%; padding:48px 40px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-      <div style="font-size:48px; margin-bottom:16px;">⏰</div>
-      <h2 style="font-size:24px; font-weight:800; color:#1a1a2e; margin-bottom:12px;">Your Free Trial Has Ended</h2>
-      <p style="color:#555; font-size:15px; line-height:1.7; margin-bottom:24px;">Your 14-day free trial of SprayBossPro has expired. To continue using your account, please reach out to us to get set up on the $129/month plan.</p>
-      <a href="mailto:support@spraybosspro.com" style="display:block; background:#e07820; color:#fff; padding:14px; border-radius:8px; font-weight:700; font-size:15px; text-decoration:none; margin-bottom:12px;">Contact Us to Subscribe</a>
-      <a href="landing.html" style="display:block; color:#e07820; font-size:13px; text-decoration:none;">← Back to SprayBossPro.com</a>
+    <div style="background:#fff; border-radius:14px; max-width:460px; width:100%; padding:36px 36px 28px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="font-size:40px; margin-bottom:10px;">⏰</div>
+        <h2 style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:8px;">Your Free Trial Has Ended</h2>
+        <p style="color:#666; font-size:14px; line-height:1.6;">Add your card to reactivate immediately — $129/month, cancel anytime. All your data is saved.</p>
+      </div>
+      <!-- Card form -->
+      <div id="trial-card-form">
+        <label style="display:block; font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">Card Information</label>
+        <div id="trial-card-element" style="border:1.5px solid #ddd; border-radius:6px; padding:12px; background:#fff; margin-bottom:4px;"></div>
+        <div id="trial-card-error" style="color:#c0392b; font-size:13px; margin:8px 0; display:none;"></div>
+        <button id="trial-pay-btn" onclick="submitTrialCard()" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px;">Activate — $129/month</button>
+        <p style="text-align:center; font-size:11.5px; color:#aaa; margin-top:10px;">Secured by Stripe &middot; Cancel anytime</p>
+      </div>
+      <!-- Success -->
+      <div id="trial-card-success" style="display:none; text-align:center; padding:16px 0;">
+        <div style="font-size:36px; margin-bottom:10px;">✓</div>
+        <div style="font-size:18px; font-weight:800; color:#1a1a2e; margin-bottom:6px;">You're reactivated!</div>
+        <div style="font-size:13px; color:#666;">Taking you to your dashboard…</div>
+      </div>
+      <a href="landing.html" style="display:block; text-align:center; color:#aaa; font-size:12px; text-decoration:none; margin-top:16px;">← Back to SprayBossPro.com</a>
     </div>
   </div>
 
+  <script src="https://js.stripe.com/v3/"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="Login.js"></script>
+  <script>
+    var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+    var STRIPE_PK     = 'pk_live_51T0nM2QnKYEOoI1iDgLsivEeeJK85WKLqRZwF6lZNCZX2amaiIAz794Bmw2f6Gj9p4zBsus6Cl669y0QC7BsJcLO00VNhUlBL1';
+    var EDGE_BASE     = SUPABASE_URL + '/functions/v1';
+
+    var trialStripe, trialCardEl, trialUserId;
+
+    function initTrialCardForm(userId) {
+      trialUserId = userId;
+      trialStripe = Stripe(STRIPE_PK);
+      var elements = trialStripe.elements();
+      trialCardEl = elements.create('card', {
+        style: { base: { fontSize: '15px', fontFamily: '\'Segoe UI\', Arial, sans-serif', color: '#333', '::placeholder': { color: '#aaa' } } }
+      });
+      trialCardEl.mount('#trial-card-element');
+      trialCardEl.on('change', function(e) {
+        var err = document.getElementById('trial-card-error');
+        if (e.error) { err.textContent = e.error.message; err.style.display = 'block'; }
+        else { err.style.display = 'none'; }
+      });
+    }
+
+    async function submitTrialCard() {
+      var btn = document.getElementById('trial-pay-btn');
+      var err = document.getElementById('trial-card-error');
+      err.style.display = 'none';
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      try {
+        var siRes = await fetch(EDGE_BASE + '/platform-card-setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
+          body: JSON.stringify({ action: 'create_setup_intent', user_id: trialUserId })
+        });
+        var si = await siRes.json();
+        if (si.error) throw new Error(si.error);
+
+        var result = await trialStripe.confirmCardSetup(si.client_secret, {
+          payment_method: { card: trialCardEl }
+        });
+        if (result.error) throw new Error(result.error.message);
+
+        var saveRes = await fetch(EDGE_BASE + '/platform-card-setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
+          body: JSON.stringify({ action: 'save_card', user_id: trialUserId, payment_method_id: result.setupIntent.payment_method })
+        });
+        var saved = await saveRes.json();
+        if (saved.error) throw new Error(saved.error);
+
+        document.getElementById('trial-card-form').style.display = 'none';
+        document.getElementById('trial-card-success').style.display = 'block';
+        setTimeout(function() { window.location.href = 'dashboard.html'; }, 2000);
+
+      } catch(e) {
+        err.textContent = e.message; err.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Activate — $129/month';
+      }
+    }
+  </script>
 </body>
 </html>
