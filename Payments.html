@@ -7,22 +7,22 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; color: #222; }
 
     /* -- Page header -- */
-    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; background:#130520; margin:8px 16px; border-radius:10px; }
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; background:#1e1208; margin:8px 16px; border-radius:10px; }
     .showing-count { font-size:13px; color:rgba(255,255,255,.6); }
     .btn-orange-filled {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer; font-family: inherit; transition: background .15s;
     }
-    .btn-orange-filled:hover { background: #1e0a35; }
+    .btn-orange-filled:hover { background: #2a1a0a; }
 
     /* -- Filter pills -- */
     .tabs-bar {
       display: flex; gap: 4px; padding: 8px 20px;
-      flex-wrap: wrap; background: #1a0a30; margin: 0 16px; border-radius: 8px;
+      flex-wrap: wrap; background: #241508; margin: 0 16px; border-radius: 8px;
     }
     .tab-btn {
       padding: 5px 16px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
@@ -31,10 +31,10 @@
       white-space: nowrap;
     }
     .tab-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .tab-btn.active { background: #e07820; color: #fff; border-color: #e07820; font-weight: 700; }
+    .tab-btn.active { background: #c47d0a; color: #fff; border-color: #c47d0a; font-weight: 700; }
 
     /* -- Toolbar -- */
-    .toolbar { background: #130520; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; margin:2px 16px 0; border-radius:8px 8px 0 0; }
+    .toolbar { background: #1e1208; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; margin:2px 16px 0; border-radius:8px 8px 0 0; }
     .toolbar-left { display:flex; align-items:center; gap:6px; position:relative; overflow:visible; }
     .btn-green-main { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; border-radius:3px 0 0 3px; padding:5px 14px; font-size:13px; font-family:inherit; font-weight:700; cursor:pointer; }
     .btn-green-main:hover { background:#d4ae00; }
@@ -63,7 +63,7 @@
     thead th { background:#e8e4f0; border-bottom:2px solid #c5bfd8; padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#3a2a55; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
     thead th:first-child { text-align:center; cursor:default; }
     thead th .sort-icon { color:#bbb; font-size:10px; margin-left:3px; }
-    thead th .sort-asc  { color:#e07820; font-size:10px; margin-left:3px; }
+    thead th .sort-asc  { color:#c47d0a; font-size:10px; margin-left:3px; }
     tbody tr { border-bottom:1px solid #eee; }
     tbody tr:hover { background:#f5f3fa; }
     tbody td { padding:12px 16px; color:#333; vertical-align:middle; }
@@ -129,19 +129,19 @@
       </tr>
     </thead>
     <thead>
-      <tr style="background:#1a0828;">
-        <td colspan="3" style="background:#1a0828;padding:10px 16px;"></td>
-        <td id="total-amount"    style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;text-align:right;">$0.00</td>
-        <td id="total-unused"   style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;text-align:right;">$0.00</td>
-        <td id="total-refunded" style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;text-align:right;">$0.00</td>
-        <td colspan="2" style="background:#1a0828;padding:10px 16px;"></td>
+      <tr style="background:#241508;">
+        <td colspan="3" style="background:#241508;padding:10px 16px;"></td>
+        <td id="total-amount"    style="color:#fff;font-weight:700;padding:10px 16px;background:#241508;text-align:right;">$0.00</td>
+        <td id="total-unused"   style="color:#fff;font-weight:700;padding:10px 16px;background:#241508;text-align:right;">$0.00</td>
+        <td id="total-refunded" style="color:#fff;font-weight:700;padding:10px 16px;background:#241508;text-align:right;">$0.00</td>
+        <td colspan="2" style="background:#241508;padding:10px 16px;"></td>
       </tr>
     </thead>
     <tbody id="payment-tbody"></tbody>
   </table>
   <div class="empty-msg" id="empty-msg">No payments found.</div>
 </div>
-<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
+<div style="height:28px; background:#1e1208; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>

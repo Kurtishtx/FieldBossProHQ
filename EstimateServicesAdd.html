@@ -27,7 +27,7 @@
       flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px;
       font-size: 13px; font-family: inherit; outline: none; border-radius: 2px;
     }
-    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #e07820; }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #c47d0a; }
     .field-row textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
     .field-hint { font-size: 12px; color: #999; margin-top: 3px; }
 
@@ -37,7 +37,7 @@
     .toggle input { opacity: 0; width: 0; height: 0; }
     .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; transition: .2s; }
     .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
-    .toggle input:checked + .toggle-slider { background: #e07820; }
+    .toggle input:checked + .toggle-slider { background: #c47d0a; }
     .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
     .toggle-label { font-size: 13px; color: #555; }
 
@@ -49,7 +49,7 @@
     .matrix-row-bottom { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: #555; }
     .mx-label { font-size: 12px; font-weight: 600; color: #555; white-space: nowrap; }
     .mx-input { border: 1px solid #ccc; padding: 5px 7px; font-size: 13px; font-family: inherit; border-radius: 2px; outline: none; width: 80px; text-align: right; }
-    .mx-input:focus { border-color: #e07820; }
+    .mx-input:focus { border-color: #c47d0a; }
     .mx-input.wide { width: 100px; }
     .mx-del { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #c0392b; font-size: 18px; cursor: pointer; line-height: 1; padding: 0; }
     .mx-del:hover { color: #a93226; }
@@ -59,10 +59,10 @@
     .btn-mx:hover { background: #f0f0f0; }
 
     .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
-    .btn-save { background: #e07820; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
-    .btn-save:hover { background: #c96a10; }
-    .btn-save-new { background: #e07820; color: #fff; border: none; padding: 9px 20px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
-    .btn-save-new:hover { background: #c96a10; }
+    .btn-save { background: #c47d0a; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save:hover { background: #a86808; }
+    .btn-save-new { background: #c47d0a; color: #fff; border: none; padding: 9px 20px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-save-new:hover { background: #a86808; }
     .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; }
     .btn-cancel:hover { text-decoration: underline; }
     .btn-delete { margin-left: auto; background: none; border: 1px solid #c0392b; color: #c0392b; padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; }
@@ -84,7 +84,7 @@
 
   <!-- Tabs -->
   <div style="display:flex;gap:16px;align-items:center;padding:10px 20px 0;border-bottom:2px solid #eee;background:#fafafa;">
-    <button id="etab-details" onclick="switchETab('details')" style="background:#130520;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;">Details</button>
+    <button id="etab-details" onclick="switchETab('details')" style="background:#1e1208;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;">Details</button>
     <button id="etab-estimates" onclick="switchETab('estimates')" style="background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;">Estimates</button>
   </div>
 
@@ -190,8 +190,8 @@
   function switchETab(tab) {
     document.getElementById('epanel-details').style.display   = tab === 'details'   ? '' : 'none';
     document.getElementById('epanel-estimates').style.display = tab === 'estimates' ? '' : 'none';
-    document.getElementById('etab-details').style.cssText   = tab === 'details'   ? 'background:#130520;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;' : 'background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;';
-    document.getElementById('etab-estimates').style.cssText = tab === 'estimates' ? 'background:#130520;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;' : 'background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;';
+    document.getElementById('etab-details').style.cssText   = tab === 'details'   ? 'background:#1e1208;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;' : 'background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;';
+    document.getElementById('etab-estimates').style.cssText = tab === 'estimates' ? 'background:#1e1208;color:#fff;border:none;border-radius:4px 4px 0 0;padding:7px 18px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;' : 'background:none;border:none;color:#444;font-size:13.5px;font-family:inherit;cursor:pointer;padding:7px 4px;';
   }
 
   $(document).ready(function() {

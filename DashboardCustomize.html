@@ -27,7 +27,7 @@
       width: 100%; border: 1px solid #ddd; border-radius: 8px;
       padding: 10px 12px; font-size: 14px; font-family: inherit; color: #222; outline: none;
     }
-    .field-row input[type="text"]:focus, .field-row textarea:focus { border-color: #2272c3; }
+    .field-row input[type="text"]:focus, .field-row textarea:focus { border-color: #8a5518; }
     .field-row textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
 
     .toggle-row {
@@ -41,7 +41,7 @@
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 24px; transition: .2s; }
     .slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
-    input:checked + .slider { background: #2272c3; }
+    input:checked + .slider { background: #8a5518; }
     input:checked + .slider:before { transform: translateX(20px); }
 
     .qa-table-header {
@@ -61,7 +61,7 @@
     .qa-row .switch { margin: 0 auto; }
 
     .btn-row { margin-top: 28px; display: flex; align-items: center; gap: 12px; }
-    .save-btn { padding: 10px 32px; background: #2272c3; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .save-btn { padding: 10px 32px; background: #8a5518; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .save-btn:hover { background: #1a5ea0; }
     .save-btn:disabled { background: #90b8e0; cursor: default; }
     .save-btn.saved { background: #28a745; }
@@ -250,7 +250,7 @@
       var checked = checkboxes.filter(function(c) { return c.checked; }).length;
       if (countEl) {
         countEl.textContent = '(' + checked + '/' + max + ')';
-        countEl.style.color = checked >= max ? '#e07820' : '#aaa';
+        countEl.style.color = checked >= max ? '#c47d0a' : '#aaa';
       }
       checkboxes.forEach(function(c) {
         if (!c.checked && checked >= max) {

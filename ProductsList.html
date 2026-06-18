@@ -6,7 +6,7 @@
   <title>Products</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; color: #222; }
 
     .page-topbar {
       display: flex; align-items: center; justify-content: space-between;
@@ -14,14 +14,14 @@
     }
     .page-topbar-left .item-count { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 3px; }
     .btn-add {
-      background: #130520 !important; color: #fff !important; border: 2px solid #e07820 !important;
+      background: #1e1208 !important; color: #fff !important; border: 2px solid #c47d0a !important;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer; white-space: nowrap;
     }
-    .btn-add:hover { background: #1e0a35 !important; }
+    .btn-add:hover { background: #2a1a0a !important; }
 
     .toolbar {
-      background: #130520; display: flex; align-items: center;
+      background: #1e1208; display: flex; align-items: center;
       justify-content: space-between; padding: 7px 14px; gap: 6px;
     }
     .toolbar-left { display: flex; align-items: center; gap: 6px; }
@@ -52,7 +52,7 @@
 
     .filter-tabs {
       display: flex; gap: 6px; padding: 8px 14px; flex-wrap: wrap;
-      background: #1a0a30; border-bottom: 1px solid rgba(255,255,255,.06);
+      background: #241508; border-bottom: 1px solid rgba(255,255,255,.06);
     }
     .ftab {
       padding: 5px 16px; border: 1px solid rgba(255,255,255,.15);
@@ -61,7 +61,7 @@
       transition: background .15s;
     }
     .ftab:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .ftab.active { background: #e07820; color: #fff; border-color: #e07820; font-weight: 700; }
+    .ftab.active { background: #c47d0a; color: #fff; border-color: #c47d0a; font-weight: 700; }
 
     .table-wrap { background: #fff; margin: 0 16px; }
     table { width: 100%; border-collapse: collapse; }
@@ -75,7 +75,7 @@
     tbody tr:hover { background: #f5f3fa; }
     tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
     tbody td:first-child { text-align: center; }
-    .name-link { color: #2272c3; text-decoration: underline; font-size: 13px; }
+    .name-link { color: #8a5518; text-decoration: underline; font-size: 13px; }
 
     .empty-msg { padding: 32px; text-align: center; color: #888; }
   </style>
@@ -141,7 +141,7 @@
 </table>
 <div class="empty-msg" id="empty-msg" style="display:none;">No products found.</div>
 </div>
-<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
+<div style="height:28px; background:#1e1208; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>

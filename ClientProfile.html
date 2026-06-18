@@ -6,17 +6,17 @@
   <title>Client Profile</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; }
 
     /* ── Top bar ── */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 20px; background: #130520; border-bottom: 1px solid #1e0a35;
+      padding: 9px 20px; background: #1e1208; border-bottom: 1px solid #2a1a0a;
       margin: 8px 16px; border-radius: 10px;
     }
     .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .topbar-left h1 { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); }
-    .topbar-left a { color: #e07820; text-decoration: none; font-size: 12px; font-weight: 700; }
+    .topbar-left a { color: #c47d0a; text-decoration: none; font-size: 12px; font-weight: 700; }
     .topbar-left a:hover { text-decoration: underline; }
     .gear-btn {
       background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 4px;
@@ -27,35 +27,35 @@
     /* ── Split buttons ── */
     .btn-group { display: flex; }
     .btn-main-outline {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       padding: 6px 16px; font-size: 13px; font-weight: 700; font-family: inherit;
       cursor: pointer; border-radius: 6px 0 0 6px; border-right: none;
     }
-    .btn-main-outline:hover { background: #1e0a35; }
+    .btn-main-outline:hover { background: #2a1a0a; }
     .btn-caret-outline {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       padding: 6px 9px; font-size: 11px; cursor: pointer; border-radius: 0 6px 6px 0;
     }
-    .btn-caret-outline:hover { background: #1e0a35; }
+    .btn-caret-outline:hover { background: #2a1a0a; }
     .btn-main {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       border-right: none;
       padding: 6px 16px; font-size: 13px; font-weight: 700; font-family: inherit;
       cursor: pointer; border-radius: 6px 0 0 6px;
     }
-    .btn-main:hover { background: #1e0a35; }
+    .btn-main:hover { background: #2a1a0a; }
     .btn-caret {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       padding: 6px 9px; font-size: 11px; cursor: pointer; border-radius: 0 6px 6px 0;
     }
-    .btn-caret:hover { background: #1e0a35; }
+    .btn-caret:hover { background: #2a1a0a; }
 
     /* ── Dropdown ── */
     .dropdown { position: relative; display: inline-flex; }
     .dropdown + .dropdown { margin-left: 0; }
     .dropdown-menu {
       display: none; position: absolute; top: calc(100% + 4px); right: 0; z-index: 200;
-      background: #1a0a30; border: 1px solid rgba(255,255,255,.12);
+      background: #241508; border: 1px solid rgba(255,255,255,.12);
       box-shadow: 0 8px 32px rgba(0,0,0,.5); min-width: 200px; padding: 4px 0; border-radius: 8px; overflow: hidden;
     }
     .dropdown-menu.show { display: block; }
@@ -67,15 +67,15 @@
       display: block; padding: 9px 14px; color: rgba(255,255,255,.75);
       text-decoration: none; font-size: 13px; cursor: pointer;
     }
-    .dropdown-menu a:hover { background: rgba(255,255,255,.07); color: #e07820; }
+    .dropdown-menu a:hover { background: rgba(255,255,255,.07); color: #c47d0a; }
 
     /* ── Page layout ── */
     .page { padding: 0; }
 
     /* ── Client info card ── */
     .client-card {
-      background: linear-gradient(135deg, #130520 0%, #1e0a35 60%, #130520 100%);
-      border-bottom: 3px solid #e07820;
+      background: linear-gradient(135deg, #1e1208 0%, #2a1a0a 60%, #1e1208 100%);
+      border-bottom: 3px solid #c47d0a;
       display: flex; align-items: stretch; gap: 0; font-size: 13px;
       margin: 12px 16px; border-radius: 12px; overflow: hidden;
       box-shadow: 0 4px 16px rgba(0,0,0,.25);
@@ -107,10 +107,10 @@
     }
     .tag-select-box:hover { border-color: rgba(255,255,255,.3); }
     .tag-apply-btn {
-      background: #e07820; color: #fff; border: none; padding: 5px 14px;
+      background: #c47d0a; color: #fff; border: none; padding: 5px 14px;
       font-size: 13px; cursor: pointer; border-radius: 6px; font-weight: 600;
     }
-    .tag-apply-btn:hover { background: #c96a10; }
+    .tag-apply-btn:hover { background: #a86808; }
     .tag-create-btn {
       background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); padding: 4px 12px;
       font-size: 13px; cursor: pointer; border-radius: 6px; color: rgba(255,255,255,.6);
@@ -135,7 +135,7 @@
     .tag-dropdown.show { display: block; }
     .tag-filter-row {
       display: flex; align-items: center; gap: 6px;
-      padding: 6px 10px; border-bottom: 1px solid #eee; background: #130520;
+      padding: 6px 10px; border-bottom: 1px solid #eee; background: #1e1208;
       position: sticky; top: 0;
     }
     .tag-filter-row label { color: #ccc; font-size: 12.5px; white-space: nowrap; }
@@ -148,7 +148,7 @@
       padding: 8px 12px; font-size: 13px; cursor: pointer; color: #333;
     }
     .tag-dd-item:hover, .tag-dd-item.selected { background: #f0f0f0; }
-    .tag-dd-item.selected { font-weight: 600; color: #e07820; }
+    .tag-dd-item.selected { font-weight: 600; color: #c47d0a; }
     .tag-dd-empty { padding: 10px 12px; color: #aaa; font-size: 12.5px; font-style: italic; }
 
     /* Create Tag modal */
@@ -166,19 +166,19 @@
       width: 100%; border: 1px solid #ccc; padding: 7px 10px;
       font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; margin-bottom: 14px;
     }
-    .create-tag-box input:focus { border-color: #e07820; }
+    .create-tag-box input:focus { border-color: #c47d0a; }
     .create-tag-actions { display: flex; align-items: center; gap: 10px; }
     .create-tag-save {
-      background: #e07820; color: #fff; border: none;
+      background: #c47d0a; color: #fff; border: none;
       padding: 8px 24px; font-size: 13px; font-weight: 700;
       border-radius: 4px; cursor: pointer;
     }
-    .create-tag-save:hover { background: #c96a10; }
+    .create-tag-save:hover { background: #a86808; }
     .create-tag-cancel { color: #555; font-size: 13px; cursor: pointer; }
     .create-tag-cancel:hover { text-decoration: underline; }
 
     /* ── Sections ── */
-    .sec { background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
+    .sec { background: #241508; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .sec-hdr {
       background: rgba(0,0,0,.2); color: #fff; padding: 13px 18px;
       font-size: 14px; font-weight: 700;
@@ -186,7 +186,7 @@
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
     .sec-hdr .hdr-links a {
-      color: #e07820; text-decoration: none; font-size: 12px; font-weight: 600; margin-left: 8px;
+      color: #c47d0a; text-decoration: none; font-size: 12px; font-weight: 600; margin-left: 8px;
     }
     .sec-hdr .hdr-links a:hover { color: #ffaa55; }
     .sec-hdr .tab-links { display: flex; align-items: center; }
@@ -195,16 +195,16 @@
       padding: 0 8px; border-left: 1px solid rgba(255,255,255,.12); text-decoration: none;
     }
     .sec-hdr .tab-links a:first-child { border-left: none; }
-    .sec-hdr .tab-links a.active { color: #e07820; }
+    .sec-hdr .tab-links a.active { color: #c47d0a; }
     .sec-hdr .tab-links a:hover { color: #fff; }
 
     .add-btn-wrap { position: relative; margin: 10px 12px; }
     .add-btn {
       display: block; width: 100%;
-      padding: 9px; background: transparent; border: 2px dashed #e07820;
-      color: #e07820; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; border-radius: 8px;
+      padding: 9px; background: transparent; border: 2px dashed #c47d0a;
+      color: #c47d0a; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; border-radius: 8px;
     }
-    .add-btn:hover { background: rgba(224,120,32,.08); }
+    .add-btn:hover { background: rgba(196,125,10,.08); }
     .svc-popup {
       display: none; position: absolute; top: calc(100% + 2px); left: 0;
       z-index: 300; background: #fff; border: 1px solid #ccc;
@@ -223,7 +223,7 @@
       padding: 9px 14px; font-size: 13px; color: #555;
       cursor: pointer; text-decoration: none;
     }
-    .svc-popup-item:hover { color: #e07820; }
+    .svc-popup-item:hover { color: #c47d0a; }
 
     /* ── Property rows ── */
     .prop-row {
@@ -259,14 +259,14 @@
       padding: 24px 14px; color: #aaa; font-size: 13px; text-align: center; font-style: italic;
     }
     .panels-row { display: flex; gap: 10px; margin: 8px 16px; }
-    .panel { flex: 1; background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+    .panel { flex: 1; background: #241508; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
     .panel-header {
       background: rgba(0,0,0,.2); color: #fff; padding: 13px 18px;
       font-size: 14px; font-weight: 700; display: flex;
       align-items: center; justify-content: space-between;
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    .panel-header a { color: #e07820; text-decoration: none; font-size: 12px; font-weight: 600; }
+    .panel-header a { color: #c47d0a; text-decoration: none; font-size: 12px; font-weight: 600; }
     .panel-header a:hover { color: #ffaa55; }
     .panel-body { padding: 8px 10px; min-height: 60px; }
 
@@ -306,7 +306,7 @@
     /* ── Details / Custom Fields ── */
     .details-hdr {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 6px 10px; background: #130520; color: #fff; font-weight: 600;
+      padding: 6px 10px; background: #1e1208; color: #fff; font-weight: 600;
     }
     .details-body { display: none; border-top: 1px solid #e0e0e0; }
     .details-body.open { display: block; }
@@ -324,7 +324,7 @@
     .details-empty { padding: 14px 16px; color: #aaa; font-size: 13px; font-style: italic; }
 
     /* ── Attachments ── */
-    .attach-outer { background: #1a0a30; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
+    .attach-outer { background: #241508; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; margin: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.3); overflow: hidden; }
     .attach-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.08); }
     .attach-tab {
       padding: 8px 16px; border-right: 1px solid rgba(255,255,255,.08);
@@ -349,11 +349,11 @@
     .pg-btn.active { background: #f5c800; color: #111; }
 
     /* ── Tab bar ── */
-    .page-tabs-bar { background: #130520; border-bottom: 3px solid #e07820; margin: 2px 16px; border-radius: 10px; overflow: hidden; }
+    .page-tabs-bar { background: #1e1208; border-bottom: 3px solid #c47d0a; margin: 2px 16px; border-radius: 10px; overflow: hidden; }
     .page-tabs { display: flex; align-items: flex-end; justify-content: center; gap: 0; }
     .page-tab { padding: 11px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.5); border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -3px; transition: color .15s; }
     .page-tab:hover { color: rgba(255,255,255,.9); }
-    .page-tab.active { color: #fff; border-bottom-color: #e07820; background: rgba(255,255,255,.07); }
+    .page-tab.active { color: #fff; border-bottom-color: #c47d0a; background: rgba(255,255,255,.07); }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
@@ -387,7 +387,7 @@
     .card-grid-left { border-right: 1px solid #eee; padding-right: 28px; display: flex; flex-direction: column; gap: 8px; }
     .card-grid-right { padding-left: 28px; display: flex; flex-direction: column; gap: 8px; }
     .use-billing-link {
-      color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; margin-bottom: 2px;
+      color: #8a5518; font-size: 13px; cursor: pointer; text-decoration: underline; margin-bottom: 2px;
     }
     .use-billing-link:hover { color: #1a5ea0; }
     .card-info-lbl { color: #888; font-size: 12.5px; }
@@ -399,7 +399,7 @@
       border: 1px solid #ccc; padding: 6px 10px; font-size: 13px;
       font-family: inherit; outline: none; border-radius: 2px;
     }
-    .card-form-field input:focus { border-color: #e07820; }
+    .card-form-field input:focus { border-color: #c47d0a; }
     .stripe-input-box {
       border: 1px solid #ccc; padding: 9px 10px; border-radius: 2px; background: #fff;
     }
@@ -413,12 +413,12 @@
       padding: 8px 24px 22px; display: flex; align-items: center; gap: 10px;
     }
     .card-save-btn {
-      background: #e07820; color: #fff; border: none;
+      background: #c47d0a; color: #fff; border: none;
       padding: 9px 32px; font-size: 14px; font-weight: 700;
       border-radius: 4px; cursor: pointer;
     }
-    .card-save-btn:hover { background: #c96a10; }
-    .card-cancel-link { color: #2272c3; font-size: 13px; cursor: pointer; text-decoration: underline; }
+    .card-save-btn:hover { background: #a86808; }
+    .card-cancel-link { color: #8a5518; font-size: 13px; cursor: pointer; text-decoration: underline; }
     .card-cancel-link:hover { color: #1a5ea0; }
     #card-error { color: #c0392b; font-size: 12px; min-height: 18px; padding: 0 24px 4px; }
   </style>
@@ -772,7 +772,7 @@ function showClientTab(name, btn) {
       row.innerHTML =
         '<div class="prop-icon">&#127968;</div>' +
         '<div class="prop-info">' +
-          '<div class="prop-name"><span style="color:#2272c3;font-weight:600;">' + escHtml(label) + '</span></div>' +
+          '<div class="prop-name"><span style="color:#8a5518;font-weight:600;">' + escHtml(label) + '</span></div>' +
           '<div class="prop-addr">' +
             (addrLine && label !== addrLine ? escHtml(addrLine) + (cityLine ? ' &mdash; ' + escHtml(cityLine) : '') : escHtml(cityLine)) +
           '</div>' +
@@ -876,7 +876,7 @@ function showClientTab(name, btn) {
       row.innerHTML =
         '<div style="width:36px;height:36px;min-width:36px;background:#f0f0f0;border:1px solid #ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;color:#555;">&#128100;</div>' +
         '<div style="flex:1;">' +
-          '<div style="font-weight:600;color:#2272c3;">' + escHtml(c.name || (c.first_name + ' ' + c.last_name).trim()) + '</div>' +
+          '<div style="font-weight:600;color:#8a5518;">' + escHtml(c.name || (c.first_name + ' ' + c.last_name).trim()) + '</div>' +
           '<div style="font-size:12px;color:#666;">' + escHtml(c.contact_type || '') + (c.cell_phone ? ' &mdash; ' + escHtml(c.cell_phone) : '') + '</div>' +
         '</div>' +
         '<button data-cid="' + c.id + '" style="background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:4px;line-height:1;" title="Delete contact">&#10005;</button>';
@@ -1110,11 +1110,11 @@ function showClientTab(name, btn) {
       el.innerHTML =
         '<span class="col-label">Card Ending In </span>' +
         client.stripeCardLast4 + ' &ndash; ' + client.stripeCardExpiry +
-        ' (<a href="#" onclick="openCardModal();return false;" style="color:#2272c3;">Edit</a>)';
+        ' (<a href="#" onclick="openCardModal();return false;" style="color:#8a5518;">Edit</a>)';
     } else {
       el.innerHTML =
         '<span class="col-label">Card on File: </span>' +
-        'None &mdash; <a href="#" onclick="openCardModal();return false;" style="color:#2272c3;">Add Card</a>';
+        'None &mdash; <a href="#" onclick="openCardModal();return false;" style="color:#8a5518;">Add Card</a>';
     }
   }
   updateCardDisplay();

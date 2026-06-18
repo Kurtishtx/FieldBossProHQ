@@ -6,12 +6,12 @@
   <title>Sales Tax Report</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #333; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; color: #333; }
 
     .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:#fff; border-bottom:1px solid #ddd; }
     .page-header h1 { font-size:22px; font-weight:800; color:#111; }
-    .btn-print { background:#e07820; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; display:none; }
-    .btn-print:hover { background:#c96a15; }
+    .btn-print { background:#c47d0a; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; display:none; }
+    .btn-print:hover { background:#a86808; }
 
     .date-range-section { background:#fff; border-bottom:1px solid #ddd; padding:18px 20px 14px; }
     .date-range-title { font-size:11px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px; }
@@ -19,29 +19,29 @@
     .date-box { display:flex; flex-direction:column; gap:4px; }
     .date-box label { font-size:11px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:.4px; }
     .date-box input[type="date"] { border:1.5px solid #ccc; border-radius:5px; padding:8px 12px; font-size:14px; font-family:inherit; background:#fff; cursor:pointer; min-width:160px; }
-    .date-box input[type="date"]:focus { outline:none; border-color:#e07820; box-shadow:0 0 0 2px rgba(224,120,32,.12); }
+    .date-box input[type="date"]:focus { outline:none; border-color:#c47d0a; box-shadow:0 0 0 2px rgba(196,125,10,.12); }
     .date-arrow { font-size:20px; color:#bbb; margin-top:18px; }
     .preset-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:12px; }
     .preset-label { font-size:11px; color:#999; font-weight:600; margin-right:2px; }
-    .btn-preset { background:#f5f0ff; color:#130520; border:1px solid #d8cce8; padding:5px 13px; font-size:12px; font-weight:600; border-radius:20px; cursor:pointer; transition:background .15s; }
+    .btn-preset { background:#f5f0ff; color:#1e1208; border:1px solid #d8cce8; padding:5px 13px; font-size:12px; font-weight:600; border-radius:20px; cursor:pointer; transition:background .15s; }
     .btn-preset:hover { background:#ece5f5; }
-    .btn-preset.active { background:#e07820; color:#fff; border-color:#e07820; }
+    .btn-preset.active { background:#c47d0a; color:#fff; border-color:#c47d0a; }
     .generate-row { display:flex; align-items:center; margin-top:14px; border-top:1px solid #f0f0f0; padding-top:14px; }
-    .btn-generate { background:#e07820; color:#fff; border:none; padding:9px 30px; font-size:14px; font-weight:700; border-radius:5px; cursor:pointer; margin-left:auto; }
-    .btn-generate:hover { background:#c96a15; }
+    .btn-generate { background:#c47d0a; color:#fff; border:none; padding:9px 30px; font-size:14px; font-weight:700; border-radius:5px; cursor:pointer; margin-left:auto; }
+    .btn-generate:hover { background:#a86808; }
 
     .summary-bar { display:flex; gap:16px; padding:14px 20px; background:#fff; border-bottom:1px solid #eee; flex-wrap:wrap; }
     .summary-card { background:#f8f4ff; border:1px solid #ddd4ee; border-radius:6px; padding:10px 20px; min-width:160px; }
     .summary-card .sc-label { font-size:11.5px; color:#888; text-transform:uppercase; letter-spacing:.4px; }
-    .summary-card .sc-val { font-size:22px; font-weight:800; color:#130520; margin-top:3px; }
+    .summary-card .sc-val { font-size:22px; font-weight:800; color:#1e1208; margin-top:3px; }
     .summary-card.orange { background:#fff8f2; border-color:#f0d8bc; }
-    .summary-card.orange .sc-val { color:#e07820; }
+    .summary-card.orange .sc-val { color:#c47d0a; }
     .summary-card.green { background:#f2fff6; border-color:#b8e8c8; }
     .summary-card.green .sc-val { color:#1a7a3c; }
 
     .table-wrap { padding:16px 20px; }
     table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
-    thead tr { background:#130520; color:#fff; }
+    thead tr { background:#1e1208; color:#fff; }
     thead th { padding:9px 10px; text-align:left; font-weight:600; font-size:12.5px; white-space:nowrap; border-right:1px solid #555; }
     thead th:last-child { border-right:none; }
     thead th.num { text-align:right; }

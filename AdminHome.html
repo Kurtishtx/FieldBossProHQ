@@ -30,7 +30,7 @@
       background: #fff;
       text-align: left;
     }
-    .nav-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); border-color: #130520; }
+    .nav-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); border-color: #1e1208; }
     .nav-card-icon { font-size: 26px; margin-bottom: 10px; display: block; }
     .nav-card-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
     .nav-card-desc  { font-size: 12px; color: #888; line-height: 1.5; }
@@ -42,13 +42,13 @@
       margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
     }
     .badge {
-      background: #e07820; color: #fff; font-size: 11px; font-weight: 800;
+      background: #c47d0a; color: #fff; font-size: 11px; font-weight: 800;
       border-radius: 20px; padding: 2px 8px; min-width: 20px; text-align: center;
     }
     .badge.green { background: #27a567; }
 
     .client-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
-    .client-table thead th { background: #130520; color: rgba(255,255,255,.8); padding: 10px 14px; text-align: left; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+    .client-table thead th { background: #1e1208; color: rgba(255,255,255,.8); padding: 10px 14px; text-align: left; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
     .client-table tbody tr { border-bottom: 1px solid #f0edf8; }
     .client-table tbody tr:last-child { border-bottom: none; }
     .client-table tbody tr:hover { background: #faf9fd; }
@@ -67,11 +67,11 @@
 
     .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
     .status-dot.paid   { background: #27a567; }
-    .status-dot.unpaid { background: #e07820; }
+    .status-dot.unpaid { background: #c47d0a; }
     .status-dot.trial  { background: #7c5cbf; }
 
     .btn-done {
-      background: #130520; color: #fff; border: none; border-radius: 5px;
+      background: #1e1208; color: #fff; border: none; border-radius: 5px;
       padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
       font-family: inherit; white-space: nowrap;
     }
@@ -244,7 +244,7 @@
         '<td><span class="days-badge ' + cls + '">' + days + ' day' + (days === 1 ? '' : 's') + ' left</span></td>' +
         '<td>' + (hasCard
           ? '<span style="color:#27a567;font-weight:600;">Yes — ' + r.card_brand + ' ****' + r.card_last4 + '</span>'
-          : '<span style="color:#e07820;">Not yet</span>') + '</td>';
+          : '<span style="color:#c47d0a;">Not yet</span>') + '</td>';
       tbody.appendChild(tr);
     });
   }

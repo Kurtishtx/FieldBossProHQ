@@ -9,7 +9,7 @@
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #d4cfe0;
+      background: #ede5d8;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -18,8 +18,8 @@
 
     /* -- Top bar -- */
     .page-topbar {
-      background: #130520;
-      border-bottom: 1px solid #1e0a35;
+      background: #1e1208;
+      border-bottom: 1px solid #2a1a0a;
       padding: 10px 18px;
       display: flex;
       align-items: center;
@@ -56,15 +56,15 @@
     .client-search::placeholder { color: rgba(255,255,255,.45); }
     .client-search:focus {
       outline: none;
-      border-color: #e07820;
+      border-color: #c47d0a;
       background: rgba(255,255,255,.15);
-      box-shadow: 0 0 0 3px rgba(224,120,32,.2);
+      box-shadow: 0 0 0 3px rgba(196,125,10,.2);
     }
 
     .topbar-right { display: flex; align-items: center; gap: 10px; }
         .btn-orange-outline {
       background: #111;
-      border: 2px solid #e07820;
+      border: 2px solid #c47d0a;
       color: #fff;
       font-weight: 700;
       border-radius: 6px;
@@ -74,10 +74,10 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn-orange-outline:hover { background: #1a0828; }
+    .btn-orange-outline:hover { background: #241508; }
         .btn-orange-filled {
-      background: #130520;
-      border: 2px solid #e07820;
+      background: #1e1208;
+      border: 2px solid #c47d0a;
       color: #fff;
       font-weight: 700;
       border-radius: 6px;
@@ -87,11 +87,11 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn-orange-filled:hover { background: #1e0a35; }
+    .btn-orange-filled:hover { background: #2a1a0a; }
 
     /* -- Filters bar (BLACK) -- */
     .filters-bar {
-      background: #130520;
+      background: #1e1208;
       color: rgba(255,255,255,.8);
       padding: 8px 16px;
       font-size: 13px;
@@ -106,10 +106,10 @@
       margin: 0 16px;
       border-radius: 8px;
     }
-    .filters-bar:hover { background: #1e0a35; }
+    .filters-bar:hover { background: #2a1a0a; }
 
     .filters-row {
-      background: #1a0a30;
+      background: #241508;
       border-bottom: 1px solid rgba(255,255,255,.06);
       padding: 8px 16px;
       display: flex;
@@ -159,7 +159,7 @@
 
     /* -- Toolbar -- */
     .toolbar {
-      background: #130520;
+      background: #1e1208;
       padding: 7px 14px;
       display: flex;
       align-items: center;
@@ -265,10 +265,10 @@
     .btn-columns:hover { background: rgba(255,255,255,.22); color: #fff; }
 
     /* -- Filter pills -- */
-    .filter-tabs { display:flex; gap:4px; padding:8px 14px; background:#1a0a30; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap; flex-shrink:0; margin:0 16px; }
+    .filter-tabs { display:flex; gap:4px; padding:8px 14px; background:#241508; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap; flex-shrink:0; margin:0 16px; }
     .ftab { padding:5px 16px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); font-size:13px; font-family:inherit; cursor:pointer; border-radius:20px; color:rgba(255,255,255,.6); transition:background .15s; }
     .ftab:hover { background:rgba(255,255,255,.12); color:#fff; }
-    .ftab.active { background:#e07820; color:#fff; border-color:#e07820; font-weight:700; }
+    .ftab.active { background:#c47d0a; color:#fff; border-color:#c47d0a; font-weight:700; }
 
     /* -- Table -- */
     .table-container {
@@ -306,7 +306,7 @@
       accent-color: #888888;
     }
     .client-link {
-      color: #2272c3;
+      color: #8a5518;
       text-decoration: none;
       cursor: pointer;
       font-weight: 600;
@@ -327,7 +327,7 @@
 <body>
 
 <div id="status-banner" style="display:none;padding:10px 20px;color:#fff;font-weight:600;font-size:13px;"></div>
-<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#130520;color:#fff;font-size:13px;">
+<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#1e1208;color:#fff;font-size:13px;">
   <span>Delete <strong id="delete-confirm-count">0</strong> client(s) and all their properties? This cannot be undone.</span>
   <button onclick="confirmDelete()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
   <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #999;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
@@ -398,7 +398,7 @@
   </table>
   <div class="empty-msg" id="empty-msg">No clients found.</div>
 </div>
-<div style="height:28px;background:#130520;"></div>
+<div style="height:28px;background:#1e1208;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -556,7 +556,7 @@
   function showBanner(type, msg) {
     var bar = document.getElementById('status-banner');
     bar.textContent = msg;
-    bar.style.background = type === 'error' ? '#c0392b' : '#e07820';
+    bar.style.background = type === 'error' ? '#c0392b' : '#c47d0a';
     bar.style.display = 'block';
     setTimeout(function() { bar.style.display = 'none'; }, 4000);
   }

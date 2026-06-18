@@ -14,11 +14,11 @@
     }
     .page-topbar h1 { font-size: 20px; font-weight: 700; color: #111; }
     .btn-add {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer;
     }
-    .btn-add:hover { background: #1e0a35; }
+    .btn-add:hover { background: #2a1a0a; }
 
     .filter-bar {
       display: flex; align-items: center; gap: 12px;
@@ -31,13 +31,13 @@
       border: 1px solid #ccc; padding: 5px 8px; font-size: 13px;
       font-family: inherit; border-radius: 3px; outline: none;
     }
-    .filter-bar select:focus, .filter-bar input[type="date"]:focus { border-color: #e07820; }
+    .filter-bar select:focus, .filter-bar input[type="date"]:focus { border-color: #c47d0a; }
     .filter-bar select { min-width: 200px; }
     .btn-filter {
-      background: #130520; color: #fff; border: none; padding: 6px 18px;
+      background: #1e1208; color: #fff; border: none; padding: 6px 18px;
       font-size: 13px; font-weight: 600; border-radius: 3px; cursor: pointer;
     }
-    .btn-filter:hover { background: #1a0828; }
+    .btn-filter:hover { background: #241508; }
     .quick-links { display: flex; gap: 6px; flex-wrap: wrap; }
     .quick-link {
       border: 1px solid #bbb; background: #fff; padding: 4px 10px;
@@ -47,7 +47,7 @@
 
     .summary-bar {
       display: flex; gap: 20px; padding: 10px 20px;
-      background: #130520; color: #fff; flex-wrap: wrap;
+      background: #1e1208; color: #fff; flex-wrap: wrap;
     }
     .summary-item { display: flex; flex-direction: column; }
     .summary-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .4px; }
@@ -64,13 +64,13 @@
     tbody td { padding: 9px 14px; color: #333; vertical-align: middle; }
     .pill-active   { background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
     .pill-complete { background: #d1ecf1; color: #0c5460; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
-    .row-action { color: #2272c3; cursor: pointer; text-decoration: underline; font-size: 12px; }
+    .row-action { color: #8a5518; cursor: pointer; text-decoration: underline; font-size: 12px; }
     .row-action:hover { color: #1a5ea0; }
 
     .empty-msg { padding: 40px; text-align: center; color: #888; }
 
     .toolbar {
-      background: #130520; display: flex; align-items: center;
+      background: #1e1208; display: flex; align-items: center;
       padding: 7px 14px; gap: 6px;
     }
     .btn-actions { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none;
@@ -122,10 +122,10 @@
       font-size: 13px; font-family: inherit; border-radius: 3px; outline: none;
     }
     .modal-field select:focus,
-    .modal-field input:focus { border-color: #e07820; }
+    .modal-field input:focus { border-color: #c47d0a; }
     .modal-footer { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
-    .btn-save { background: #130520; color: #fff; border: 2px solid #e07820; padding: 8px 24px; font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer; }
-    .btn-save:hover { background: #1e0a35; }
+    .btn-save { background: #1e1208; color: #fff; border: 2px solid #c47d0a; padding: 8px 24px; font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer; }
+    .btn-save:hover { background: #2a1a0a; }
     .btn-cancel-modal { color: #555; font-size: 13px; cursor: pointer; }
     .btn-cancel-modal:hover { text-decoration: underline; }
     .btn-delete-entry { margin-left: auto; background: none; border: 1px solid #c0392b; color: #c0392b; padding: 6px 14px; font-size: 12px; border-radius: 3px; cursor: pointer; }
@@ -198,7 +198,7 @@
 </table>
 <div class="empty-msg" id="empty-msg" style="display:none;">No time entries found for the selected filters.</div>
 </div>
-<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
+<div style="height:28px; background:#1e1208; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <!-- Add / Edit Modal -->
 <div class="modal-overlay" id="modal-overlay">
@@ -397,8 +397,8 @@
 
       var lunchH  = calcHours(log.lunch_start, log.lunch_end);
       var breakH  = calcHours(log.break_start, log.break_end);
-      var lunchCell = log.lunch_start ? (fmtTime(log.lunch_start) + (log.lunch_end ? ' ï¿½ ' + fmtTime(log.lunch_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(lunchH) + '</span>' : ' <span style="font-size:11px;color:#e07820;">out</span>')) : 'ï¿½';
-      var breakCell = log.break_start ? (fmtTime(log.break_start) + (log.break_end ? ' ï¿½ ' + fmtTime(log.break_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(breakH) + '</span>' : ' <span style="font-size:11px;color:#e07820;">out</span>')) : 'ï¿½';
+      var lunchCell = log.lunch_start ? (fmtTime(log.lunch_start) + (log.lunch_end ? ' ï¿½ ' + fmtTime(log.lunch_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(lunchH) + '</span>' : ' <span style="font-size:11px;color:#c47d0a;">out</span>')) : 'ï¿½';
+      var breakCell = log.break_start ? (fmtTime(log.break_start) + (log.break_end ? ' ï¿½ ' + fmtTime(log.break_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(breakH) + '</span>' : ' <span style="font-size:11px;color:#c47d0a;">out</span>')) : 'ï¿½';
 
       var tr = document.createElement('tr');
       tr.innerHTML =

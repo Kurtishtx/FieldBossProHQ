@@ -7,7 +7,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #03000a 0%, #080010 50%, #0d0318 100%);
+      background: linear-gradient(135deg, #03000a 0%, #100a03 50%, #1c1208 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -15,14 +15,14 @@
     }
     .login-container {
       background: #fff;
-      border: 2px solid #c050f0;
+      border: 2px solid #c47d0a;
       border-radius: 12px;
-      box-shadow: 0 0 0 1px #c050f0, 0 0 20px 6px rgba(192,80,240,.8), 0 0 50px 14px rgba(192,80,240,.4), 0 0 80px 20px rgba(192,80,240,.2);
+      box-shadow: 0 0 0 1px #c47d0a, 0 0 20px 6px rgba(196,125,10,.8), 0 0 50px 14px rgba(196,125,10,.4), 0 0 80px 20px rgba(196,125,10,.2);
       width: 440px;
       overflow: hidden;
     }
     .login-container h1 {
-      background: linear-gradient(135deg, #1a0820 0%, #4a1060 100%);
+      background: linear-gradient(135deg, #1e1208 0%, #3d2510 100%);
       color: #ffffff;
       font-size: 28px;
       font-weight: 800;
@@ -49,12 +49,12 @@
     .login-container input::placeholder { color: #aaa; }
     .login-container input:focus {
       outline: none;
-      border-color: #6b2080;
+      border-color: #8a5518;
       box-shadow: 0 0 0 2px rgba(107,32,128,.2);
     }
     .login-container button {
       width: 100%;
-      background: #e07820;
+      background: #c47d0a;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -65,7 +65,7 @@
       cursor: pointer;
       margin-top: 4px;
     }
-    .login-container button:hover { background: #c96a15; }
+    .login-container button:hover { background: #a86808; }
     @media (max-width: 768px) {
       .login-container { width: 92vw; }
       .login-fields { padding: 28px 24px 24px; }
@@ -82,24 +82,24 @@
       <input id="email" type="email" placeholder="Email">
       <input id="password" type="password" placeholder="Password">
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="stay-logged-in" style="width:16px;height:16px;accent-color:#6b2080;cursor:pointer;flex-shrink:0;"/>
+        <input type="checkbox" id="stay-logged-in" style="width:16px;height:16px;accent-color:#8a5518;cursor:pointer;flex-shrink:0;"/>
         <label for="stay-logged-in" style="font-size:13px;color:#555;cursor:pointer;user-select:none;">Stay logged in on this device</label>
       </div>
       <button onclick="login()">Log In</button>
       <div style="text-align:center; margin-top:4px;">
-        <a href="#" onclick="showForgot(event)" style="color:#e07820; font-size:14px; text-decoration:none;">Forgot Password?</a>
+        <a href="#" onclick="showForgot(event)" style="color:#c47d0a; font-size:14px; text-decoration:none;">Forgot Password?</a>
       </div>
     </div>
   </div>
 
   <!-- Forgot Password Modal -->
   <div id="forgot-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000; display:none; align-items:center; justify-content:center;">
-    <div style="background:#fff; border:1px solid #6b2080; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,.5); width:400px; max-width:92vw; overflow:hidden;">
-      <div style="background:linear-gradient(135deg,#1a0820,#4a1060); color:#fff; padding:18px 24px; font-size:18px; font-weight:700;">Reset Password</div>
+    <div style="background:#fff; border:1px solid #8a5518; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,.5); width:400px; max-width:92vw; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#1e1208,#3d2510); color:#fff; padding:18px 24px; font-size:18px; font-weight:700;">Reset Password</div>
       <div style="padding:28px 28px 24px; display:flex; flex-direction:column; gap:14px;">
         <p style="color:#555; font-size:14px;">Enter your email and we'll send you a link to reset your password.</p>
         <input id="forgot-email" type="email" placeholder="Email" style="width:100%; background:#fff; border:1px solid #ccc; border-radius:6px; padding:12px 14px; font-size:15px; font-family:inherit; color:#333;">
-        <button onclick="sendReset()" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:16px; font-weight:700; cursor:pointer;">Send Reset Link</button>
+        <button onclick="sendReset()" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:13px; font-size:16px; font-weight:700; cursor:pointer;">Send Reset Link</button>
         <div style="text-align:center;"><a href="#" onclick="hideForgot(event)" style="color:#888; font-size:13px;">Cancel</a></div>
         <div id="forgot-msg" style="display:none; text-align:center; font-size:14px; color:#7dcc7d; font-weight:600;"></div>
       </div>
@@ -107,7 +107,7 @@
   </div>
 
   <!-- Trial Expired Screen -->
-  <div id="trial-expired-screen" style="display:none; position:fixed; inset:0; background:linear-gradient(135deg,#080010,#1e0a35); z-index:9999; align-items:center; justify-content:center; padding:24px;">
+  <div id="trial-expired-screen" style="display:none; position:fixed; inset:0; background:linear-gradient(135deg,#100a03,#2a1a0a); z-index:9999; align-items:center; justify-content:center; padding:24px;">
     <div style="background:#fff; border-radius:14px; max-width:460px; width:100%; padding:36px 36px 28px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
       <div style="text-align:center; margin-bottom:20px;">
         <div style="font-size:40px; margin-bottom:10px;">⏰</div>
@@ -119,7 +119,7 @@
         <label style="display:block; font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">Card Information</label>
         <div id="trial-card-element" style="border:1.5px solid #ddd; border-radius:6px; padding:12px; background:#fff; margin-bottom:4px;"></div>
         <div id="trial-card-error" style="color:#c0392b; font-size:13px; margin:8px 0; display:none;"></div>
-        <button id="trial-pay-btn" onclick="submitTrialCard()" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px;">Activate — $129/month</button>
+        <button id="trial-pay-btn" onclick="submitTrialCard()" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px;">Activate — $129/month</button>
         <p style="text-align:center; font-size:11.5px; color:#aaa; margin-top:10px;">Secured by Stripe &middot; Cancel anytime</p>
       </div>
       <!-- Success -->

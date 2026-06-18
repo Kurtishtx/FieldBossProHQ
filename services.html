@@ -9,7 +9,7 @@
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #d4cfe0;
+      background: #ede5d8;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -30,8 +30,8 @@
     }
     .showing-count { font-size: 14px; font-weight: 400; color: #555; margin-left: 6px; }
         .btn-orange-filled {
-      background: #130520;
-      border: 2px solid #e07820;
+      background: #1e1208;
+      border: 2px solid #c47d0a;
       color: #fff;
       font-weight: 700;
       border-radius: 6px;
@@ -41,7 +41,7 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn-orange-filled:hover { background: #1e0a35; }
+    .btn-orange-filled:hover { background: #2a1a0a; }
 
     .results-count {
       font-size: 13.5px;
@@ -52,7 +52,7 @@
 
     /* ── Toolbar ── */
     .toolbar {
-      background: #130520;
+      background: #1e1208;
       padding: 7px 14px;
       display: flex;
       align-items: center;
@@ -143,13 +143,13 @@
 
     /* ── Tabs ── */
     .tabs-bar {
-      background: #130520;
+      background: #1e1208;
       padding: 0 14px 0;
       display: flex;
       align-items: flex-end;
       gap: 2px;
       flex-shrink: 0;
-      border-top: 1px solid #0d0318;
+      border-top: 1px solid #1c1208;
     }
     .tab-btn {
       background: #bbb;
@@ -252,12 +252,12 @@
 <div id="landing-view" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px 32px;padding-bottom:154px;" class="landing-view">
   <h2 style="font-size:20px;font-weight:800;color:#111;margin-bottom:28px;">Services</h2>
   <div class="card-wrap" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
-    <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#e07820';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
+    <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#c47d0a';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
       <div style="font-size:32px;margin-bottom:12px;">📦</div>
       <div style="font-size:17px;font-weight:800;margin-bottom:6px;">Package Services</div>
       <div style="font-size:13px;color:rgba(255,255,255,.7);">Recurring services tied to package plans</div>
     </div>
-    <div onclick="openCategory('one_time')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#e07820';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
+    <div onclick="openCategory('one_time')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#c47d0a';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
       <div style="font-size:32px;margin-bottom:12px;">🔧</div>
       <div style="font-size:17px;font-weight:800;margin-bottom:6px;">One Time Services</div>
       <div style="font-size:13px;color:rgba(255,255,255,.85);">Standalone services not tied to a package</div>
@@ -277,7 +277,7 @@
   <button class="btn-orange-filled" id="add-svc-btn" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
 </div>
 
-<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#130520;color:#fff;font-size:13px;">
+<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#1e1208;color:#fff;font-size:13px;">
   <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> service(s)? This cannot be undone.</span>
   <button onclick="confirmDelete()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
   <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #aaa;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>

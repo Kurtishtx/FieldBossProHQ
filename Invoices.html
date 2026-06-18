@@ -7,22 +7,22 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #d4cfe0; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; color: #222; }
 
     /* -- Page header -- */
-    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; background:#130520; margin:8px 16px; border-radius:10px; }
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 10px; background:#1e1208; margin:8px 16px; border-radius:10px; }
     .showing-count { font-size:13px; color:rgba(255,255,255,.6); }
     .btn-orange-filled {
-      background: #130520; color: #fff; border: 2px solid #e07820;
+      background: #1e1208; color: #fff; border: 2px solid #c47d0a;
       padding: 9px 20px; font-size: 13px; font-weight: 700;
       border-radius: 6px; cursor: pointer; font-family: inherit; transition: background .15s;
     }
-    .btn-orange-filled:hover { background: #1e0a35; }
+    .btn-orange-filled:hover { background: #2a1a0a; }
 
     /* -- Filter pills -- */
     .tabs-bar {
       display: flex; gap: 4px; padding: 8px 20px;
-      flex-wrap: wrap; overflow-x: visible; background: #1a0a30; margin: 0 16px; border-radius: 8px;
+      flex-wrap: wrap; overflow-x: visible; background: #241508; margin: 0 16px; border-radius: 8px;
     }
     .tab-btn {
       padding: 5px 16px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
@@ -31,10 +31,10 @@
       white-space: nowrap;
     }
     .tab-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .tab-btn.active { background: #e07820; color: #fff; border-color: #e07820; font-weight: 700; }
+    .tab-btn.active { background: #c47d0a; color: #fff; border-color: #c47d0a; font-weight: 700; }
 
     /* -- Toolbar -- */
-    .toolbar { background: #130520; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; margin:2px 16px 0; border-radius:8px 8px 0 0; }
+    .toolbar { background: #1e1208; display:flex; align-items:center; padding:7px 14px; gap:6px; justify-content:space-between; overflow:visible; margin:2px 16px 0; border-radius:8px 8px 0 0; }
     .toolbar-left { display:flex; align-items:center; gap:6px; position:relative; overflow:visible; }
     .btn-green-main { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; border-radius:3px 0 0 3px; padding:5px 14px; font-size:13px; font-family:inherit; font-weight:700; cursor:pointer; }
     .btn-green-main:hover { background:#d4ae00; }
@@ -63,12 +63,12 @@
     thead th { background:#e8e4f0; border-bottom:2px solid #c5bfd8; padding:12px 16px; text-align:left; font-size:12px; font-weight:700; color:#3a2a55; white-space:nowrap; cursor:pointer; user-select:none; text-transform:uppercase; letter-spacing:.4px; }
     thead th:first-child { text-align:center; cursor:default; }
     thead th .sort-icon { color:#bbb; font-size:10px; margin-left:3px; }
-    thead th .sort-asc  { color:#e07820; font-size:10px; margin-left:3px; }
+    thead th .sort-asc  { color:#c47d0a; font-size:10px; margin-left:3px; }
     tbody tr { border-bottom:1px solid #eee; }
     tbody tr:hover { background:#f9f9f9; }
     tbody td { padding:12px 16px; color:#333; vertical-align:middle; }
     tbody td:first-child { text-align:center; }
-    tfoot tr td { padding:10px 16px; font-weight:700; font-size:13px; color:#fff; background:#1a0828; border-top:2px solid #111; }
+    tfoot tr td { padding:10px 16px; font-weight:700; font-size:13px; color:#fff; background:#241508; border-top:2px solid #111; }
     .money { text-align:left; }
 
     input[type="checkbox"] {
@@ -133,15 +133,15 @@
     .fi-label { font-size: 12.5px; font-weight: 700; color: #444; width: 120px; flex-shrink: 0; }
     .fi-val   { flex: 1; font-size: 13px; color: #555; }
     .fi-input { flex: 1; border: 1px solid #ccc; border-radius: 3px; padding: 5px 8px; font-size: 13px; font-family: inherit; outline: none; min-width: 0; }
-    .fi-input:focus { border-color: #e07820; }
+    .fi-input:focus { border-color: #c47d0a; }
     .fi-select { flex: 1; border: 1px solid #ccc; border-radius: 3px; padding: 5px 8px; font-size: 13px; font-family: inherit; outline: none; background: #fff; min-width: 0; }
-    .fi-select:focus { border-color: #e07820; }
+    .fi-select:focus { border-color: #c47d0a; }
     /* Line items */
     .li-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
     .li-table thead th { background: #555; color: #fff; padding: 7px 6px; text-align: left; font-weight: 600; white-space: nowrap; }
     .li-table tbody td { padding: 4px 4px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
     .li-table input, .li-table select { border: 1px solid #ddd; border-radius: 2px; padding: 4px 6px; font-size: 12.5px; font-family: inherit; width: 100%; outline: none; background: #fff; }
-    .li-table input:focus, .li-table select:focus { border-color: #e07820; }
+    .li-table input:focus, .li-table select:focus { border-color: #c47d0a; }
     .li-col-name { min-width: 130px; } .li-col-desc { min-width: 160px; }
     .li-col-date { width: 106px; } .li-col-tax { width: 80px; } .li-col-rate { width: 70px; }
     .li-col-hrs { width: 65px; } .li-col-men { width: 55px; } .li-col-qty { width: 65px; }
@@ -149,7 +149,7 @@
     .li-col-del { width: 28px; text-align: center; }
     .li-del-btn { background: none; border: none; cursor: pointer; color: #bbb; font-size: 16px; line-height: 1; padding: 0; }
     .li-del-btn:hover { color: #e04040; }
-    .li-class-link { font-size: 11px; color: #2272c3; text-decoration: underline; cursor: pointer; display: block; margin-top: 2px; }
+    .li-class-link { font-size: 11px; color: #8a5518; text-decoration: underline; cursor: pointer; display: block; margin-top: 2px; }
     /* Footer bar */
     .inv-footer-bar { display: flex; align-items: flex-start; gap: 16px; padding: 12px 16px; border-top: 1px solid #eee; }
     .btn-add-line { background: #f0f0f0; border: 1px solid #ccc; padding: 6px 14px; font-size: 12.5px; font-family: inherit; cursor: pointer; border-radius: 3px; white-space: nowrap; color: #333; flex-shrink: 0; margin-top: 4px; }
@@ -157,9 +157,9 @@
     .inv-flags-memo { flex: 1; }
     .inv-flag-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
     .inv-flag-check { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: #333; cursor: pointer; }
-    .inv-flag-check input { width: 14px; height: 14px; cursor: pointer; accent-color: #e07820; }
+    .inv-flag-check input { width: 14px; height: 14px; cursor: pointer; accent-color: #c47d0a; }
     .inv-memo { width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 54px; outline: none; }
-    .inv-memo:focus { border-color: #e07820; }
+    .inv-memo:focus { border-color: #c47d0a; }
     .inv-totals-col { flex-shrink: 0; min-width: 200px; }
     .inv-totals-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 3px 0; }
     .inv-totals-row .t-label { color: #555; }
@@ -167,9 +167,9 @@
     .inv-totals-total { font-size: 15px; font-weight: 800; padding-top: 5px; border-top: 1.5px solid #aaa; }
     /* Bottom buttons */
     .inv-action-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px 18px; border-top: 1px solid #eee; }
-    .btn-inv-save, .btn-inv-save-new { background: #e07820; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
-    .btn-inv-save:hover, .btn-inv-save-new:hover { background: #c96a15; }
-    .btn-inv-cancel { background: none; border: none; font-size: 13.5px; color: #2272c3; cursor: pointer; text-decoration: underline; font-family: inherit; }
+    .btn-inv-save, .btn-inv-save-new { background: #c47d0a; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    .btn-inv-save:hover, .btn-inv-save-new:hover { background: #a86808; }
+    .btn-inv-cancel { background: none; border: none; font-size: 13.5px; color: #8a5518; cursor: pointer; text-decoration: underline; font-family: inherit; }
     .btn-inv-cancel:hover { color: #1a5ea0; }
 
     /* Line item picker */
@@ -181,7 +181,7 @@
     .line-picker-item { padding:8px 12px; cursor:pointer; border-bottom:1px solid #f5f5f5; }
     .line-picker-item:hover { background:#f0f7ff; }
     .lpi-name { font-weight:600; font-size:13px; color:#222; }
-    .lpi-price { font-size:12px; color:#e07820; margin-top:1px; }
+    .lpi-price { font-size:12px; color:#c47d0a; margin-top:1px; }
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
@@ -237,16 +237,16 @@
       </tr>
     </thead>
     <thead>
-      <tr style="background:#1a0828;">
-        <td colspan="5" style="background:#1a0828;padding:10px 16px;"></td>
-        <td id="total-invtotal" style="color:#fff;font-weight:700;padding:10px 16px;background:#1a0828;">$0.00</td>
+      <tr style="background:#241508;">
+        <td colspan="5" style="background:#241508;padding:10px 16px;"></td>
+        <td id="total-invtotal" style="color:#fff;font-weight:700;padding:10px 16px;background:#241508;">$0.00</td>
       </tr>
     </thead>
     <tbody id="invoice-tbody"></tbody>
   </table>
   <div class="empty-msg" id="empty-msg">No invoices found.</div>
 </div>
-<div style="height:28px; background:#130520; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
+<div style="height:28px; background:#1e1208; margin:0 16px 16px; border-radius:0 0 8px 8px;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -360,7 +360,7 @@
     if ((parseFloat(inv.inv_bal) || 0) <= 0 && !inv.incomplete) {
       return '<span style="color:#27a567;font-weight:600;font-size:13px;">Paid</span>';
     }
-    return '<span style="color:#e07820;font-weight:600;font-size:13px;">Pending Charge</span>';
+    return '<span style="color:#c47d0a;font-weight:600;font-size:13px;">Pending Charge</span>';
   }
 
   function sentStatusCell(inv) {
@@ -463,7 +463,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px;">
       <div style="display:flex;align-items:baseline;gap:12px;">
         <h2 style="font-size:24px;font-weight:900;color:#111;margin:0;">New Invoice</h2>
-        <span id="inv-num-display" style="font-size:18px;font-weight:700;color:#e07820;"></span>
+        <span id="inv-num-display" style="font-size:18px;font-weight:700;color:#c47d0a;"></span>
       </div>
       <button onclick="closeAddInvoiceModal()" style="background:none;border:1px solid #ccc;border-radius:3px;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;">&#10005;</button>
     </div>

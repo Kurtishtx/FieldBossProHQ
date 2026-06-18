@@ -43,16 +43,16 @@
     #step-templates h2 { font-size: 24px; font-weight: 800; color: #111; margin-bottom: 28px; }
     .tpl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .tpl-card { display: flex; flex-direction: column; border: 2px solid #d0d0d0; border-radius: 6px; overflow: hidden; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
-    .tpl-card:hover { border-color: #2272c3; box-shadow: 0 0 0 3px rgba(34,114,195,.12); }
+    .tpl-card:hover { border-color: #8a5518; box-shadow: 0 0 0 3px rgba(34,114,195,.12); }
     .tpl-preview { flex: 1; background: #f9f9f9; padding: 14px; font-size: 9.5px; color: #555; line-height: 1.5; min-height: 320px; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; }
-    .tp-header { background: #e8f0fb; padding: 7px; text-align: center; color: #2272c3; font-weight: 700; font-size: 10px; margin-bottom: 10px; }
+    .tp-header { background: #e8f0fb; padding: 7px; text-align: center; color: #8a5518; font-weight: 700; font-size: 10px; margin-bottom: 10px; }
     .tp-logo { background: #e8f4ed; padding: 6px 10px; font-size: 10px; font-weight: 700; color: #27a567; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
     .tp-logo::before { content: ''; font-size: 13px; }
     .tp-body { padding: 0 2px; }
-    .tp-inv-num { font-size: 11px; font-weight: 700; color: #2272c3; margin: 7px 0 3px; }
+    .tp-inv-num { font-size: 11px; font-weight: 700; color: #8a5518; margin: 7px 0 3px; }
     .tp-due { background: #e8f0fb; padding: 5px; text-align: center; margin: 7px 0; font-size: 9px; color: #666; }
     .tp-total { font-size: 17px; font-weight: 800; color: #111; text-align: center; margin: 5px 0; }
-    .tp-btn { background: #2272c3; color: #fff; text-align: center; padding: 4px; border-radius: 3px; font-size: 8px; font-weight: 700; margin: 6px auto; width: 56px; }
+    .tp-btn { background: #8a5518; color: #fff; text-align: center; padding: 4px; border-radius: 3px; font-size: 8px; font-weight: 700; margin: 6px auto; width: 56px; }
     .tp-btn-green { background: #3d8f5f; }
     .tp-footer { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 7px; text-align: center; font-size: 8.5px; color: #888; line-height: 1.8; }
     .tp-blank-label { font-size: 28px; font-weight: 800; color: #111; padding: 60px 16px; text-align: left; }
@@ -205,11 +205,11 @@
       { type:'para', html:'<p contenteditable="true">Dear [clientfname],</p>' },
       { type:'para', html:'<p contenteditable="true">Your invoice is attached. Please pay the invoice at your earliest convenience. Thank you for your business. We appreciate it very much.</p>' },
       { type:'para', html:'<p contenteditable="true">Sincerely,<br>[companyname]</p>' },
-      { type:'para', html:'<p contenteditable="true" style="font-weight:700;color:#2272c3;font-size:16px;">INVOICE #[invoicenumber]</p>' },
+      { type:'para', html:'<p contenteditable="true" style="font-weight:700;color:#8a5518;font-size:16px;">INVOICE #[invoicenumber]</p>' },
       { type:'para', html:'<p contenteditable="true" style="font-size:13px;">Invoice Date [dateofinvoice]<br>Due Date [invoiceduedate]</p>' },
       { type:'button', html:'<div class="email-btn" contenteditable="true">Pay Now</div>' },
       { type:'para', html:'<p contenteditable="true">[Example_Grid_1]</p>' },
-      { type:'para', html:'<p contenteditable="true" style="font-weight:700;color:#2272c3;font-size:20px;">[invoicetotal]</p>' }
+      { type:'para', html:'<p contenteditable="true" style="font-weight:700;color:#8a5518;font-size:20px;">[invoicetotal]</p>' }
     ],
     'logo-compact': [
       { type:'image', html:'<div class="img-ph">Drop Your Logo Here</div>' },

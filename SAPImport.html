@@ -7,12 +7,12 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f4f4f4; color: #222; }
-    .hero { background: linear-gradient(135deg, #1a2f4e 0%, #2272c3 100%); padding: 28px 28px 24px; color: #fff; }
+    .hero { background: linear-gradient(135deg, #1a2f4e 0%, #8a5518 100%); padding: 28px 28px 24px; color: #fff; }
     .hero h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
     .hero p { font-size: 14px; opacity: .85; max-width: 560px; line-height: 1.5; }
     .tabs { display: flex; background: #f4f4f4; border-bottom: 3px solid #ddd; overflow-x: auto; }
     .tab-btn { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: #666; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -3px; font-family: inherit; border-right: 1px solid #ddd; }
-    .tab-btn.active { background: #fff; color: #2272c3; border-bottom-color: #2272c3; }
+    .tab-btn.active { background: #fff; color: #8a5518; border-bottom-color: #8a5518; }
     .tab-btn.done-tab { color: #1a7a3c; }
     .tab-content { display: none; padding: 24px 28px; }
     .tab-content.active { display: block; }
@@ -20,29 +20,29 @@
     .import-card h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .import-card .desc { font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.5; }
     .upload-zone { border: 2px dashed #c0d4f0; border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; background: #f8fbff; }
-    .upload-zone:hover, .upload-zone.drag-over { border-color: #2272c3; background: #eef4ff; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: #8a5518; background: #eef4ff; }
     .upload-zone.uploaded { border-color: #1a7a3c; background: #f0fff4; }
     .upload-zone .uz-icon { font-size: 32px; margin-bottom: 8px; }
-    .upload-zone .uz-label { font-size: 14px; font-weight: 600; color: #2272c3; }
+    .upload-zone .uz-label { font-size: 14px; font-weight: 600; color: #8a5518; }
     .upload-zone .uz-sub { font-size: 12px; color: #999; margin-top: 4px; }
     .preview-section { margin-top: 20px; }
     .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     .preview-header h3 { font-size: 14px; font-weight: 700; }
     .preview-stat { font-size: 13px; color: #555; }
-    .preview-stat strong { color: #2272c3; }
+    .preview-stat strong { color: #8a5518; }
     .preview-table-wrap { overflow-x: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
     .preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .preview-table th { background: #130520; color: #fff; padding: 7px 10px; text-align: left; white-space: nowrap; }
+    .preview-table th { background: #1e1208; color: #fff; padding: 7px 10px; text-align: left; white-space: nowrap; }
     .preview-table td { padding: 6px 10px; border-bottom: 1px solid #eee; }
     .preview-table tr:last-child td { border-bottom: none; }
     .preview-table tr:nth-child(even) { background: #f9f9f9; }
     .import-actions { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-    .btn-import { background: #e07820; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; }
-    .btn-import:hover { background: #c96a15; }
+    .btn-import { background: #c47d0a; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; }
+    .btn-import:hover { background: #a86808; }
     .btn-import:disabled { background: #ccc; cursor: not-allowed; }
     .btn-reset { background: none; border: 1px solid #ccc; color: #666; padding: 9px 18px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; }
     .progress-bar-wrap { background: #eee; border-radius: 10px; height: 10px; margin: 10px 0; }
-    .progress-bar { background: #e07820; height: 10px; border-radius: 10px; width: 0; transition: width .3s; }
+    .progress-bar { background: #c47d0a; height: 10px; border-radius: 10px; width: 0; transition: width .3s; }
     .progress-msg { font-size: 12.5px; color: #555; }
     .results-box { background: #f0fff4; border: 1px solid #b2dfdb; border-radius: 6px; padding: 16px 20px; margin-top: 16px; }
     .results-box.has-errors { background: #fff8f0; border-color: #f0c8a0; }

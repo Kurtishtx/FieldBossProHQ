@@ -10,10 +10,10 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --purple-dark: #080010;
-      --purple-deep: #130520;
-      --orange:      #e07820;
-      --orange-dark: #c96a10;
+      --purple-dark: #100a03;
+      --purple-deep: #1e1208;
+      --orange:      #c47d0a;
+      --orange-dark: #a86808;
       --blue:        #5bbfff;
       --text:        #1a1a2e;
       --muted:       #555;
@@ -26,7 +26,7 @@
 
     /* ─── HERO ─── */
     .hero {
-      background: linear-gradient(135deg, #080010 0%, #130520 60%, #1e0a35 100%);
+      background: linear-gradient(135deg, #100a03 0%, #1e1208 60%, #2a1a0a 100%);
       padding: 100px 40px 80px;
       text-align: center;
       position: relative;
@@ -39,10 +39,10 @@
       transform: translateX(-50%);
       width: 700px; height: 700px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(224,120,32,.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(196,125,10,.15) 0%, transparent 70%);
       pointer-events: none;
     }
-    .hero-badge { display: inline-block; background: rgba(224,120,32,.15); border: 1px solid rgba(224,120,32,.4); color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; }
+    .hero-badge { display: inline-block; background: rgba(196,125,10,.15); border: 1px solid rgba(196,125,10,.4); color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; }
     .hero h1 { color: #fff; font-size: clamp(32px, 5vw, 54px); font-weight: 800; line-height: 1.15; max-width: 800px; margin: 0 auto 20px; }
     .hero h1 span { color: var(--orange); }
     .hero p { color: rgba(255,255,255,.75); font-size: clamp(16px, 2vw, 19px); max-width: 620px; margin: 0 auto 40px; }
@@ -67,12 +67,12 @@
     .spotlight-checks { list-style: none; }
     .spotlight-checks li { display: flex; align-items: flex-start; gap: 10px; color: rgba(255,255,255,.75); font-size: 15px; margin-bottom: 12px; }
     .spotlight-checks li::before { content: '✓'; background: var(--orange); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-    .spotlight-visual { flex: 1; min-width: 280px; background: rgba(255,255,255,.05); border: 2px solid rgba(224,120,32,.35); border-radius: 16px; padding: 32px 28px; }
+    .spotlight-visual { flex: 1; min-width: 280px; background: rgba(255,255,255,.05); border: 2px solid rgba(196,125,10,.35); border-radius: 16px; padding: 32px 28px; }
     .mock-map { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 20px; margin-bottom: 16px; position: relative; min-height: 140px; display: flex; align-items: center; justify-content: center; }
     .mock-lasso { position: absolute; top: 18px; left: 22px; right: 22px; bottom: 18px; border: 2.5px dashed var(--orange); border-radius: 50%; opacity: .7; }
     .mock-pins { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
     .mock-pin { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .mock-pin.sel { background: var(--orange); box-shadow: 0 0 0 3px rgba(224,120,32,.3); }
+    .mock-pin.sel { background: var(--orange); box-shadow: 0 0 0 3px rgba(196,125,10,.3); }
     .mock-pin.unsel { background: rgba(255,255,255,.25); }
     .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .stat-box { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 12px 14px; }
@@ -91,7 +91,7 @@
 
     .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
     .feat-item { background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 22px 20px; transition: border-color .2s, box-shadow .2s, transform .15s; }
-    .feat-item:hover { border-color: var(--orange); box-shadow: 0 4px 20px rgba(224,120,32,.1); transform: translateY(-2px); }
+    .feat-item:hover { border-color: var(--orange); box-shadow: 0 4px 20px rgba(196,125,10,.1); transform: translateY(-2px); }
     .feat-item-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .feat-item-title::before { content: '✓'; background: var(--orange); color: #fff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
     .feat-item p { color: var(--muted); font-size: 13px; line-height: 1.6; }
@@ -107,8 +107,8 @@
     .dark-cat .feat-item p { color: rgba(255,255,255,.55); }
 
     /* ─── CTA BAND ─── */
-    .cta-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #1e0a35 100%); text-align: center; padding: 100px 40px; position: relative; overflow: hidden; }
-    .cta-band::before { content: ''; position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(224,120,32,.12) 0%, transparent 70%); pointer-events: none; }
+    .cta-band { background: linear-gradient(135deg, var(--purple-dark) 0%, #2a1a0a 100%); text-align: center; padding: 100px 40px; position: relative; overflow: hidden; }
+    .cta-band::before { content: ''; position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(196,125,10,.12) 0%, transparent 70%); pointer-events: none; }
     .cta-band h2 { color: #fff; font-size: clamp(28px, 4vw, 44px); font-weight: 800; margin-bottom: 16px; }
     .cta-band p { color: rgba(255,255,255,.7); font-size: 18px; margin-bottom: 40px; max-width: 520px; margin-left: auto; margin-right: auto; }
 
@@ -633,8 +633,8 @@
 <div id="sbp-backdrop" onclick="closeAllModals()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:99997;"></div>
 
 <!-- Form 1 -->
-<div id="sbp-form-1" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
-  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
+<div id="sbp-form-1" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #c47d0a; box-shadow:0 0 0 4px rgba(196,125,10,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#100a03,#2a1a0a); padding:28px 28px 22px; position:relative;">
     <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
     <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
     <button onclick="closeSignupModal(1)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
@@ -647,7 +647,7 @@
     </div>
     <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp1-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp1-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
-    <button onclick="sbpStep2(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+    <button onclick="sbpStep2(1)" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
   </div>
   <div id="sbp1-step2" style="padding:24px 28px; display:none;">
     <div id="sbp1-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
@@ -656,10 +656,10 @@
     <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp1-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp1-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     <div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;">
-      <input type="checkbox" id="sbp1-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;">
-      <label for="sbp1-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://fieldbossprohq.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://fieldbossprohq.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label>
+      <input type="checkbox" id="sbp1-agree" style="width:16px; height:16px; accent-color:#c47d0a; cursor:pointer; flex-shrink:0; margin-top:3px;">
+      <label for="sbp1-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://fieldbossprohq.com/terms" target="_blank" style="color:#c47d0a;">Terms of Service</a> and <a href="https://fieldbossprohq.com/privacy-policy" target="_blank" style="color:#c47d0a;">Privacy Policy</a></label>
     </div>
-    <button id="sbp1-create-btn" onclick="sbpCreateAccount(1)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button id="sbp1-create-btn" onclick="sbpCreateAccount(1)" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
     <button onclick="sbpBackToStep1(1)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
   </div>
   <div id="sbp1-success" style="padding:48px 28px; text-align:center; display:none;">
@@ -671,8 +671,8 @@
 </div>
 
 <!-- Form 2 -->
-<div id="sbp-form-2" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #e07820; box-shadow:0 0 0 4px rgba(224,120,32,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
-  <div style="background:linear-gradient(135deg,#080010,#1e0a35); padding:28px 28px 22px; position:relative;">
+<div id="sbp-form-2" style="display:none; position:fixed; z-index:99999; width:420px; max-width:calc(100vw - 24px); background:#fff; border-radius:14px; border:3px solid #c47d0a; box-shadow:0 0 0 4px rgba(196,125,10,.35), 0 16px 60px rgba(0,0,0,.45); max-height:calc(100vh - 40px); overflow-y:auto;">
+  <div style="background:linear-gradient(135deg,#100a03,#2a1a0a); padding:28px 28px 22px; position:relative;">
     <div style="color:#fff; font-size:20px; font-weight:800; padding-right:36px;">Start Your 14-Day Free Trial</div>
     <div style="color:rgba(255,255,255,.6); font-size:13px; margin-top:5px;">No credit card required. Full access. Cancel anytime.</div>
     <button onclick="closeSignupModal(2)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">×</button>
@@ -685,7 +685,7 @@
     </div>
     <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Company Name</label><input id="sbp2-company" type="text" placeholder="Smith Lawn &amp; Spray Co." style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     <div style="margin-bottom:20px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Email Address</label><input id="sbp2-email" type="email" placeholder="you@yourcompany.com" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
-    <button onclick="sbpStep2(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
+    <button onclick="sbpStep2(2)" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Next: Create Password →</button>
   </div>
   <div id="sbp2-step2" style="padding:24px 28px; display:none;">
     <div id="sbp2-err2" style="background:#fff0f0; border:1px solid #f5c6c6; color:#c0392b; border-radius:6px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none;"></div>
@@ -694,10 +694,10 @@
     <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Password</label><input id="sbp2-password" type="password" placeholder="At least 8 characters" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     <div style="margin-bottom:14px;"><label style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px;">Confirm Password</label><input id="sbp2-confirm" type="password" placeholder="Repeat password" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px 12px; font-size:14px; font-family:inherit; color:#333;"></div>
     <div style="margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;">
-      <input type="checkbox" id="sbp2-agree" style="width:16px; height:16px; accent-color:#e07820; cursor:pointer; flex-shrink:0; margin-top:3px;">
-      <label for="sbp2-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://fieldbossprohq.com/terms" target="_blank" style="color:#e07820;">Terms of Service</a> and <a href="https://fieldbossprohq.com/privacy-policy" target="_blank" style="color:#e07820;">Privacy Policy</a></label>
+      <input type="checkbox" id="sbp2-agree" style="width:16px; height:16px; accent-color:#c47d0a; cursor:pointer; flex-shrink:0; margin-top:3px;">
+      <label for="sbp2-agree" style="font-size:13px; color:#555; cursor:pointer; line-height:1.5;">I agree to the <a href="https://fieldbossprohq.com/terms" target="_blank" style="color:#c47d0a;">Terms of Service</a> and <a href="https://fieldbossprohq.com/privacy-policy" target="_blank" style="color:#c47d0a;">Privacy Policy</a></label>
     </div>
-    <button id="sbp2-create-btn" onclick="sbpCreateAccount(2)" style="width:100%; background:#e07820; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
+    <button id="sbp2-create-btn" onclick="sbpCreateAccount(2)" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Create My Account</button>
     <button onclick="sbpBackToStep1(2)" style="width:100%; background:none; border:none; color:#888; font-size:13px; cursor:pointer; margin-top:10px; padding:6px; font-family:inherit; text-decoration:underline;">← Back</button>
   </div>
   <div id="sbp2-success" style="padding:48px 28px; text-align:center; display:none;">
