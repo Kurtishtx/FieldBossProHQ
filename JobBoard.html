@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Board</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; }
+
+    .page-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#fff; border-bottom:1px solid #ddd; }
+    .page-header h1 { font-size:22px; font-weight:700; color:#111; }
+    .page-header-right { display:flex; align-items:center; gap:10px; }
+
+    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#7a6040; flex-wrap:wrap; margin:4px 16px; border-radius:8px; }
+    .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); }
+    .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
+    .filter-bar-label { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; margin-right:2px; }
+
+    .toolbar { display:flex; align-items:center; justify-content:space-between; padding:6px 16px; margin:4px 16px 0; background:#1e1208; border-radius:10px 10px 0 0; }
+    .toolbar-left { display:flex; align-items:center; gap:8px; }
+    .toolbar-right { display:flex; align-items:center; gap:8px; }
+
+    .btn-add { background:#c47d0a; color:#fff; border:none; padding:6px 16px; font-size:13px; font-weight:700; cursor:pointer; border-radius:4px; font-family:inherit; }
+    .btn-add:hover { background:#a86808; }
+
+    .date-nav { display:flex; align-items:center; gap:6px; }
+    .date-nav button { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; padding:4px 10px; cursor:pointer; border-radius:4px; font-size:13px; font-family:inherit; }
+    .date-nav button:hover { background:rgba(255,255,255,.2); }
+    .date-nav span { color:#fff; font-size:13px; font-weight:600; min-width:160px; text-align:center; }
+
+    select.filter-select { border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:#fff; padding:4px 8px; border-radius:4px; font-size:13px; font-family:inherit; cursor:pointer; }
+    select.filter-select option { background:#1e1208; color:#fff; }
+
+    .table-container { margin:0 16px 16px; border-radius:0 0 10px 10px; overflow:hidden; border:1px solid #ddd; border-top:none; }
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table thead tr { background:#1e1208; color:#fff; }
+    .data-table thead th { padding:8px 10px; text-align:left; font-size:12px; font-weight:600; white-space:nowrap; border-right:1px solid rgba(255,255,255,.1); }
+    .data-table thead th:last-child { border-right:none; }
+    .data-table tbody tr { border-bottom:1px solid #eee; background:#fff; }
+    .data-table tbody tr:hover { background:#fdf8f0; }
+    .data-table tbody td { padding:7px 10px; vertical-align:middle; }
+
+    .day-header { background:#e8ddd0; font-weight:700; color:#3d2510; padding:6px 10px; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+
+    .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; }
+    .badge-mowing    { background:#d4edda; color:#155724; }
+    .badge-landscape { background:#d1ecf1; color:#0c5460; }
+    .badge-irrigation{ background:#cce5ff; color:#004085; }
+    .badge-snow      { background:#e2e3e5; color:#383d41; }
+    .badge-other     { background:#fff3cd; color:#856404; }
+
+    .recur-tag { font-size:10px; color:#8a5518; font-weight:600; }
+
+    .btn-schedule { background:#c47d0a; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
+    .btn-schedule:hover { background:#a86808; }
+    .btn-del { background:none; border:none; color:#cc2222; font-size:16px; cursor:pointer; padding:0 4px; }
+
+    .empty-msg { text-align:center; padding:48px 24px; color:#888; font-size:15px; }
+
+    .results-bar { padding:6px 24px; font-size:13px; font-weight:700; color:#111; background:transparent; text-align:right; }
+
+    /* ── Schedule Modal ── */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,.3); width:420px; max-width:95vw; overflow:hidden; }
+    .modal-hdr { background:#1e1208; color:#fff; padding:14px 20px; font-size:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+    .modal-hdr button { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; line-height:1; }
+    .modal-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
+    .modal-field label { display:block; font-size:12px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+    .modal-field input, .modal-field select { width:100%; border:1px solid #ccc; border-radius:4px; padding:8px 10px; font-size:14px; font-family:inherit; }
+    .modal-field input:focus, .modal-field select:focus { outline:none; border-color:#c47d0a; }
+    .modal-info { background:#fdf3e3; border:1px solid #e8c88a; border-radius:6px; padding:10px 14px; font-size:13px; color:#3d2510; }
+    .modal-footer { padding:14px 20px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:flex-end; }
+    .btn-confirm { background:#c47d0a; color:#fff; border:none; padding:9px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; font-family:inherit; }
+    .btn-confirm:hover { background:#a86808; }
+    .btn-cancel-modal { background:#eee; color:#333; border:none; padding:9px 18px; font-size:14px; border-radius:4px; cursor:pointer; font-family:inherit; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>&#128203; Job Board</h1>
+  <div class="page-header-right">
+    <button class="btn-add" onclick="openRecurring()">+ Add Recurring Job</button>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-bar-label">Category:</span>
+  <button class="filter-tab active" onclick="setCategory('all', this)">All</button>
+  <button class="filter-tab" onclick="setCategory('mowing', this)">Mowing</button>
+  <button class="filter-tab" onclick="setCategory('landscape', this)">Landscape</button>
+  <button class="filter-tab" onclick="setCategory('irrigation', this)">Irrigation</button>
+  <button class="filter-tab" onclick="setCategory('snow', this)">Snow</button>
+  <button class="filter-tab" onclick="setCategory('other', this)">Other</button>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="date-nav">
+      <button onclick="shiftWeek(-1)">&#8249;</button>
+      <span id="week-label"></span>
+      <button onclick="shiftWeek(1)">&#8250;</button>
+      <button onclick="goToday()" style="margin-left:4px;">Today</button>
+    </div>
+  </div>
+  <div class="toolbar-right">
+    <select class="filter-select" id="truck-filter" onchange="render()">
+      <option value="">All Trucks</option>
+    </select>
+  </div>
+</div>
+
+<div class="results-bar" id="results-bar"></div>
+
+<div class="table-container">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Client</th>
+        <th>Address</th>
+        <th>Service</th>
+        <th>Category</th>
+        <th>Recurrence</th>
+        <th>Amount</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="job-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg" style="display:none;">No pending jobs for this period.</div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="modal-overlay" id="sched-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      Schedule Job
+      <button onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info" id="modal-info"></div>
+      <div class="modal-field">
+        <label>Scheduled Date</label>
+        <input type="date" id="modal-date"/>
+      </div>
+      <div class="modal-field">
+        <label>Assign Truck</label>
+        <select id="modal-truck">
+          <option value="">— Unassigned —</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Assign Employee</label>
+        <select id="modal-employee">
+          <option value="">— Unassigned —</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmSchedule()">Schedule → Move to Scheduled</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  var allJobs = [];
+  var activeCategory = 'all';
+  var weekOffset = 0;
+  var modalJobId = null;
+  var uid = null;
+
+  var CATEGORY_LABELS = { mowing:'Mowing', landscape:'Landscape', irrigation:'Irrigation', snow:'Snow', other:'Other', chemical:'Chemical' };
+  var RECUR_LABELS = { weekly:'Weekly', biweekly:'Bi-Weekly', monthly:'Monthly' };
+
+  function weekStart(offset) {
+    var d = new Date();
+    var day = d.getDay();
+    d.setDate(d.getDate() - day + (offset * 7));
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function fmt(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
+  function fmtDate(d) { return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
+  function isoDate(d) { return d.toISOString().split('T')[0]; }
+
+  function updateWeekLabel() {
+    var s = weekStart(weekOffset);
+    var e = new Date(s); e.setDate(e.getDate() + 6);
+    document.getElementById('week-label').textContent = fmt(s) + ' – ' + fmt(e);
+  }
+
+  function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); }
+  function goToday() { weekOffset = 0; updateWeekLabel(); render(); }
+  function setCategory(cat, el) {
+    activeCategory = cat;
+    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    render();
+  }
+
+  function badgeClass(cat) {
+    var map = { mowing:'badge-mowing', landscape:'badge-landscape', irrigation:'badge-irrigation', snow:'badge-snow' };
+    return map[cat] || 'badge-other';
+  }
+
+  function render() {
+    var truckFilter = document.getElementById('truck-filter').value;
+    var s = weekStart(weekOffset);
+    var e = new Date(s); e.setDate(e.getDate() + 7);
+    var sIso = isoDate(s), eIso = isoDate(e);
+
+    var filtered = allJobs.filter(function(j) {
+      if (j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
+      if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
+      if (truckFilter && j.truck_id !== truckFilter) return false;
+      return true;
+    });
+
+    filtered.sort(function(a,b){ return a.scheduled_date.localeCompare(b.scheduled_date); });
+
+    var tbody = document.getElementById('job-tbody');
+    tbody.innerHTML = '';
+    document.getElementById('empty-msg').style.display = filtered.length ? 'none' : 'block';
+    document.getElementById('results-bar').textContent = filtered.length + ' job' + (filtered.length === 1 ? '' : 's');
+
+    var lastDay = '';
+    filtered.forEach(function(j) {
+      if (j.scheduled_date !== lastDay) {
+        lastDay = j.scheduled_date;
+        var dr = document.createElement('tr');
+        var parts = j.scheduled_date.split('-');
+        var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+        dr.innerHTML = '<td colspan="8" class="day-header">' + fmtDate(d) + '</td>';
+        tbody.appendChild(dr);
+      }
+      var cat = j.job_category || 'other';
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:#888;font-size:12px;">' + j.scheduled_date + '</td>' +
+        '<td style="font-weight:600;">' + (j.client_name || '') + '</td>' +
+        '<td style="color:#555;">' + (j.address || '') + '</td>' +
+        '<td>' + (j.service || j.name || '') + '</td>' +
+        '<td><span class="badge ' + badgeClass(cat) + '">' + (CATEGORY_LABELS[cat] || cat) + '</span></td>' +
+        '<td><span class="recur-tag">' + (j.recurrence_type ? '&#8635; ' + (RECUR_LABELS[j.recurrence_type] || j.recurrence_type) : 'One-Time') + '</span></td>' +
+        '<td>$' + parseFloat(j.amount || 0).toFixed(2) + '</td>' +
+        '<td style="display:flex;gap:6px;align-items:center;">' +
+          '<button class="btn-schedule" onclick="openModal(\'' + j.id + '\')">Schedule</button>' +
+          '<button class="btn-del" title="Delete" onclick="deleteJob(\'' + j.id + '\')">&#128465;</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function loadTrucks() {
+    var { data } = await sb.from('trucks').select('id, name').eq('active', true).eq('user_id', uid).order('name');
+    var sel1 = document.getElementById('truck-filter');
+    var sel2 = document.getElementById('modal-truck');
+    (data || []).forEach(function(t) {
+      var o1 = new Option(t.name, t.id); sel1.appendChild(o1);
+      var o2 = new Option(t.name, t.id); sel2.appendChild(o2);
+    });
+  }
+
+  async function loadEmployees() {
+    var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).eq('user_id', uid).order('last_name');
+    var sel = document.getElementById('modal-employee');
+    (data || []).forEach(function(e) {
+      sel.appendChild(new Option(e.first_name + ' ' + e.last_name, e.id));
+    });
+  }
+
+  async function loadJobs() {
+    var { data } = await sb.from('Services')
+      .select('id, client_name, address, service, name, scheduled_date, amount, job_category, recurrence_type, truck_id, assigned_to, status')
+      .eq('user_id', uid)
+      .eq('dispatched', false)
+      .neq('job_category', 'chemical')
+      .not('scheduled_date', 'is', null)
+      .order('scheduled_date');
+    allJobs = data || [];
+    render();
+  }
+
+  function openModal(id) {
+    var job = allJobs.find(function(j){ return j.id === id; });
+    if (!job) return;
+    modalJobId = id;
+    document.getElementById('modal-info').textContent = (job.client_name || '') + ' — ' + (job.service || job.name || '') + ' — ' + (job.address || '');
+    document.getElementById('modal-date').value = job.scheduled_date || '';
+    document.getElementById('modal-truck').value = job.truck_id || '';
+    document.getElementById('modal-employee').value = job.assigned_to || '';
+    document.getElementById('sched-modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('sched-modal').classList.remove('open');
+    modalJobId = null;
+  }
+
+  async function confirmSchedule() {
+    if (!modalJobId) return;
+    var date = document.getElementById('modal-date').value;
+    var truckId = document.getElementById('modal-truck').value;
+    var assignTo = document.getElementById('modal-employee').value;
+    if (!date) { alert('Please select a date.'); return; }
+
+    var { error } = await sb.from('Services').update({
+      scheduled_date: date,
+      truck_id:       truckId || null,
+      assigned_to:    assignTo || null,
+      dispatched:     true,
+      status:         'scheduled'
+    }).eq('id', modalJobId);
+
+    if (error) { alert('Error: ' + error.message); return; }
+    closeModal();
+    allJobs = allJobs.filter(function(j){ return j.id !== modalJobId; });
+    render();
+  }
+
+  async function deleteJob(id) {
+    if (!confirm('Delete this job?')) return;
+    await sb.from('Services').delete().eq('id', id);
+    allJobs = allJobs.filter(function(j){ return j.id !== id; });
+    render();
+  }
+
+  function openRecurring() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('recurringadd');
+    } else {
+      window.location.href = 'RecurringAdd.html';
+    }
+  }
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+    updateWeekLabel();
+    await Promise.all([loadTrucks(), loadEmployees(), loadJobs()]);
+  }
+
+  init();
+</script>
+</body>
+</html>

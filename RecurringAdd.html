@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Recurring Job</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; }
+
+    .dialog { max-width: 680px; margin: 30px auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,.15); overflow: hidden; }
+
+    .dialog-hdr { background: #1e1208; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .dialog-hdr h1 { font-size: 18px; font-weight: 700; }
+
+    .section { padding: 20px 24px; border-bottom: 1px solid #eee; }
+    .section-title { font-size: 12px; font-weight: 700; color: #8a5518; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 14px; }
+
+    .field-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .field-row label { width: 130px; min-width: 130px; font-size: 13px; font-weight: 600; color: #555; }
+    .field-row input, .field-row select, .field-row textarea {
+      flex: 1; border: 1px solid #ccc; border-radius: 4px;
+      padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none;
+    }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #c47d0a; }
+    .field-row textarea { resize: vertical; min-height: 60px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .recur-preview { background: #fdf3e3; border: 1px solid #e8c88a; border-radius: 6px; padding: 12px 16px; margin: 0 24px 16px; font-size: 13px; color: #3d2510; }
+    .recur-preview strong { display: block; margin-bottom: 4px; }
+    .preview-dates { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .preview-date { background: #fff; border: 1px solid #c8a060; border-radius: 3px; padding: 2px 8px; font-size: 12px; color: #5a3a10; }
+    .preview-count { font-size: 12px; color: #8a5518; margin-top: 6px; }
+
+    .footer { padding: 16px 24px; display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+    .btn-save { background: #c47d0a; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #a86808; }
+    .btn-save:disabled { opacity: .5; cursor: default; }
+    .btn-cancel { background: #eee; color: #333; border: none; padding: 10px 20px; font-size: 14px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-cancel:hover { background: #ddd; }
+    .status-msg { font-size: 13px; color: #27a567; font-weight: 600; }
+    .status-msg.err { color: #c0392b; }
+
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap input { width: 100%; }
+    .search-drop { display: none; position: absolute; top: calc(100% + 2px); left: 0; right: 0; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.15); z-index: 200; max-height: 200px; overflow-y: auto; }
+    .search-drop.open { display: block; }
+    .search-item { padding: 7px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+    .search-item:hover { background: #fdf3e3; }
+    .search-item .si-addr { font-size: 11px; color: #888; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="dialog">
+  <div class="dialog-hdr">
+    <h1>&#8635; Add Recurring Job</h1>
+  </div>
+
+  <!-- Property & Client -->
+  <div class="section">
+    <div class="section-title">Property</div>
+    <div class="field-row">
+      <label>Search Property</label>
+      <div class="search-wrap">
+        <input type="text" id="prop-search" placeholder="Search by client name or address…" oninput="searchProps(this.value)" autocomplete="off"/>
+        <div class="search-drop" id="prop-drop"></div>
+      </div>
+    </div>
+    <div class="field-row" id="selected-prop-row" style="display:none;">
+      <label>Selected</label>
+      <div style="flex:1;background:#fdf3e3;border:1px solid #e8c88a;border-radius:4px;padding:7px 10px;font-size:13px;">
+        <span id="selected-prop-label"></span>
+        <button onclick="clearProp()" style="float:right;background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px;">✕ Clear</button>
+      </div>
+    </div>
+    <input type="hidden" id="prop-id"/>
+    <input type="hidden" id="client-name"/>
+    <input type="hidden" id="prop-address"/>
+  </div>
+
+  <!-- Job Details -->
+  <div class="section">
+    <div class="section-title">Job Details</div>
+    <div class="field-row">
+      <label>Job Category</label>
+      <select id="job-category" onchange="updatePreview()">
+        <option value="mowing">Mowing</option>
+        <option value="landscape">Landscape</option>
+        <option value="irrigation">Irrigation</option>
+        <option value="snow">Snow</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label>Service Name</label>
+      <select id="service-select" onchange="updatePreview()">
+        <option value="">— Select Service —</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label>Amount ($)</label>
+      <input type="number" id="amount" min="0" step="0.01" placeholder="0.00" style="max-width:140px;"/>
+    </div>
+    <div class="field-row">
+      <label>Notes</label>
+      <textarea id="notes" placeholder="Optional notes…"></textarea>
+    </div>
+  </div>
+
+  <!-- Schedule -->
+  <div class="section">
+    <div class="section-title">Recurring Schedule</div>
+    <div class="two-col">
+      <div class="field-row" style="margin-bottom:0;">
+        <label>Frequency</label>
+        <select id="recur-type" onchange="updatePreview()">
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Bi-Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      <div></div>
+    </div>
+    <div style="height:12px;"></div>
+    <div class="two-col">
+      <div class="field-row" style="margin-bottom:0;">
+        <label>Start Date</label>
+        <input type="date" id="start-date" onchange="updatePreview()"/>
+      </div>
+      <div class="field-row" style="margin-bottom:0;">
+        <label>End Date</label>
+        <input type="date" id="end-date" onchange="updatePreview()"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="recur-preview" id="recur-preview" style="display:none;">
+    <strong>&#128197; Scheduled Occurrences Preview</strong>
+    <div class="preview-dates" id="preview-dates"></div>
+    <div class="preview-count" id="preview-count"></div>
+  </div>
+
+  <!-- Assign -->
+  <div class="section">
+    <div class="section-title">Assignment (Optional)</div>
+    <div class="field-row">
+      <label>Truck</label>
+      <select id="truck-select">
+        <option value="">— Unassigned —</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label>Employee</label>
+      <select id="employee-select">
+        <option value="">— Unassigned —</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="status-msg" id="status-msg"></span>
+    <button class="btn-cancel" onclick="cancel()">Cancel</button>
+    <button class="btn-save" id="save-btn" onclick="save()">Create Recurring Jobs</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  var uid = null;
+  var allProps = [];
+
+  function calcDates(startStr, endStr, type) {
+    var dates = [];
+    if (!startStr || !endStr) return dates;
+    var cur = new Date(startStr + 'T00:00:00');
+    var end = new Date(endStr   + 'T00:00:00');
+    if (cur > end) return dates;
+    while (cur <= end) {
+      dates.push(cur.toISOString().split('T')[0]);
+      if (type === 'weekly')   cur.setDate(cur.getDate() + 7);
+      else if (type === 'biweekly') cur.setDate(cur.getDate() + 14);
+      else if (type === 'monthly') cur.setMonth(cur.getMonth() + 1);
+      else break;
+      if (dates.length > 500) break;
+    }
+    return dates;
+  }
+
+  function updatePreview() {
+    var start = document.getElementById('start-date').value;
+    var end   = document.getElementById('end-date').value;
+    var type  = document.getElementById('recur-type').value;
+    var prev  = document.getElementById('recur-preview');
+    var datesEl = document.getElementById('preview-dates');
+    var countEl = document.getElementById('preview-count');
+
+    if (!start || !end) { prev.style.display = 'none'; return; }
+    var dates = calcDates(start, end, type);
+    if (!dates.length) { prev.style.display = 'none'; return; }
+
+    prev.style.display = 'block';
+    var show = dates.slice(0, 12);
+    datesEl.innerHTML = show.map(function(d) {
+      var parts = d.split('-');
+      var disp = new Date(+parts[0], +parts[1]-1, +parts[2]);
+      return '<span class="preview-date">' + disp.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + '</span>';
+    }).join('');
+    countEl.textContent = dates.length + ' occurrence' + (dates.length === 1 ? '' : 's') + ' total' + (dates.length > 12 ? ' (showing first 12)' : '');
+  }
+
+  async function searchProps(val) {
+    var drop = document.getElementById('prop-drop');
+    if (!val || val.length < 2) { drop.classList.remove('open'); return; }
+    var lower = val.toLowerCase();
+    var results = allProps.filter(function(p) {
+      return (p.address || '').toLowerCase().includes(lower) ||
+             ((p.first_name || '') + ' ' + (p.last_name || '')).toLowerCase().includes(lower);
+    }).slice(0, 10);
+    drop.innerHTML = results.length ? results.map(function(p) {
+      return '<div class="search-item" onclick="selectProp(\'' + p.id + '\')">' +
+             '<div>' + p.first_name + ' ' + p.last_name + '</div>' +
+             '<div class="si-addr">' + (p.address || '') + '</div></div>';
+    }).join('') : '<div class="search-item" style="color:#888;">No results</div>';
+    drop.classList.add('open');
+  }
+
+  function selectProp(id) {
+    var p = allProps.find(function(x){ return x.id === id; });
+    if (!p) return;
+    document.getElementById('prop-id').value    = p.id;
+    document.getElementById('client-name').value = p.first_name + ' ' + p.last_name;
+    document.getElementById('prop-address').value = p.address || '';
+    document.getElementById('selected-prop-label').textContent = p.first_name + ' ' + p.last_name + ' — ' + (p.address || '');
+    document.getElementById('selected-prop-row').style.display = '';
+    document.getElementById('prop-search').value = '';
+    document.getElementById('prop-drop').classList.remove('open');
+  }
+
+  function clearProp() {
+    document.getElementById('prop-id').value = '';
+    document.getElementById('client-name').value = '';
+    document.getElementById('prop-address').value = '';
+    document.getElementById('selected-prop-row').style.display = 'none';
+    document.getElementById('prop-search').value = '';
+  }
+
+  async function save() {
+    var propId    = document.getElementById('prop-id').value;
+    var clientName = document.getElementById('client-name').value;
+    var address   = document.getElementById('prop-address').value;
+    var category  = document.getElementById('job-category').value;
+    var svcEl     = document.getElementById('service-select');
+    var service   = svcEl.options[svcEl.selectedIndex] ? svcEl.options[svcEl.selectedIndex].text : '';
+    var amount    = parseFloat(document.getElementById('amount').value) || 0;
+    var notes     = document.getElementById('notes').value;
+    var recurType = document.getElementById('recur-type').value;
+    var start     = document.getElementById('start-date').value;
+    var end       = document.getElementById('end-date').value;
+    var truckId   = document.getElementById('truck-select').value || null;
+    var assignTo  = document.getElementById('employee-select').value || null;
+    var statusEl  = document.getElementById('status-msg');
+
+    if (!propId)   { alert('Please select a property.'); return; }
+    if (!start || !end) { alert('Please set start and end dates.'); return; }
+
+    var dates = calcDates(start, end, recurType);
+    if (!dates.length) { alert('No occurrences generated — check your dates.'); return; }
+    if (dates.length > 500) { alert('Too many occurrences (max 500). Shorten the date range.'); return; }
+
+    var groupId = crypto.randomUUID ? crypto.randomUUID() : (Math.random().toString(36).substr(2,9));
+    var btn = document.getElementById('save-btn');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    statusEl.textContent = ''; statusEl.className = 'status-msg';
+
+    var rows = dates.map(function(d) {
+      return {
+        user_id:              uid,
+        property_id:          propId,
+        client_name:          clientName,
+        address:              address,
+        service:              service,
+        amount:               amount,
+        notes:                notes,
+        job_type:             'recurring',
+        job_category:         category,
+        recurrence_type:      recurType,
+        recurrence_end_date:  end,
+        recurrence_group_id:  groupId,
+        scheduled_date:       d,
+        dispatched:           false,
+        status:               'pending',
+        truck_id:             truckId,
+        assigned_to:          assignTo
+      };
+    });
+
+    var CHUNK = 50;
+    var error = null;
+    for (var i = 0; i < rows.length; i += CHUNK) {
+      var res = await sb.from('Services').insert(rows.slice(i, i + CHUNK));
+      if (res.error) { error = res.error; break; }
+    }
+
+    if (error) {
+      statusEl.textContent = 'Error: ' + error.message;
+      statusEl.className = 'status-msg err';
+      btn.disabled = false; btn.textContent = 'Create Recurring Jobs';
+      return;
+    }
+
+    statusEl.textContent = dates.length + ' jobs created!';
+    setTimeout(function() {
+      if (window.parent && window.parent.loadPage) window.parent.loadPage('jobboard');
+      else window.location.href = 'JobBoard.html';
+    }, 1200);
+  }
+
+  function cancel() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('jobboard');
+    else history.back();
+  }
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+
+    var [propsRes, trucksRes, empsRes, svcsRes] = await Promise.all([
+      sb.from('Properties').select('id, first_name, last_name, address').eq('user_id', uid).order('last_name'),
+      sb.from('trucks').select('id, name').eq('active', true).eq('user_id', uid).order('name'),
+      sb.from('employees').select('id, first_name, last_name').eq('active', true).eq('user_id', uid).order('last_name'),
+      sb.from('Services').select('id, name').is('property_id', null).eq('active', true).eq('user_id', uid).order('name')
+    ]);
+
+    allProps = propsRes.data || [];
+
+    var truckSel = document.getElementById('truck-select');
+    (trucksRes.data || []).forEach(function(t) { truckSel.appendChild(new Option(t.name, t.id)); });
+
+    var empSel = document.getElementById('employee-select');
+    (empsRes.data || []).forEach(function(e) { empSel.appendChild(new Option(e.first_name + ' ' + e.last_name, e.id)); });
+
+    var svcSel = document.getElementById('service-select');
+    (svcsRes.data || []).forEach(function(s) { svcSel.appendChild(new Option(s.name, s.id)); });
+
+    // Default start date to today
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('start-date').value = today;
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-wrap')) {
+      document.getElementById('prop-drop').classList.remove('open');
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

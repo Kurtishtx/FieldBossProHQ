@@ -559,6 +559,9 @@
       <button class="nav-btn" data-page="waitinglist" onclick="loadPage('waitinglist', this)">
         <span class="icon">&#8986;</span> Waiting
       </button>
+      <button class="nav-btn" data-page="jobboard" onclick="loadPage('jobboard', this)">
+        <span class="icon">&#128196;</span> Job Board
+      </button>
       <button class="nav-btn" data-page="dispatched" onclick="loadPage('dispatched', this)">
         <span class="icon">&#128665;</span> Scheduled
       </button>
@@ -651,6 +654,7 @@
     <button class="mobile-nav-btn" onclick="mobileNav('home')"><span class="icon">&#127968;</span> Dashboard</button>
     <div class="mobile-nav-section-label">Schedule</div>
     <button class="mobile-nav-btn" data-page="waitinglist" onclick="mobileNav('waitinglist')"><span class="icon">&#8986;</span> Waiting</button>
+    <button class="mobile-nav-btn" data-page="jobboard" onclick="mobileNav('jobboard')"><span class="icon">&#128196;</span> Job Board</button>
     <button class="mobile-nav-btn" data-page="dispatched" onclick="mobileNav('dispatched')"><span class="icon">&#128665;</span> Scheduled</button>
     <div class="mobile-nav-section-label">Clients</div>
     <button class="mobile-nav-btn" data-page="customers" onclick="mobileNav('customers')"><span class="icon">&#128101;</span> Clients</button>
@@ -1276,6 +1280,8 @@
     properties:     'propertieslist.html',
     services:     'services.html',
     waitinglist:  'waitinglist.html',
+    jobboard:     'JobBoard.html',
+    recurringadd: 'RecurringAdd.html',
     dispatched:   'ScheduledList.html',
     products:     'ProductsList.html',
     productmixes: 'ProductMixesList.html',
@@ -1360,6 +1366,8 @@
     properties:     'Properties',
     services:     'Services',
     waitinglist:  'Waiting List',
+    jobboard:     'Job Board',
+    recurringadd: 'Add Recurring Job',
     dispatched:   'Scheduled List',
     products:     'Products',
     productmixes: 'Product Mixes',
