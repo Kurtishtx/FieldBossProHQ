@@ -136,7 +136,7 @@
     ══════════════════════════════ */
     .mobile-topbar {
       display: none;
-      background: linear-gradient(90deg, #080010, #0d0318);
+      background: linear-gradient(90deg, #100a03, #1c1208);
       height: 52px;
       align-items: center;
       padding: 0 10px;
@@ -183,7 +183,7 @@
       outline: none;
     }
     .mobile-search-wrap input::placeholder { color: rgba(255,255,255,.5); }
-    .mobile-search-wrap input:focus { border-color: #e07820; background: rgba(255,255,255,.18); }
+    .mobile-search-wrap input:focus { border-color: #c47d0a; background: rgba(255,255,255,.18); }
     .mobile-search-icon {
       position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
       color: rgba(255,255,255,.6); font-size: 13px; pointer-events: none;
@@ -231,7 +231,7 @@
       text-align: left;
       margin-bottom: 2px;
     }
-    .mobile-nav-btn:hover, .mobile-nav-btn.active { background: #2a6cb5; }
+    .mobile-nav-btn:hover, .mobile-nav-btn.active { background: #8a5518; }
     .mobile-nav-btn .icon { font-size: 18px; width: 24px; text-align: center; }
     .mobile-nav-logout {
       margin-top: 16px;
@@ -280,7 +280,7 @@
     .global-search-input {
       width: 100%;
       padding: 9px 16px 9px 40px;
-      border: 2px solid #e07820;
+      border: 2px solid #c47d0a;
       border-radius: 8px;
       font-size: 14px;
       font-family: inherit;
@@ -288,13 +288,13 @@
       background: #fff;
       outline: none;
       transition: border-color .15s, box-shadow .15s;
-      box-shadow: 0 1px 4px rgba(224,120,32,.15);
+      box-shadow: 0 1px 4px rgba(196,125,10,.15);
     }
-    .global-search-input:focus { border-color: #c96a15; box-shadow: 0 0 0 3px rgba(224,120,32,.2); }
+    .global-search-input:focus { border-color: #a86808; box-shadow: 0 0 0 3px rgba(196,125,10,.2); }
     .global-search-input::placeholder { color: #444; }
     .global-search-icon {
       position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-      color: #e07820; font-size: 15px; pointer-events: none;
+      color: #c47d0a; font-size: 15px; pointer-events: none;
     }
     .global-search-dropdown {
       display: none;
@@ -348,12 +348,12 @@
       position: relative;
       width: 34px; height: 34px;
       border-radius: 50%;
-      background: #e07820;
+      background: #c47d0a;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; flex-shrink: 0;
     }
-    .sms-bell:hover { background: #c96a10; }
-    .sms-bell svg { width: 18px; height: 18px; fill: #3a0d55; }
+    .sms-bell:hover { background: #a86808; }
+    .sms-bell svg { width: 18px; height: 18px; fill: #3d2510; }
     .sms-bell-badge {
       display: none;
       position: absolute; top: -3px; right: -3px;
@@ -374,7 +374,7 @@
       padding: 12px 16px; border-bottom: 1px solid #eee;
     }
     .notif-dd-hdr-title { font-size: 14px; font-weight: 700; color: #111; }
-    .notif-dd-seeall { font-size: 12px; font-weight: 600; color: #2563eb; cursor: pointer; }
+    .notif-dd-seeall { font-size: 12px; font-weight: 600; color: #c47d0a; cursor: pointer; }
     .notif-dd-seeall:hover { text-decoration: underline; }
     .notif-dd-list { max-height: 400px; overflow-y: auto; }
     .notif-dd-item {
@@ -386,7 +386,7 @@
     .notif-dd-item:last-child { border-bottom: none; }
     .notif-dd-icon {
       width: 40px; height: 40px; min-width: 40px; border-radius: 50%;
-      background: #e07820; display: flex; align-items: center; justify-content: center;
+      background: #c47d0a; display: flex; align-items: center; justify-content: center;
     }
     .notif-dd-icon svg { width: 18px; height: 18px; fill: #fff; }
     .notif-dd-body { flex: 1; min-width: 0; }
@@ -394,7 +394,7 @@
     .notif-dd-preview { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .notif-dd-time { font-size: 11px; color: #aaa; flex-shrink: 0; }
     .user-badge {
-      background: #3a0d55;
+      background: #3d2510;
       color: #fff;
       font-size: 13px;
       font-weight: 600;
@@ -417,7 +417,7 @@
        WELCOME SCREEN
     ══════════════════════════════ */
     .welcome-banner {
-      background: linear-gradient(135deg, #080010 0%, #0d0318 50%, #130520 100%);
+      background: linear-gradient(135deg, #100a03 0%, #1c1208 50%, #281a0c 100%);
       border-radius: 12px;
       padding: 36px 40px;
       color: #fff;
@@ -454,10 +454,10 @@
       border-radius: 10px;
       padding: 20px 22px;
       box-shadow: 0 1px 4px rgba(0,0,0,.07);
-      border-left: 4px solid #2a6cb5;
+      border-left: 4px solid #8a5518;
     }
     .stat-card.green  { border-color: #27a567; }
-    .stat-card.orange { border-color: #e07820; }
+    .stat-card.orange { border-color: #c47d0a; }
     .stat-card.purple { border-color: #7c4dbd; }
     .stat-card.teal   { border-color: #17a2b8; }
     .stat-card.red    { border-color: #dc3545; }
@@ -512,8 +512,8 @@
       min-height: 90px;
     }
     .quick-card:hover {
-      border-color: #2a6cb5;
-      box-shadow: 0 3px 10px rgba(42,108,181,.15);
+      border-color: #8a5518;
+      box-shadow: 0 3px 10px rgba(196,125,10,.15);
     }
     .quick-card .qicon { font-size: 28px; margin-bottom: 8px; }
     .quick-card .qname {
@@ -702,7 +702,7 @@
   <!-- Package renewal banner (shown Dec 30+, dismissed per year via localStorage) -->
   <div id="pkg-renewal-banner" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2000; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:8px; box-shadow:0 8px 40px rgba(0,0,0,.4); max-width:440px; width:90vw; overflow:hidden; font-family:'Segoe UI',Arial,sans-serif;">
-      <div style="background:#130520; color:#fff; padding:16px 20px; display:flex; align-items:center; gap:12px;">
+      <div style="background:#1c1208; color:#fff; padding:16px 20px; display:flex; align-items:center; gap:12px;">
         <span style="font-size:26px;">&#128197;</span>
         <div>
           <div style="font-size:16px; font-weight:700;">Package Renewal Time</div>
@@ -712,7 +712,7 @@
       <div style="padding:22px 24px;">
         <p style="font-size:14px; color:#333; line-height:1.6; margin-bottom:18px;">Your package plans are ready to renew for the upcoming year. Head to <strong>Package Plans</strong> to renew each package — it only takes one click per package.</p>
         <div style="display:flex; gap:10px; align-items:center;">
-          <button onclick="dismissRenewalBanner(); loadPage('packageplans');" style="background:#e07820; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer;">Go to Package Plans</button>
+          <button onclick="dismissRenewalBanner(); loadPage('packageplans');" style="background:#c47d0a; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer;">Go to Package Plans</button>
           <button onclick="dismissRenewalBanner()" style="background:none; border:1px solid #ccc; color:#555; padding:10px 18px; font-size:14px; border-radius:4px; cursor:pointer;">OK, Got It</button>
         </div>
       </div>
@@ -1543,8 +1543,8 @@
     dd.classList.add('open');
     var tabsHtml =
       '<div style="display:flex;border-bottom:1px solid #eee;padding:0;">' +
-        '<button onclick="event.stopPropagation();setSearchTab(\'active\')" style="flex:1;padding:9px 0;border:none;background:none;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:' + (_searchTab==='active'?'2px solid #e07820;color:#e07820':'2px solid transparent;color:#888') + ';">Clients &amp; Leads</button>' +
-        '<button onclick="event.stopPropagation();setSearchTab(\'former\')" style="flex:1;padding:9px 0;border:none;background:none;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:' + (_searchTab==='former'?'2px solid #e07820;color:#e07820':'2px solid transparent;color:#888') + ';">Former Clients &amp; Lead</button>' +
+        '<button onclick="event.stopPropagation();setSearchTab(\'active\')" style="flex:1;padding:9px 0;border:none;background:none;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:' + (_searchTab==='active'?'2px solid #c47d0a;color:#c47d0a':'2px solid transparent;color:#888') + ';">Clients &amp; Leads</button>' +
+        '<button onclick="event.stopPropagation();setSearchTab(\'former\')" style="flex:1;padding:9px 0;border:none;background:none;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:' + (_searchTab==='former'?'2px solid #c47d0a;color:#c47d0a':'2px solid transparent;color:#888') + ';">Former Clients &amp; Lead</button>' +
       '</div>';
     dd.innerHTML = tabsHtml + '<div class="search-no-results">Searching…</div>';
 
@@ -1760,7 +1760,7 @@
         '<div style="font-size:36px;margin-bottom:12px;">&#128241;&#10227;</div>' +
         '<h2 style="font-size:17px;font-weight:700;color:#1a2b3c;margin-bottom:10px;">Tip: Rotate Your Phone Sideways</h2>' +
         '<p style="font-size:14px;color:#555;line-height:1.5;margin-bottom:20px;">For the best view, turn your phone to landscape mode.</p>' +
-        '<button onclick="this.closest(\'div\').parentNode.remove()" style="background:#e07820;color:#fff;border:none;border-radius:8px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%;">OK</button>' +
+        '<button onclick="this.closest(\'div\').parentNode.remove()" style="background:#c47d0a;color:#fff;border:none;border-radius:8px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%;">OK</button>' +
         '</div>';
       document.body.appendChild(overlay);
     }
