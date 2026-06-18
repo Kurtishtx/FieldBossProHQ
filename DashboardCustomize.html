@@ -90,16 +90,6 @@
     <label class="switch"><input type="checkbox" id="show-banner" checked/><span class="slider"></span></label>
   </div>
 
-  <div class="field-row">
-    <label>Banner Title</label>
-    <input type="text" id="banner-title" value="Welcome to FieldBossPro"/>
-  </div>
-
-  <div class="field-row">
-    <label>Banner Subtitle</label>
-    <textarea id="banner-subtitle">Manage your customers, services, dispatching, and products all in one place. Select a section from the sidebar to get started.</textarea>
-  </div>
-
   <!-- Quick Access -->
   <div class="section-title">Quick Access</div>
 
@@ -220,8 +210,6 @@
     var { data } = await sb.from('dashboard_settings').select('*').eq('user_id', uid).single();
     if (!data) return;
 
-    if (data.welcome_title)    document.getElementById('banner-title').value    = data.welcome_title;
-    if (data.welcome_subtitle) document.getElementById('banner-subtitle').value = data.welcome_subtitle;
     document.getElementById('show-banner').checked = data.show_banner !== false;
 
     STAT_KEYS.forEach(function(k) {
@@ -294,8 +282,6 @@
 
     var row = {
       user_id:          uid,
-      welcome_title:    document.getElementById('banner-title').value,
-      welcome_subtitle: document.getElementById('banner-subtitle').value,
       show_banner:      document.getElementById('show-banner').checked,
       updated_at:       new Date().toISOString(),
     };
