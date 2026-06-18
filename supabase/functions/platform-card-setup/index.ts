@@ -112,6 +112,26 @@ Deno.serve(async (req) => {
         paused:         false,
       }).eq('user_id', user_id)
 
+      // Get next invoice number
+      const { data: allInvs } = await sb.from('platform_invoices').select('inv_num')
+      const maxNum = (allInvs || []).map((r: any) => parseInt(r.inv_num)).filter((n: number) => !isNaN(n) && n > 0)
+      const nextNum = maxNum.length ? Math.max(...maxNum) + 1 : 1
+
+      // Create a paid invoice for this charge
+      await sb.from('platform_invoices').insert({
+        account_email:   acct?.email || '',
+        account_user_id: user_id,
+        date:            todayStr,
+        inv_num:         String(nextNum),
+        inv_total:       129,
+        inv_bal:         0,
+        payment:         `${card.brand} ****${card.last4}`,
+        status_text:     'sent',
+        failed_charge:   false,
+        deleted:         false,
+        service_lines:   [{ name: 'Monthly Subscription', description: 'SprayBossPro — first month', date: todayStr, rate: 129, qty: 1, amount: 129 }],
+      })
+
       return new Response(
         JSON.stringify({ ok: true, last4: card.last4, brand: card.brand, billing_day: billingDay }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } }
