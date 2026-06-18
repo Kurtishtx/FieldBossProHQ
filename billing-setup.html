@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SprayBossPro — Add Payment Info</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0edf8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; }
+    .card { background: #fff; border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,.12); width: 100%; max-width: 440px; overflow: hidden; }
+    .card-header { background: linear-gradient(135deg, #080010, #1e0a35); padding: 24px 28px 20px; }
+    .logo { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -.3px; }
+    .logo span { color: #e07820; }
+    .card-header-sub { color: rgba(255,255,255,.6); font-size: 13px; margin-top: 6px; }
+    .card-body { padding: 28px; }
+    .trial-badge { background: #fff8e1; border: 1px solid #f5c800; border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 13px; color: #7a5c00; }
+    label { display: block; font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .stripe-element { border: 1.5px solid #ddd; border-radius: 6px; padding: 12px; background: #fff; transition: border-color .15s; }
+    .stripe-element.StripeElement--focus { border-color: #e07820; }
+    .stripe-element.StripeElement--invalid { border-color: #c0392b; }
+    .error-msg { background: #fff0f0; border: 1px solid #f5c6c6; color: #c0392b; border-radius: 6px; padding: 10px 12px; font-size: 13px; margin-top: 14px; display: none; }
+    .btn { width: 100%; background: #e07820; color: #fff; border: none; border-radius: 6px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 20px; transition: background .15s; }
+    .btn:hover { background: #c96a15; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success-view { text-align: center; padding: 40px 28px; display: none; }
+    .success-icon { width: 64px; height: 64px; background: #16a34a; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; margin-bottom: 16px; }
+    .success-title { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 10px; }
+    .success-sub { font-size: 14px; color: #666; line-height: 1.6; }
+    .login-view { padding: 28px; }
+    .inp { width: 100%; border: 1.5px solid #ddd; border-radius: 6px; padding: 10px 12px; font-size: 14px; font-family: inherit; margin-bottom: 14px; outline: none; }
+    .inp:focus { border-color: #e07820; }
+    .already-paid { text-align: center; padding: 32px 28px; }
+    .already-paid-icon { font-size: 40px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <div class="logo">SprayBoss<span>Pro</span></div>
+    <div class="card-header-sub">Activate your subscription — $129/month</div>
+  </div>
+
+  <!-- Login view (shown if not authenticated) -->
+  <div class="login-view" id="login-view" style="display:none;">
+    <p style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.5;">Sign in to your SprayBossPro account to add your payment info.</p>
+    <div id="login-err" class="error-msg"></div>
+    <label>Email</label>
+    <input type="email" class="inp" id="login-email" placeholder="you@yourcompany.com"/>
+    <label>Password</label>
+    <input type="password" class="inp" id="login-password" placeholder="Your password"/>
+    <button class="btn" id="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+
+  <!-- Already has a card -->
+  <div class="already-paid" id="already-paid-view" style="display:none;">
+    <div class="already-paid-icon">✅</div>
+    <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:8px;">You're all set!</div>
+    <p style="font-size:14px;color:#666;line-height:1.6;">Your payment info is already on file. Your account is active.</p>
+    <a href="https://my.spraybosspro.com/dashboard.html" style="display:inline-block;margin-top:20px;color:#e07820;font-weight:700;text-decoration:none;">Go to Dashboard →</a>
+  </div>
+
+  <!-- Card form -->
+  <div class="card-body" id="card-view" style="display:none;">
+    <div class="trial-badge" id="trial-badge">
+      Add your card to keep uninterrupted access. You won't be charged until your trial ends.
+    </div>
+    <label>Card Information</label>
+    <div id="card-element" class="stripe-element"></div>
+    <div class="error-msg" id="card-error"></div>
+    <button class="btn" id="pay-btn" onclick="submitCard()">Activate Subscription — $129/mo</button>
+    <p style="font-size:11.5px;color:#aaa;text-align:center;margin-top:12px;">Cancel anytime. No contracts. Secured by Stripe.</p>
+  </div>
+
+  <!-- Success -->
+  <div class="success-view" id="success-view">
+    <div class="success-icon">✓</div>
+    <div class="success-title">You're activated!</div>
+    <p class="success-sub">Your card has been saved. You'll be billed $129 on the <strong id="billing-day-text"></strong> of each month.<br/>Taking you to your dashboard…</p>
+    <div id="redirect-countdown" style="font-size:12px;color:#aaa;margin-top:12px;"></div>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  // ⚠️ Replace with your SprayBossPro platform Stripe publishable key
+  var STRIPE_PK     = 'YOUR_PLATFORM_STRIPE_PUBLISHABLE_KEY';
+  var EDGE_BASE     = SUPABASE_URL + '/functions/v1';
+
+  var sb     = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  var stripe = Stripe(STRIPE_PK);
+  var elements, cardElement;
+  var currentUser = null;
+
+  async function init() {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      show('login-view');
+      return;
+    }
+    currentUser = session.user;
+    await checkAccount();
+  }
+
+  async function checkAccount() {
+    // Check if card already on file
+    var { data: acct } = await sb.from('platform_accounts').select('active, card_last4, trial_ends_at').eq('user_id', currentUser.id).single();
+
+    if (acct && acct.active && acct.card_last4) {
+      show('already-paid-view');
+      return;
+    }
+
+    // Show trial badge with days remaining
+    if (acct && acct.trial_ends_at) {
+      var daysLeft = Math.round((new Date(acct.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24));
+      var badge = document.getElementById('trial-badge');
+      if (daysLeft > 0) {
+        badge.textContent = daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left on your trial. Add your card now — you won\'t be charged until the trial ends.';
+      } else {
+        badge.textContent = 'Your trial has ended. Add your card to reactivate your account immediately.';
+        badge.style.background = '#fff0f0';
+        badge.style.borderColor = '#f5c6c6';
+        badge.style.color = '#c0392b';
+      }
+    }
+
+    // Mount Stripe card element
+    show('card-view');
+    elements   = stripe.elements();
+    cardElement = elements.create('card', {
+      style: { base: { fontSize: '15px', fontFamily: '\'Segoe UI\', Arial, sans-serif', color: '#333', '::placeholder': { color: '#aaa' } } }
+    });
+    cardElement.mount('#card-element');
+    cardElement.on('change', function(e) {
+      var el = document.getElementById('card-error');
+      if (e.error) { el.textContent = e.error.message; el.style.display = 'block'; }
+      else { el.style.display = 'none'; }
+    });
+  }
+
+  async function doLogin() {
+    var btn   = document.getElementById('login-btn');
+    var errEl = document.getElementById('login-err');
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    var email    = document.getElementById('login-email').value.trim();
+    var password = document.getElementById('login-password').value;
+    var { data, error } = await sb.auth.signInWithPassword({ email: email, password: password });
+    if (error) {
+      errEl.textContent = error.message; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Sign In';
+      return;
+    }
+    currentUser = data.user;
+    document.getElementById('login-view').style.display = 'none';
+    await checkAccount();
+  }
+
+  async function submitCard() {
+    var btn   = document.getElementById('pay-btn');
+    var errEl = document.getElementById('card-error');
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    try {
+      // Get SetupIntent client_secret from edge function
+      var siRes = await fetch(EDGE_BASE + '/platform-card-setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
+        body: JSON.stringify({ action: 'create_setup_intent', user_id: currentUser.id })
+      });
+      var si = await siRes.json();
+      if (si.error) throw new Error(si.error);
+
+      // Confirm the card setup with Stripe.js
+      var result = await stripe.confirmCardSetup(si.client_secret, {
+        payment_method: { card: cardElement }
+      });
+      if (result.error) throw new Error(result.error.message);
+
+      // Save card info to our database
+      var saveRes = await fetch(EDGE_BASE + '/platform-card-setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
+        body: JSON.stringify({ action: 'save_card', user_id: currentUser.id, payment_method_id: result.setupIntent.payment_method })
+      });
+      var saved = await saveRes.json();
+      if (saved.error) throw new Error(saved.error);
+
+      // Show success
+      var dayLabel = ordinal(saved.billing_day);
+      document.getElementById('billing-day-text').textContent = dayLabel;
+      document.getElementById('card-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+
+      var secs = 4;
+      var cd = document.getElementById('redirect-countdown');
+      cd.textContent = 'Redirecting in ' + secs + ' seconds…';
+      var iv = setInterval(function() {
+        secs--;
+        if (secs <= 0) { clearInterval(iv); window.location.href = 'https://my.spraybosspro.com/dashboard.html'; }
+        else cd.textContent = 'Redirecting in ' + secs + ' second' + (secs === 1 ? '' : 's') + '…';
+      }, 1000);
+
+    } catch(e) {
+      errEl.textContent = e.message; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Activate Subscription — $129/mo';
+    }
+  }
+
+  function show(id) {
+    ['login-view','card-view','already-paid-view','success-view'].forEach(function(v) {
+      document.getElementById(v).style.display = v === id ? '' : 'none';
+    });
+  }
+
+  function ordinal(n) {
+    var s = ['th','st','nd','rd'];
+    var v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  init();
+</script>
+</body>
+</html>

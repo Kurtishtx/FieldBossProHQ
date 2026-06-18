@@ -1449,6 +1449,16 @@
 
       await sb.from('company_info').insert({ user_id: uid, company_name: comp, display_name: comp });
 
+      // Create platform billing record — tracks trial and billing schedule
+      await sb.from('platform_accounts').insert({
+        user_id: uid,
+        email: email,
+        plan: 'Monthly Subscription',
+        monthly_amount: 129,
+        trial_ends_at: trialEnd,
+        active: false
+      });
+
       var reasons = ['Cancel Maintaining Self','Cancel Sold House','Cancel Too Expensive','Cancel Unknown','Dropping Customer','Sold House']
         .map(function(nm) { return { name: nm, active: true, user_id: uid }; });
       await sb.from('cancellation_reasons').insert(reasons);
