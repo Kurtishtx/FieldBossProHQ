@@ -12,7 +12,7 @@ const sb = createClient(
 )
 
 function stripePost(path: string, params: Record<string, string>) {
-  const secretKey = Deno.env.get('PLATFORM_STRIPE_SECRET_KEY')!
+  const secretKey = Deno.env.get('STRIPE_SECRET_KEY')!
   return fetch('https://api.stripe.com/v1' + path, {
     method: 'POST',
     headers: {
@@ -24,7 +24,7 @@ function stripePost(path: string, params: Record<string, string>) {
 }
 
 function stripeGet(path: string) {
-  const secretKey = Deno.env.get('PLATFORM_STRIPE_SECRET_KEY')!
+  const secretKey = Deno.env.get('STRIPE_SECRET_KEY')!
   return fetch('https://api.stripe.com/v1' + path, {
     headers: { Authorization: 'Bearer ' + secretKey },
   }).then(r => r.json())
