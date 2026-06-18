@@ -46,8 +46,8 @@ Deno.serve(async (req) => {
       .eq('user_id', user_id)
       .single()
 
-    // ── create_setup_intent: get client_secret for Stripe Elements ──
-    if (!action || action === 'create_setup_intent') {
+    // ── create_payment_intent: charge $129 now and save card for future ──
+    if (!action || action === 'create_payment_intent') {
       let customerId = acct?.stripe_customer_id
 
       if (!customerId) {
@@ -62,20 +62,25 @@ Deno.serve(async (req) => {
           .eq('user_id', user_id)
       }
 
-      const setup = await stripePost('/setup_intents', {
+      // PaymentIntent charges immediately and saves card for future monthly charges
+      const payment = await stripePost('/payment_intents', {
+        amount: '12900',
+        currency: 'usd',
         customer: customerId,
-        usage: 'off_session',
+        setup_future_usage: 'off_session',
         'payment_method_types[]': 'card',
+        description: 'SprayBossPro Monthly Subscription',
+        'metadata[user_id]': user_id,
       })
-      if (setup.error) throw new Error(setup.error.message)
+      if (payment.error) throw new Error(payment.error.message)
 
       return new Response(
-        JSON.stringify({ client_secret: setup.client_secret, stripe_customer_id: customerId }),
+        JSON.stringify({ client_secret: payment.client_secret, stripe_customer_id: customerId }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } }
       )
     }
 
-    // ── save_card: called after Stripe.js confirms the card ──
+    // ── save_card: called after Stripe.js confirms payment ──
     if (action === 'save_card') {
       if (!payment_method_id) {
         return new Response(JSON.stringify({ error: 'Missing payment_method_id' }), { status: 400, headers: CORS })
@@ -97,14 +102,14 @@ Deno.serve(async (req) => {
       const billingDay = today.getDate()
 
       await sb.from('platform_accounts').update({
-        card_last4:    card.last4,
-        card_brand:    card.brand,
-        card_added_at: todayStr,
-        billing_day:   billingDay,
+        card_last4:     card.last4,
+        card_brand:     card.brand,
+        card_added_at:  todayStr,
+        billing_day:    billingDay,
         monthly_amount: 129,
-        plan:          'Monthly Subscription',
-        active:        true,
-        paused:        false,
+        plan:           'Monthly Subscription',
+        active:         true,
+        paused:         false,
       }).eq('user_id', user_id)
 
       return new Response(
