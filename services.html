@@ -90,10 +90,15 @@
   </div>
 </div>
 
-<div class="filter-bar" id="filter-bar">
+<div class="filter-bar">
   <span class="filter-label">Category:</span>
   <button class="pill active" onclick="setCategory('all', this)">All</button>
   <button class="pill" onclick="setCategory('chemical', this)">Chemical</button>
+  <button class="pill" onclick="setCategory('mowing', this)">Mowing</button>
+  <button class="pill" onclick="setCategory('landscape', this)">Landscape</button>
+  <button class="pill" onclick="setCategory('irrigation', this)">Irrigation</button>
+  <button class="pill" onclick="setCategory('snow', this)">Snow</button>
+  <button class="pill" onclick="setCategory('other', this)">Other</button>
 </div>
 
 <div class="toolbar">
@@ -162,22 +167,7 @@
   async function init() {
     var { data: s } = await sb.auth.getSession();
     uid = s && s.session ? s.session.user.id : null;
-    await loadCategoryPills();
     await loadServices();
-  }
-
-  async function loadCategoryPills() {
-    if (!uid) return;
-    var { data: cats } = await sb.from('service_categories').select('*').eq('user_id', uid).eq('active', true).order('sort_order').order('name');
-    var bar = document.getElementById('filter-bar');
-    (cats || []).forEach(function(cat) {
-      var key = cat.name.toLowerCase().replace(/\s+/g, '_');
-      var btn = document.createElement('button');
-      btn.className = 'pill';
-      btn.textContent = cat.name;
-      btn.onclick = function() { setCategory(key, btn); };
-      bar.appendChild(btn);
-    });
   }
 
   async function loadServices() {
