@@ -61,6 +61,22 @@
 
     .results-bar { padding:6px 24px; font-size:13px; font-weight:700; color:#111; background:transparent; text-align:right; }
 
+    /* ── Unscheduled section ── */
+    .unsched-section { margin:8px 16px 0; border-radius:10px 10px 0 0; overflow:hidden; border:1px solid #e8c88a; }
+    .unsched-hdr { background:#3d2510; color:#fff; padding:8px 14px; display:flex; align-items:center; justify-content:space-between; }
+    .unsched-hdr-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .unsched-count { background:rgba(255,255,255,.2); border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; }
+    .unsched-table { width:100%; border-collapse:collapse; background:#fffdf8; }
+    .unsched-table thead tr { background:#f5ece0; }
+    .unsched-table thead th { padding:7px 10px; text-align:left; font-size:11px; font-weight:700; color:#5a3a10; text-transform:uppercase; letter-spacing:.4px; border-right:1px solid #e8ddd0; }
+    .unsched-table thead th:last-child { border-right:none; }
+    .unsched-table tbody tr { border-bottom:1px solid #f0e8dc; }
+    .unsched-table tbody tr:hover { background:#fdf3e3; }
+    .unsched-table tbody td { padding:8px 10px; vertical-align:middle; color:#333; }
+    .unsched-empty { text-align:center; padding:18px; color:#c8a060; font-size:13px; background:#fffdf8; }
+    .btn-assign { background:#3d2510; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
+    .btn-assign:hover { background:#1e1208; }
+
     /* ── Schedule Modal ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; }
@@ -85,7 +101,7 @@
 <div class="page-header">
   <h1>&#128203; Job Board</h1>
   <div class="page-header-right">
-    <button class="btn-add" onclick="openRecurring()">+ Add Recurring Job</button>
+    <button class="btn-add" onclick="openRecurring()">+ Add Job</button>
   </div>
 </div>
 
@@ -113,6 +129,32 @@
       <option value="">All Trucks</option>
     </select>
   </div>
+</div>
+
+<!-- Unscheduled section -->
+<div class="unsched-section">
+  <div class="unsched-hdr">
+    <div class="unsched-hdr-title">
+      &#9888; Unscheduled Jobs
+      <span class="unsched-count" id="unsched-count">0</span>
+    </div>
+    <span style="font-size:11px;color:rgba(255,255,255,.6);">No date assigned — click Assign Date to schedule</span>
+  </div>
+  <table class="unsched-table">
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Address</th>
+        <th>Service</th>
+        <th>Category</th>
+        <th>Recurrence</th>
+        <th>Amount</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="unsched-tbody"></tbody>
+  </table>
+  <div class="unsched-empty" id="unsched-empty" style="display:none;">No unscheduled jobs &#10003;</div>
 </div>
 
 <div class="results-bar" id="results-bar"></div>
@@ -176,6 +218,7 @@
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
   var allJobs = [];
+  var unschedJobs = [];
   var activeCategory = 'all';
   var weekOffset = 0;
   var modalJobId = null;
@@ -216,6 +259,41 @@
   }
 
   function render() {
+    renderUnscheduled();
+    renderScheduled();
+  }
+
+  function renderUnscheduled() {
+    var filtered = unschedJobs.filter(function(j) {
+      if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
+      return true;
+    });
+    var tbody = document.getElementById('unsched-tbody');
+    var empty = document.getElementById('unsched-empty');
+    tbody.innerHTML = '';
+    document.getElementById('unsched-count').textContent = filtered.length;
+    empty.style.display = filtered.length ? 'none' : '';
+
+    filtered.forEach(function(j) {
+      var cat = j.job_category || 'other';
+      var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="font-weight:600;">' + (j.client_name || '') + '</td>' +
+        '<td style="color:#555;">' + (j.address || '') + '</td>' +
+        '<td>' + (j.service || j.name || '') + '</td>' +
+        '<td><span class="badge ' + badgeClass(cat) + '">' + catLabel + '</span></td>' +
+        '<td><span class="recur-tag">' + (j.recurrence_type ? '&#8635; ' + (RECUR_LABELS[j.recurrence_type] || j.recurrence_type) : 'One-Time') + '</span></td>' +
+        '<td>$' + parseFloat(j.amount || 0).toFixed(2) + '</td>' +
+        '<td style="display:flex;gap:6px;align-items:center;">' +
+          '<button class="btn-assign" onclick="openModal(\'' + j.id + '\', true)">Assign Date</button>' +
+          '<button class="btn-del" title="Delete" onclick="deleteJob(\'' + j.id + '\', true)">&#128465;</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderScheduled() {
     var truckFilter = document.getElementById('truck-filter').value;
     var s = weekStart(weekOffset);
     var e = new Date(s); e.setDate(e.getDate() + 7);
@@ -227,13 +305,12 @@
       if (truckFilter && j.truck_id !== truckFilter) return false;
       return true;
     });
-
     filtered.sort(function(a,b){ return a.scheduled_date.localeCompare(b.scheduled_date); });
 
     var tbody = document.getElementById('job-tbody');
     tbody.innerHTML = '';
     document.getElementById('empty-msg').style.display = filtered.length ? 'none' : 'block';
-    document.getElementById('results-bar').textContent = filtered.length + ' job' + (filtered.length === 1 ? '' : 's');
+    document.getElementById('results-bar').textContent = filtered.length + ' scheduled job' + (filtered.length === 1 ? '' : 's') + ' this week';
 
     var lastDay = '';
     filtered.forEach(function(j) {
@@ -282,19 +359,26 @@
   }
 
   async function loadJobs() {
-    var { data } = await sb.from('Services')
+    var base = sb.from('Services')
       .select('id, client_name, address, service, name, scheduled_date, amount, job_category, recurrence_type, truck_id, assigned_to, status')
       .eq('user_id', uid)
       .eq('dispatched', false)
-      .neq('job_category', 'chemical')
-      .not('scheduled_date', 'is', null)
-      .order('scheduled_date');
-    allJobs = data || [];
+      .neq('job_category', 'chemical');
+
+    var [schedRes, unschedRes] = await Promise.all([
+      base.not('scheduled_date', 'is', null).order('scheduled_date'),
+      base.is('scheduled_date', null).order('client_name')
+    ]);
+    allJobs      = schedRes.data  || [];
+    unschedJobs  = unschedRes.data || [];
     render();
   }
 
-  function openModal(id) {
-    var job = allJobs.find(function(j){ return j.id === id; });
+  var modalIsUnsched = false;
+  function openModal(id, isUnsched) {
+    modalIsUnsched = !!isUnsched;
+    var list = isUnsched ? unschedJobs : allJobs;
+    var job  = list.find(function(j){ return j.id === id; });
     if (!job) return;
     modalJobId = id;
     document.getElementById('modal-info').textContent = (job.client_name || '') + ' — ' + (job.service || job.name || '') + ' — ' + (job.address || '');
@@ -325,15 +409,18 @@
     }).eq('id', modalJobId);
 
     if (error) { alert('Error: ' + error.message); return; }
+    var removedId = modalJobId;
     closeModal();
-    allJobs = allJobs.filter(function(j){ return j.id !== modalJobId; });
+    allJobs     = allJobs.filter(function(j){ return j.id !== removedId; });
+    unschedJobs = unschedJobs.filter(function(j){ return j.id !== removedId; });
     render();
   }
 
-  async function deleteJob(id) {
+  async function deleteJob(id, isUnsched) {
     if (!confirm('Delete this job?')) return;
     await sb.from('Services').delete().eq('id', id);
-    allJobs = allJobs.filter(function(j){ return j.id !== id; });
+    allJobs     = allJobs.filter(function(j){ return j.id !== id; });
+    unschedJobs = unschedJobs.filter(function(j){ return j.id !== id; });
     render();
   }
 
