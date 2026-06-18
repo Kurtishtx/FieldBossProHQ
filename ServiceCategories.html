@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Service Categories</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; }
+
+    .page-header { padding: 14px 20px; background: #fff; border-bottom: 1px solid #e0d8cc; display: flex; align-items: center; justify-content: space-between; }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
+    .page-sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .content { max-width: 540px; margin: 28px auto; padding: 0 16px 40px; }
+
+    .note-box { background: #fdf8f0; border: 1px solid #e8c88a; border-radius: 8px; padding: 12px 16px; font-size: 12.5px; color: #5a3a10; line-height: 1.6; margin-bottom: 20px; }
+    .note-box strong { display: block; margin-bottom: 3px; font-size: 13px; color: #3d2510; }
+
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); overflow: hidden; }
+    .card-hdr { background: #1e1208; color: #fff; padding: 12px 18px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+    .card-hdr span { color: rgba(255,255,255,.55); font-size: 12px; font-weight: 400; }
+
+    .add-form { display: flex; gap: 8px; padding: 14px 16px; border-bottom: 1px solid #f0ece6; }
+    .add-form input { flex: 1; border: 1px solid #ccc; border-radius: 5px; padding: 8px 12px; font-size: 13px; font-family: inherit; outline: none; }
+    .add-form input:focus { border-color: #c47d0a; }
+    .btn-add { background: #c47d0a; color: #fff; border: none; padding: 8px 18px; border-radius: 5px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-add:hover { background: #a86808; }
+
+    .flash { font-size: 12px; color: #27a567; font-weight: 600; padding: 6px 16px; display: none; border-bottom: 1px solid #f0ece6; }
+
+    .cat-list { list-style: none; }
+    .cat-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-bottom: 1px solid #f5f0eb; }
+    .cat-item:last-child { border-bottom: none; }
+    .cat-name { flex: 1; font-size: 13.5px; font-weight: 600; color: #222; }
+    .cat-input { flex: 1; border: 1px solid #c47d0a; border-radius: 4px; padding: 5px 8px; font-size: 13px; font-family: inherit; outline: none; display: none; }
+    .btn-edit { background: none; border: 1px solid #ddd; color: #555; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; }
+    .btn-edit:hover { border-color: #c47d0a; color: #c47d0a; }
+    .btn-ok { background: #c47d0a; color: #fff; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; font-family: inherit; display: none; }
+    .btn-ok:hover { background: #a86808; }
+    .btn-del { background: none; border: 1px solid #e8c0c0; color: #c0392b; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; }
+    .btn-del:hover { background: #fdf0ef; }
+
+    .empty-msg { padding: 28px 16px; text-align: center; color: #aaa; font-size: 13px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>Service Categories</h1>
+    <div class="page-sub">Job Board — categories shown on the Add Service form</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="note-box">
+    <strong>&#9432; How this works</strong>
+    <strong>Chemical</strong> is a built-in system category and always appears first — those services go to the <strong>Waiting List</strong>. Everything you add here goes to the <strong>Job Board</strong>. The Add Service form pulls from this list automatically.
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      Job Board Categories
+      <span id="cat-count"></span>
+    </div>
+
+    <div class="add-form">
+      <input type="text" id="new-name" placeholder="e.g. Tree Trimming, Hardscape, Cleanup…" maxlength="40"
+        onkeydown="if(event.key==='Enter') addCat()"/>
+      <button class="btn-add" onclick="addCat()">+ Add</button>
+    </div>
+
+    <div class="flash" id="flash">&#10003; Saved</div>
+    <ul class="cat-list" id="cat-list"></ul>
+    <div class="empty-msg" id="empty-msg" style="display:none;">No categories yet — add one above.</div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var uid  = null;
+  var cats = [];
+  var DEFAULTS = ['Mowing', 'Landscape', 'Irrigation', 'Snow', 'Other'];
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+
+    var { data } = await sb.from('service_categories').select('*').eq('user_id', uid).order('sort_order').order('name');
+    cats = data || [];
+
+    // Seed defaults on first open
+    if (!cats.length) {
+      var inserts = DEFAULTS.map(function(name, i) {
+        return { user_id: uid, name: name, sort_order: i, active: true };
+      });
+      var { data: seeded } = await sb.from('service_categories').insert(inserts).select();
+      cats = seeded || [];
+    }
+
+    render();
+  }
+
+  function render() {
+    var list  = document.getElementById('cat-list');
+    var empty = document.getElementById('empty-msg');
+    list.innerHTML = '';
+    document.getElementById('cat-count').textContent = cats.length + ' categor' + (cats.length === 1 ? 'y' : 'ies');
+    empty.style.display = cats.length ? 'none' : '';
+
+    cats.forEach(function(cat) {
+      var li = document.createElement('li');
+      li.className = 'cat-item';
+      li.innerHTML =
+        '<span class="cat-name">' + esc(cat.name) + '</span>' +
+        '<input class="cat-input" type="text" value="' + esc(cat.name) + '" maxlength="40"' +
+          ' onkeydown="if(event.key===\'Enter\') saveEdit(this,\'' + cat.id + '\')"' +
+        '/>' +
+        '<button class="btn-edit" onclick="startEdit(this)">Edit</button>' +
+        '<button class="btn-ok" onclick="saveEdit(this.previousElementSibling.previousElementSibling,\'' + cat.id + '\')">Save</button>' +
+        '<button class="btn-del" onclick="deleteCat(\'' + cat.id + '\')">&#10005;</button>';
+      list.appendChild(li);
+    });
+  }
+
+  function startEdit(btn) {
+    var li = btn.closest('.cat-item');
+    li.querySelector('.cat-name').style.display  = 'none';
+    li.querySelector('.cat-input').style.display = '';
+    li.querySelector('.cat-input').focus();
+    btn.style.display = 'none';
+    li.querySelector('.btn-ok').style.display = '';
+  }
+
+  async function saveEdit(inputOrBtn, id) {
+    var li = inputOrBtn.closest('.cat-item');
+    var input = li.querySelector('.cat-input');
+    var name  = input.value.trim();
+    if (!name) { alert('Name cannot be empty.'); return; }
+    var { error } = await sb.from('service_categories').update({ name: name }).eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    var c = cats.find(function(x) { return x.id === id; });
+    if (c) c.name = name;
+    flash();
+    render();
+  }
+
+  async function addCat() {
+    var input = document.getElementById('new-name');
+    var name  = input.value.trim();
+    if (!name) { input.focus(); return; }
+    var maxOrder = cats.reduce(function(m, c) { return Math.max(m, c.sort_order || 0); }, -1);
+    var { data, error } = await sb.from('service_categories')
+      .insert({ user_id: uid, name: name, sort_order: maxOrder + 1, active: true })
+      .select().single();
+    if (error) { alert('Error: ' + error.message); return; }
+    cats.push(data);
+    input.value = '';
+    flash();
+    render();
+  }
+
+  async function deleteCat(id) {
+    var cat = cats.find(function(c) { return c.id === id; });
+    if (!confirm('Delete "' + (cat ? cat.name : 'this category') + '"?')) return;
+    var { error } = await sb.from('service_categories').delete().eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    cats = cats.filter(function(c) { return c.id !== id; });
+    render();
+  }
+
+  function flash() {
+    var el = document.getElementById('flash');
+    el.style.display = 'block';
+    clearTimeout(flash._t);
+    flash._t = setTimeout(function() { el.style.display = 'none'; }, 2000);
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  init();
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,54 +6,68 @@
   <title>Add Service</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; }
 
-    .dialog { max-width: 1100px; margin: 30px auto; border: 1px solid #ccc; box-shadow: 0 4px 20px rgba(0,0,0,.15); background: #fff; }
-    .dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
-    .dialog-header h1 { font-size: 20px; font-weight: 700; color: #111; }
-    .close-btn { background: none; border: 1px solid #bbb; padding: 2px 7px; font-size: 13px; cursor: pointer; color: #555; border-radius: 2px; }
-    .close-btn:hover { background: #f0f0f0; }
+    .dialog { max-width: 640px; margin: 30px auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,.15); overflow: hidden; }
 
-    .tabs { display: flex; gap: 4px; align-items: center; padding: 10px 20px 0; border-bottom: 2px solid #eee; background: #fafafa; }
-    .tab-btn { background: #e0e0e0; color: #444; border: none; border-radius: 4px 4px 0 0; padding: 7px 18px; font-size: 13.5px; font-weight: 600; font-family: inherit; cursor: pointer; }
-    .tab-btn:hover { background: #ccc; }
-    .tab-btn.tab-active { background: #1e1208; color: #fff; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .dialog-hdr { background: #1e1208; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .dialog-hdr h1 { font-size: 18px; font-weight: 700; }
 
-    /* Products & Mixes tab */
-    .pm-section-header { background: #5a5a5a; color: #fff; padding: 8px 16px; font-size: 13.5px; font-weight: 600; margin: 0 0 0 0; }
-    .pm-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #eee; }
-    .pm-label { font-size: 13px; color: #555; width: 100px; flex-shrink: 0; }
-    .pm-mix-select { flex: 2; border: 1px solid #ccc; border-radius: 2px; padding: 6px 8px; font-size: 13px; font-family: inherit; }
-    .pm-date { width: 130px; border: 1px solid #ccc; border-radius: 2px; padding: 6px 8px; font-size: 13px; font-family: inherit; }
-    .pm-date-label { font-size: 13px; color: #555; flex-shrink: 0; }
-    .pm-del-btn { background: none; border: none; cursor: pointer; color: #c0392b; font-size: 18px; line-height: 1; padding: 0 4px; flex-shrink: 0; }
-    .pm-del-btn:hover { color: #922b21; }
-    .btn-add-pm { background: #f0f0f0; border: 1px solid #bbb; padding: 6px 14px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; margin: 12px 16px; }
-    .btn-add-pm:hover { background: #e0e0e0; }
+    .section { padding: 18px 24px; border-bottom: 1px solid #f0ece6; }
+    .section-title { font-size: 11px; font-weight: 700; color: #8a5518; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 14px; }
 
-    .dialog-body { padding: 20px 24px 8px; }
-    .section-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 16px 0 10px; border-top: 1px solid #eee; margin-top: 8px; }
-    .section-label:first-child { border-top: none; padding-top: 0; }
+    .field-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .field-row:last-child { margin-bottom: 0; }
+    .field-row label { width: 130px; min-width: 130px; font-size: 13px; font-weight: 600; color: #555; }
+    .field-row input[type="text"],
+    .field-row input[type="number"],
+    .field-row select,
+    .field-row textarea {
+      flex: 1; border: 1px solid #ccc; border-radius: 4px;
+      padding: 8px 10px; font-size: 13px; font-family: inherit; outline: none; color: #222;
+    }
+    .field-row input:focus, .field-row select:focus, .field-row textarea:focus { border-color: #c47d0a; }
+    .field-row textarea { resize: vertical; min-height: 64px; }
 
-    .field-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
-    .field-row label { width: 160px; font-weight: 700; font-size: 13px; color: #333; flex-shrink: 0; padding-top: 8px; }
-    .field-row input[type="text"], .field-row input[type="number"], .field-row select { flex: 1; width: 100%; border: 1px solid #ccc; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; border-radius: 2px; }
-    .field-row input:focus, .field-row select:focus { border-color: #c47d0a; }
+    /* Category pills */
+    .cat-pills { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+    .cat-pill {
+      padding: 6px 16px; border: 2px solid #ddd; border-radius: 20px;
+      font-size: 13px; font-weight: 600; cursor: pointer; background: #f8f8f8;
+      color: #555; font-family: inherit; transition: all .15s;
+    }
+    .cat-pill:hover { border-color: #c47d0a; color: #c47d0a; }
+    .cat-pill.selected { border-color: #1e1208; background: #1e1208; color: #fff; }
 
-    .check-grid { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 4px; }
-    .check-grid label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; font-weight: 400; width: auto; padding-top: 0; }
-    .check-grid input[type="checkbox"] { width: 15px; height: 15px; accent-color: #c47d0a; cursor: pointer; flex-shrink: 0; }
+    .toggle-row { display: flex; align-items: center; gap: 10px; }
+    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: .2s; }
+    .slider:before { position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: #27a567; }
+    input:checked + .slider:before { transform: translateX(18px); }
 
-    .std-select { width: 100%; border: 1px solid #ccc; border-radius: 2px; padding: 7px 10px; font-size: 13px; font-family: inherit; color: #333; }
-    .std-select:focus { outline: none; border-color: #c47d0a; }
+    /* Chemical-only section */
+    #chem-section { display: none; }
 
-    .dialog-footer { padding: 16px 24px 24px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
-    .btn-save, .btn-save-new { background: #c47d0a; color: #fff; border: none; padding: 9px 28px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
-    .btn-save:hover, .btn-save-new:hover { background: #a86808; }
-    .btn-cancel { color: #555; font-size: 13px; cursor: pointer; margin-left: 4px; background: none; border: none; font-family: inherit; }
-    .btn-cancel:hover { text-decoration: underline; }
+    .pm-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .pm-row select { flex: 2; border: 1px solid #ccc; border-radius: 4px; padding: 7px 8px; font-size: 13px; font-family: inherit; }
+    .pm-row input[type="date"] { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 7px 8px; font-size: 13px; font-family: inherit; }
+    .pm-row label { font-size: 12px; color: #888; flex-shrink: 0; }
+    .btn-del-pm { background: none; border: none; color: #c0392b; cursor: pointer; font-size: 18px; line-height: 1; flex-shrink: 0; }
+
+    .footer { padding: 16px 24px; display: flex; gap: 10px; align-items: center; }
+    .btn-save { background: #c47d0a; color: #fff; border: none; padding: 10px 28px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #a86808; }
+    .btn-save-new { background: #1e1208; color: #fff; border: 1px solid #c47d0a; padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-save-new:hover { background: #3d2510; }
+    .btn-cancel { background: none; border: none; color: #888; font-size: 13px; cursor: pointer; font-family: inherit; margin-left: 4px; }
+    .btn-cancel:hover { text-decoration: underline; color: #555; }
+    .del-btn { margin-left: auto; background: none; border: 1px solid #c0392b; color: #c0392b; padding: 9px 16px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .del-btn:hover { background: #fdf0ef; }
+
+    .status-msg { font-size: 13px; padding: 8px 24px; background: #e8f5e9; color: #27a567; border-left: 3px solid #27a567; display: none; }
+    .status-msg.err { background: #fdf0ef; color: #c0392b; border-color: #c0392b; }
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
@@ -61,47 +75,67 @@
 <body>
 
 <div class="dialog">
-  <div class="dialog-header">
-    <h1>Add Service</h1>
-    <button class="close-btn" onclick="history.back()">&#10005;</button>
+  <div class="dialog-hdr">
+    <h1 id="form-title">Add Service</h1>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn tab-active" onclick="switchTab('details')">Details</button>
-    <button class="tab-btn" onclick="switchTab('products')">Products &amp; Mixes</button>
-  </div>
-
-  <!-- Details tab -->
-  <div class="tab-panel active" id="panel-details">
-  <div class="dialog-body">
-    <div class="section-label">Service Info</div>
-
-    <div class="field-row" id="invoice-name-row" style="display:none;">
-      <label for="invoice-name">Name on Invoice</label>
-      <div style="flex:1;"><input type="text" id="invoice-name" autocomplete="off"/></div>
-    </div>
-    <script>(function(){ var p = new URLSearchParams(window.location.search); if(p.get('category')==='one_time') document.getElementById('invoice-name-row').style.display=''; })();</script>
-
-    <div class="field-row">
-      <label for="service-name">Service Name</label>
-      <div style="flex:1;"><input type="text" id="service-name" autocomplete="off" placeholder="Make as short as possible — shows in header, not on invoice"/>
-      <div style="margin-top:6px;font-size:13px;color:#555;">&#128161; <strong>Tip:</strong> If a service has multiple applications, add each one as a separate row (e.g., <em>Lawn Insect 1</em>, <em>Lawn Insect 2</em>). Each will appear as its own entry on the Waiting List and Scheduled List, so you always know which product mix goes with which application.</div>
+  <!-- Category -->
+  <div class="section">
+    <div class="section-title">Service Category</div>
+    <div class="field-row" style="align-items:flex-start;">
+      <label style="padding-top:6px;">Category</label>
+      <div class="cat-pills" id="cat-pills">
+        <span style="color:#aaa;font-size:12px;">Loading…</span>
       </div>
     </div>
-
-
-    <div class="field-row">
-      <label for="default-rate">Default Rate</label>
-      <div style="flex:1;"><input type="number" id="default-rate" value="0.00" step="0.01" min="0"/></div>
+    <input type="hidden" id="service-category" value=""/>
+    <div id="cat-hint" style="font-size:12px;color:#888;margin-top:8px;padding-left:142px;">
+      Select a category — Chemical goes to Waiting List, all others go to Job Board.
     </div>
+  </div>
 
-
-    <div class="section-label">Associated Areas</div>
-
+  <!-- Service Info -->
+  <div class="section">
+    <div class="section-title">Service Info</div>
     <div class="field-row">
-      <label for="area-select">Associated Area</label>
-      <div style="flex:1;">
-        <select class="std-select" id="area-select">
+      <label for="service-name">Service Name <span style="color:#c0392b">*</span></label>
+      <input type="text" id="service-name" placeholder="e.g. Lawn Mowing, Fertilizer App 1" autocomplete="off"/>
+    </div>
+    <div class="field-row">
+      <label for="invoice-name">Name on Invoice</label>
+      <input type="text" id="invoice-name" placeholder="If different from service name" autocomplete="off"/>
+    </div>
+    <div class="field-row">
+      <label for="service-code">Code</label>
+      <input type="text" id="service-code" placeholder="Optional short code" style="max-width:160px;" autocomplete="off"/>
+    </div>
+    <div class="field-row">
+      <label for="default-rate">Default Rate ($)</label>
+      <input type="number" id="default-rate" value="0.00" step="0.01" min="0" style="max-width:140px;"/>
+    </div>
+    <div class="field-row">
+      <label for="service-notes">Notes</label>
+      <textarea id="service-notes" placeholder="Optional notes or description…"></textarea>
+    </div>
+    <div class="field-row">
+      <label>Active</label>
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="active-toggle" checked/>
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label" id="active-label">Active</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chemical-only: Associated Area + Products/Mixes -->
+  <div id="chem-section">
+    <div class="section">
+      <div class="section-title">Associated Area <span style="font-weight:400;color:#aaa;font-size:10px;">(Chemical only)</span></div>
+      <div class="field-row">
+        <label for="area-select">Area Type</label>
+        <select id="area-select">
           <option value="">— None —</option>
           <option value="lawn_care">Lawn Sq Ft</option>
           <option value="lawn_insect">Lawn Insect Sq Ft</option>
@@ -113,72 +147,122 @@
         </select>
       </div>
     </div>
-  </div>
-  </div><!-- /panel-details -->
 
-  <!-- Products & Mixes tab -->
-  <div class="tab-panel" id="panel-products">
-    <div class="pm-section-header">Products &amp; Mixes</div>
-    <div id="pm-rows"></div>
-    <button class="btn-add-pm" onclick="addPmRow()">Add Product/Mix</button>
+    <div class="section">
+      <div class="section-title">Products &amp; Mixes <span style="font-weight:400;color:#aaa;font-size:10px;">(Chemical only)</span></div>
+      <div id="pm-rows"></div>
+      <button onclick="addPmRow()" style="background:#f5f0e8;border:1px solid #c8a060;color:#5a3a10;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;margin-top:4px;">+ Add Product / Mix</button>
+    </div>
   </div>
 
-  <div class="dialog-footer">
-    <button class="btn-save" onclick="saveService()">Save</button>
-    <button class="btn-save-new" onclick="saveAndNew()">Save &amp; New</button>
-    <button class="btn-cancel" onclick="history.back()">Cancel</button>
+  <div class="status-msg" id="status-msg"></div>
+
+  <div class="footer">
+    <button class="btn-save" onclick="saveService(false)">Save</button>
+    <button class="btn-save-new" onclick="saveService(true)">Save &amp; New</button>
+    <button class="btn-cancel" onclick="goBack()">Cancel</button>
+    <button class="del-btn" id="del-btn" style="display:none;" onclick="deleteService()">Delete</button>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const sb = supabase.createClient(
-    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
-  { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-  var serviceId = new URLSearchParams(window.location.search).get('id');
-  var serviceCategory = new URLSearchParams(window.location.search).get('category') || 'package';
-  var existing = null;
+  var params    = new URLSearchParams(window.location.search);
+  var serviceId = params.get('id');
+  var uid       = null;
+  var existing  = null;
   var mixOptions = '';
 
-  /* ── Tab switching ── */
-  function switchTab(name) {
-    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('tab-active'); });
-    document.getElementById('panel-' + name).classList.add('active');
-    event.currentTarget.classList.add('tab-active');
+  var DEFAULTS = ['Mowing', 'Landscape', 'Irrigation', 'Snow', 'Other'];
+
+  function selectCat(cat, btn) {
+    document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('selected'); });
+    btn.classList.add('selected');
+    document.getElementById('service-category').value = cat;
+    document.getElementById('chem-section').style.display = cat === 'chemical' ? '' : 'none';
+    document.getElementById('cat-hint').style.display = 'none';
   }
 
-  /* ── Products & Mixes ── */
+  document.getElementById('active-toggle').addEventListener('change', function() {
+    document.getElementById('active-label').textContent = this.checked ? 'Active' : 'Inactive';
+  });
+
+  async function loadCategories() {
+    var pillsWrap = document.getElementById('cat-pills');
+    pillsWrap.innerHTML = '';
+
+    // Chemical is always first — hardcoded system type
+    var chemBtn = document.createElement('button');
+    chemBtn.className = 'cat-pill';
+    chemBtn.dataset.cat = 'chemical';
+    chemBtn.innerHTML = '&#9879; Chemical';
+    chemBtn.onclick = function() { selectCat('chemical', chemBtn); };
+    pillsWrap.appendChild(chemBtn);
+
+    // Load user-defined Job Board categories
+    var cats = [];
+    if (uid) {
+      var { data } = await sb.from('service_categories')
+        .select('*').eq('user_id', uid).eq('active', true)
+        .order('sort_order').order('name');
+      cats = data || [];
+    }
+
+    // Fall back to defaults if none saved yet
+    if (!cats.length) {
+      cats = DEFAULTS.map(function(n, i) { return { id: null, name: n, sort_order: i }; });
+    }
+
+    cats.forEach(function(cat) {
+      var key = cat.name.toLowerCase().replace(/\s+/g, '_');
+      var btn = document.createElement('button');
+      btn.className = 'cat-pill';
+      btn.dataset.cat = key;
+      btn.textContent = cat.name;
+      btn.onclick = function() { selectCat(key, btn); };
+      pillsWrap.appendChild(btn);
+    });
+
+    // Re-select saved category when editing
+    if (existing) {
+      var savedCat = (existing.service_category || 'chemical').toLowerCase();
+      var match = pillsWrap.querySelector('[data-cat="' + savedCat + '"]');
+      if (match) selectCat(savedCat, match);
+    }
+  }
+
   async function loadMixes() {
     var { data } = await sb.from('Product Mixes').select('id, name').order('name');
     mixOptions = '<option value="">— Select Mix —</option>' +
-      (data || []).map(function(m) { return '<option value="' + m.id + '">' + (m.name || '') + '</option>'; }).join('');
+      (data || []).map(function(m) {
+        return '<option value="' + m.id + '">' + esc(m.name || '') + '</option>';
+      }).join('');
   }
 
   function addPmRow(mix_id, start_date, end_date) {
     var row = document.createElement('div');
     row.className = 'pm-row';
     row.innerHTML =
-      '<span class="pm-label">Product/Mix</span>' +
-      '<select class="pm-mix-select">' + mixOptions + '</select>' +
-      '<span class="pm-date-label">Start Date</span>' +
-      '<input type="date" class="pm-date pm-start"/>' +
-      '<span class="pm-date-label">End Date</span>' +
-      '<input type="date" class="pm-date pm-end"/>' +
-      '<button class="pm-del-btn" onclick="this.closest(\'.pm-row\').remove()" title="Remove">&#10005;</button>';
+      '<select>' + mixOptions + '</select>' +
+      '<label>Start</label><input type="date" class="pm-start"/>' +
+      '<label>End</label><input type="date" class="pm-end"/>' +
+      '<button class="btn-del-pm" onclick="this.closest(\'.pm-row\').remove()">&#10005;</button>';
     document.getElementById('pm-rows').appendChild(row);
-    if (mix_id) row.querySelector('.pm-mix-select').value = mix_id;
+    if (mix_id) row.querySelector('select').value = mix_id;
     if (start_date) row.querySelector('.pm-start').value = start_date;
-    if (end_date) row.querySelector('.pm-end').value = end_date;
+    if (end_date)   row.querySelector('.pm-end').value   = end_date;
   }
 
   function collectPmRows() {
     var rows = [];
     document.querySelectorAll('#pm-rows .pm-row').forEach(function(row) {
-      var mix_id = row.querySelector('.pm-mix-select').value;
+      var mix_id = row.querySelector('select').value;
       var start  = row.querySelector('.pm-start').value;
       var end    = row.querySelector('.pm-end').value;
       if (mix_id) rows.push({ mix_id: mix_id, start_date: start || null, end_date: end || null });
@@ -186,126 +270,116 @@
     return rows;
   }
 
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
 
-
-
-  async function initEdit() {
     await loadMixes();
 
-
-    if (!serviceId) return;
-    var { data } = await sb.from('Services').select('*').eq('id', serviceId).single();
-    if (data) {
-      existing = data;
-      document.getElementById('invoice-name').value  = data.invoice_name || '';
-      document.getElementById('service-name').value  = data.name || '';
-      document.getElementById('default-rate').value  = data.default_rate || '0.00';
-      if (data.assigned_to) assignSel.value = data.assigned_to;
-var aa = data.associated_areas || {};
-      var areaKey = Object.keys(aa).find(function(k) { return aa[k]; }) || '';
-      document.getElementById('area-select').value = areaKey;
-      (data.service_mixes || []).forEach(function(m) { addPmRow(m.mix_id, m.start_date, m.end_date); });
+    if (serviceId) {
+      document.getElementById('form-title').textContent = 'Edit Service';
+      document.getElementById('del-btn').style.display = '';
+      var { data } = await sb.from('Services').select('*').eq('id', serviceId).single();
+      if (data) {
+        existing = data;
+        document.getElementById('service-name').value    = data.name || '';
+        document.getElementById('invoice-name').value    = data.invoice_name || '';
+        document.getElementById('service-code').value    = data.code || '';
+        document.getElementById('default-rate').value    = data.default_rate != null ? data.default_rate : '0.00';
+        document.getElementById('service-notes').value   = data.notes || '';
+        document.getElementById('active-toggle').checked = data.active !== false;
+        document.getElementById('active-label').textContent = data.active !== false ? 'Active' : 'Inactive';
+        if ((data.service_category || 'chemical') === 'chemical') {
+          var aa = data.associated_areas || {};
+          var areaKey = Object.keys(aa).find(function(k) { return aa[k]; }) || '';
+          document.getElementById('area-select').value = areaKey;
+          (data.service_mixes || []).forEach(function(m) { addPmRow(m.mix_id, m.start_date, m.end_date); });
+        }
+      }
     }
-  }
-  initEdit();
 
-  /* ── Service Mode custom dropdown ── */
-  function toggleSvcMode(e) {
-    e.stopPropagation();
-    document.getElementById('svc-mode-dropdown').classList.toggle('open');
-  }
-  document.addEventListener('click', function(e) {
-    if (!document.getElementById('svc-mode-wrap').contains(e.target)) {
-      document.getElementById('svc-mode-dropdown').classList.remove('open');
-    }
-  });
-
-  function selectSvcMode(val, el) {
-    document.getElementById('svc-mode-label').textContent = val;
-    document.querySelectorAll('#svc-mode-options .dropdown-option').forEach(function(o) {
-      o.classList.remove('selected');
-    });
-    el.classList.add('selected');
-    document.getElementById('svc-mode-dropdown').classList.remove('open');
-    document.getElementById('svc-mode-filter').value = '';
-    filterSvcMode('');
+    await loadCategories();
   }
 
-  function filterSvcMode(kw) {
-    kw = kw.toLowerCase();
-    document.querySelectorAll('#svc-mode-options .dropdown-option').forEach(function(o) {
-      o.style.display = o.textContent.toLowerCase().includes(kw) ? '' : 'none';
-    });
-  }
-
-  function clearSvcFilter() {
-    document.getElementById('svc-mode-filter').value = '';
-    filterSvcMode('');
-  }
-
-  /* ── Task Color ── */
-  function updateColor(hex) {
-    var badge = document.getElementById('color-badge');
-    badge.style.background = hex;
-    badge.textContent = hex.toUpperCase();
-    badge.style.color = isLight(hex) ? '#333' : '#fff';
-  }
-
-  function isLight(hex) {
-    var r = parseInt(hex.slice(1,3),16),
-        g = parseInt(hex.slice(3,5),16),
-        b = parseInt(hex.slice(5,7),16);
-    return (r*299 + g*587 + b*114) / 1000 > 128;
-  }
-
-  /* ── Save actions ── */
-  function collectService() {
+  async function saveService(andNew) {
+    var cat  = document.getElementById('service-category').value;
     var name = document.getElementById('service-name').value.trim();
-    if (!name) { alert('Please enter a service name.'); return null; }
-    return {
-      name:        name,
-      invoiceName: document.getElementById('invoice-name').value.trim() || null,
-      active:      true,
-      defaultRate: parseFloat(document.getElementById('default-rate').value) || 0,
-      associatedAreas: (function() {
-        var key = document.getElementById('area-select').value;
-        var obj = { lawn_care: false, lawn_insect: false, flower_beds: false, mosquito: false, mosquito_linear_ft: false, pest_control: false, pest_control_linear_ft: false };
-        if (key) obj[key] = true;
-        return obj;
-      })(),
+    if (!cat)  { showMsg('Please select a category.', true); return; }
+    if (!name) { showMsg('Please enter a service name.', true); return; }
+
+    var record = {
+      name:             name,
+      invoice_name:     document.getElementById('invoice-name').value.trim() || null,
+      code:             document.getElementById('service-code').value.trim() || null,
+      default_rate:     parseFloat(document.getElementById('default-rate').value) || 0,
+      notes:            document.getElementById('service-notes').value.trim() || null,
+      active:           document.getElementById('active-toggle').checked,
+      service_category: cat,
+      user_id:          uid,
     };
-  }
 
-  async function saveService() {
-    var svc = collectService();
-    if (!svc) return;
-    var { data: sessionData } = await sb.auth.getSession();
-    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var catMode = existing ? (existing.svc_mode || serviceCategory) : serviceCategory;
-    var record = { name: svc.name, invoice_name: svc.invoiceName, active: svc.active, default_rate: svc.defaultRate, associated_areas: svc.associatedAreas, service_mixes: collectPmRows(), user_id: uid, assigned_to: null, svc_mode: catMode };
-    if (existing) {
-      var { error } = await sb.from('Services').update(record).eq('id', existing.id);
-    } else {
-      var { error } = await sb.from('Services').insert(record);
+    if (cat === 'chemical') {
+      var areaKey = document.getElementById('area-select').value;
+      var areaObj = { lawn_care:false, lawn_insect:false, flower_beds:false, mosquito:false, mosquito_linear_ft:false, pest_control:false, pest_control_linear_ft:false };
+      if (areaKey) areaObj[areaKey] = true;
+      record.associated_areas = areaObj;
+      record.service_mixes    = collectPmRows();
     }
-    if (error) { alert('Error: ' + error.message); return; }
-    var dest = 'services?category=' + catMode;
-    if (window.parent && window.parent.loadPage) { window.parent.loadPage(dest); } else { window.location.href = 'services.html?category=' + catMode; }
+
+    var error;
+    if (existing) {
+      var res = await sb.from('Services').update(record).eq('id', existing.id);
+      error = res.error;
+    } else {
+      var res = await sb.from('Services').insert(record);
+      error = res.error;
+    }
+    if (error) { showMsg('Error: ' + error.message, true); return; }
+
+    if (andNew) {
+      document.getElementById('service-name').value  = '';
+      document.getElementById('invoice-name').value  = '';
+      document.getElementById('service-code').value  = '';
+      document.getElementById('default-rate').value  = '0.00';
+      document.getElementById('service-notes').value = '';
+      document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('selected'); });
+      document.getElementById('service-category').value = '';
+      document.getElementById('chem-section').style.display = 'none';
+      document.getElementById('pm-rows').innerHTML = '';
+      existing = null; serviceId = null;
+      document.getElementById('form-title').textContent = 'Add Service';
+      document.getElementById('del-btn').style.display = 'none';
+      document.getElementById('cat-hint').style.display = '';
+      showMsg('Saved! Add another.', false);
+      return;
+    }
+    goBack();
   }
 
-  async function saveAndNew() {
-    var svc = collectService();
-    if (!svc) return;
-    var { data: sessionData } = await sb.auth.getSession();
-    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
-    var { error } = await sb.from('Services').insert({ name: svc.name, invoice_name: svc.invoiceName, active: svc.active, default_rate: svc.defaultRate, user_id: uid, assigned_to: null, svc_mode: serviceCategory });
-    if (error) { alert('Error: ' + error.message); return; }
-    document.getElementById('service-name').value = '';
-    document.getElementById('default-rate').value = '0.00';
-    document.getElementById('service-name').focus();
-    existing = null;
+  async function deleteService() {
+    if (!existing) return;
+    if (!confirm('Delete "' + (existing.name || 'this service') + '"? Cannot be undone.')) return;
+    var { error } = await sb.from('Services').delete().eq('id', existing.id);
+    if (error) { showMsg('Error: ' + error.message, true); return; }
+    goBack();
   }
+
+  function goBack() {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('services');
+    else window.location.href = 'services.html';
+  }
+
+  function showMsg(msg, isErr) {
+    var el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.className = 'status-msg' + (isErr ? ' err' : '');
+    el.style.display = 'block';
+    if (!isErr) setTimeout(function() { el.style.display = 'none'; }, 3000);
+  }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  init();
 </script>
 </body>
 </html>
-
