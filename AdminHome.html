@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+
+    .page-hdr { padding: 20px 24px 14px; border-bottom: 1px solid #eee; }
+    .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
+    .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      padding: 32px 24px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 220px;
+      max-width: 300px;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 28px 24px;
+      cursor: pointer;
+      transition: box-shadow .15s, border-color .15s;
+      background: #fff;
+      text-align: left;
+    }
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+      border-color: #130520;
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: #777;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-hdr">
+  <h1>Admin</h1>
+  <p>SprayBossPro platform management</p>
+</div>
+
+<div class="cards">
+  <div class="card" onclick="nav('adminaccounts')">
+    <span class="card-icon">&#128101;</span>
+    <div class="card-title">Accounts</div>
+    <div class="card-desc">Manage all customer accounts, VoIP.ms credentials, and settings.</div>
+  </div>
+
+  <div class="card" onclick="nav('adminbilling')">
+    <span class="card-icon">&#128179;</span>
+    <div class="card-title">Billing</div>
+    <div class="card-desc">Invoice and charge businesses using SprayBossPro.</div>
+  </div>
+</div>
+
+<script>
+  function nav(page) {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage(page);
+    } else {
+      window.location.href = page + '.html';
+    }
+  }
+</script>
+</body>
+</html>
