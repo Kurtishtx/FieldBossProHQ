@@ -62,7 +62,7 @@
     .results-bar { padding:6px 24px; font-size:13px; font-weight:700; color:#111; background:transparent; text-align:right; }
 
     /* ── Unscheduled section ── */
-    .unsched-section { margin:8px 16px 0; border-radius:10px 10px 0 0; overflow:hidden; border:1px solid #e8c88a; }
+    .unsched-section { margin:8px 16px 0; border-radius:10px; overflow:hidden; border:1px solid #e8c88a; }
     .unsched-hdr { background:#3d2510; color:#fff; padding:8px 14px; display:flex; align-items:center; justify-content:space-between; }
     .unsched-hdr-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
     .unsched-count { background:rgba(255,255,255,.2); border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; }
@@ -76,6 +76,12 @@
     .unsched-empty { text-align:center; padding:18px; color:#c8a060; font-size:13px; background:#fffdf8; }
     .btn-assign { background:#3d2510; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
     .btn-assign:hover { background:#1e1208; }
+
+    /* Toggle switch */
+    .unsched-toggle { width:36px; height:20px; background:rgba(255,255,255,.2); border-radius:10px; position:relative; transition:background .2s; flex-shrink:0; }
+    .unsched-toggle.on { background:#c47d0a; }
+    .unsched-toggle-knob { width:16px; height:16px; background:#fff; border-radius:50%; position:absolute; top:2px; left:2px; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+    .unsched-toggle.on .unsched-toggle-knob { left:18px; }
 
     /* ── Schedule Modal ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
@@ -133,28 +139,35 @@
 
 <!-- Unscheduled section -->
 <div class="unsched-section">
-  <div class="unsched-hdr">
+  <div class="unsched-hdr" onclick="toggleUnsched()" style="cursor:pointer;">
     <div class="unsched-hdr-title">
       &#9888; Unscheduled Jobs
       <span class="unsched-count" id="unsched-count">0</span>
     </div>
-    <span style="font-size:11px;color:rgba(255,255,255,.6);">No date assigned — click Assign Date to schedule</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:11px;color:rgba(255,255,255,.55);" id="unsched-hint">click to show</span>
+      <div class="unsched-toggle" id="unsched-toggle">
+        <div class="unsched-toggle-knob"></div>
+      </div>
+    </div>
   </div>
-  <table class="unsched-table">
-    <thead>
-      <tr>
-        <th>Client</th>
-        <th>Address</th>
-        <th>Service</th>
-        <th>Category</th>
-        <th>Recurrence</th>
-        <th>Amount</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="unsched-tbody"></tbody>
-  </table>
-  <div class="unsched-empty" id="unsched-empty" style="display:none;">No unscheduled jobs &#10003;</div>
+  <div id="unsched-body" style="display:none;">
+    <table class="unsched-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Address</th>
+          <th>Service</th>
+          <th>Category</th>
+          <th>Recurrence</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="unsched-tbody"></tbody>
+    </table>
+    <div class="unsched-empty" id="unsched-empty" style="display:none;">No unscheduled jobs &#10003;</div>
+  </div>
 </div>
 
 <div class="results-bar" id="results-bar"></div>
@@ -246,6 +259,16 @@
 
   function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); }
   function goToday() { weekOffset = 0; updateWeekLabel(); render(); }
+  var unschedOpen = false;
+  function toggleUnsched() {
+    unschedOpen = !unschedOpen;
+    document.getElementById('unsched-body').style.display = unschedOpen ? '' : 'none';
+    var tog = document.getElementById('unsched-toggle');
+    var hint = document.getElementById('unsched-hint');
+    tog.classList.toggle('on', unschedOpen);
+    hint.textContent = unschedOpen ? 'click to hide' : 'click to show';
+  }
+
   function setCategory(cat, el) {
     activeCategory = cat;
     document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
