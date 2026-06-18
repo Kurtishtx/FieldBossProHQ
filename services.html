@@ -1,524 +1,264 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Services</title>
+  <title>Services Catalog</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ede5d8;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+    .page-header {
+      padding: 12px 20px 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: #fff; border-bottom: 1px solid #e0d8cc; flex-shrink: 0;
     }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
+    .btn-add { background: #c47d0a; color: #fff; border: none; padding: 8px 18px; font-size: 13px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-add:hover { background: #a86808; }
 
-    /* ── Page header ── */
-    .page-header { padding: 10px 20px 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
+    .filter-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; background: #7a6040; flex-wrap: wrap; flex-shrink: 0;
     }
-    .page-header h1 {
-      font-size: 22px;
-      font-weight: 800;
-      color: #111;
-    }
-    .showing-count { font-size: 14px; font-weight: 400; color: #555; margin-left: 6px; }
-        .btn-orange-filled {
-      background: #1e1208;
-      border: 2px solid #c47d0a;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 6px;
-      padding: 7px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s;
-    }
-    .btn-orange-filled:hover { background: #2a1a0a; }
+    .filter-label { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .pill { padding: 4px 14px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.1); font-size: 12.5px; cursor: pointer; border-radius: 20px; color: rgba(255,255,255,.85); font-family: inherit; font-weight: 600; transition: background .15s; }
+    .pill:hover { background: rgba(255,255,255,.22); }
+    .pill.active { background: #1e1208; color: #fff; border-color: #fff; }
 
-    .results-count {
-      font-size: 13.5px;
-      color: #444;
-      padding: 2px 20px 10px;
-      flex-shrink: 0;
-    }
-
-    /* ── Toolbar ── */
     .toolbar {
-      background: #1e1208;
-      padding: 7px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      position: relative;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 16px; background: #1e1208; flex-shrink: 0;
     }
-    .toolbar-left { display: flex; align-items: center; gap: 0; position: relative; }
-    .actions-split { display: flex; align-items: stretch; position: relative; }
+    .tab-set { display: flex; gap: 2px; }
+    .tab-btn { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: none; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 600; cursor: pointer; border-radius: 3px; }
+    .tab-btn.active { background: #fff; color: #1e1208; }
+    .tab-btn:hover:not(.active) { background: rgba(255,255,255,.2); color: #fff; }
+    .count-label { font-size: 12px; color: rgba(255,255,255,.6); margin-left: 8px; }
 
-    .btn-green-main { background: #e8c000; color: #000; border: 2px solid #fff; border-right: none; border-radius: 3px 0 0 3px; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 700; cursor: pointer; }
-    .btn-green-main:hover { background: #d4ae00; }
-    .btn-green-caret { background: #e8c000; color: #000; border: 2px solid #fff; border-left: 1px solid rgba(0,0,0,.15); border-radius: 0 3px 3px 0; padding: 5px 8px; font-size: 12px; cursor: pointer; }
-    .btn-green-caret:hover { background: #d4ae00; }
+    .delete-bar {
+      display: none; align-items: center; gap: 12px;
+      padding: 10px 20px; background: #7a1e1e; color: #fff; font-size: 13px; flex-shrink: 0;
+    }
+    .delete-bar button { border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 13px; font-family: inherit; }
+    .btn-confirm-del { background: #fff; color: #c0392b; }
+    .btn-cancel-del  { background: rgba(255,255,255,.15); color: #fff; }
 
-    /* Actions dropdown */
-    .actions-dropdown {
-      display: none;
-      position: fixed;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.18);
-      z-index: 9999;
-      min-width: 180px;
-      padding: 4px 0;
-    }
-    .actions-dropdown.open { display: block; }
-    .dropdown-header {
-      font-size: 13px;
-      font-weight: 700;
-      color: #222;
-      padding: 7px 16px 5px;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 3px;
-    }
-    .dropdown-item {
-      display: block;
-      width: 100%;
-      background: none;
-      border: none;
-      text-align: left;
-      padding: 7px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #333;
-      cursor: pointer;
-    }
-    .dropdown-item:hover { background: #f5f5f5; }
-
-    /* Pagination */
-    .pagination-area {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 13px;
-      color: #ccc;
-    }
-    .pagination-area input {
-      width: 46px;
-      padding: 3px 6px;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 3px;
-      background: rgba(255,255,255,.12);
-      color: #fff;
-      font-size: 13px;
-      text-align: center;
-    }
-    .pg-btn {
-      background: rgba(255,255,255,.12);
-      color: rgba(255,255,255,.7);
-      border: none;
-      padding: 4px 7px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .pg-btn:hover { background: rgba(255,255,255,.2); }
-    .pg-current {
-      background: #f5c800;
-      color: #111;
-      border: none;
-      padding: 4px 9px;
-      border-radius: 3px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    /* ── Tabs ── */
-    .tabs-bar {
-      background: #1e1208;
-      padding: 0 14px 0;
-      display: flex;
-      align-items: flex-end;
-      gap: 2px;
-      flex-shrink: 0;
-      border-top: 1px solid #1c1208;
-    }
-    .tab-btn {
-      background: #bbb;
-      color: #111;
-      border: none;
-      border-radius: 4px 4px 0 0;
-      padding: 6px 16px;
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .tab-btn.active {
-      background: #fff;
-      color: #111;
-      font-weight: 700;
-    }
-    .tab-btn:hover:not(.active) { background: #aaa; color: #111; }
-
-    /* ── Table ── */
-    .table-container {
-      flex: 1;
-      overflow-y: auto;
-      background: #fff;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
+    .table-wrap { flex: 1; overflow-y: auto; background: #fff; }
+    table { width: 100%; border-collapse: collapse; }
     thead th {
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      padding: 9px 14px;
-      text-align: left;
-      font-weight: 600;
-      color: #555;
-      white-space: nowrap;
+      background: #fff; border-bottom: 2px solid #e0d8cc;
+      padding: 9px 14px; text-align: left; font-size: 12px;
+      font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px;
+      white-space: nowrap; position: sticky; top: 0; z-index: 1;
     }
     thead th:first-child { width: 36px; text-align: center; }
-    tbody tr { border-bottom: 1px solid #eee; }
-    tbody tr:hover { background: #fdfbe8; }
-    tbody td { padding: 9px 14px; color: #333; vertical-align: middle; }
+    tbody tr { border-bottom: 1px solid #f0ece6; cursor: pointer; }
+    tbody tr:hover { background: #fdf8f0; }
+    tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
     tbody td:first-child { text-align: center; }
 
-    input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      cursor: pointer;
-      accent-color: #888888;
-    }
+    input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #c47d0a; }
 
-    .service-link {
-      color: #444;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .service-link:hover { text-decoration: underline; color: #111; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700; }
+    .badge-chemical   { background: #e8f0e0; color: #2d5a1b; }
+    .badge-mowing     { background: #d4edda; color: #155724; }
+    .badge-landscape  { background: #d1ecf1; color: #0c5460; }
+    .badge-irrigation { background: #cce5ff; color: #004085; }
+    .badge-snow       { background: #e8f4fd; color: #1a6496; }
+    .badge-other      { background: #f5f0e8; color: #5a3a10; }
+    .badge-custom     { background: #f0e8f5; color: #5a1a7a; }
 
-    .code-link {
-      color: #444;
-      text-decoration: none;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    .code-link:hover { text-decoration: underline; color: #111; }
-
-    .empty-msg {
-      text-align: center;
-      color: #aaa;
-      padding: 60px 20px;
-      font-size: 14px;
-    }
-
-    /* ── Mobile landscape ── */
-    @media (max-height: 500px) and (orientation: landscape) {
-      .landing-view {
-        padding: 12px 20px 20px !important;
-        justify-content: flex-start !important;
-        overflow-y: auto;
-        height: 100vh;
-      }
-      .landing-view h2 { font-size: 16px !important; margin-bottom: 12px !important; margin-top: 8px; }
-      .landing-view .card-wrap { gap: 12px !important; }
-      .landing-view [onclick] {
-        padding: 16px 16px !important;
-        border-radius: 8px !important;
-      }
-      .landing-view [onclick] > div:first-child { font-size: 22px !important; margin-bottom: 6px !important; }
-      .landing-view [onclick] > div:nth-child(2) { font-size: 14px !important; margin-bottom: 4px !important; }
-      .landing-view [onclick] > div:nth-child(3) { font-size: 11px !important; }
-    }
+    .svc-name { font-weight: 600; color: #1e1208; }
+    .empty-msg { text-align: center; color: #aaa; padding: 60px 20px; font-size: 14px; }
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
 </head>
 <body>
 
-<!-- ── Landing: two category cards ── -->
-<div id="landing-view" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px 32px;padding-bottom:154px;" class="landing-view">
-  <h2 style="font-size:20px;font-weight:800;color:#111;margin-bottom:28px;">Services</h2>
-  <div class="card-wrap" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
-    <div onclick="openCategory('package')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#c47d0a';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
-      <div style="font-size:32px;margin-bottom:12px;">📦</div>
-      <div style="font-size:17px;font-weight:800;margin-bottom:6px;">Package Services</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.7);">Recurring services tied to package plans</div>
-    </div>
-    <div onclick="openCategory('one_time')" style="flex:1;min-width:220px;max-width:340px;background:#5b2d8e;color:#fff;border-radius:10px;padding:28px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:background .2s,transform .15s;" onmouseover="this.style.background='#c47d0a';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='#5b2d8e';this.style.transform=''">
-      <div style="font-size:32px;margin-bottom:12px;">🔧</div>
-      <div style="font-size:17px;font-weight:800;margin-bottom:6px;">One Time Services</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.85);">Standalone services not tied to a package</div>
-    </div>
-  </div>
-</div>
-
-<!-- ── List view (shown after selecting a category) ── -->
-<div id="list-view" style="display:none;flex-direction:column;height:100vh;">
-
-<!-- Page header -->
 <div class="page-header">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <button onclick="backToLanding()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#555;line-height:1;">&#8592;</button>
-    <span class="showing-count" id="results-count"></span>
+  <h1>&#128203; Services Catalog</h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span id="results-count" style="font-size:13px;color:#888;"></span>
+    <button class="btn-add" onclick="nav('servicescreate')">+ Add Service</button>
   </div>
-  <button class="btn-orange-filled" id="add-svc-btn" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
 </div>
 
-<div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#1e1208;color:#fff;font-size:13px;">
-  <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> service(s)? This cannot be undone.</span>
-  <button onclick="confirmDelete()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
-  <button onclick="document.getElementById('delete-confirm-bar').style.display='none'" style="background:none;border:1px solid #aaa;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
+<div class="filter-bar" id="filter-bar">
+  <span class="filter-label">Category:</span>
+  <button class="pill active" onclick="setCategory('all', this)">All</button>
+  <button class="pill" onclick="setCategory('chemical', this)">Chemical</button>
 </div>
 
-<!-- Toolbar -->
 <div class="toolbar">
-  <div class="actions-split">
-    <button class="btn-green-main">Actions</button>
-    <button class="btn-green-caret" onclick="toggleDropdown(event)">&#9660;</button>
-    <div class="actions-dropdown" id="actions-dropdown">
-      <div class="dropdown-header">Actions</div>
-      <button class="dropdown-item" onclick="window.location.href='servicescreate.html?category=' + currentCategory">Add Service</button>
-      <button class="dropdown-item" onclick="makeServicesActive(true)">Make Active</button>
-      <button class="dropdown-item" onclick="makeServicesActive(false)">Make Inactive</button>
-      <button class="dropdown-item" onclick="deleteSelected()">Delete</button>
-      <button class="dropdown-item" onclick="exportServices()">Export</button>
-      <button class="dropdown-item" onclick="copySelected()">Copy</button>
+  <div style="display:flex;align-items:center;">
+    <div class="tab-set">
+      <button class="tab-btn active" onclick="setTab('active', this)">Active</button>
+      <button class="tab-btn" onclick="setTab('inactive', this)">Inactive</button>
+      <button class="tab-btn" onclick="setTab('all', this)">All</button>
     </div>
+    <span class="count-label" id="count-label"></span>
   </div>
+  <button onclick="deleteSelected()" style="background:rgba(220,50,50,.2);color:#ff9a9a;border:1px solid rgba(220,50,50,.3);padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;">Delete Selected</button>
 </div>
 
-<!-- Tabs -->
-<div class="tabs-bar">
-  <button class="tab-btn active" onclick="setTab(this, 'active')">Active</button>
-  <button class="tab-btn" onclick="setTab(this, 'inactive')">Inactive</button>
-  <button class="tab-btn" onclick="setTab(this, 'all')">All</button>
+<div class="delete-bar" id="delete-bar">
+  <span>Delete <strong id="del-count">0</strong> service(s)? Cannot be undone.</span>
+  <button class="btn-confirm-del" onclick="confirmDelete()">Yes, Delete</button>
+  <button class="btn-cancel-del" onclick="document.getElementById('delete-bar').style.display='none'">Cancel</button>
 </div>
 
-<!-- Table -->
-<div class="table-container">
+<div class="table-wrap">
   <table>
     <thead>
       <tr>
         <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
-        <th>Service Type</th>
-        <th>Code</th>
-        <th>Svc Mode</th>
+        <th>Service Name</th>
+        <th>Category</th>
         <th>Default Rate</th>
-        <th>Class</th>
-        <th>Modified</th>
-        <th>Active</th>
+        <th>Code</th>
+        <th>Status</th>
       </tr>
     </thead>
-    <tbody id="service-tbody"></tbody>
+    <tbody id="svc-tbody"></tbody>
   </table>
-  <div class="empty-msg" id="empty-msg">No services found.</div>
+  <div class="empty-msg" id="empty-msg" style="display:none;">No services found.</div>
 </div>
-
-</div><!-- /list-view -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const sb = supabase.createClient(
-    "https://knjdbgroiyhvqwrpqzcx.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g",
-  { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-  /* ── Category landing ── */
-  var currentCategory = 'package';
-  var _initCat = new URLSearchParams(window.location.search).get('category');
-  if (_initCat) { window.addEventListener('DOMContentLoaded', function() { openCategory(_initCat); }); }
+  var allServices     = [];
+  var currentCategory = 'all';
+  var currentTab      = 'active';
+  var uid             = null;
+  var DEFAULTS        = ['Mowing','Landscape','Irrigation','Snow','Other'];
 
-  function openCategory(cat) {
-    currentCategory = cat;
-    document.getElementById('landing-view').style.display = 'none';
-    document.getElementById('list-view').style.display = 'flex';
-    loadServices();
-  }
-  function backToLanding() {
-    document.getElementById('list-view').style.display = 'none';
-    document.getElementById('landing-view').style.display = '';
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    await Promise.all([loadCategoryPills(), loadServices()]);
   }
 
-  /* ── Dropdown ── */
-  function toggleDropdown(e) {
-    e.stopPropagation();
-    var dd = document.getElementById('actions-dropdown');
-    if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
-    var rect = e.currentTarget.closest('.actions-split').getBoundingClientRect();
-    dd.style.top  = (rect.bottom + 4) + 'px';
-    dd.style.left = rect.left + 'px';
-    dd.classList.add('open');
+  async function loadCategoryPills() {
+    if (!uid) return;
+    var { data: cats } = await sb.from('service_categories')
+      .select('*').eq('user_id', uid).eq('active', true)
+      .order('sort_order').order('name');
+    var list = cats && cats.length ? cats : DEFAULTS.map(function(n){ return { name: n }; });
+    var bar  = document.getElementById('filter-bar');
+    list.forEach(function(cat) {
+      var key = cat.name.toLowerCase().replace(/\s+/g, '_');
+      var btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.textContent = cat.name;
+      btn.onclick = function() { setCategory(key, btn); };
+      bar.appendChild(btn);
+    });
   }
-  document.addEventListener('click', function() {
-    document.getElementById('actions-dropdown').classList.remove('open');
-  });
-
-  /* ── Tabs ── */
-  var currentTab = 'active';
-  function setTab(btn, tab) {
-    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    currentTab = tab;
-    renderTable();
-  }
-
-  /* ── Table ── */
-  var services = [];
 
   async function loadServices() {
-    var { data, error } = await sb.from('Services').select('*').is('property_id', null).order('name', { ascending: true });
-    if (error) { console.error(error); return; }
-    services = data || [];
-    renderTable();
+    var q = sb.from('Services').select('*').is('property_id', null);
+    if (uid) q = q.eq('user_id', uid);
+    var { data } = await q.order('name');
+    allServices = data || [];
+    render();
   }
 
-  window.addEventListener('pageshow', function(e) {
-    if (e.persisted) backToLanding();
-  });
+  function setCategory(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  }
 
-  function renderTable() {
-    var tbody = document.getElementById('service-tbody');
-    var emptyMsg = document.getElementById('empty-msg');
+  function setTab(tab, btn) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  }
+
+  var BADGE_MAP = { chemical:'badge-chemical', mowing:'badge-mowing', landscape:'badge-landscape', irrigation:'badge-irrigation', snow:'badge-snow', other:'badge-other' };
+
+  function render() {
+    var tbody = document.getElementById('svc-tbody');
     tbody.innerHTML = '';
 
-    var filtered = services.filter(function(s) {
-      var isOneTime = s.svc_mode === 'one_time';
-      if (currentCategory === 'one_time' && !isOneTime) return false;
-      if (currentCategory === 'package'  &&  isOneTime) return false;
-      if (currentTab === 'active')   return s.active;
-      if (currentTab === 'inactive') return !s.active;
+    var list = allServices.filter(function(s) {
+      var cat = (s.service_category || 'chemical').toLowerCase().replace(/\s+/g,'_');
+      if (currentCategory !== 'all' && cat !== currentCategory) return false;
+      if (currentTab === 'active')   return s.active !== false;
+      if (currentTab === 'inactive') return s.active === false;
       return true;
     });
 
-    document.getElementById('results-count').textContent =
-      filtered.length + ' / ' + services.length + ' services';
+    document.getElementById('count-label').textContent = list.length + ' shown';
+    document.getElementById('results-count').textContent = list.length + ' of ' + allServices.length;
+    document.getElementById('empty-msg').style.display = list.length ? 'none' : '';
 
-    if (filtered.length === 0) {
-      emptyMsg.style.display = '';
-      return;
-    }
-    emptyMsg.style.display = 'none';
-
-    filtered.forEach(function(s) {
+    list.forEach(function(s) {
+      var cat      = (s.service_category || 'chemical').toLowerCase();
+      var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1).replace(/_/g,' ');
+      var badgeCls = BADGE_MAP[cat] || 'badge-custom';
+      var rate     = s.default_rate != null ? '$' + parseFloat(s.default_rate).toFixed(2) : '—';
       var tr = document.createElement('tr');
-      tr.style.cursor = 'pointer';
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + s.id + '" onclick="event.stopPropagation()"/></td>' +
-        '<td><a class="service-link">' + (s.name || '') + '</a></td>' +
-        '<td><a class="code-link">' + (s.code || '') + '</a></td>' +
-        '<td>' + (s.svc_mode || '') + '</td>' +
-        '<td>' + (s.default_rate !== undefined && s.default_rate !== null ? parseFloat(s.default_rate).toFixed(2) : '') + '</td>' +
-        '<td>' + (s.cls || '') + '</td>' +
-        '<td>' + (s.created_at ? new Date(s.created_at).toLocaleDateString() : '') + '</td>' +
-        '<td>' + (s.active ? 'Active' : 'Inactive') + '</td>';
+        '<td class="svc-name">' + esc(s.name || '') + '</td>' +
+        '<td><span class="badge ' + badgeCls + '">' + catLabel + '</span></td>' +
+        '<td>' + rate + '</td>' +
+        '<td style="color:#888;font-size:12px;">' + esc(s.code || '') + '</td>' +
+        '<td style="color:' + (s.active !== false ? '#27a567' : '#aaa') + ';font-weight:600;">' + (s.active !== false ? 'Active' : 'Inactive') + '</td>';
       tr.addEventListener('click', function(e) {
         if (e.target.type === 'checkbox') return;
-        window.location.href = 'servicescreate.html?id=' + s.id + '&category=' + currentCategory;
+        nav('servicescreate?id=' + s.id);
       });
       tbody.appendChild(tr);
     });
   }
 
   function toggleAll(cb) {
-    document.querySelectorAll('#service-tbody input[type="checkbox"]')
-      .forEach(function(c) { c.checked = cb.checked; });
+    document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = cb.checked; });
   }
 
   function getSelectedIds() {
-    return Array.from(document.querySelectorAll('.row-cb:checked')).map(function(cb) { return cb.getAttribute('data-id'); });
+    return Array.from(document.querySelectorAll('.row-cb:checked')).map(function(c) { return c.dataset.id; });
   }
 
   function deleteSelected() {
-    document.getElementById('actions-dropdown').classList.remove('open');
     var ids = getSelectedIds();
-    if (!ids.length) { alert('Check the box next to each service you want to delete first.'); return; }
-    document.getElementById('delete-confirm-count').textContent = ids.length;
-    var bar = document.getElementById('delete-confirm-bar');
+    if (!ids.length) { alert('Check the box next to services you want to delete first.'); return; }
+    var bar = document.getElementById('delete-bar');
     bar.dataset.ids = JSON.stringify(ids);
+    document.getElementById('del-count').textContent = ids.length;
     bar.style.display = 'flex';
   }
 
   async function confirmDelete() {
-    var bar = document.getElementById('delete-confirm-bar');
-    var ids = JSON.parse(bar.dataset.ids || '[]');
-    bar.style.display = 'none';
-    var CHUNK = 50;
-    for (var i = 0; i < ids.length; i += CHUNK) {
-      var { error } = await sb.from('Services').delete().in('id', ids.slice(i, i + CHUNK));
-      if (error) { alert('Error deleting: ' + error.message); return; }
+    var ids = JSON.parse(document.getElementById('delete-bar').dataset.ids || '[]');
+    document.getElementById('delete-bar').style.display = 'none';
+    for (var i = 0; i < ids.length; i += 50) {
+      var { error } = await sb.from('Services').delete().in('id', ids.slice(i, i+50));
+      if (error) { alert('Error: ' + error.message); return; }
     }
-    loadServices();
+    await loadServices();
   }
 
-  async function makeServicesActive(active) {
-    document.getElementById('actions-dropdown').classList.remove('open');
-    var ids = getSelectedIds();
-    if (!ids.length) { alert('Check the box next to each service you want to update first.'); return; }
-    var CHUNK = 50;
-    for (var i = 0; i < ids.length; i += CHUNK) {
-      var { error } = await sb.from('Services').update({ active: active }).in('id', ids.slice(i, i + CHUNK));
-      if (error) { alert('Update failed: ' + error.message); return; }
-    }
-    loadServices();
+  function nav(page) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page.split('?')[0] + '.html' + (page.includes('?') ? '?' + page.split('?')[1] : '');
   }
 
-  function exportServices() {
-    document.getElementById('actions-dropdown').classList.remove('open');
-    var rows = [['Name','Code','Svc Mode','Default Rate','Class','Active']];
-    services.forEach(function(s) {
-      rows.push([s.name||'', s.code||'', s.svc_mode||'',
-        s.default_rate != null ? parseFloat(s.default_rate).toFixed(2) : '',
-        s.cls||'', s.active ? 'Active' : 'Inactive']);
-    });
-    downloadCSV(rows, 'services.csv');
-  }
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  async function copySelected() {
-    document.getElementById('actions-dropdown').classList.remove('open');
-    var ids = getSelectedIds();
-    if (!ids.length) { alert('Check the box next to each service you want to copy first.'); return; }
-    var toCopy = services.filter(function(s) { return ids.indexOf(String(s.id)) !== -1; });
-    var inserts = toCopy.map(function(s) {
-      var copy = Object.assign({}, s);
-      delete copy.id;
-      delete copy.created_at;
-      copy.name = (copy.name || '') + ' (Copy)';
-      return copy;
-    });
-    var CHUNK = 50;
-    for (var i = 0; i < inserts.length; i += CHUNK) {
-      var { error } = await sb.from('Services').insert(inserts.slice(i, i + CHUNK));
-      if (error) { alert('Copy failed: ' + error.message); return; }
-    }
-    loadServices();
-  }
-
-  function downloadCSV(rows, filename) {
-    var csv = rows.map(function(r) {
-      return r.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\n');
-    var a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-    a.download = filename;
-    a.click();
-  }
-
-  loadServices();
+  init();
 </script>
 </body>
 </html>
-
