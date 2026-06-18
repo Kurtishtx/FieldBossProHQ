@@ -6,54 +6,82 @@
   <title>Admin</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f2f8; font-size: 13px; color: #222; }
 
-    .page-hdr { padding: 20px 24px 14px; border-bottom: 1px solid #eee; }
+    .page-hdr { padding: 20px 24px 14px; border-bottom: 1px solid #e0dcea; background: #fff; }
     .page-hdr h1 { font-size: 22px; font-weight: 800; color: #111; }
     .page-hdr p  { font-size: 13px; color: #777; margin-top: 4px; }
 
-    .cards {
+    .nav-cards {
       display: flex;
-      gap: 20px;
-      padding: 32px 24px;
+      gap: 16px;
+      padding: 20px 24px 0;
       flex-wrap: wrap;
     }
-
-    .card {
+    .nav-card {
       flex: 1;
-      min-width: 220px;
-      max-width: 300px;
+      min-width: 200px;
+      max-width: 280px;
       border: 1px solid #e0e0e0;
       border-radius: 12px;
-      padding: 28px 24px;
+      padding: 22px 20px;
       cursor: pointer;
       transition: box-shadow .15s, border-color .15s;
       background: #fff;
       text-align: left;
     }
-    .card:hover {
-      box-shadow: 0 4px 16px rgba(0,0,0,.1);
-      border-color: #130520;
-    }
+    .nav-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); border-color: #130520; }
+    .nav-card-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+    .nav-card-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
+    .nav-card-desc  { font-size: 12px; color: #888; line-height: 1.5; }
 
-    .card-icon {
-      font-size: 28px;
-      margin-bottom: 14px;
-      display: block;
+    .section { margin: 20px 24px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; color: #3a2a55;
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
     }
+    .badge {
+      background: #e07820; color: #fff; font-size: 11px; font-weight: 800;
+      border-radius: 20px; padding: 2px 8px; min-width: 20px; text-align: center;
+    }
+    .badge.green { background: #27a567; }
 
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 6px;
-    }
+    .client-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+    .client-table thead th { background: #130520; color: rgba(255,255,255,.8); padding: 10px 14px; text-align: left; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+    .client-table tbody tr { border-bottom: 1px solid #f0edf8; }
+    .client-table tbody tr:last-child { border-bottom: none; }
+    .client-table tbody tr:hover { background: #faf9fd; }
+    .client-table tbody td { padding: 11px 14px; vertical-align: middle; font-size: 13px; }
 
-    .card-desc {
-      font-size: 12.5px;
-      color: #777;
-      line-height: 1.5;
+    .email-cell { font-weight: 600; color: #222; }
+    .date-cell  { color: #888; font-size: 12px; }
+
+    .days-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
     }
+    .days-badge.ok     { background: #e8f8f1; color: #1a7a4e; }
+    .days-badge.warn   { background: #fff8e1; color: #9a6700; }
+    .days-badge.danger { background: #fff0f0; color: #c0392b; }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-dot.paid   { background: #27a567; }
+    .status-dot.unpaid { background: #e07820; }
+    .status-dot.trial  { background: #7c5cbf; }
+
+    .btn-done {
+      background: #130520; color: #fff; border: none; border-radius: 5px;
+      padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+    }
+    .btn-done:hover { background: #2a1040; }
+    .btn-done.done  { background: #27a567; cursor: default; }
+
+    .empty-row td { text-align: center; color: #bbb; padding: 28px; font-size: 13px; }
+
+    .refresh-btn { background: none; border: 1px solid #ddd; border-radius: 5px; padding: 4px 8px; font-size: 13px; cursor: pointer; color: #888; margin-left: auto; }
+    .refresh-btn:hover { background: #f0f0f0; }
   </style>
 </head>
 <body>
@@ -63,28 +91,180 @@
   <p>SprayBossPro platform management</p>
 </div>
 
-<div class="cards">
-  <div class="card" onclick="nav('adminaccounts')">
-    <span class="card-icon">&#128101;</span>
-    <div class="card-title">Accounts</div>
-    <div class="card-desc">Manage all customer accounts, VoIP.ms credentials, and settings.</div>
+<div class="nav-cards">
+  <div class="nav-card" onclick="nav('adminaccounts')">
+    <span class="nav-card-icon">&#128101;</span>
+    <div class="nav-card-title">Accounts</div>
+    <div class="nav-card-desc">Manage all customer accounts, VoIP.ms credentials, and settings.</div>
   </div>
-
-  <div class="card" onclick="nav('adminbilling')">
-    <span class="card-icon">&#128179;</span>
-    <div class="card-title">SprayBossPro Clients</div>
-    <div class="card-desc">Invoice and charge businesses using SprayBossPro.</div>
+  <div class="nav-card" onclick="nav('adminbilling')">
+    <span class="nav-card-icon">&#128179;</span>
+    <div class="nav-card-title">SprayBossPro Clients</div>
+    <div class="nav-card-desc">Invoice and charge businesses using SprayBossPro.</div>
   </div>
 </div>
 
+<!-- New Sign-Ups -->
+<div class="section">
+  <div class="section-title">
+    New Sign-Ups
+    <span class="badge" id="new-badge">0</span>
+    <button class="refresh-btn" onclick="loadAll()">&#8635;</button>
+  </div>
+  <table class="client-table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Signed Up</th>
+        <th>Card</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="new-tbody">
+      <tr class="empty-row"><td colspan="5">Loading…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Active Trials -->
+<div class="section">
+  <div class="section-title">
+    Active Trials
+    <span class="badge green" id="trial-badge">0</span>
+  </div>
+  <table class="client-table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Trial Ends</th>
+        <th>Days Left</th>
+        <th>Card Added</th>
+      </tr>
+    </thead>
+    <tbody id="trial-tbody">
+      <tr class="empty-row"><td colspan="4">Loading…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { autoRefreshToken: false, detectSessionInUrl: false } });
+
   function nav(page) {
-    if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage(page);
-    } else {
-      window.location.href = page + '.html';
-    }
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page + '.html';
   }
+
+  function fmtDate(str) {
+    if (!str) return '—';
+    return new Date(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function daysLeft(str) {
+    if (!str) return null;
+    var diff = new Date(str) - new Date();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
+  async function loadAll() {
+    var { data, error } = await sb
+      .from('platform_accounts')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      document.getElementById('new-tbody').innerHTML  = '<tr class="empty-row"><td colspan="5">Error: ' + error.message + '</td></tr>';
+      document.getElementById('trial-tbody').innerHTML = '<tr class="empty-row"><td colspan="4">Error: ' + error.message + '</td></tr>';
+      return;
+    }
+
+    var rows = data || [];
+
+    // New sign-ups: all accounts, ordered newest first (not yet marked onboarded)
+    renderNewSignups(rows.filter(function(r) { return !r.onboarded; }));
+
+    // Active trials: accounts that have trial_ends_at in the future
+    var today = new Date();
+    renderTrials(rows.filter(function(r) {
+      return r.trial_ends_at && new Date(r.trial_ends_at) > today;
+    }));
+  }
+
+  function renderNewSignups(rows) {
+    var tbody = document.getElementById('new-tbody');
+    document.getElementById('new-badge').textContent = rows.length;
+    if (!rows.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No new sign-ups</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '';
+    rows.forEach(function(r) {
+      var hasCard   = !!r.card_last4;
+      var isActive  = !!r.active;
+      var statusHtml = isActive
+        ? '<span class="status-dot paid"></span>Active'
+        : '<span class="status-dot trial"></span>Trial';
+
+      var cardHtml = hasCard
+        ? '<span style="color:#27a567;font-weight:600;">' + r.card_brand + ' ****' + r.card_last4 + '</span>'
+        : '<span style="color:#bbb;">No card</span>';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="email-cell">' + (r.email || '—') + '</td>' +
+        '<td class="date-cell">'  + fmtDate(r.created_at) + '</td>' +
+        '<td>' + cardHtml + '</td>' +
+        '<td>' + statusHtml + '</td>' +
+        '<td><button class="btn-done" onclick="markOnboarded(\'' + r.id + '\', this)">Mark Done</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderTrials(rows) {
+    var tbody = document.getElementById('trial-tbody');
+    document.getElementById('trial-badge').textContent = rows.length;
+    if (!rows.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No active trials</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '';
+    rows.forEach(function(r) {
+      var days = daysLeft(r.trial_ends_at);
+      var cls  = days > 5 ? 'ok' : days > 1 ? 'warn' : 'danger';
+      var hasCard = !!r.card_last4;
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="email-cell">' + (r.email || '—') + '</td>' +
+        '<td class="date-cell">'  + fmtDate(r.trial_ends_at) + '</td>' +
+        '<td><span class="days-badge ' + cls + '">' + days + ' day' + (days === 1 ? '' : 's') + ' left</span></td>' +
+        '<td>' + (hasCard
+          ? '<span style="color:#27a567;font-weight:600;">Yes — ' + r.card_brand + ' ****' + r.card_last4 + '</span>'
+          : '<span style="color:#e07820;">Not yet</span>') + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function markOnboarded(id, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    var { error } = await sb.from('platform_accounts').update({ onboarded: true }).eq('id', id);
+    if (error) { btn.disabled = false; btn.textContent = 'Mark Done'; alert(error.message); return; }
+    btn.textContent = 'Done ✓';
+    btn.classList.add('done');
+    // Remove from new sign-ups list after a moment
+    setTimeout(function() {
+      btn.closest('tr').style.opacity = '0';
+      btn.closest('tr').style.transition = 'opacity .3s';
+      setTimeout(function() { loadAll(); }, 300);
+    }, 800);
+  }
+
+  loadAll();
 </script>
 </body>
 </html>
