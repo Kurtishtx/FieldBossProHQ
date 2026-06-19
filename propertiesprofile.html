@@ -799,6 +799,7 @@
     <button class="page-tab" onclick="showPropTab('details',this)">Details</button>
     <button class="page-tab" onclick="showPropTab('officenotes',this)">Office Notes</button>
     <button class="page-tab" onclick="showPropTab('attachments',this)">Attachments</button>
+    <button class="page-tab" id="snow-tab-btn" onclick="showPropTab('snow',this)" style="display:none;">&#10052; Snow</button>
   </div>
 </div>
 
@@ -946,6 +947,55 @@
       </div>
       <div class="no-records">No records to display.</div>
       <button class="upload-btn">Upload</button>
+    </div>
+  </div>
+
+  <!-- TAB: Snow -->
+  <div class="tab-panel" id="tab-snow">
+    <div style="padding:20px 24px;max-width:520px;">
+      <div style="background:#1a3a5c;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;font-size:14px;font-weight:700;">&#10052; Snow Service Settings</div>
+      <div style="background:#fff;border:1px solid #b0c8e0;border-top:none;border-radius:0 0 8px 8px;padding:20px;">
+
+        <!-- Enrolled toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#111;">Enrolled in Snow Service</div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">When enabled, this property will appear in the circle-to-schedule tool during a storm.</div>
+          </div>
+          <label class="toggle-switch" style="position:relative;width:46px;height:26px;min-width:46px;margin-left:16px;">
+            <input type="checkbox" id="snow-enrolled-toggle"/>
+            <span style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:26px;transition:.2s;" id="snow-toggle-slider">
+              <span style="content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;display:block;" id="snow-toggle-knob"></span>
+            </span>
+          </label>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Billing Type</label>
+            <select id="snow-billing-type" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;">
+              <option value="per_push">Per Push</option>
+              <option value="per_inch">Per Inch</option>
+              <option value="seasonal">Seasonal</option>
+              <option value="hourly">Hourly</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Rate ($)</label>
+            <input type="number" id="snow-rate" placeholder="0.00" step="0.01" min="0" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;"/>
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <label style="font-size:11px;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Snow Notes</label>
+          <textarea id="snow-notes" rows="3" placeholder="e.g. Plow around shed, gate code 1234, salting required..." style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button onclick="saveSnowSettings()" style="background:#1a3a5c;color:#fff;border:none;padding:9px 24px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;font-family:inherit;">Save Snow Settings</button>
+          <span id="snow-save-msg" style="font-size:13px;color:#27ae60;display:none;">Saved &#10003;</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1108,6 +1158,61 @@ function showPropTab(name, btn) {
     loadTotalOwed();
   }
   initProperty();
+
+  // ── Snow tab ──────────────────────────────────────────
+  var snowPropRecordId = null;
+
+  // Wire toggle visual
+  document.getElementById('snow-enrolled-toggle').addEventListener('change', function() {
+    var slider = document.getElementById('snow-toggle-slider');
+    var knob   = document.getElementById('snow-toggle-knob');
+    slider.style.background = this.checked ? '#c47d0a' : '#ccc';
+    knob.style.transform    = this.checked ? 'translateX(20px)' : '';
+  });
+
+  async function loadSnowSettings() {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session || !propId) return;
+
+    // Show tab only if snow_mode is on
+    var { data: ci } = await sb.from('company_info').select('snow_mode').eq('user_id', session.user.id).single();
+    if (ci && ci.snow_mode) document.getElementById('snow-tab-btn').style.display = '';
+
+    var { data } = await sb.from('snow_properties').select('*').eq('user_id', session.user.id).eq('property_id', propId).maybeSingle();
+    if (data) {
+      snowPropRecordId = data.id;
+      document.getElementById('snow-enrolled-toggle').checked = data.active !== false;
+      document.getElementById('snow-toggle-slider').style.background = data.active !== false ? '#c47d0a' : '#ccc';
+      document.getElementById('snow-toggle-knob').style.transform    = data.active !== false ? 'translateX(20px)' : '';
+      document.getElementById('snow-billing-type').value = data.billing_type || 'per_push';
+      document.getElementById('snow-rate').value         = data.rate || '';
+      document.getElementById('snow-notes').value        = data.notes || '';
+    }
+  }
+
+  async function saveSnowSettings() {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session || !propId) return;
+    var payload = {
+      user_id:      session.user.id,
+      property_id:  propId,
+      active:       document.getElementById('snow-enrolled-toggle').checked,
+      billing_type: document.getElementById('snow-billing-type').value,
+      rate:         parseFloat(document.getElementById('snow-rate').value) || 0,
+      notes:        document.getElementById('snow-notes').value.trim()
+    };
+    if (snowPropRecordId) {
+      await sb.from('snow_properties').update(payload).eq('id', snowPropRecordId);
+    } else {
+      var { data: newRec } = await sb.from('snow_properties').insert(payload).select('id').single();
+      if (newRec) snowPropRecordId = newRec.id;
+    }
+    var msg = document.getElementById('snow-save-msg');
+    msg.style.display = '';
+    setTimeout(function(){ msg.style.display = 'none'; }, 2500);
+  }
+
+  loadSnowSettings();
 
   function openPropEditModal(e) {
     if (e) e.preventDefault();
