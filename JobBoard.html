@@ -547,6 +547,53 @@
   </div>
 </div>
 
+<!-- Snow Property Selection Modal -->
+<div class="modal-overlay" id="snow-select-modal">
+  <div class="modal" style="width:640px;max-width:96vw;">
+    <div class="modal-hdr" style="background:#1a3a5c;">
+      &#10052; Snow Properties in Selection
+      <button onclick="closeSnowModal()">&#10005;</button>
+    </div>
+    <div style="padding:10px 20px;background:#eaf3fb;border-bottom:1px solid #b0c8e0;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px;">Default Billing</label>
+        <select id="snow-default-billing" style="border:1px solid #b0c8e0;border-radius:4px;padding:6px 9px;font-size:13px;font-family:inherit;">
+          <option value="per_push">Per Push</option>
+          <option value="per_inch">Per Inch</option>
+          <option value="seasonal">Seasonal</option>
+          <option value="hourly">Hourly</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px;">Default Rate ($)</label>
+        <input type="number" id="snow-default-rate" placeholder="0.00" step="0.01" style="width:100px;border:1px solid #b0c8e0;border-radius:4px;padding:6px 9px;font-size:13px;font-family:inherit;"/>
+      </div>
+      <button onclick="applyDefaultSnowBilling()" style="background:#1a3a5c;color:#fff;border:none;padding:7px 14px;font-size:13px;font-weight:700;border-radius:4px;cursor:pointer;font-family:inherit;">Apply to All</button>
+    </div>
+    <div style="max-height:340px;overflow-y:auto;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#1a3a5c;color:#fff;">
+            <th style="padding:7px 10px;font-size:11px;text-align:left;"><input type="checkbox" id="snow-select-all" onchange="toggleAllSnowProps(this)" checked/></th>
+            <th style="padding:7px 10px;font-size:11px;text-align:left;">Client</th>
+            <th style="padding:7px 10px;font-size:11px;text-align:left;">Address</th>
+            <th style="padding:7px 10px;font-size:11px;text-align:left;">Billing Type</th>
+            <th style="padding:7px 10px;font-size:11px;text-align:left;">Rate ($)</th>
+          </tr>
+        </thead>
+        <tbody id="snow-select-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <span id="snow-select-count" style="font-size:13px;color:#666;"></span>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-cancel-modal" onclick="closeSnowModal()">Cancel</button>
+        <button class="btn-confirm" style="background:#1a3a5c;" onclick="confirmSnowJobs()">&#10052; Add to Snow Queue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Save View Modal -->
 <div class="sv-overlay" id="sv-overlay">
   <div class="sv-modal">
@@ -1192,7 +1239,8 @@
     if (selPreviewLine) selPreviewLine.setPath([]);
     updateFinalPolygon();
     addVertexMarkers();
-    checkJobsInPolygon();
+    if (snowModeOn) checkSnowPropertiesInPolygon();
+    else checkJobsInPolygon();
   }
 
   function addVertexMarkers() {
@@ -1431,6 +1479,101 @@
     document.querySelectorAll('.job-row-cb').forEach(function(c){ c.checked = cb.checked; });
   }
 
+  // ── Snow property selection ───────────────────────────
+  var snowAllProps     = [];
+  var snowSelectedProps = [];
+
+  async function loadAllPropertiesForSnow() {
+    var { data } = await sb.from('Properties').select('id, client_name, address, lat, lng').eq('user_id', uid).not('lat', 'is', null).not('lng', 'is', null);
+    snowAllProps = data || [];
+  }
+
+  function checkSnowPropertiesInPolygon() {
+    var inside = snowAllProps.filter(function(p) {
+      return p.lat && p.lng && pointInPolygon([parseFloat(p.lng), parseFloat(p.lat)], polyVerts);
+    });
+    if (!inside.length) { alert('No properties with map pins found in that area. Make sure properties have lat/lng set.'); return; }
+    snowSelectedProps = inside;
+    openSnowSelectModal(inside);
+  }
+
+  function openSnowSelectModal(props) {
+    var tbody = document.getElementById('snow-select-tbody');
+    tbody.innerHTML = '';
+    props.forEach(function(p, i) {
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #eee';
+      tr.innerHTML =
+        '<td style="padding:7px 10px;"><input type="checkbox" class="snow-prop-cb" checked data-idx="' + i + '"/></td>' +
+        '<td style="padding:7px 10px;font-weight:600;">' + esc(p.client_name || '—') + '</td>' +
+        '<td style="padding:7px 10px;color:#555;font-size:12px;">' + esc(p.address || '') + '</td>' +
+        '<td style="padding:7px 10px;"><select class="snow-billing-sel" style="font-size:12px;border:1px solid #ccc;border-radius:3px;padding:4px 7px;font-family:inherit;">' +
+          '<option value="per_push">Per Push</option>' +
+          '<option value="per_inch">Per Inch</option>' +
+          '<option value="seasonal">Seasonal</option>' +
+          '<option value="hourly">Hourly</option>' +
+        '</select></td>' +
+        '<td style="padding:7px 10px;"><input type="number" class="snow-rate-inp" value="0" step="0.01" min="0" style="width:80px;font-size:12px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-family:inherit;"/></td>';
+      tbody.appendChild(tr);
+    });
+    document.getElementById('snow-select-all').checked = true;
+    document.getElementById('snow-select-count').textContent = props.length + ' properties found in circle';
+    document.getElementById('snow-select-modal').classList.add('open');
+  }
+
+  function closeSnowModal() {
+    document.getElementById('snow-select-modal').classList.remove('open');
+  }
+
+  function toggleAllSnowProps(cb) {
+    document.querySelectorAll('.snow-prop-cb').forEach(function(c){ c.checked = cb.checked; });
+  }
+
+  function applyDefaultSnowBilling() {
+    var billing = document.getElementById('snow-default-billing').value;
+    var rate    = document.getElementById('snow-default-rate').value;
+    document.querySelectorAll('.snow-billing-sel').forEach(function(s){ s.value = billing; });
+    document.querySelectorAll('.snow-rate-inp').forEach(function(i){ i.value = rate; });
+  }
+
+  async function confirmSnowJobs() {
+    var stormName = document.getElementById('snow-storm-name').value.trim() || 'Storm #1';
+    var checked   = document.querySelectorAll('.snow-prop-cb:checked');
+    if (!checked.length) { alert('No properties selected.'); return; }
+    var rows = document.querySelectorAll('#snow-select-tbody tr');
+    var toCreate = [];
+    checked.forEach(function(cb) {
+      var idx     = parseInt(cb.dataset.idx);
+      var row     = rows[idx];
+      var billing = row.querySelector('.snow-billing-sel').value;
+      var rate    = parseFloat(row.querySelector('.snow-rate-inp').value) || 0;
+      toCreate.push({ prop: snowSelectedProps[idx], billing: billing, rate: rate });
+    });
+
+    for (var i = 0; i < toCreate.length; i++) {
+      var item = toCreate[i];
+      // Find or create snow_property enrollment
+      var { data: existing } = await sb.from('snow_properties').select('id').eq('user_id', uid).eq('property_id', item.prop.id).maybeSingle();
+      var snowPropId;
+      if (existing) {
+        await sb.from('snow_properties').update({ billing_type: item.billing, rate: item.rate }).eq('id', existing.id);
+        snowPropId = existing.id;
+      } else {
+        var { data: newSp } = await sb.from('snow_properties').insert({ user_id: uid, property_id: item.prop.id, billing_type: item.billing, rate: item.rate, active: true }).select('id').single();
+        snowPropId = newSp ? newSp.id : null;
+      }
+      if (!snowPropId) continue;
+      // Create the snow job (pass #1)
+      await sb.from('snow_jobs').insert({ user_id: uid, snow_property_id: snowPropId, storm_name: stormName, pass_number: 1, billing_type: item.billing, rate: item.rate, dispatched: false, completed: false });
+    }
+
+    closeSnowModal();
+    clearMapSelection();
+    await loadSnowJobs();
+    if (!snowBarOpen) toggleSnowBar();
+    alert(toCreate.length + ' snow jobs added to the queue!');
+  }
+
   // ── Snow Mode ─────────────────────────────────────────
   var snowModeOn   = false;
   var snowBarOpen  = false;
@@ -1448,7 +1591,7 @@
     var { data } = await sb.from('company_info').select('snow_mode').eq('user_id', uid).single();
     snowModeOn = data && data.snow_mode;
     document.getElementById('snow-bar').classList.toggle('visible', !!snowModeOn);
-    if (snowModeOn) await loadSnowJobs();
+    if (snowModeOn) await Promise.all([loadSnowJobs(), loadAllPropertiesForSnow()]);
   }
 
   async function loadSnowJobs() {
