@@ -353,6 +353,21 @@
   <div id="draw-capture" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:14;"></div>
 </div>
 
+<div id="bottom-bar-wrap">
+<div class="bottom-bar">
+  <div style="position:relative;display:flex;">
+    <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
+    <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
+    <div class="actions-dd" id="actions-dd">
+      <a onclick="scheduleSelected(event)">Schedule Selected</a>
+      <a onclick="deleteSelectedJobs(event)">Delete Selected</a>
+    </div>
+  </div>
+  <div class="day-tabs" id="day-tabs"></div>
+  <button class="bar-btn" onclick="clearDayFilter()">All Week</button>
+</div>
+</div>
+
 <!-- Unscheduled section -->
 <div class="unsched-section">
   <div class="unsched-hdr" onclick="toggleUnsched()">
@@ -384,21 +399,6 @@
     </table>
     <div class="unsched-empty" id="unsched-empty" style="display:none;">No unscheduled jobs &#10003;</div>
   </div>
-</div>
-
-<div id="bottom-bar-wrap">
-<div class="bottom-bar">
-  <div style="position:relative;display:flex;">
-    <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
-    <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
-    <div class="actions-dd" id="actions-dd">
-      <a onclick="scheduleSelected(event)">Schedule Selected</a>
-      <a onclick="deleteSelectedJobs(event)">Delete Selected</a>
-    </div>
-  </div>
-  <div class="day-tabs" id="day-tabs"></div>
-  <button class="bar-btn" onclick="clearDayFilter()">All Week</button>
-</div>
 </div>
 
 <div id="sched-section-wrap">
