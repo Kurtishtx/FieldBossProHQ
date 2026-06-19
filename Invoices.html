@@ -452,34 +452,6 @@
     a.click();
   }
 
-  function exportQuickBooks() {
-    document.getElementById('actions-dropdown').classList.remove('open');
-    var rows = [['*InvoiceNo','*Customer','*InvoiceDate','*DueDate','*ItemName','ItemDescription','*ItemQuantity','*ItemRate','*ItemAmount','Payment']];
-    invoices.forEach(function(inv) {
-      var date  = inv.date || '';
-      var due   = date ? new Date(new Date(date).getTime() + 30*24*60*60*1000).toISOString().slice(0,10) : '';
-      var total = parseFloat(inv.inv_total) || 0;
-      rows.push([
-        inv.inv_num || '',
-        inv.client_name || '',
-        date,
-        due,
-        inv.frequency || 'Service',
-        inv.frequency || '',
-        '1',
-        total.toFixed(2),
-        total.toFixed(2),
-        inv.payment || ''
-      ]);
-    });
-    var csv = rows.map(function(r) {
-      return r.map(function(v) { return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
-    }).join('\n');
-    var a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-    a.download = 'invoices_quickbooks.csv';
-    a.click();
-  }
 
   loadInvoices();
 </script>
@@ -987,7 +959,6 @@
   <button class="dropdown-item" onclick="printSelectedInvoices()">Print Selected</button>
   <button class="dropdown-item" onclick="deleteSelectedInvoices()">Delete</button>
   <button class="dropdown-item" onclick="exportInvoices()">Export CSV</button>
-  <button class="dropdown-item" onclick="exportQuickBooks()">Export for QuickBooks</button>
 </div>
 </body>
 </html>
