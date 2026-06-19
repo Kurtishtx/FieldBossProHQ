@@ -210,6 +210,33 @@
     .sv-modal-save { background:#c47d0a; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; font-family:inherit; }
     .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; font-family:inherit; }
 
+    /* Snow Mode bar */
+    .snow-bar { display:none; margin:4px 16px 0; border-radius:10px; overflow:hidden; border:1px solid #6aa8d8; }
+    .snow-bar.visible { display:block; }
+    .snow-bar-hdr { background:#1a3a5c; color:#fff; padding:8px 14px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+    .snow-bar-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .snow-bar-count { background:rgba(255,255,255,.2); border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; }
+    .snow-bar-body { background:#eaf3fb; padding:0; display:none; }
+    .snow-bar-body.open { display:block; }
+    .snow-storm-form { padding:12px 14px; display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+    .snow-storm-form label { font-size:11px; font-weight:700; color:#1a3a5c; text-transform:uppercase; letter-spacing:.4px; display:block; margin-bottom:3px; }
+    .snow-storm-form input, .snow-storm-form select { border:1px solid #b0c8e0; border-radius:4px; padding:6px 9px; font-size:13px; font-family:inherit; background:#fff; color:#222; }
+    .snow-storm-form input:focus, .snow-storm-form select:focus { outline:none; border-color:#1a3a5c; }
+    .btn-start-storm { background:#1a3a5c; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .btn-start-storm:hover { background:#0d2540; }
+    .btn-end-storm { background:#c0392b; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; border-radius:4px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .btn-end-storm.active-storm-btn { background:#27ae60; }
+    .snow-jobs-table { width:100%; border-collapse:collapse; background:#fff; }
+    .snow-jobs-table thead tr { background:#1a3a5c; }
+    .snow-jobs-table thead th { padding:7px 10px; text-align:left; font-size:11px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:.4px; }
+    .snow-jobs-table tbody tr { border-bottom:1px solid #dce8f0; }
+    .snow-jobs-table tbody tr:hover { background:#f0f7fc; }
+    .snow-jobs-table tbody td { padding:7px 10px; font-size:13px; color:#222; }
+    .snow-empty { text-align:center; padding:14px; color:#6aa8d8; font-size:13px; background:#fff; }
+    .btn-snow-dispatch { background:#1a3a5c; color:#fff; border:none; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; }
+    .btn-snow-dispatch:hover { background:#0d2540; }
+    .badge-snow-billing { display:inline-block; padding:2px 7px; border-radius:10px; font-size:11px; font-weight:700; background:#d6eaf8; color:#1a3a5c; }
+
     @media print {
       .page-header, .top-summary-bar, .filter-bar, .subfilter-bar, .toolbar,
       .map-section, .unsched-section, .modal-overlay, .sv-overlay { display:none !important; }
@@ -243,6 +270,64 @@
   <div class="tsb-right">
     <button class="btn-orange-outline" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
     <button class="btn-orange-outline" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<!-- Snow Mode Bar -->
+<div class="snow-bar" id="snow-bar">
+  <div class="snow-bar-hdr" onclick="toggleSnowBar()">
+    <div class="snow-bar-title">
+      &#10052; Snow Mode
+      <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.6);">(pending snow jobs)</span>
+      <span class="snow-bar-count" id="snow-job-count">0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;color:rgba(255,255,255,.55);" id="snow-bar-hint">click to expand</span>
+    </div>
+  </div>
+  <div class="snow-bar-body" id="snow-bar-body">
+    <!-- Storm setup form -->
+    <div class="snow-storm-form" id="snow-storm-form">
+      <div>
+        <label>Storm Name</label>
+        <input type="text" id="snow-storm-name" placeholder="e.g. Storm #1" style="width:160px;"/>
+      </div>
+      <div>
+        <label>Start Time</label>
+        <input type="datetime-local" id="snow-storm-start"/>
+      </div>
+      <div>
+        <label>Snow Depth (in)</label>
+        <input type="number" id="snow-storm-depth" placeholder="0" min="0" step="0.5" style="width:90px;"/>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-start-storm" onclick="activateStorm()">&#10052; Start Storm — Draw Circle on Map</button>
+      </div>
+      <div id="end-storm-wrap" style="display:none;">
+        <label>&nbsp;</label>
+        <button class="btn-end-storm" onclick="endStorm()">End Storm / Cleanup Mode</button>
+      </div>
+    </div>
+    <!-- Snow waiting list -->
+    <div id="snow-jobs-wrap">
+      <div style="background:#1a3a5c;color:#fff;padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:.3px;">SNOW WAITING LIST</div>
+      <table class="snow-jobs-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Address</th>
+            <th>Billing</th>
+            <th>Rate</th>
+            <th>Pass #</th>
+            <th>Truck</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="snow-jobs-tbody"></tbody>
+      </table>
+      <div class="snow-empty" id="snow-jobs-empty">No snow jobs yet — start a storm and draw a circle on the map to add properties.</div>
+    </div>
   </div>
 </div>
 
@@ -1351,13 +1436,91 @@
     document.querySelectorAll('.job-row-cb').forEach(function(c){ c.checked = cb.checked; });
   }
 
+  // ── Snow Mode ─────────────────────────────────────────
+  var snowModeOn   = false;
+  var snowBarOpen  = false;
+  var snowJobs     = [];
+  var activeStorm  = null;
+
+  function toggleSnowBar() {
+    snowBarOpen = !snowBarOpen;
+    document.getElementById('snow-bar-body').classList.toggle('open', snowBarOpen);
+    document.getElementById('snow-bar-hint').textContent = snowBarOpen ? 'click to collapse' : 'click to expand';
+  }
+
+  async function loadSnowMode() {
+    var { data } = await sb.from('company_info').select('snow_mode').eq('user_id', uid).single();
+    snowModeOn = data && data.snow_mode;
+    document.getElementById('snow-bar').classList.toggle('visible', !!snowModeOn);
+    if (snowModeOn) await loadSnowJobs();
+  }
+
+  async function loadSnowJobs() {
+    var { data } = await sb.from('snow_jobs')
+      .select('id, pass_number, billing_type, rate, truck_id, snow_properties(property_id, Properties(client_name, address))')
+      .eq('user_id', uid)
+      .eq('dispatched', false)
+      .order('created_at');
+    snowJobs = data || [];
+    renderSnowJobs();
+  }
+
+  function renderSnowJobs() {
+    var tbody = document.getElementById('snow-jobs-tbody');
+    var empty = document.getElementById('snow-jobs-empty');
+    document.getElementById('snow-job-count').textContent = snowJobs.length;
+    tbody.innerHTML = '';
+    if (!snowJobs.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    snowJobs.forEach(function(j) {
+      var sp = j.snow_properties || {};
+      var prop = sp.Properties || {};
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="font-weight:600;">' + esc(prop.client_name || '—') + '</td>' +
+        '<td style="color:#555;">' + esc(prop.address || '—') + '</td>' +
+        '<td><span class="badge-snow-billing">' + esc(j.billing_type || '—') + '</span></td>' +
+        '<td>$' + parseFloat(j.rate || 0).toFixed(2) + '</td>' +
+        '<td style="font-weight:700;color:#1a3a5c;">Push #' + (j.pass_number || 1) + '</td>' +
+        '<td>' + esc(j.truck_id ? (truckList.find(function(t){ return t.id===j.truck_id; })||{name:'—'}).name : 'Unassigned') + '</td>' +
+        '<td><button class="btn-snow-dispatch" onclick="dispatchSnowJob(\'' + j.id + '\')">Dispatch</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function activateStorm() {
+    var name  = document.getElementById('snow-storm-name').value.trim() || 'Storm #1';
+    var start = document.getElementById('snow-storm-start').value;
+    var depth = document.getElementById('snow-storm-depth').value;
+    activeStorm = { name: name, start: start, depth: depth };
+    document.getElementById('end-storm-wrap').style.display = '';
+    if (!snowBarOpen) toggleSnowBar();
+    if (!mapVisible) toggleMap();
+    setTimeout(function() { setMapTool('draw'); }, 400);
+    alert('Storm "' + name + '" started! Draw a circle on the map to select snow properties.');
+  }
+
+  function endStorm() {
+    if (!confirm('End this storm and move to Cleanup Mode?')) return;
+    activeStorm = null;
+    document.getElementById('end-storm-wrap').style.display = 'none';
+    alert('Storm ended. Remaining jobs moved to Cleanup Queue.');
+  }
+
+  async function dispatchSnowJob(id) {
+    var truck = prompt('Enter truck name or leave blank:');
+    var truckId = truck ? (truckList.find(function(t){ return t.name.toLowerCase()===truck.toLowerCase(); })||{}).id || null : null;
+    await sb.from('snow_jobs').update({ dispatched: true, truck_id: truckId }).eq('id', id);
+    await loadSnowJobs();
+  }
+
   // ── Init ─────────────────────────────────────────────
   async function init() {
     var { data: s } = await sb.auth.getSession();
     uid = s && s.session ? s.session.user.id : null;
     if (!uid) return;
     updateWeekLabel();
-    await Promise.all([loadTrucks(), loadEmployees(), loadJobs()]);
+    await Promise.all([loadTrucks(), loadEmployees(), loadJobs(), loadSnowMode()]);
   }
 
   init();
