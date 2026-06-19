@@ -8,62 +8,96 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; }
 
-    .page-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#fff; border-bottom:1px solid #ddd; }
-    .page-header h1 { font-size:22px; font-weight:700; color:#111; }
-    .page-header-right { display:flex; align-items:center; gap:10px; }
-
-    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#7a6040; flex-wrap:wrap; margin:4px 16px; border-radius:8px; }
-    .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); }
-    .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
-    .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
-    .filter-bar-label { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; margin-right:2px; }
-
-    .toolbar { display:flex; align-items:center; justify-content:space-between; padding:6px 16px; margin:4px 16px 0; background:#1e1208; border-radius:10px 10px 0 0; }
-    .toolbar-left { display:flex; align-items:center; gap:8px; }
-    .toolbar-right { display:flex; align-items:center; gap:8px; }
-
-    .btn-add { background:#c47d0a; color:#fff; border:none; padding:6px 16px; font-size:13px; font-weight:700; cursor:pointer; border-radius:4px; font-family:inherit; }
+    /* Header */
+    .page-header { display:flex; align-items:center; gap:10px; padding:10px 14px; background:#fff; border-bottom:1px solid #ddd; }
+    .page-header h1 { font-size:22px; font-weight:700; color:#111; white-space:nowrap; }
+    .search-wrap { flex:1; max-width:520px; margin:0 auto; position:relative; display:flex; align-items:center; }
+    .search-icon { position:absolute; left:12px; font-size:15px; }
+    .search-input { width:100%; border:2px solid #c47d0a; border-radius:24px; padding:7px 14px 7px 36px; font-size:14px; font-family:inherit; outline:none; }
+    .search-input::placeholder { color:#999; }
+    .page-header-right { margin-left:auto; }
+    .btn-add { background:#c47d0a; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; cursor:pointer; border-radius:4px; font-family:inherit; white-space:nowrap; }
     .btn-add:hover { background:#a86808; }
 
+    /* Stats bar */
+    .top-summary-bar { display:flex; align-items:center; justify-content:space-between; background:#1e1208; padding:8px 16px; margin:4px 16px; border-radius:8px; }
+    .tsb-left { display:flex; align-items:center; gap:18px; }
+    .tsb-stat { display:flex; flex-direction:column; align-items:center; line-height:1.2; }
+    .tsb-stat-val { font-size:22px; font-weight:700; color:#c47d0a; }
+    .tsb-stat-lbl { font-size:11px; color:#ede5d8; text-transform:uppercase; letter-spacing:.5px; }
+    .tsb-divider { width:2px; height:36px; background:#fff; opacity:.4; }
+    .tsb-right { display:flex; align-items:center; gap:8px; }
+    .btn-orange-outline { background:#1e1208; border:2px solid #c47d0a; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
+    .btn-orange-outline:hover, .btn-orange-outline.active { background:#2a1a0a; }
+
+    /* Filter bar */
+    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#7a6040; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
+    .filter-bar-label { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; margin-right:2px; white-space:nowrap; }
+    .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); font-family:inherit; }
+    .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
+
+    /* Sub-filter rows */
+    .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#8a7055; margin:2px 16px; border-radius:8px; flex-wrap:wrap; }
+    .subfilter-bar.visible { display:flex; }
+
+    /* Category pills in subfilter */
+    .cat-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); font-family:inherit; }
+    .cat-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .cat-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
+
+    /* Active filter chip */
+    .sf-x-btn { width:20px; height:20px; border-radius:3px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0; font-family:inherit; line-height:1; }
+    .sf-x-btn:hover { background:rgba(255,255,255,.3); }
+    .sf-label { font-size:13px; color:#fff; white-space:nowrap; font-weight:600; }
+    .sf-sep { color:rgba(255,255,255,.4); }
+
+    /* Multi-select dropdown */
+    .ms-wrap { position:relative; display:inline-block; }
+    .ms-btn { height:26px; min-width:160px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); padding:0 24px 0 8px; font-size:13px; cursor:pointer; text-align:left; color:#fff; position:relative; border-radius:4px; font-family:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ms-btn::after { content:'▾'; font-size:9px; position:absolute; right:7px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,.6); }
+    .ms-dropdown { display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.15); z-index:500; min-width:200px; max-height:220px; overflow-y:auto; padding:4px 0; border-radius:4px; }
+    .ms-dropdown.open { display:block; }
+    .ms-item { display:flex; align-items:center; gap:7px; padding:5px 10px; cursor:pointer; font-size:13px; }
+    .ms-item:hover { background:#f5f5f5; }
+    .ms-item input { cursor:pointer; accent-color:#c47d0a; }
+
+    /* Saved Views / Toolbar */
+    .toolbar { display:flex; align-items:center; gap:10px; padding:5px 10px; margin:2px 16px; flex-wrap:wrap; }
+    .toolbar-left { display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap; }
+    .app-dropdown { position:relative; }
+    .app-btn { display:flex; align-items:center; gap:8px; border:2px solid rgba(255,255,255,.15); background:#1e1208; padding:6px 14px; font-size:13px; font-weight:400; min-width:160px; cursor:pointer; text-align:left; border-radius:6px; color:rgba(255,255,255,.7); font-family:inherit; }
+    .app-btn:hover { background:#2a1a0a; color:#fff; }
+    .app-btn::after { content:'▾'; font-size:10px; color:rgba(255,255,255,.5); margin-left:auto; }
+    .saved-filters-panel { display:none; position:absolute; top:100%; left:0; z-index:300; width:260px; background:#fff; border:1px solid #bbb; box-shadow:0 4px 12px rgba(0,0,0,.2); border-radius:4px; overflow:hidden; }
+    .saved-filters-panel.show { display:block; }
+    .sfp-body { padding:10px 12px; }
+    .sfp-title { font-weight:700; font-size:13px; color:#333; margin-bottom:6px; }
+    .sfp-create { display:block; color:#8a5518; text-decoration:underline; font-size:13px; margin-bottom:8px; cursor:pointer; background:none; border:none; font-family:inherit; padding:0; }
+    .sfp-create:hover { color:#c47d0a; }
+    .sfp-item { display:flex; align-items:center; justify-content:space-between; padding:4px 0; font-size:13px; border-top:1px solid #eee; }
+    .sfp-item-name { color:#8a5518; cursor:pointer; text-decoration:underline; }
+    .sfp-item-name:hover { color:#c47d0a; }
+    .sfp-del { background:none; border:none; color:#aaa; font-size:13px; cursor:pointer; padding:0 2px; }
+    .sfp-del:hover { color:#e04040; }
+    .sfp-empty { color:#888; font-size:12px; font-style:italic; }
+    .sv-current { color:#c47d0a; font-weight:700; font-size:12px; }
+
+    /* Date nav */
     .date-nav { display:flex; align-items:center; gap:6px; }
-    .date-nav button { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; padding:4px 10px; cursor:pointer; border-radius:4px; font-size:13px; font-family:inherit; }
-    .date-nav button:hover { background:rgba(255,255,255,.2); }
-    .date-nav span { color:#fff; font-size:13px; font-weight:600; min-width:160px; text-align:center; }
+    .date-nav button { background:#1e1208; border:1px solid rgba(255,255,255,.2); color:#fff; padding:5px 10px; cursor:pointer; border-radius:4px; font-size:13px; font-family:inherit; }
+    .date-nav button:hover { background:#2a1a0a; }
+    .date-nav span { color:#1e1208; font-size:13px; font-weight:600; min-width:200px; text-align:center; }
 
-    select.filter-select { border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:#fff; padding:4px 8px; border-radius:4px; font-size:13px; font-family:inherit; cursor:pointer; }
-    select.filter-select option { background:#1e1208; color:#fff; }
+    /* Map */
+    .map-section { margin:2px 16px; height:450px; position:relative; border-radius:8px; overflow:hidden; border:1px solid #c8b898; }
+    .map-style-toggle { position:absolute; top:10px; right:10px; z-index:10; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+    .map-style-btn { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; font-family:inherit; }
+    .map-style-btn.active { background:#f0f0f0; font-weight:700; }
 
-    .table-container { margin:0 16px 16px; border-radius:0 0 10px 10px; overflow:hidden; border:1px solid #ddd; border-top:none; }
-    .data-table { width:100%; border-collapse:collapse; }
-    .data-table thead tr { background:#1e1208; color:#fff; }
-    .data-table thead th { padding:8px 10px; text-align:left; font-size:12px; font-weight:600; white-space:nowrap; border-right:1px solid rgba(255,255,255,.1); }
-    .data-table thead th:last-child { border-right:none; }
-    .data-table tbody tr { border-bottom:1px solid #eee; background:#fff; }
-    .data-table tbody tr:hover { background:#fdf8f0; }
-    .data-table tbody td { padding:7px 10px; vertical-align:middle; }
-
-    .day-header { background:#e8ddd0; font-weight:700; color:#3d2510; padding:6px 10px; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
-
-    .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; }
-    .badge-mowing    { background:#d4edda; color:#155724; }
-    .badge-landscape { background:#d1ecf1; color:#0c5460; }
-    .badge-irrigation{ background:#cce5ff; color:#004085; }
-    .badge-snow      { background:#e2e3e5; color:#383d41; }
-    .badge-other     { background:#fff3cd; color:#856404; }
-
-    .recur-tag { font-size:10px; color:#8a5518; font-weight:600; }
-
-    .btn-schedule { background:#c47d0a; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
-    .btn-schedule:hover { background:#a86808; }
-    .btn-del { background:none; border:none; color:#cc2222; font-size:16px; cursor:pointer; padding:0 4px; }
-
-    .empty-msg { text-align:center; padding:48px 24px; color:#888; font-size:15px; }
-
-    .results-bar { padding:6px 24px; font-size:13px; font-weight:700; color:#111; background:transparent; text-align:right; }
-
-    /* ── Unscheduled section ── */
+    /* Unscheduled */
     .unsched-section { margin:8px 16px 0; border-radius:10px; overflow:hidden; border:1px solid #e8c88a; }
-    .unsched-hdr { background:#3d2510; color:#fff; padding:8px 14px; display:flex; align-items:center; justify-content:space-between; }
+    .unsched-hdr { background:#3d2510; color:#fff; padding:8px 14px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
     .unsched-hdr-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
     .unsched-count { background:rgba(255,255,255,.2); border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; }
     .unsched-table { width:100%; border-collapse:collapse; background:#fffdf8; }
@@ -74,24 +108,39 @@
     .unsched-table tbody tr:hover { background:#fdf3e3; }
     .unsched-table tbody td { padding:8px 10px; vertical-align:middle; color:#333; }
     .unsched-empty { text-align:center; padding:18px; color:#c8a060; font-size:13px; background:#fffdf8; }
-    .btn-assign { background:#3d2510; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
-    .btn-assign:hover { background:#1e1208; }
-
-    /* Toggle switch */
     .unsched-toggle { width:36px; height:20px; background:rgba(255,255,255,.2); border-radius:10px; position:relative; transition:background .2s; flex-shrink:0; }
     .unsched-toggle.on { background:#c47d0a; }
     .unsched-toggle-knob { width:16px; height:16px; background:#fff; border-radius:50%; position:absolute; top:2px; left:2px; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
     .unsched-toggle.on .unsched-toggle-knob { left:18px; }
+    .btn-assign { background:#3d2510; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
+    .btn-assign:hover { background:#1e1208; }
 
-    /* ── Map ── */
-    .btn-map-toggle { background:#3d2510; color:#fff; border:1px solid rgba(255,255,255,.3); padding:4px 14px; font-size:13px; cursor:pointer; border-radius:4px; font-family:inherit; font-weight:600; }
-    .btn-map-toggle:hover, .btn-map-toggle.active { background:#1e1208; border-color:#c47d0a; }
-    .map-section { display:none; margin:4px 16px 0; height:450px; position:relative; border-radius:8px; overflow:hidden; border:1px solid #c8b898; }
-    .map-style-toggle { position:absolute; top:10px; right:10px; z-index:10; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.2); }
-    .map-style-btn { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; font-family:inherit; }
-    .map-style-btn.active { background:#f0f0f0; font-weight:700; }
+    /* Scheduled table */
+    .results-bar { padding:4px 24px; font-size:13px; font-weight:700; color:#111; text-align:right; }
+    .table-container { margin:0 16px 16px; border-radius:0 0 10px 10px; overflow:hidden; border:1px solid #ddd; border-top:none; }
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table thead tr { background:#1e1208; color:#fff; }
+    .data-table thead th { padding:8px 10px; text-align:left; font-size:12px; font-weight:600; white-space:nowrap; border-right:1px solid rgba(255,255,255,.1); }
+    .data-table thead th:last-child { border-right:none; }
+    .data-table tbody tr { border-bottom:1px solid #eee; background:#fff; }
+    .data-table tbody tr:hover { background:#fdf8f0; }
+    .data-table tbody td { padding:7px 10px; vertical-align:middle; }
+    .day-header { background:#e8ddd0; font-weight:700; color:#3d2510; padding:6px 10px; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
 
-    /* ── Schedule Modal ── */
+    .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; }
+    .badge-mowing    { background:#d4edda; color:#155724; }
+    .badge-landscape { background:#d1ecf1; color:#0c5460; }
+    .badge-irrigation{ background:#cce5ff; color:#004085; }
+    .badge-snow      { background:#e2e3e5; color:#383d41; }
+    .badge-other     { background:#fff3cd; color:#856404; }
+    .recur-tag { font-size:10px; color:#8a5518; font-weight:600; }
+
+    .btn-schedule { background:#c47d0a; color:#fff; border:none; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border-radius:3px; font-family:inherit; white-space:nowrap; }
+    .btn-schedule:hover { background:#a86808; }
+    .btn-del { background:none; border:none; color:#cc2222; font-size:16px; cursor:pointer; padding:0 4px; }
+    .empty-msg { text-align:center; padding:48px 24px; color:#888; font-size:15px; }
+
+    /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; }
     .modal { background:#fff; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,.3); width:420px; max-width:95vw; overflow:hidden; }
@@ -106,6 +155,23 @@
     .btn-confirm { background:#c47d0a; color:#fff; border:none; padding:9px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; font-family:inherit; }
     .btn-confirm:hover { background:#a86808; }
     .btn-cancel-modal { background:#eee; color:#333; border:none; padding:9px 18px; font-size:14px; border-radius:4px; cursor:pointer; font-family:inherit; }
+
+    /* Save View modal */
+    .sv-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:900; align-items:center; justify-content:center; }
+    .sv-overlay.show { display:flex; }
+    .sv-modal { background:#fff; width:400px; max-width:94vw; padding:28px 28px 22px; border-radius:8px; box-shadow:0 8px 32px rgba(0,0,0,.3); }
+    .sv-modal-title { font-size:20px; font-weight:700; color:#111; margin-bottom:16px; }
+    .sv-modal label { font-size:13px; color:#666; display:block; margin-bottom:6px; }
+    .sv-modal input[type="text"] { width:100%; border:2px solid #111; padding:9px 10px; font-size:14px; font-family:inherit; outline:none; border-radius:4px; }
+    .sv-modal-footer { display:flex; align-items:center; gap:12px; margin-top:16px; justify-content:flex-end; }
+    .sv-modal-save { background:#c47d0a; color:#fff; border:none; padding:10px 24px; font-size:14px; font-weight:700; border-radius:4px; cursor:pointer; font-family:inherit; }
+    .sv-modal-cancel { font-size:13px; color:#333; cursor:pointer; background:none; border:none; font-family:inherit; }
+
+    @media print {
+      .page-header, .top-summary-bar, .filter-bar, .subfilter-bar, .toolbar,
+      .map-section, .unsched-section, .modal-overlay, .sv-overlay { display:none !important; }
+      body { background:#fff !important; }
+    }
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
@@ -113,42 +179,112 @@
 </head>
 <body>
 
+<!-- Header -->
 <div class="page-header">
   <h1>&#128203; Job Board</h1>
+  <div class="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" class="search-input" id="search-input" placeholder="Search by client, address, service..." oninput="onSearch()"/>
+  </div>
   <div class="page-header-right">
     <button class="btn-add" onclick="openRecurring()">+ Add Job</button>
   </div>
 </div>
 
-<div class="filter-bar">
-  <span class="filter-bar-label">Category:</span>
-  <button class="filter-tab active" onclick="setCategory('all', this)">All</button>
-  <button class="filter-tab" onclick="setCategory('mowing', this)">Mowing</button>
-  <button class="filter-tab" onclick="setCategory('landscape', this)">Landscape</button>
-  <button class="filter-tab" onclick="setCategory('irrigation', this)">Irrigation</button>
-  <button class="filter-tab" onclick="setCategory('snow', this)">Snow</button>
-  <button class="filter-tab" onclick="setCategory('other', this)">Other</button>
+<!-- Stats bar -->
+<div class="top-summary-bar">
+  <div class="tsb-left">
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="stat-props">0</span>
+      <span class="tsb-stat-lbl">Properties</span>
+    </div>
+    <div class="tsb-divider"></div>
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="stat-jobs">0</span>
+      <span class="tsb-stat-lbl">Jobs</span>
+    </div>
+    <div class="tsb-divider"></div>
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="stat-total">$0.00</span>
+      <span class="tsb-stat-lbl">Total</span>
+    </div>
+  </div>
+  <div class="tsb-right">
+    <button class="btn-orange-outline" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
+    <button class="btn-orange-outline" onclick="window.print()">Print</button>
+  </div>
 </div>
 
+<!-- Filter bar: Select a Filter tabs -->
+<div class="filter-bar">
+  <span class="filter-bar-label">Select a Filter:</span>
+  <button class="filter-tab active" id="ftab-category" onclick="setFilterTab('category', this)">Category</button>
+  <button class="filter-tab" id="ftab-status" onclick="setFilterTab('status', this)">Status</button>
+  <button class="filter-tab" id="ftab-trucks" onclick="setFilterTab('trucks', this)">Trucks</button>
+</div>
+
+<!-- Category subfilter (default visible) -->
+<div class="subfilter-bar visible" id="subfilter-category">
+  <button class="cat-tab active" id="cat-all" onclick="setCategory('all', this)">All</button>
+  <button class="cat-tab" onclick="setCategory('mowing', this)">Mowing</button>
+  <button class="cat-tab" onclick="setCategory('landscape', this)">Landscape</button>
+  <button class="cat-tab" onclick="setCategory('irrigation', this)">Irrigation</button>
+  <button class="cat-tab" onclick="setCategory('snow', this)">Snow</button>
+  <button class="cat-tab" onclick="setCategory('other', this)">Other</button>
+</div>
+
+<!-- Status subfilter -->
+<div class="subfilter-bar" id="subfilter-status">
+  <button class="sf-x-btn" onclick="clearStatusFilter()" title="Clear status filter">&#10005;</button>
+  <span class="sf-label">Status</span>
+  <span class="sf-sep">|</span>
+  <div class="ms-wrap">
+    <button class="ms-btn" id="status-ms-btn" onclick="toggleStatusDropdown(event)">
+      <span id="status-ms-label">All Statuses</span>
+    </button>
+    <div class="ms-dropdown" id="status-ms-dd"></div>
+  </div>
+</div>
+
+<!-- Trucks subfilter -->
+<div class="subfilter-bar" id="subfilter-trucks">
+  <button class="sf-x-btn" onclick="clearTruckFilter()" title="Clear truck filter">&#10005;</button>
+  <span class="sf-label">Trucks</span>
+  <span class="sf-sep">|</span>
+  <div class="ms-wrap">
+    <button class="ms-btn" id="truck-ms-btn" onclick="toggleTruckDropdown(event)">
+      <span id="truck-ms-label">All Trucks</span>
+    </button>
+    <div class="ms-dropdown" id="truck-ms-dd"></div>
+  </div>
+</div>
+
+<!-- Toolbar: Saved Views + Week Nav -->
 <div class="toolbar">
   <div class="toolbar-left">
+    <div class="app-dropdown" id="saved-views-dd">
+      <button class="app-btn" onclick="toggleSavedViews(event)" id="sv-btn">
+        Saved Views&nbsp;<span class="sv-current" id="sv-current-name"></span>
+      </button>
+      <div class="saved-filters-panel" id="sv-panel">
+        <div class="sfp-body">
+          <div class="sfp-title">Saved Views</div>
+          <button class="sfp-create" onclick="openSaveViewModal()">+ Save current filters as a view</button>
+          <div id="sv-list"></div>
+        </div>
+      </div>
+    </div>
     <div class="date-nav">
       <button onclick="shiftWeek(-1)">&#8249;</button>
       <span id="week-label"></span>
       <button onclick="shiftWeek(1)">&#8250;</button>
-      <button onclick="goToday()" style="margin-left:4px;">Today</button>
+      <button onclick="goToday()">Today</button>
     </div>
-  </div>
-  <div class="toolbar-right">
-    <select class="filter-select" id="truck-filter" onchange="render()">
-      <option value="">All Trucks</option>
-    </select>
-    <button class="btn-map-toggle" id="toggle-map-btn" onclick="toggleMap()">&#128506; Map</button>
   </div>
 </div>
 
 <!-- Map section -->
-<div class="map-section" id="map-section">
+<div class="map-section" id="map-section" style="display:none;">
   <div id="job-map" style="width:100%;height:100%;"></div>
   <div class="map-style-toggle">
     <button class="map-style-btn active" id="map-btn-sat" onclick="setMapStyle('satellite')">Satellite</button>
@@ -158,7 +294,7 @@
 
 <!-- Unscheduled section -->
 <div class="unsched-section">
-  <div class="unsched-hdr" onclick="toggleUnsched()" style="cursor:pointer;">
+  <div class="unsched-hdr" onclick="toggleUnsched()">
     <div class="unsched-hdr-title">
       &#9888; Unscheduled Jobs
       <span class="unsched-count" id="unsched-count">0</span>
@@ -238,7 +374,20 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
-      <button class="btn-confirm" onclick="confirmSchedule()">Schedule → Move to Scheduled</button>
+      <button class="btn-confirm" onclick="confirmSchedule()">Schedule &#8594; Move to Scheduled</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save View Modal -->
+<div class="sv-overlay" id="sv-overlay">
+  <div class="sv-modal">
+    <div class="sv-modal-title">Save Current View</div>
+    <label>View name</label>
+    <input type="text" id="sv-name-input" placeholder="e.g. Mowing — This Week" maxlength="60"/>
+    <div class="sv-modal-footer">
+      <button class="sv-modal-cancel" onclick="closeSaveViewModal()">Cancel</button>
+      <button class="sv-modal-save" onclick="confirmSaveView()">Save View</button>
     </div>
   </div>
 </div>
@@ -249,51 +398,41 @@
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  var allJobs = [];
-  var unschedJobs = [];
-  var activeCategory = 'all';
-  var weekOffset = 0;
-  var modalJobId = null;
-  var uid = null;
+  var allJobs      = [];
+  var unschedJobs  = [];
+  var truckList    = [];
+  var activeCategory  = 'all';
+  var activeStatuses  = [];   // [] = all
+  var activeTrucks    = [];   // [] = all
+  var searchQuery     = '';
+  var weekOffset      = 0;
+  var modalJobId      = null;
+  var modalIsUnsched  = false;
+  var uid             = null;
+  var currentViewName = '';
 
   var CATEGORY_LABELS = { mowing:'Mowing', landscape:'Landscape', irrigation:'Irrigation', snow:'Snow', other:'Other', chemical:'Chemical' };
-  var RECUR_LABELS = { weekly:'Weekly', biweekly:'Bi-Weekly', monthly:'Monthly' };
+  var RECUR_LABELS    = { weekly:'Weekly', biweekly:'Bi-Weekly', monthly:'Monthly' };
+  var STATUS_OPTIONS  = ['pending','scheduled','in_progress','on_hold','cancelled'];
+  var STATUS_LABELS   = { pending:'Pending', scheduled:'Scheduled', in_progress:'In Progress', on_hold:'On Hold', cancelled:'Cancelled' };
 
+  // ── Helpers ──────────────────────────────────────────
   function weekStart(offset) {
-    var d = new Date();
-    var day = d.getDay();
-    d.setDate(d.getDate() - day + (offset * 7));
-    d.setHours(0,0,0,0);
-    return d;
+    var d = new Date(); var day = d.getDay();
+    d.setDate(d.getDate() - day + (offset * 7)); d.setHours(0,0,0,0); return d;
   }
   function fmt(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
   function fmtDate(d) { return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
   function isoDate(d) { return d.toISOString().split('T')[0]; }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  function updateWeekLabel() {
-    var s = weekStart(weekOffset);
-    var e = new Date(s); e.setDate(e.getDate() + 6);
-    document.getElementById('week-label').textContent = fmt(s) + ' – ' + fmt(e);
-  }
-
-  function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
-  function goToday() { weekOffset = 0; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
-  var unschedOpen = false;
-  function toggleUnsched() {
-    unschedOpen = !unschedOpen;
-    document.getElementById('unsched-body').style.display = unschedOpen ? '' : 'none';
-    var tog = document.getElementById('unsched-toggle');
-    var hint = document.getElementById('unsched-hint');
-    tog.classList.toggle('on', unschedOpen);
-    hint.textContent = unschedOpen ? 'click to hide' : 'click to show';
-  }
-
-  function setCategory(cat, el) {
-    activeCategory = cat;
-    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
-    el.classList.add('active');
-    render();
-    if (mapVisible) loadMapMarkers();
+  function matchesSearch(j) {
+    if (!searchQuery) return true;
+    var q = searchQuery.toLowerCase();
+    return (j.client_name||'').toLowerCase().includes(q) ||
+           (j.address||'').toLowerCase().includes(q) ||
+           (j.service||'').toLowerCase().includes(q) ||
+           (j.name||'').toLowerCase().includes(q);
   }
 
   function badgeClass(cat) {
@@ -301,52 +440,273 @@
     return map[cat] || 'badge-other';
   }
 
-  function render() {
-    renderUnscheduled();
-    renderScheduled();
+  // ── Week nav ─────────────────────────────────────────
+  function updateWeekLabel() {
+    var s = weekStart(weekOffset);
+    var e = new Date(s); e.setDate(e.getDate() + 6);
+    document.getElementById('week-label').textContent = fmt(s) + ' – ' + fmt(e);
+  }
+  function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
+  function goToday()       { weekOffset = 0;   updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
+
+  // ── Search ───────────────────────────────────────────
+  function onSearch() {
+    searchQuery = document.getElementById('search-input').value.trim();
+    render();
   }
 
-  function renderUnscheduled() {
-    var filtered = unschedJobs.filter(function(j) {
+  // ── Filter tabs ──────────────────────────────────────
+  function setFilterTab(tab, el) {
+    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('subfilter-category').classList.toggle('visible', tab === 'category');
+    document.getElementById('subfilter-status').classList.toggle('visible', tab === 'status');
+    document.getElementById('subfilter-trucks').classList.toggle('visible', tab === 'trucks');
+  }
+
+  // ── Category filter ──────────────────────────────────
+  function setCategory(cat, el) {
+    activeCategory = cat;
+    document.querySelectorAll('.cat-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    render(); if (mapVisible) loadMapMarkers();
+  }
+
+  // ── Status filter ────────────────────────────────────
+  function buildStatusDropdown() {
+    var dd = document.getElementById('status-ms-dd');
+    dd.innerHTML = '';
+    STATUS_OPTIONS.forEach(function(s) {
+      var item = document.createElement('div'); item.className = 'ms-item';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = s;
+      cb.checked = activeStatuses.includes(s);
+      cb.onchange = function() { onStatusChange(); };
+      var lbl = document.createElement('label'); lbl.textContent = STATUS_LABELS[s] || s;
+      item.appendChild(cb); item.appendChild(lbl);
+      item.onclick = function(e) { if (e.target !== cb) { cb.checked = !cb.checked; onStatusChange(); } };
+      dd.appendChild(item);
+    });
+  }
+  function toggleStatusDropdown(e) {
+    e.stopPropagation();
+    buildStatusDropdown();
+    document.getElementById('status-ms-dd').classList.toggle('open');
+  }
+  function onStatusChange() {
+    activeStatuses = [];
+    document.querySelectorAll('#status-ms-dd input:checked').forEach(function(cb){ activeStatuses.push(cb.value); });
+    updateStatusLabel();
+    render();
+  }
+  function updateStatusLabel() {
+    var lbl = document.getElementById('status-ms-label');
+    if (!activeStatuses.length) lbl.textContent = 'All Statuses';
+    else if (activeStatuses.length === 1) lbl.textContent = STATUS_LABELS[activeStatuses[0]] || activeStatuses[0];
+    else lbl.textContent = activeStatuses.length + ' selected';
+  }
+  function clearStatusFilter() {
+    activeStatuses = [];
+    updateStatusLabel();
+    render();
+    document.getElementById('ftab-category').click();
+  }
+
+  // ── Truck filter ─────────────────────────────────────
+  function buildTruckDropdown() {
+    var dd = document.getElementById('truck-ms-dd');
+    dd.innerHTML = '';
+    truckList.forEach(function(t) {
+      var item = document.createElement('div'); item.className = 'ms-item';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = t.id;
+      cb.checked = activeTrucks.includes(t.id);
+      cb.onchange = function() { onTruckChange(); };
+      var lbl = document.createElement('label'); lbl.textContent = t.name;
+      item.appendChild(cb); item.appendChild(lbl);
+      item.onclick = function(e) { if (e.target !== cb) { cb.checked = !cb.checked; onTruckChange(); } };
+      dd.appendChild(item);
+    });
+  }
+  function toggleTruckDropdown(e) {
+    e.stopPropagation();
+    buildTruckDropdown();
+    document.getElementById('truck-ms-dd').classList.toggle('open');
+  }
+  function onTruckChange() {
+    activeTrucks = [];
+    document.querySelectorAll('#truck-ms-dd input:checked').forEach(function(cb){ activeTrucks.push(cb.value); });
+    updateTruckLabel();
+    render();
+  }
+  function updateTruckLabel() {
+    var lbl = document.getElementById('truck-ms-label');
+    if (!activeTrucks.length) lbl.textContent = 'All Trucks';
+    else if (activeTrucks.length === 1) { var t = truckList.find(function(x){ return x.id === activeTrucks[0]; }); lbl.textContent = t ? t.name : '1 selected'; }
+    else lbl.textContent = activeTrucks.length + ' selected';
+  }
+  function clearTruckFilter() {
+    activeTrucks = [];
+    updateTruckLabel();
+    render();
+    document.getElementById('ftab-category').click();
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function() {
+    document.getElementById('status-ms-dd').classList.remove('open');
+    document.getElementById('truck-ms-dd').classList.remove('open');
+    document.getElementById('sv-panel').classList.remove('show');
+  });
+
+  // ── Saved Views ──────────────────────────────────────
+  var SV_KEY = 'jobboard_saved_views';
+  function loadSavedViewsList() {
+    try { return JSON.parse(localStorage.getItem(SV_KEY) || '[]'); } catch(e) { return []; }
+  }
+  function saveSavedViewsList(list) {
+    localStorage.setItem(SV_KEY, JSON.stringify(list));
+  }
+  function renderSavedViewsList() {
+    var list  = loadSavedViewsList();
+    var el    = document.getElementById('sv-list');
+    if (!list.length) { el.innerHTML = '<div class="sfp-empty">No saved views yet.</div>'; return; }
+    el.innerHTML = '';
+    list.forEach(function(v, i) {
+      var row = document.createElement('div'); row.className = 'sfp-item';
+      var name = document.createElement('span'); name.className = 'sfp-item-name'; name.textContent = v.name;
+      name.onclick = function() { applyView(v); document.getElementById('sv-panel').classList.remove('show'); };
+      var del = document.createElement('button'); del.className = 'sfp-del'; del.textContent = '×'; del.title = 'Delete view';
+      del.onclick = function(e) { e.stopPropagation(); deleteSavedView(i); };
+      row.appendChild(name); row.appendChild(del); el.appendChild(row);
+    });
+  }
+  function toggleSavedViews(e) {
+    e.stopPropagation();
+    renderSavedViewsList();
+    document.getElementById('sv-panel').classList.toggle('show');
+  }
+  function openSaveViewModal() {
+    document.getElementById('sv-panel').classList.remove('show');
+    document.getElementById('sv-name-input').value = '';
+    document.getElementById('sv-overlay').classList.add('show');
+    setTimeout(function(){ document.getElementById('sv-name-input').focus(); }, 50);
+  }
+  function closeSaveViewModal() {
+    document.getElementById('sv-overlay').classList.remove('show');
+  }
+  function confirmSaveView() {
+    var name = document.getElementById('sv-name-input').value.trim();
+    if (!name) { alert('Please enter a view name.'); return; }
+    var list = loadSavedViewsList();
+    list.push({ name: name, category: activeCategory, statuses: activeStatuses.slice(), trucks: activeTrucks.slice() });
+    saveSavedViewsList(list);
+    closeSaveViewModal();
+    currentViewName = name;
+    document.getElementById('sv-current-name').textContent = '> ' + name;
+  }
+  function deleteSavedView(idx) {
+    var list = loadSavedViewsList();
+    list.splice(idx, 1);
+    saveSavedViewsList(list);
+    renderSavedViewsList();
+  }
+  function applyView(v) {
+    // category
+    activeCategory = v.category || 'all';
+    document.querySelectorAll('.cat-tab').forEach(function(b){ b.classList.remove('active'); });
+    var catBtns = document.querySelectorAll('.cat-tab');
+    var catMap = { all:0, mowing:1, landscape:2, irrigation:3, snow:4, other:5 };
+    if (catMap[activeCategory] !== undefined && catBtns[catMap[activeCategory]]) catBtns[catMap[activeCategory]].classList.add('active');
+    // statuses
+    activeStatuses = (v.statuses || []).slice();
+    updateStatusLabel();
+    // trucks
+    activeTrucks = (v.trucks || []).slice();
+    updateTruckLabel();
+    // ui
+    currentViewName = v.name;
+    document.getElementById('sv-current-name').textContent = '> ' + v.name;
+    // show category tab
+    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('ftab-category').classList.add('active');
+    document.getElementById('subfilter-category').classList.add('visible');
+    document.getElementById('subfilter-status').classList.remove('visible');
+    document.getElementById('subfilter-trucks').classList.remove('visible');
+    render(); if (mapVisible) loadMapMarkers();
+  }
+
+  // ── Unscheduled toggle ───────────────────────────────
+  var unschedOpen = false;
+  function toggleUnsched() {
+    unschedOpen = !unschedOpen;
+    document.getElementById('unsched-body').style.display = unschedOpen ? '' : 'none';
+    document.getElementById('unsched-toggle').classList.toggle('on', unschedOpen);
+    document.getElementById('unsched-hint').textContent = unschedOpen ? 'click to hide' : 'click to show';
+  }
+
+  // ── Stats bar ────────────────────────────────────────
+  function updateStats(filtered) {
+    var props = {};
+    var total = 0;
+    filtered.forEach(function(j) { if (j.property_id) props[j.property_id] = true; total += parseFloat(j.amount || 0); });
+    document.getElementById('stat-props').textContent = Object.keys(props).length;
+    document.getElementById('stat-jobs').textContent  = filtered.length;
+    document.getElementById('stat-total').textContent = '$' + total.toFixed(2);
+  }
+
+  // ── Render ───────────────────────────────────────────
+  function applyFilters(jobs, includeWeek) {
+    var s, e, sIso, eIso;
+    if (includeWeek) {
+      s = weekStart(weekOffset); e = new Date(s); e.setDate(e.getDate() + 7);
+      sIso = isoDate(s); eIso = isoDate(e);
+    }
+    return jobs.filter(function(j) {
+      if (includeWeek && j.scheduled_date && (j.scheduled_date < sIso || j.scheduled_date >= eIso)) return false;
       if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
+      if (activeStatuses.length && !activeStatuses.includes(j.status)) return false;
+      if (activeTrucks.length && !activeTrucks.includes(j.truck_id)) return false;
+      if (!matchesSearch(j)) return false;
       return true;
     });
+  }
+
+  function render() { renderUnscheduled(); renderScheduled(); }
+
+  function renderUnscheduled() {
+    var filtered = applyFilters(unschedJobs, false);
     var tbody = document.getElementById('unsched-tbody');
-    var empty = document.getElementById('unsched-empty');
     tbody.innerHTML = '';
     document.getElementById('unsched-count').textContent = filtered.length;
-    empty.style.display = filtered.length ? 'none' : '';
-
+    document.getElementById('unsched-empty').style.display = filtered.length ? 'none' : '';
     filtered.forEach(function(j) {
       var cat = j.job_category || 'other';
-      var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td style="font-weight:600;">' + (j.client_name || '') + '</td>' +
-        '<td style="color:#555;">' + (j.address || '') + '</td>' +
-        '<td>' + (j.service || j.name || '') + '</td>' +
-        '<td><span class="badge ' + badgeClass(cat) + '">' + catLabel + '</span></td>' +
-        '<td><span class="recur-tag">' + (j.recurrence_type ? '&#8635; ' + (RECUR_LABELS[j.recurrence_type] || j.recurrence_type) : 'One-Time') + '</span></td>' +
-        '<td>$' + parseFloat(j.amount || 0).toFixed(2) + '</td>' +
+        '<td style="font-weight:600;">' + esc(j.client_name||'') + '</td>' +
+        '<td style="color:#555;">' + esc(j.address||'') + '</td>' +
+        '<td>' + esc(j.service||j.name||'') + '</td>' +
+        '<td><span class="badge ' + badgeClass(cat) + '">' + esc(CATEGORY_LABELS[cat]||cat) + '</span></td>' +
+        '<td><span class="recur-tag">' + (j.recurrence_type ? '&#8635; '+(RECUR_LABELS[j.recurrence_type]||j.recurrence_type) : 'One-Time') + '</span></td>' +
+        '<td>$' + parseFloat(j.amount||0).toFixed(2) + '</td>' +
         '<td style="display:flex;gap:6px;align-items:center;">' +
-          '<button class="btn-assign" onclick="openModal(\'' + j.id + '\', true)">Assign Date</button>' +
+          '<button class="btn-assign" onclick="openModal(\'' + j.id + '\',true)">Assign Date</button>' +
           '<button class="btn-assign" style="background:#1e1208;" onclick="openDetail(\'' + j.id + '\')">Details</button>' +
-          '<button class="btn-del" title="Delete" onclick="deleteJob(\'' + j.id + '\', true)">&#128465;</button>' +
+          '<button class="btn-del" title="Delete" onclick="deleteJob(\'' + j.id + '\',true)">&#128465;</button>' +
         '</td>';
       tbody.appendChild(tr);
     });
   }
 
   function renderScheduled() {
-    var truckFilter = document.getElementById('truck-filter').value;
-    var s = weekStart(weekOffset);
-    var e = new Date(s); e.setDate(e.getDate() + 7);
-    var sIso = isoDate(s), eIso = isoDate(e);
+    var s = weekStart(weekOffset); var e = new Date(s); e.setDate(e.getDate() + 7);
+    var sIso = isoDate(s); var eIso = isoDate(e);
 
     var filtered = allJobs.filter(function(j) {
-      if (j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
+      if (!j.scheduled_date || j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
       if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
-      if (truckFilter && j.truck_id !== truckFilter) return false;
+      if (activeStatuses.length && !activeStatuses.includes(j.status)) return false;
+      if (activeTrucks.length && !activeTrucks.includes(j.truck_id)) return false;
+      if (!matchesSearch(j)) return false;
       return true;
     });
     filtered.sort(function(a,b){ return a.scheduled_date.localeCompare(b.scheduled_date); });
@@ -355,6 +715,8 @@
     tbody.innerHTML = '';
     document.getElementById('empty-msg').style.display = filtered.length ? 'none' : 'block';
     document.getElementById('results-bar').textContent = filtered.length + ' scheduled job' + (filtered.length === 1 ? '' : 's') + ' this week';
+
+    updateStats(filtered);
 
     var lastDay = '';
     filtered.forEach(function(j) {
@@ -369,13 +731,13 @@
       var cat = j.job_category || 'other';
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td style="color:#888;font-size:12px;">' + j.scheduled_date + '</td>' +
-        '<td style="font-weight:600;">' + (j.client_name || '') + '</td>' +
-        '<td style="color:#555;">' + (j.address || '') + '</td>' +
-        '<td>' + (j.service || j.name || '') + '</td>' +
-        '<td><span class="badge ' + badgeClass(cat) + '">' + (CATEGORY_LABELS[cat] || cat) + '</span></td>' +
-        '<td><span class="recur-tag">' + (j.recurrence_type ? '&#8635; ' + (RECUR_LABELS[j.recurrence_type] || j.recurrence_type) : 'One-Time') + '</span></td>' +
-        '<td>$' + parseFloat(j.amount || 0).toFixed(2) + '</td>' +
+        '<td style="color:#888;font-size:12px;">' + esc(j.scheduled_date) + '</td>' +
+        '<td style="font-weight:600;">' + esc(j.client_name||'') + '</td>' +
+        '<td style="color:#555;">' + esc(j.address||'') + '</td>' +
+        '<td>' + esc(j.service||j.name||'') + '</td>' +
+        '<td><span class="badge ' + badgeClass(cat) + '">' + esc(CATEGORY_LABELS[cat]||cat) + '</span></td>' +
+        '<td><span class="recur-tag">' + (j.recurrence_type ? '&#8635; '+(RECUR_LABELS[j.recurrence_type]||j.recurrence_type) : 'One-Time') + '</span></td>' +
+        '<td>$' + parseFloat(j.amount||0).toFixed(2) + '</td>' +
         '<td style="display:flex;gap:6px;align-items:center;">' +
           '<button class="btn-schedule" onclick="openModal(\'' + j.id + '\')">Schedule</button>' +
           '<button class="btn-schedule" style="background:#3d2510;" onclick="openDetail(\'' + j.id + '\')">Details</button>' +
@@ -385,22 +747,18 @@
     });
   }
 
+  // ── Data loading ─────────────────────────────────────
   async function loadTrucks() {
     var { data } = await sb.from('trucks').select('id, name').eq('active', true).eq('user_id', uid).order('name');
-    var sel1 = document.getElementById('truck-filter');
+    truckList = data || [];
     var sel2 = document.getElementById('modal-truck');
-    (data || []).forEach(function(t) {
-      var o1 = new Option(t.name, t.id); sel1.appendChild(o1);
-      var o2 = new Option(t.name, t.id); sel2.appendChild(o2);
-    });
+    truckList.forEach(function(t) { sel2.appendChild(new Option(t.name, t.id)); });
   }
 
   async function loadEmployees() {
     var { data } = await sb.from('employees').select('id, first_name, last_name').eq('active', true).eq('user_id', uid).order('last_name');
     var sel = document.getElementById('modal-employee');
-    (data || []).forEach(function(e) {
-      sel.appendChild(new Option(e.first_name + ' ' + e.last_name, e.id));
-    });
+    (data || []).forEach(function(e) { sel.appendChild(new Option(e.first_name + ' ' + e.last_name, e.id)); });
   }
 
   async function loadJobs() {
@@ -414,54 +772,45 @@
       base.not('scheduled_date', 'is', null).order('scheduled_date'),
       base.is('scheduled_date', null).order('client_name')
     ]);
-    allJobs      = schedRes.data  || [];
-    unschedJobs  = unschedRes.data || [];
+    allJobs     = schedRes.data  || [];
+    unschedJobs = unschedRes.data || [];
     render();
   }
 
-  var modalIsUnsched = false;
+  // ── Schedule modal ───────────────────────────────────
   function openModal(id, isUnsched) {
     modalIsUnsched = !!isUnsched;
     var list = isUnsched ? unschedJobs : allJobs;
     var job  = list.find(function(j){ return j.id === id; });
     if (!job) return;
     modalJobId = id;
-    document.getElementById('modal-info').textContent = (job.client_name || '') + ' — ' + (job.service || job.name || '') + ' — ' + (job.address || '');
+    document.getElementById('modal-info').textContent = (job.client_name||'') + ' — ' + (job.service||job.name||'') + ' — ' + (job.address||'');
     document.getElementById('modal-date').value = job.scheduled_date || '';
     document.getElementById('modal-truck').value = job.truck_id || '';
     document.getElementById('modal-employee').value = job.assigned_to || '';
     document.getElementById('sched-modal').classList.add('open');
   }
-
   function closeModal() {
     document.getElementById('sched-modal').classList.remove('open');
     modalJobId = null;
   }
-
   async function confirmSchedule() {
     if (!modalJobId) return;
-    var date = document.getElementById('modal-date').value;
+    var date    = document.getElementById('modal-date').value;
     var truckId = document.getElementById('modal-truck').value;
     var assignTo = document.getElementById('modal-employee').value;
     if (!date) { alert('Please select a date.'); return; }
-
     var { error } = await sb.from('Services').update({
-      scheduled_date: date,
-      truck_id:       truckId || null,
-      assigned_to:    assignTo || null,
-      dispatched:     true,
-      status:         'scheduled'
+      scheduled_date: date, truck_id: truckId||null, assigned_to: assignTo||null, dispatched: true, status: 'scheduled'
     }).eq('id', modalJobId);
-
     if (error) { alert('Error: ' + error.message); return; }
-    var removedId = modalJobId;
-    closeModal();
-    allJobs     = allJobs.filter(function(j){ return j.id !== removedId; });
-    unschedJobs = unschedJobs.filter(function(j){ return j.id !== removedId; });
+    var rmId = modalJobId; closeModal();
+    allJobs     = allJobs.filter(function(j){ return j.id !== rmId; });
+    unschedJobs = unschedJobs.filter(function(j){ return j.id !== rmId; });
     render();
   }
 
-  async function deleteJob(id, isUnsched) {
+  async function deleteJob(id) {
     if (!confirm('Delete this job?')) return;
     await sb.from('Services').delete().eq('id', id);
     allJobs     = allJobs.filter(function(j){ return j.id !== id; });
@@ -473,15 +822,85 @@
     if (window.parent && window.parent.loadPage) window.parent.loadPage('jobdetail?id=' + id + '&from=jobboard');
     else window.location.href = 'JobDetail.html?id=' + id;
   }
-
   function openRecurring() {
-    if (window.parent && window.parent.loadPage) {
-      window.parent.loadPage('recurringadd');
-    } else {
-      window.location.href = 'RecurringAdd.html';
-    }
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('recurringadd');
+    else window.location.href = 'RecurringAdd.html';
   }
 
+  // ── Map ──────────────────────────────────────────────
+  var jobMap = null; var mapMarkers = []; var mapVisible = false;
+
+  function toggleMap() {
+    mapVisible = !mapVisible;
+    var section = document.getElementById('map-section');
+    var btn     = document.getElementById('toggle-map-btn');
+    section.style.display = mapVisible ? '' : 'none';
+    btn.classList.toggle('active', mapVisible);
+    btn.textContent = mapVisible ? 'Hide Map' : 'Show Map';
+    if (mapVisible) {
+      if (!jobMap) initJobMap();
+      else { google.maps.event.trigger(jobMap, 'resize'); loadMapMarkers(); }
+    }
+  }
+  function initJobMap() {
+    jobMap = new google.maps.Map(document.getElementById('job-map'), {
+      center: { lat: 32.725, lng: -97.033 }, zoom: 11, mapTypeId: 'satellite',
+      mapTypeControl: false, streetViewControl: false, fullscreenControl: true, clickableIcons: false
+    });
+    google.maps.event.addListenerOnce(jobMap, 'idle', loadMapMarkers);
+  }
+  function setMapStyle(style) {
+    if (jobMap) jobMap.setMapTypeId(style);
+    document.getElementById('map-btn-sat').classList.toggle('active', style === 'satellite');
+    document.getElementById('map-btn-road').classList.toggle('active', style === 'roadmap');
+  }
+  function loadMapMarkers() {
+    if (!jobMap) return;
+    mapMarkers.forEach(function(m){ m.setMap(null); }); mapMarkers = [];
+    var s = weekStart(weekOffset); var e = new Date(s); e.setDate(e.getDate() + 7);
+    var sIso = isoDate(s); var eIso = isoDate(e);
+    var filtered = allJobs.filter(function(j) {
+      if (!j.scheduled_date || j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
+      if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
+      if (activeStatuses.length && !activeStatuses.includes(j.status)) return false;
+      if (activeTrucks.length && !activeTrucks.includes(j.truck_id)) return false;
+      return true;
+    });
+    var seen = {}; var bounds = new google.maps.LatLngBounds(); var hasPin = false;
+    var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+    filtered.forEach(function(j) {
+      var lat = j.Properties && j.Properties.lat; var lng = j.Properties && j.Properties.lng;
+      if (!lat || !lng) return;
+      var key = j.property_id || (lat + ',' + lng);
+      if (seen[key]) return; seen[key] = true;
+      var pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
+      bounds.extend(pos); hasPin = true;
+      var marker = new google.maps.Marker({
+        position: pos, map: jobMap,
+        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+      var related = filtered.filter(function(x){ return (x.property_id||'') === (j.property_id||''); });
+      var html = '<div style="font-family:Arial,sans-serif;font-size:13px;min-width:180px;max-width:240px;">';
+      html += '<div style="font-weight:700;color:#1e1208;margin-bottom:4px;">' + esc(j.client_name||'—') + '</div>';
+      html += '<div style="color:#666;font-size:12px;margin-bottom:8px;">' + esc(j.address||'') + '</div>';
+      related.forEach(function(rj) {
+        html += '<div style="border-top:1px solid #eee;padding:6px 0 4px;">';
+        html += '<div style="font-weight:600;">' + esc(rj.service||rj.name||'') + '</div>';
+        html += '<div style="color:#888;font-size:11px;">' + esc(rj.scheduled_date||'') + '</div>';
+        if (rj.amount) html += '<div style="color:#c47d0a;font-weight:700;font-size:12px;">$' + parseFloat(rj.amount).toFixed(2) + '</div>';
+        html += '</div>';
+      });
+      html += '<div style="margin-top:6px;"><a href="#" style="color:#c47d0a;font-size:12px;font-weight:700;" onclick="if(window.parent&&window.parent.loadPage)window.parent.loadPage(\'jobdetail?id=' + j.id + '&from=jobboard\');return false;">View Details</a></div>';
+      html += '</div>';
+      var iw = new google.maps.InfoWindow({ content: html });
+      google.maps.event.addListener(marker, 'click', function(){ iw.open(jobMap, marker); });
+      mapMarkers.push(marker);
+    });
+    if (hasPin) jobMap.fitBounds(bounds);
+  }
+
+  // ── Init ─────────────────────────────────────────────
   async function init() {
     var { data: s } = await sb.auth.getSession();
     uid = s && s.session ? s.session.user.id : null;
@@ -491,103 +910,6 @@
   }
 
   init();
-
-  // ── Map ──────────────────────────────────────────────
-  var jobMap     = null;
-  var mapMarkers = [];
-  var mapVisible = false;
-
-  function toggleMap() {
-    mapVisible = !mapVisible;
-    var section = document.getElementById('map-section');
-    var btn     = document.getElementById('toggle-map-btn');
-    section.style.display = mapVisible ? '' : 'none';
-    btn.classList.toggle('active', mapVisible);
-    btn.textContent = mapVisible ? '✕ Hide Map' : '🗺 Map';
-    if (mapVisible) {
-      if (!jobMap) initJobMap();
-      else { google.maps.event.trigger(jobMap, 'resize'); loadMapMarkers(); }
-    }
-  }
-
-  function initJobMap() {
-    jobMap = new google.maps.Map(document.getElementById('job-map'), {
-      center: { lat: 32.725, lng: -97.033 },
-      zoom: 11,
-      mapTypeId: 'satellite',
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: true,
-      clickableIcons: false
-    });
-    google.maps.event.addListenerOnce(jobMap, 'idle', loadMapMarkers);
-  }
-
-  function setMapStyle(style) {
-    if (jobMap) jobMap.setMapTypeId(style);
-    document.getElementById('map-btn-sat').classList.toggle('active', style === 'satellite');
-    document.getElementById('map-btn-road').classList.toggle('active', style === 'roadmap');
-  }
-
-  function loadMapMarkers() {
-    if (!jobMap) return;
-    mapMarkers.forEach(function(m) { m.setMap(null); });
-    mapMarkers = [];
-
-    var s    = weekStart(weekOffset);
-    var e    = new Date(s); e.setDate(e.getDate() + 7);
-    var sIso = isoDate(s), eIso = isoDate(e);
-
-    var filtered = allJobs.filter(function(j) {
-      if (j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
-      if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
-      return true;
-    });
-
-    var seen   = {};
-    var bounds = new google.maps.LatLngBounds();
-    var hasPin = false;
-    var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
-
-    filtered.forEach(function(j) {
-      var lat = j.Properties && j.Properties.lat;
-      var lng = j.Properties && j.Properties.lng;
-      if (!lat || !lng) return;
-      var key = j.property_id || (lat + ',' + lng);
-      if (seen[key]) return;
-      seen[key] = true;
-
-      var pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
-      bounds.extend(pos);
-      hasPin = true;
-
-      var marker = new google.maps.Marker({
-        position: pos, map: jobMap,
-        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
-          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
-      });
-
-      var related = filtered.filter(function(x) { return (x.property_id || '') === (j.property_id || ''); });
-      var html = '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:13px;min-width:180px;max-width:240px;">';
-      html += '<div style="font-weight:700;color:#1e1208;margin-bottom:4px;">' + esc(j.client_name || '—') + '</div>';
-      html += '<div style="color:#666;font-size:12px;margin-bottom:8px;">' + esc(j.address || '') + '</div>';
-      related.forEach(function(rj) {
-        html += '<div style="border-top:1px solid #eee;padding:6px 0 4px;">';
-        html += '<div style="font-weight:600;">' + esc(rj.service || rj.name || '') + '</div>';
-        html += '<div style="color:#888;font-size:11px;">' + esc(rj.scheduled_date || '') + '</div>';
-        if (rj.amount) html += '<div style="color:#c47d0a;font-weight:700;font-size:12px;">$' + parseFloat(rj.amount).toFixed(2) + '</div>';
-        html += '</div>';
-      });
-      html += '<div style="margin-top:6px;"><a href="#" style="color:#c47d0a;font-size:12px;font-weight:700;" onclick="if(window.parent&&window.parent.loadPage)window.parent.loadPage(\'jobdetail?id=' + j.id + '&from=jobboard\');return false;">View Details</a></div>';
-      html += '</div>';
-
-      var infoWin = new google.maps.InfoWindow({ content: html });
-      google.maps.event.addListener(marker, 'click', function() { infoWin.open(jobMap, marker); });
-      mapMarkers.push(marker);
-    });
-
-    if (hasPin) jobMap.fitBounds(bounds);
-  }
 </script>
 </body>
 </html>
