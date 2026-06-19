@@ -179,10 +179,11 @@
   var BILLING_LABELS = { per_push: 'Per Push', per_inch: 'Per Inch', seasonal: 'Seasonal', hourly: 'Hourly' };
 
   async function loadData() {
-    var { data } = await sb.from('snow_properties')
+    var { data, error } = await sb.from('snow_properties')
       .select('id, billing_type, rate, active, notes, property_id, Properties(client_name, address)')
       .eq('user_id', uid)
       .order('created_at', { ascending: false });
+    if (error) { console.error('Snow load error:', error.message); alert('Snow load error: ' + error.message); }
     allRows = data || [];
     updateStats();
     renderTable();
