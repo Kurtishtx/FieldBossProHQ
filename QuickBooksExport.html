@@ -122,7 +122,7 @@
   }
 
   async function exportInvoices() {
-    var { data, error } = await sb.from('Invoices').select('inv_num, client_name, date, inv_total, payment, service_lines').eq('user_id', uid).order('date', { ascending: false });
+    var { data, error } = await sb.from('Invoices').select('inv_num, client_name, date, inv_total, service_lines').eq('user_id', uid).order('date', { ascending: false });
     if (error) { alert('Error: ' + error.message); return; }
     var rows = [['*InvoiceNo','*Customer','*InvoiceDate','*DueDate','*ItemName','ItemDescription','*ItemQuantity','*ItemRate','*ItemAmount']];
     (data || []).forEach(function(inv) {
