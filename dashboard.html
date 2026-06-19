@@ -565,9 +565,6 @@
       <button class="nav-btn" data-page="dispatched" onclick="loadPage('dispatched', this)">
         <span class="icon">&#128665;</span> Scheduled
       </button>
-      <button class="nav-btn" id="snow-props-nav" data-page="snowproperties" onclick="loadPage('snowproperties', this)" style="display:none;">
-        <span class="icon">&#10052;</span> Snow Properties
-      </button>
     </div>
   </div>
 
@@ -1173,10 +1170,6 @@
     if (data && data.phys_timezone && tzMap[data.phys_timezone]) {
       clockTz = tzMap[data.phys_timezone];
       updateClock();
-    }
-    if (data && data.snow_mode) {
-      var snowNav = document.getElementById('snow-props-nav');
-      if (snowNav) snowNav.style.display = '';
     }
   })();
 
