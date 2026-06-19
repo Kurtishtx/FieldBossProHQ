@@ -434,7 +434,8 @@
     </div>
     <div class="stop-body" id="stop-body"></div>
     <div id="route-auto-section" style="display:none;padding:0 8px 4px;border-top:2px solid #ede5d8;">
-      <div style="font-size:10px;font-weight:700;color:#7a6040;text-transform:uppercase;letter-spacing:.6px;padding:6px 0 5px;">Auto Route</div>
+      <div style="font-size:10px;font-weight:700;color:#7a6040;text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;">Auto Route</div>
+      <input id="route-start-addr" type="text" placeholder="Starting address (your shop)..." style="width:100%;border:1px solid #bbb;padding:5px 7px;font-size:12px;border-radius:3px;font-family:inherit;margin-bottom:5px;box-sizing:border-box;"/>
       <div style="display:flex;gap:4px;margin-bottom:4px;">
         <button onclick="sortByDistance(false)" style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Closest First</button>
         <button onclick="sortByDistance(true)"  style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Furthest First</button>
@@ -748,26 +749,31 @@
     if (!uid) return;
     var { data } = await sb.from('company_info').select('*').eq('user_id', uid).single();
     if (!data) return;
-    var lat = data.latitude || data.lat;
-    var lng = data.longitude || data.lng;
-    if (lat && lng) {
-      businessLat = parseFloat(lat);
-      businessLng = parseFloat(lng);
-      return;
-    }
-    var a1   = data.address1   || data.phys_addr1  || data.physAddr1  || '';
-    var city = data.city       || data.phys_city   || data.physCity   || '';
-    var st   = data.state      || data.phys_state  || data.physState  || '';
-    var zip  = data.zip        || data.phys_zip    || data.physZip    || '';
+    var a1   = data.address1  || data.phys_addr1 || data.physAddr1 || '';
+    var city = data.city      || data.phys_city  || data.physCity  || '';
+    var st   = data.state     || data.phys_state || data.physState || '';
+    var zip  = data.zip       || data.phys_zip   || data.physZip   || '';
     var addrStr = [a1, city, st, zip].filter(Boolean).join(', ');
-    if (!addrStr) return;
-    await new Promise(function(resolve) {
+    if (addrStr) {
+      var el = document.getElementById('route-start-addr');
+      if (el && !el.value) el.value = addrStr;
+    }
+  }
+
+  async function resolveStartLatLng() {
+    var addrStr = (document.getElementById('route-start-addr') || {}).value || '';
+    if (!addrStr.trim()) { alert('Enter your starting address in the Auto Route box.'); return false; }
+    if (businessLat && businessLng) return true;
+    return await new Promise(function(resolve) {
       new google.maps.Geocoder().geocode({ address: addrStr }, function(results, status) {
         if (status === 'OK' && results[0]) {
           businessLat = results[0].geometry.location.lat();
           businessLng = results[0].geometry.location.lng();
+          resolve(true);
+        } else {
+          alert('Could not find that address. Try a full street address including city and state.');
+          resolve(false);
         }
-        resolve();
       });
     });
   }
@@ -792,17 +798,20 @@
     return stops;
   }
 
-  function sortByDistance(furthestFirst) {
-    if (!businessLat || !businessLng) return;
+  async function sortByDistance(furthestFirst) {
+    var ok = await resolveStartLatLng();
+    if (!ok) return;
     var stops = getUniqueRouteStops(selectedForRoute);
     stops.forEach(function(s) { s.dist = haversine(businessLat, businessLng, s.lat, s.lng); });
     stops.sort(function(a, b) { return furthestFirst ? b.dist - a.dist : a.dist - b.dist; });
     renderRouteOptOrder(stops);
   }
 
-  function optimizeGoogleRoute() {
+  async function optimizeGoogleRoute() {
     var stops = getUniqueRouteStops(selectedForRoute);
     if (stops.length < 2) { alert('Need at least 2 stops.'); return; }
+    var ok = await resolveStartLatLng();
+    if (!ok) return;
     var btn = document.getElementById('btn-google-optimize');
     if (btn) { btn.textContent = 'Optimizing...'; btn.disabled = true; }
     new google.maps.DirectionsService().route({
@@ -1884,20 +1893,19 @@
     if (autoSect) {
       autoSect.style.display = '';
       var stopCount = new Set(selected.map(function(x) { return x.property_id; })).size;
-      if (!businessLat || !businessLng) {
-        overMsg.style.display = '';
-        overMsg.textContent = 'Business address not found — add your address in Settings → Company Info.';
-        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; }
-        autoSect.querySelectorAll('button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = true; b.style.opacity = '.5'; });
-      } else if (stopCount > 25) {
+      if (stopCount > 25) {
         overMsg.style.display = '';
         overMsg.textContent = '⚠ ' + stopCount + ' stops — over 25. Google Optimize disabled.';
         if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; }
-        autoSect.querySelectorAll('button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
       } else {
         overMsg.style.display = 'none';
         if (optBtn) { optBtn.disabled = false; optBtn.style.opacity = '1'; }
-        autoSect.querySelectorAll('button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
+      }
+      // reset geocoded lat/lng when address field changes
+      var addrInput = document.getElementById('route-start-addr');
+      if (addrInput && !addrInput._hasChangeListener) {
+        addrInput._hasChangeListener = true;
+        addrInput.addEventListener('input', function() { businessLat = null; businessLng = null; });
       }
     }
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
