@@ -440,17 +440,6 @@
         <button onclick="sortByDistance(false)" style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Closest First</button>
         <button onclick="sortByDistance(true)"  style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Furthest First</button>
       </div>
-      <div style="font-size:10.5px;color:#1e1208;text-align:center;margin-bottom:4px;">25 stop limit for Google Optimize</div>
-      <div id="route-over-limit-msg" style="display:none;font-size:11px;color:#c47d0a;font-weight:600;margin-bottom:4px;"></div>
-      <button id="btn-google-optimize" onclick="optimizeGoogleRoute()" style="width:100%;background:#c47d0a;color:#fff;border:none;padding:7px;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">&#9654; Google Optimize</button>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding:4px 2px;">
-        <span style="font-size:11px;font-weight:600;color:#1e1208;">Avoid Highways</span>
-        <label style="position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;">
-          <input type="checkbox" id="toggle-avoid-highways" onchange="saveAvoidHighways()" style="opacity:0;width:0;height:0;position:absolute;">
-          <span id="avoid-highways-track" style="position:absolute;inset:0;background:#ccc;border-radius:20px;transition:background .2s;"></span>
-          <span id="avoid-highways-thumb" style="position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);"></span>
-        </label>
-      </div>
     </div>
     <button class="orange-btn" onclick="startRouteOrder()">Set Route Order (Manual)</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
