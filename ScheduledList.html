@@ -443,10 +443,6 @@
       <div style="font-size:10.5px;color:#1e1208;text-align:center;margin-bottom:4px;">25 stop limit for Google Optimize</div>
       <div id="route-over-limit-msg" style="display:none;font-size:11px;color:#c47d0a;font-weight:600;margin-bottom:4px;"></div>
       <button id="btn-google-optimize" onclick="optimizeGoogleRoute()" style="width:100%;background:#c47d0a;color:#fff;border:none;padding:7px;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">&#9654; Google Optimize</button>
-      <div id="route-order-list" style="margin-top:6px;max-height:180px;overflow-y:auto;"></div>
-      <div id="route-maps-wrap" style="display:none;margin-top:4px;margin-bottom:4px;">
-        <a id="route-maps-btn" href="#" target="_blank" style="display:block;background:#4285f4;color:#fff;text-align:center;padding:7px;border-radius:3px;font-size:12px;font-weight:700;text-decoration:none;">&#127759; Open in Google Maps</a>
-      </div>
     </div>
     <button class="orange-btn" onclick="startRouteOrder()">Set Route Order (Manual)</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
@@ -840,44 +836,25 @@
     });
   }
 
-  function renderRouteOptOrder(orderedStops) {
+  async function renderRouteOptOrder(orderedStops) {
     clearRouteOptMarkers();
-    var listEl   = document.getElementById('route-order-list');
-    var mapsWrap = document.getElementById('route-maps-wrap');
-    var mapsBtn  = document.getElementById('route-maps-btn');
-    if (!listEl) return;
-    listEl.innerHTML = orderedStops.map(function(s, i) {
-      var name = (s.job.Properties && s.job.Properties.client_name) || '—';
-      var addr = (s.job.Properties && s.job.Properties.address)     || '';
-      return '<div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #f0ebe3;font-size:12px;">' +
-        '<span style="background:#c47d0a;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;">' + (i+1) + '</span>' +
-        '<div><div style="font-weight:600;color:#1e1208;">' + name + '</div>' +
-        '<div style="color:#888;font-size:11px;">' + addr + '</div></div></div>';
-    }).join('');
-    orderedStops.forEach(function(s, i) {
-      var m = new google.maps.Marker({
-        position: { lat: s.lat, lng: s.lng }, map: map, zIndex: 200,
-        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(i + 1, false)),
-          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
-      });
-      routeOptMarkers.push(m);
+    var orderMap = {};
+    orderedStops.forEach(function(s, i) { orderMap[String(s.job.property_id)] = i + 1; });
+    var updates = [], seen = {};
+    services.forEach(function(s) {
+      if (seen[s.id]) return;
+      seen[s.id] = true;
+      var order = orderMap[String(s.property_id)];
+      if (order) updates.push(sb.from('Services').update({ route_order: order }).eq('id', s.id));
     });
-    var mapsUrl = 'https://www.google.com/maps/dir/?api=1' +
-      '&origin=' + businessLat + ',' + businessLng +
-      '&destination=' + businessLat + ',' + businessLng +
-      '&waypoints=' + orderedStops.map(function(s) { return s.lat + ',' + s.lng; }).join('|') +
-      '&travelmode=driving';
-    if (mapsBtn) mapsBtn.href = mapsUrl;
-    if (mapsWrap) mapsWrap.style.display = '';
+    await Promise.all(updates);
+    closeStopPanel();
+    loadServices();
   }
 
   function clearRouteOptMarkers() {
     routeOptMarkers.forEach(function(m) { m.setMap(null); });
     routeOptMarkers = [];
-    var listEl = document.getElementById('route-order-list');
-    var mapsWrap = document.getElementById('route-maps-wrap');
-    if (listEl) listEl.innerHTML = '';
-    if (mapsWrap) mapsWrap.style.display = 'none';
   }
 
   async function loadCustomFields() {
