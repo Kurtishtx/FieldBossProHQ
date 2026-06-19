@@ -586,7 +586,9 @@
     var { data: { session } } = await sb.auth.getSession();
     if (!session) return;
     var { error } = await sb.from('company_info').update({ qb_export_enabled: val }).eq('user_id', session.user.id);
-    if (error) alert('Error saving QuickBooks setting: ' + error.message);
+    if (error) { alert('Error saving QuickBooks setting: ' + error.message); return; }
+    var card = window.parent && window.parent.document.getElementById('qb-export-card');
+    if (card) card.style.display = val ? 'flex' : 'none';
   }
 
   loadSnowMode();
