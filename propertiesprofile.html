@@ -1174,9 +1174,7 @@ function showPropTab(name, btn) {
     var { data: { session } } = await sb.auth.getSession();
     if (!session || !propId) return;
 
-    // Show tab only if snow_mode is on
-    var { data: ci } = await sb.from('company_info').select('snow_mode').eq('user_id', session.user.id).single();
-    if (ci && ci.snow_mode) document.getElementById('snow-tab-btn').style.display = '';
+    document.getElementById('snow-tab-btn').style.display = '';
 
     var { data } = await sb.from('snow_properties').select('*').eq('user_id', session.user.id).eq('property_id', propId).maybeSingle();
     if (data) {
