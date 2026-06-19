@@ -1936,19 +1936,8 @@
     document.getElementById('marker-mode-wrap').style.display = 'block';
     selectedForRoute = selected;
     var autoSect = document.getElementById('route-auto-section');
-    var overMsg  = document.getElementById('route-over-limit-msg');
-    var optBtn   = document.getElementById('btn-google-optimize');
     if (autoSect) {
       autoSect.style.display = '';
-      var stopCount = new Set(selected.map(function(x) { return x.property_id; })).size;
-      if (stopCount > 25) {
-        overMsg.style.display = '';
-        overMsg.textContent = '⚠ ' + stopCount + ' stops — over 25. Google Optimize disabled.';
-        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; }
-      } else {
-        overMsg.style.display = 'none';
-        if (optBtn) { optBtn.disabled = false; optBtn.style.opacity = '1'; }
-      }
       loadAvoidHighways();
       // reset geocoded lat/lng when address field changes
       var addrInput = document.getElementById('route-start-addr');
@@ -1976,7 +1965,7 @@
       });
     });
     var svcCounts = {};
-    selected.forEach(function(x) { svcCounts[x.service] = (svcCounts[x.service] || 0) + 1; });
+    selected.forEach(function(x) { var n = resolvedServiceName(x) || x.service || 'Unknown'; svcCounts[n] = (svcCounts[n] || 0) + 1; });
     var html = '<div class="sp-row" style="margin-bottom:6px;"><span><strong>Total Revenue</strong></span><span><strong>$' + totalRev.toFixed(2) + '</strong></span></div>';
     AREA_COL_KEYS.forEach(function(colKey) {
       var slug = AREA_DATA_KEYS[colKey];
