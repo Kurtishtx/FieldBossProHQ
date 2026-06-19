@@ -253,11 +253,11 @@
     var lower = val.toLowerCase();
     var results = allProps.filter(function(p) {
       return (p.address || '').toLowerCase().includes(lower) ||
-             ((p.first_name || '') + ' ' + (p.last_name || '')).toLowerCase().includes(lower);
+             (p.client_name || '').toLowerCase().includes(lower);
     }).slice(0, 10);
     drop.innerHTML = results.length ? results.map(function(p) {
       return '<div class="search-item" onclick="selectProp(\'' + p.id + '\')">' +
-             '<div>' + p.first_name + ' ' + p.last_name + '</div>' +
+             '<div>' + (p.client_name || '') + '</div>' +
              '<div class="si-addr">' + (p.address || '') + '</div></div>';
     }).join('') : '<div class="search-item" style="color:#888;">No results</div>';
     drop.classList.add('open');
@@ -266,10 +266,10 @@
   function selectProp(id) {
     var p = allProps.find(function(x){ return x.id === id; });
     if (!p) return;
-    document.getElementById('prop-id').value    = p.id;
-    document.getElementById('client-name').value = p.first_name + ' ' + p.last_name;
+    document.getElementById('prop-id').value     = p.id;
+    document.getElementById('client-name').value  = p.client_name || '';
     document.getElementById('prop-address').value = p.address || '';
-    document.getElementById('selected-prop-label').textContent = p.first_name + ' ' + p.last_name + ' — ' + (p.address || '');
+    document.getElementById('selected-prop-label').textContent = (p.client_name || '') + ' — ' + (p.address || '');
     document.getElementById('selected-prop-row').style.display = '';
     document.getElementById('prop-search').value = '';
     document.getElementById('prop-drop').classList.remove('open');
@@ -366,10 +366,10 @@
     if (!uid) return;
 
     var [propsRes, trucksRes, empsRes, svcsRes] = await Promise.all([
-      sb.from('Properties').select('id, first_name, last_name, address').eq('user_id', uid).order('last_name'),
+      sb.from('Properties').select('id, client_name, address').eq('user_id', uid).order('client_name'),
       sb.from('trucks').select('id, name').eq('active', true).eq('user_id', uid).order('name'),
       sb.from('employees').select('id, first_name, last_name').eq('active', true).eq('user_id', uid).order('last_name'),
-      sb.from('Services').select('id, name').is('property_id', null).eq('active', true).eq('user_id', uid).order('name')
+      sb.from('Services').select('id, name').is('property_id', null).eq('user_id', uid).order('name')
     ]);
 
     allProps = propsRes.data || [];
