@@ -180,7 +180,7 @@
 
   async function loadData() {
     var { data, error } = await sb.from('snow_properties')
-      .select('id, billing_type, rate, active, notes, property_id, Properties(client_name, address)')
+      .select('id, billing_type, rate, active, notes, property_id, Properties(name, address)')
       .eq('user_id', uid)
       .order('created_at', { ascending: false });
     if (error) { console.error('Snow load error:', error.message); alert('Snow load error: ' + error.message); }
@@ -204,7 +204,7 @@
 
     var rows = allRows.filter(function(r) {
       var prop = r.Properties || {};
-      if (q && !(prop.client_name||'').toLowerCase().includes(q) && !(prop.address||'').toLowerCase().includes(q)) return false;
+      if (q && !(prop.name||'').toLowerCase().includes(q) && !(prop.address||'').toLowerCase().includes(q)) return false;
       if (billing && r.billing_type !== billing) return false;
       if (status === 'active'   && r.active === false) return false;
       if (status === 'inactive' && r.active !== false) return false;
@@ -220,7 +220,7 @@
       var active = r.active !== false;
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td style="font-weight:600;">' + esc(prop.client_name || '—') + '</td>' +
+        '<td style="font-weight:600;">' + esc(prop.name || '—') + '</td>' +
         '<td style="color:#555;font-size:12px;">' + esc(prop.address || '—') + '</td>' +
         '<td><span class="badge-billing">' + esc(BILLING_LABELS[r.billing_type] || r.billing_type || '—') + '</span></td>' +
         '<td style="font-weight:700;">$' + parseFloat(r.rate || 0).toFixed(2) + '</td>' +
@@ -238,7 +238,7 @@
     editId = id;
     var r    = allRows.find(function(x){ return x.id === id; });
     var prop = r && r.Properties || {};
-    document.getElementById('edit-prop-display').textContent = (prop.client_name || '—') + ' — ' + (prop.address || '');
+    document.getElementById('edit-prop-display').textContent = (prop.name || '—') + ' — ' + (prop.address || '');
     document.getElementById('edit-active').checked  = r.active !== false;
     document.getElementById('edit-billing').value   = r.billing_type || 'per_push';
     document.getElementById('edit-rate').value      = r.rate || '';
