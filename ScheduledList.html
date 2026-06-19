@@ -259,7 +259,7 @@
 <!-- Filter tabs -->
 <div class="filter-bar">
   <strong>Select a Filter:</strong>
-  <button class="filter-tab" id="filter-tab-category" onclick="setFilter(this,'category')">Category</button>
+  <button class="filter-tab active" id="filter-tab-category" onclick="setFilter(this,'category')">Category</button>
   <button class="filter-tab" id="filter-tab-services" onclick="setFilter(this,'services')">Services</button>
   <button class="filter-tab" id="filter-tab-tags" onclick="setFilter(this,'tags')">Tags</button>
   <button class="filter-tab" id="filter-tab-status" onclick="setFilter(this,'status')">Status</button>
@@ -267,9 +267,7 @@
 </div>
 
 <!-- Category sub-filter -->
-<div class="subfilter-bar" id="category-subfilter-bar">
-  <button class="sf-x-btn" onclick="closeCategoryFilter()">&#10005;</button>
-  <span class="sf-label" style="color:#fff;">Category</span>
+<div class="subfilter-bar visible" id="category-subfilter-bar">
   <button class="cat-tab active" id="sl-cat-all" onclick="setSLCategory('all',this)">All</button>
   <button class="cat-tab" onclick="setSLCategory('mowing',this)">Mowing</button>
   <button class="cat-tab" onclick="setSLCategory('landscape',this)">Landscape</button>
@@ -1261,8 +1259,8 @@
   }
   function closeCategoryFilter() {
     activeSLCategory = 'all';
-    document.getElementById('category-subfilter-bar').classList.remove('visible');
-    document.getElementById('filter-tab-category').classList.remove('active');
+    document.getElementById('category-subfilter-bar').classList.toggle('visible');
+    document.querySelectorAll('#category-subfilter-bar .cat-tab').forEach(function(b){ b.classList.remove('active'); });
     document.getElementById('sl-cat-all').classList.add('active');
     renderTable();
   }
