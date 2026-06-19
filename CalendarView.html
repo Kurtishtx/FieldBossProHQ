@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calendar</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; }
+
+    /* Stats bar */
+    .top-summary-bar { display:flex; align-items:center; justify-content:space-between; background:#1e1208; padding:8px 16px; margin:4px 16px; border-radius:8px; }
+    .tsb-left { display:flex; align-items:center; gap:18px; }
+    .tsb-stat { display:flex; flex-direction:column; align-items:center; line-height:1.2; }
+    .tsb-stat-val { font-size:22px; font-weight:700; color:#c47d0a; }
+    .tsb-stat-lbl { font-size:11px; color:#ede5d8; text-transform:uppercase; letter-spacing:.5px; }
+    .tsb-divider { width:2px; height:36px; background:#fff; opacity:.4; }
+    .tsb-right { display:flex; align-items:center; gap:8px; }
+    .btn-outline { background:#1e1208; border:2px solid #c47d0a; color:#fff; font-weight:700; border-radius:6px; padding:6px 14px; font-size:13px; font-family:inherit; cursor:pointer; }
+    .btn-outline:hover { background:#2a1a0a; }
+
+    /* Filter bar */
+    .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#7a6040; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
+    .filter-bar-label { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; margin-right:2px; white-space:nowrap; }
+    .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); font-family:inherit; }
+    .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
+
+    /* Toolbar */
+    .toolbar { display:flex; align-items:center; justify-content:space-between; padding:6px 16px; margin:2px 16px; }
+    .date-nav { display:flex; align-items:center; gap:6px; }
+    .date-nav button { background:#1e1208; border:1px solid rgba(255,255,255,.2); color:#fff; padding:5px 12px; cursor:pointer; border-radius:4px; font-size:13px; font-family:inherit; }
+    .date-nav button:hover { background:#2a1a0a; }
+    .date-nav span { color:#1e1208; font-size:14px; font-weight:700; min-width:220px; text-align:center; }
+    .view-toggle { display:flex; background:#1e1208; border-radius:6px; overflow:hidden; border:1px solid rgba(255,255,255,.15); }
+    .view-btn { padding:5px 16px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:transparent; color:rgba(255,255,255,.6); font-family:inherit; }
+    .view-btn.active { background:#c47d0a; color:#fff; }
+
+    /* Calendar grid */
+    .cal-wrap { margin:0 16px 16px; border-radius:10px; overflow:hidden; border:1px solid #ddd; background:#fff; }
+    .cal-head { display:grid; grid-template-columns: repeat(7, 1fr); background:#1e1208; }
+    .cal-head-cell { padding:8px 6px; text-align:center; color:#fff; font-size:12px; font-weight:700; border-right:1px solid rgba(255,255,255,.1); }
+    .cal-head-cell:last-child { border-right:none; }
+    .cal-head-cell .day-num { font-size:18px; font-weight:700; color:#c47d0a; display:block; }
+    .cal-head-cell.today-col .day-num { background:#c47d0a; color:#fff; border-radius:50%; width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; }
+
+    .cal-body { display:grid; grid-template-columns: repeat(7, 1fr); min-height:400px; }
+    .cal-col { border-right:1px solid #eee; padding:6px 4px; min-height:400px; background:#fff; }
+    .cal-col:last-child { border-right:none; }
+    .cal-col.today-col { background:#fffbf3; }
+    .cal-col.weekend { background:#fafafa; }
+
+    /* Job cards */
+    .job-card { background:#c47d0a; color:#fff; border-radius:4px; padding:5px 7px; margin-bottom:4px; cursor:pointer; font-size:11.5px; line-height:1.35; transition:opacity .15s; }
+    .job-card:hover { opacity:.85; }
+    .job-card.cat-mowing    { background:#27a567; }
+    .job-card.cat-landscape { background:#0c7da8; }
+    .job-card.cat-irrigation{ background:#1a6bb5; }
+    .job-card.cat-snow      { background:#5a6777; }
+    .job-card.cat-other     { background:#8a5518; }
+    .job-card .jc-client { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .job-card .jc-service { font-size:10.5px; opacity:.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .job-card .jc-amount { font-size:10.5px; font-weight:700; margin-top:2px; opacity:.9; }
+    .more-chip { font-size:11px; color:#8a5518; font-weight:700; padding:2px 4px; cursor:pointer; }
+    .more-chip:hover { text-decoration:underline; }
+
+    /* Month grid */
+    .month-head { display:grid; grid-template-columns:repeat(7,1fr); background:#1e1208; }
+    .month-head-cell { padding:7px 0; text-align:center; color:rgba(255,255,255,.7); font-size:12px; font-weight:700; }
+    .month-body { display:grid; grid-template-columns:repeat(7,1fr); }
+    .month-cell { border-right:1px solid #eee; border-bottom:1px solid #eee; padding:4px; min-height:90px; background:#fff; }
+    .month-cell.other-month { background:#f9f9f9; }
+    .month-cell.today-cell { background:#fffbf3; }
+    .month-cell:nth-child(7n) { border-right:none; }
+    .month-cell .mc-num { font-size:12px; font-weight:700; color:#555; margin-bottom:3px; }
+    .month-cell.today-cell .mc-num { color:#c47d0a; }
+
+    .empty-msg { text-align:center; padding:60px 24px; color:#888; font-size:15px; }
+
+    @media print {
+      .top-summary-bar, .filter-bar, .toolbar { display:none !important; }
+      body { background:#fff !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<!-- Stats bar -->
+<div class="top-summary-bar">
+  <div class="tsb-left">
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="stat-jobs">0</span>
+      <span class="tsb-stat-lbl">Jobs</span>
+    </div>
+    <div class="tsb-divider"></div>
+    <div class="tsb-stat">
+      <span class="tsb-stat-val" id="stat-total">$0.00</span>
+      <span class="tsb-stat-lbl">Total</span>
+    </div>
+  </div>
+  <div class="tsb-right">
+    <button class="btn-outline" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<!-- Category filter -->
+<div class="filter-bar">
+  <span class="filter-bar-label">Category:</span>
+  <button class="filter-tab active" onclick="setCategory('all',this)">All</button>
+  <button class="filter-tab" onclick="setCategory('mowing',this)">Mowing</button>
+  <button class="filter-tab" onclick="setCategory('landscape',this)">Landscape</button>
+  <button class="filter-tab" onclick="setCategory('irrigation',this)">Irrigation</button>
+  <button class="filter-tab" onclick="setCategory('snow',this)">Snow</button>
+  <button class="filter-tab" onclick="setCategory('other',this)">Other</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="date-nav">
+    <button onclick="shift(-1)">&#8249;</button>
+    <span id="period-label"></span>
+    <button onclick="shift(1)">&#8250;</button>
+    <button onclick="goToday()">Today</button>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" id="vbtn-week" onclick="setView('week')">Week</button>
+    <button class="view-btn" id="vbtn-month" onclick="setView('month')">Month</button>
+  </div>
+</div>
+
+<!-- Calendar -->
+<div class="cal-wrap" id="cal-wrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  var allJobs = [];
+  var activeCategory = 'all';
+  var currentView = 'week';
+  var weekOffset = 0;
+  var monthOffset = 0;
+  var uid = null;
+
+  var CAT_COLORS = { mowing:'cat-mowing', landscape:'cat-landscape', irrigation:'cat-irrigation', snow:'cat-snow', other:'cat-other' };
+  var CAT_LABELS = { mowing:'Mowing', landscape:'Landscape', irrigation:'Irrigation', snow:'Snow', other:'Other' };
+  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function isoDate(d) { return d.toISOString().split('T')[0]; }
+  function pad(n) { return String(n).padStart(2,'0'); }
+  function localIso(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function weekStart(offset) {
+    var d = new Date(); var day = d.getDay();
+    d.setDate(d.getDate() - day + (offset * 7)); d.setHours(0,0,0,0); return d;
+  }
+
+  function setCategory(cat, el) {
+    activeCategory = cat;
+    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    render();
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('vbtn-week').classList.toggle('active', v === 'week');
+    document.getElementById('vbtn-month').classList.toggle('active', v === 'month');
+    render();
+  }
+
+  function shift(dir) {
+    if (currentView === 'week') weekOffset += dir;
+    else monthOffset += dir;
+    render();
+  }
+
+  function goToday() { weekOffset = 0; monthOffset = 0; render(); }
+
+  function filteredJobs(dateStr) {
+    return allJobs.filter(function(j) {
+      if (j.scheduled_date !== dateStr) return false;
+      if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
+      return true;
+    });
+  }
+
+  function jobCard(j) {
+    var cat = j.job_category || 'other';
+    var cls = CAT_COLORS[cat] || 'cat-other';
+    return '<div class="job-card ' + cls + '" onclick="openDetail(\'' + j.id + '\')" title="' + esc(j.client_name||'') + '">' +
+      '<div class="jc-client">' + esc(j.client_name||'—') + '</div>' +
+      '<div class="jc-service">' + esc(j.service||j.name||'') + '</div>' +
+      (j.amount ? '<div class="jc-amount">$' + parseFloat(j.amount).toFixed(2) + '</div>' : '') +
+    '</div>';
+  }
+
+  function renderWeek() {
+    var s = weekStart(weekOffset);
+    var days = [];
+    for (var i = 0; i < 7; i++) { var d = new Date(s); d.setDate(d.getDate() + i); days.push(d); }
+    var todayStr = localIso(new Date());
+
+    // Update label
+    var e = days[6];
+    document.getElementById('period-label').textContent =
+      days[0].toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' +
+      e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+    // Build grid
+    var headHtml = '', bodyHtml = '';
+    var totalJobs = 0, totalRev = 0;
+
+    days.forEach(function(d) {
+      var ds = localIso(d);
+      var isToday = ds === todayStr;
+      var isWeekend = d.getDay() === 0 || d.getDay() === 6;
+      var jobs = filteredJobs(ds);
+      totalJobs += jobs.length;
+      jobs.forEach(function(j){ totalRev += parseFloat(j.amount||0); });
+
+      headHtml += '<div class="cal-head-cell' + (isToday?' today-col':'') + '">' +
+        DAYS[d.getDay()] + '<br/>' +
+        '<span class="day-num">' + d.getDate() + '</span>' +
+      '</div>';
+
+      var cardsHtml = '';
+      var show = jobs.slice(0, 6);
+      show.forEach(function(j){ cardsHtml += jobCard(j); });
+      if (jobs.length > 6) cardsHtml += '<div class="more-chip">+' + (jobs.length-6) + ' more</div>';
+      if (!jobs.length) cardsHtml = '';
+
+      bodyHtml += '<div class="cal-col' + (isToday?' today-col':'') + (isWeekend?' weekend':'') + '">' + cardsHtml + '</div>';
+    });
+
+    document.getElementById('cal-wrap').innerHTML =
+      '<div class="cal-head">' + headHtml + '</div>' +
+      '<div class="cal-body">' + bodyHtml + '</div>';
+
+    document.getElementById('stat-jobs').textContent  = totalJobs;
+    document.getElementById('stat-total').textContent = '$' + totalRev.toFixed(2);
+  }
+
+  function renderMonth() {
+    var now = new Date();
+    var year  = now.getFullYear();
+    var month = now.getMonth() + monthOffset;
+    // Normalize
+    while (month > 11) { month -= 12; year++; }
+    while (month < 0)  { month += 12; year--; }
+
+    document.getElementById('period-label').textContent = MONTHS[month] + ' ' + year;
+
+    var firstDay = new Date(year, month, 1);
+    var lastDay  = new Date(year, month+1, 0);
+    var startCol = firstDay.getDay(); // 0=Sun
+    var todayStr = localIso(new Date());
+
+    var totalJobs = 0, totalRev = 0;
+    var headHtml = DAYS.map(function(d){ return '<div class="month-head-cell">' + d + '</div>'; }).join('');
+    var bodyHtml = '';
+
+    // Cells before month start
+    for (var i = 0; i < startCol; i++) {
+      var pd = new Date(year, month, 1 - (startCol - i));
+      bodyHtml += '<div class="month-cell other-month"><div class="mc-num" style="color:#ccc;">' + pd.getDate() + '</div></div>';
+    }
+
+    // Days in month
+    for (var d = 1; d <= lastDay.getDate(); d++) {
+      var ds = year + '-' + pad(month+1) + '-' + pad(d);
+      var isToday = ds === todayStr;
+      var jobs = filteredJobs(ds);
+      totalJobs += jobs.length;
+      jobs.forEach(function(j){ totalRev += parseFloat(j.amount||0); });
+
+      var cardsHtml = '';
+      jobs.slice(0,3).forEach(function(j){ cardsHtml += jobCard(j); });
+      if (jobs.length > 3) cardsHtml += '<div class="more-chip">+' + (jobs.length-3) + ' more</div>';
+
+      bodyHtml += '<div class="month-cell' + (isToday?' today-cell':'') + '">' +
+        '<div class="mc-num">' + d + '</div>' + cardsHtml + '</div>';
+    }
+
+    // Fill remaining cells
+    var total = startCol + lastDay.getDate();
+    var remaining = (7 - (total % 7)) % 7;
+    for (var r = 1; r <= remaining; r++) {
+      bodyHtml += '<div class="month-cell other-month"><div class="mc-num" style="color:#ccc;">' + r + '</div></div>';
+    }
+
+    document.getElementById('cal-wrap').innerHTML =
+      '<div class="month-head">' + headHtml + '</div>' +
+      '<div class="month-body">' + bodyHtml + '</div>';
+
+    document.getElementById('stat-jobs').textContent  = totalJobs;
+    document.getElementById('stat-total').textContent = '$' + totalRev.toFixed(2);
+  }
+
+  function render() {
+    if (currentView === 'week') renderWeek();
+    else renderMonth();
+  }
+
+  function openDetail(id) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('jobdetail?id=' + id + '&from=calendar');
+    else window.location.href = 'JobDetail.html?id=' + id;
+  }
+
+  async function loadJobs() {
+    var { data } = await sb.from('Services')
+      .select('id, client_name, address, service, name, scheduled_date, amount, job_category, status, dispatched')
+      .eq('user_id', uid)
+      .not('scheduled_date', 'is', null)
+      .order('scheduled_date');
+    allJobs = data || [];
+    render();
+  }
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+    loadJobs();
+  }
+
+  init();
+</script>
+</body>
+</html>

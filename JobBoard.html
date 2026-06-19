@@ -81,18 +81,19 @@
     .date-nav button:hover { background:#2a1a0a; }
     .date-nav span { color:#1e1208; font-size:13px; font-weight:600; min-width:200px; text-align:center; }
 
-    /* Map */
-    .map-section { margin:2px 16px; height:500px; position:relative; border-radius:8px; overflow:hidden; border:1px solid #c8b898; }
-    .map-style-toggle { position:absolute; top:10px; right:10px; z-index:10; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.2); }
-    .map-style-btn { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; font-family:inherit; }
-    .map-style-btn.active { background:#f0f0f0; font-weight:700; }
-    .stop-panel { display:none; position:absolute; top:10px; left:10px; width:240px; background:#fff; border:1px solid #bbb; box-shadow:0 2px 8px rgba(0,0,0,.25); z-index:20; font-size:12.5px; }
+    /* Map — exact copy from ScheduledList */
+    .map-section { position:relative; width:calc(100% - 32px); height:500px; background:#e8e8e8; border:1px solid #ccc; border-radius:8px; overflow:hidden; margin:2px 16px; }
+    .map-toggle { position:absolute; top:10px; right:10px; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; z-index:10; }
+    .map-toggle button { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; }
+    .map-toggle button.active { background:#f0f0f0; font-weight:700; }
+    .stop-panel { display:block; position:absolute; top:10px; left:10px; width:260px; background:#fff; border:1px solid #bbb; box-shadow:0 2px 8px rgba(0,0,0,.25); z-index:20; font-size:12.5px; }
     .stop-panel-hdr { background:#1e1208; color:#fff; padding:6px 10px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
     .stop-panel-hdr button { background:none; border:none; color:#fff; cursor:pointer; font-size:15px; line-height:1; }
     .stop-body { padding:8px 10px; }
-    .sp-row { display:flex; justify-content:space-between; font-size:12px; padding:2px 0; }
+    .sp-section { font-weight:700; font-size:12px; color:#333; margin:6px 0 3px; }
+    .sp-row { display:flex; justify-content:space-between; font-size:12px; padding:1px 0; }
     .sp-total-row { display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; margin-top:4px; border-top:1px solid #eee; padding-top:4px; }
-    .stop-panel .orange-btn { display:block; width:calc(100% - 16px); margin:4px 8px 8px; padding:7px; background:#c47d0a; color:#fff; border:none; font-size:13px; font-weight:700; cursor:pointer; border-radius:3px; text-align:center; font-family:inherit; }
+    .stop-panel .orange-btn { display:block; width:calc(100% - 16px); margin:4px 8px 8px; padding:7px; background:#c47d0a; color:#fff; border:none; font-size:13px; font-weight:700; cursor:pointer; border-radius:3px; text-align:center; }
     .stop-panel .orange-btn:hover { background:#a86808; }
     .map-tool-panel { position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:4px; z-index:15; }
     .map-tool-btn { background:#fff; border:1px solid #bbb; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:3px; box-shadow:0 1px 4px rgba(0,0,0,.25); padding:0; }
@@ -217,12 +218,6 @@
   <button class="filter-tab active" id="ftab-category" onclick="setFilterTab('category', this)">Category</button>
   <button class="filter-tab" id="ftab-status" onclick="setFilterTab('status', this)">Status</button>
   <button class="filter-tab" id="ftab-trucks" onclick="setFilterTab('trucks', this)">Trucks</button>
-  <div style="margin-left:auto;position:relative;display:flex;align-items:center;">
-    <span style="position:absolute;left:10px;font-size:13px;pointer-events:none;">&#128269;</span>
-    <input type="text" id="search-input" placeholder="Search jobs..." oninput="onSearch()"
-      style="border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;padding:4px 10px 4px 28px;border-radius:4px;font-size:13px;font-family:inherit;width:200px;outline:none;"
-      onfocus="this.style.borderColor='#c47d0a'" onblur="this.style.borderColor='rgba(255,255,255,.3)'"/>
-  </div>
 </div>
 
 <!-- Category subfilter (default visible) -->
@@ -285,27 +280,23 @@
   </div>
 </div>
 
-<!-- Map section -->
+<!-- Map section — exact copy from ScheduledList -->
 <div class="map-section" id="map-section" style="display:none;">
-
-  <!-- Selection summary panel -->
   <div class="stop-panel" id="stop-panel">
     <div class="stop-panel-hdr">
       <span>Selection Summary</span>
-      <button onclick="closeStopPanel()" title="Clear selection">&#10005;</button>
     </div>
     <div class="stop-body" id="stop-body"></div>
     <button class="orange-btn" onclick="clearMapSelection()">Clear Selection</button>
   </div>
 
-  <!-- Pan / Draw tools -->
-  <div class="map-tool-panel" id="map-tool-panel">
+  <div class="map-tool-panel" id="map-tool-panel" style="left:280px;">
     <button id="tool-pan" class="map-tool-btn active" title="Pan" onclick="setMapTool('pan')">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 11V8a2 2 0 0 0-4 0v5M14 8V6a2 2 0 0 0-4 0v6M10 7V5a2 2 0 0 0-4 0v9l-1-1a2 2 0 0 0-2.7.1L6 21h12l2-7H18"/>
       </svg>
     </button>
-    <button id="tool-draw" class="map-tool-btn" title="Draw polygon to select jobs" onclick="setMapTool('draw')">
+    <button id="tool-draw" class="map-tool-btn" title="Draw polygon" onclick="setMapTool('draw')">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="1"/>
         <circle cx="3" cy="3" r="1.5" fill="#333"/>
@@ -316,13 +307,12 @@
     </button>
   </div>
 
-  <!-- Satellite / Map toggle -->
-  <div class="map-style-toggle">
-    <button class="map-style-btn active" id="map-btn-sat" onclick="setMapStyle('satellite')">Satellite</button>
-    <button class="map-style-btn" id="map-btn-road" onclick="setMapStyle('roadmap')">Map</button>
+  <div class="map-toggle">
+    <button class="active" onclick="setMapStyle('satellite')">Satellite</button>
+    <button onclick="setMapStyle('streets')">Map</button>
   </div>
 
-  <div id="job-map" style="width:100%;height:100%;"></div>
+  <div id="map" style="width:100%;height:100%;"></div>
   <div id="draw-capture" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:14;"></div>
 </div>
 
@@ -872,11 +862,16 @@
     else window.location.href = 'RecurringAdd.html';
   }
 
-  // ── Map ──────────────────────────────────────────────
-  var jobMap = null; var mapMarkers = []; var mapVisible = false;
-  var mapTool = 'pan', polyVerts = [], vertexMarkers = [], firstVertexMarker = null, drawingMarkers = [];
+  // ── Map — exact copy from ScheduledList ──────────────
+  var jobMap = null;
+  var mapMarkers = [];
+  var mapVisible = false;
+  var mapTool = 'pan';
+  var polyVerts = [], vertexMarkers = [], firstVertexMarker = null, drawingMarkers = [];
   var selPolygon = null, selDrawingLine = null, selPreviewLine = null;
-  var projOverlay = null;
+  var projOverlay = new google.maps.OverlayView();
+  projOverlay.onAdd = function() {};
+  projOverlay.draw  = function() {};
 
   function getWeekFiltered() {
     var s = weekStart(weekOffset); var e = new Date(s); e.setDate(e.getDate() + 7);
@@ -904,81 +899,87 @@
   }
 
   function initJobMap() {
-    jobMap = new google.maps.Map(document.getElementById('job-map'), {
-      center: { lat: 32.725, lng: -97.033 }, zoom: 11, mapTypeId: 'satellite',
-      mapTypeControl: false, streetViewControl: false, fullscreenControl: true, clickableIcons: false
+    jobMap = new google.maps.Map(document.getElementById('map'), {
+      center: { lat: 32.725, lng: -97.033 },
+      zoom: 9,
+      mapTypeId: 'satellite',
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      clickableIcons: false
     });
+    google.maps.event.addListenerOnce(jobMap, 'idle', function() {
+      initDrawing();
+      loadMapMarkers();
+    });
+  }
 
-    projOverlay = new google.maps.OverlayView();
-    projOverlay.onAdd = function() {}; projOverlay.draw = function() {};
+  function initDrawing() {
+    selPolygon     = new google.maps.Polygon({ paths:[], strokeColor:'#000000', strokeWeight:4, fillColor:'#555555', fillOpacity:0.45, map:jobMap });
+    selDrawingLine = new google.maps.Polyline({ path:[], strokeColor:'#000000', strokeWeight:4, map:jobMap });
+    selPreviewLine = new google.maps.Polyline({ path:[], strokeColor:'#000000', strokeWeight:3, strokeOpacity:0,
+      icons:[{ icon:{ path:'M 0,-1 0,1', strokeOpacity:1, scale:4 }, offset:'0', repeat:'18px' }], map:jobMap });
     projOverlay.setMap(jobMap);
 
-    selPolygon     = new google.maps.Polygon({ paths:[], strokeColor:'#000', strokeWeight:4, fillColor:'#555', fillOpacity:0.45, map:jobMap });
-    selDrawingLine = new google.maps.Polyline({ path:[], strokeColor:'#000', strokeWeight:4, map:jobMap });
-    selPreviewLine = new google.maps.Polyline({ path:[], strokeColor:'#000', strokeWeight:3, strokeOpacity:0,
-      icons:[{ icon:{ path:'M 0,-1 0,1', strokeOpacity:1, scale:4 }, offset:'0', repeat:'18px' }], map:jobMap });
-
     var cap = document.getElementById('draw-capture');
-    var _panning = false, _panStart = null, _panLast = null;
-    cap.addEventListener('mousedown', function(e) { _panning = false; _panStart = { x:e.clientX, y:e.clientY }; _panLast = { x:e.clientX, y:e.clientY }; });
+    var _drawPanning = false, _drawPanStart = null, _drawPanLast = null;
+    cap.addEventListener('mousedown', function(e) {
+      _drawPanning = false;
+      _drawPanStart = { x: e.clientX, y: e.clientY };
+      _drawPanLast  = { x: e.clientX, y: e.clientY };
+    });
     cap.addEventListener('mousemove', function(e) {
-      if (_panStart && !_panning) { var dx = e.clientX - _panStart.x, dy = e.clientY - _panStart.y; if (Math.sqrt(dx*dx+dy*dy) > 2) { _panning = true; cap.style.cursor = 'grabbing'; } }
-      if (_panning) {
-        var dx2 = e.clientX - _panLast.x, dy2 = e.clientY - _panLast.y; _panLast = { x:e.clientX, y:e.clientY };
+      if (_drawPanStart && !_drawPanning) {
+        var dx = e.clientX - _drawPanStart.x, dy = e.clientY - _drawPanStart.y;
+        if (Math.sqrt(dx*dx + dy*dy) > 2) { _drawPanning = true; cap.style.cursor = 'grabbing'; }
+      }
+      if (_drawPanning) {
+        var dx2 = e.clientX - _drawPanLast.x, dy2 = e.clientY - _drawPanLast.y;
+        _drawPanLast = { x: e.clientX, y: e.clientY };
         var proj = projOverlay.getProjection();
-        if (proj) { var c = jobMap.getCenter(), cp = proj.fromLatLngToDivPixel(c); jobMap.setCenter(proj.fromDivPixelToLatLng(new google.maps.Point(cp.x - dx2, cp.y - dy2))); }
+        if (proj) {
+          var c = jobMap.getCenter(), cp = proj.fromLatLngToDivPixel(c);
+          jobMap.setCenter(proj.fromDivPixelToLatLng(new google.maps.Point(cp.x - dx2, cp.y - dy2)));
+        }
         return;
       }
       handleDrawMousemove(e);
     });
-    cap.addEventListener('mouseup', function(e) { var was = _panning; _panning = false; _panStart = null; _panLast = null; cap.style.cursor = 'crosshair'; if (!was) handleDrawClick(e); });
-
-    google.maps.event.addListenerOnce(jobMap, 'idle', loadMapMarkers);
-  }
-
-  function setMapStyle(style) {
-    if (jobMap) jobMap.setMapTypeId(style);
-    document.getElementById('map-btn-sat').classList.toggle('active', style === 'satellite');
-    document.getElementById('map-btn-road').classList.toggle('active', style === 'roadmap');
-  }
-
-  function setMapTool(tool) {
-    mapTool = tool;
-    document.getElementById('tool-pan').classList.toggle('active', tool === 'pan');
-    document.getElementById('tool-draw').classList.toggle('active', tool === 'draw');
-    var cap = document.getElementById('draw-capture');
-    if (tool === 'draw') {
-      jobMap.setOptions({ draggable:false, draggableCursor:'crosshair' });
-      cap.style.display = ''; cap.style.cursor = 'crosshair';
-      resetDraw();
-    } else {
-      jobMap.setOptions({ draggable:true, draggableCursor:'' });
-      cap.style.display = 'none';
-    }
+    cap.addEventListener('mouseup', function(e) {
+      var wasPanning = _drawPanning;
+      _drawPanning = false; _drawPanStart = null; _drawPanLast = null;
+      cap.style.cursor = 'crosshair';
+      if (!wasPanning) handleDrawClick(e);
+    });
   }
 
   function eventToMapPt(e) {
-    var r = document.getElementById('job-map').getBoundingClientRect();
+    var r = document.getElementById('map').getBoundingClientRect();
     return new google.maps.Point(e.clientX - r.left, e.clientY - r.top);
   }
 
   function screenPixelDist(ll1, ll2) {
     var proj = projOverlay.getProjection(); if (!proj) return 9999;
     var p1 = proj.fromLatLngToContainerPixel(ll1), p2 = proj.fromLatLngToContainerPixel(ll2);
-    return Math.sqrt(Math.pow(p1.x-p2.x,2) + Math.pow(p1.y-p2.y,2));
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
   }
 
   function handleDrawClick(e) {
     var proj = projOverlay.getProjection(); if (!proj) return;
     var clickLL = proj.fromContainerPixelToLatLng(eventToMapPt(e));
     var clickPt = [clickLL.lng(), clickLL.lat()];
-    if (polyVerts.length >= 3 && screenPixelDist(new google.maps.LatLng(polyVerts[0][1], polyVerts[0][0]), clickLL) < 20) { closePolygon(); return; }
+    if (polyVerts.length >= 3) {
+      var d = screenPixelDist(new google.maps.LatLng(polyVerts[0][1], polyVerts[0][0]), clickLL);
+      if (d < 20) { closePolygon(); return; }
+    }
     polyVerts.push(clickPt);
-    if (selDrawingLine) selDrawingLine.setPath(polyVerts.map(function(v){ return { lat:v[1], lng:v[0] }; }));
+    if (selDrawingLine) selDrawingLine.setPath(polyVerts.map(function(v) { return { lat:v[1], lng:v[0] }; }));
     if (selPreviewLine) selPreviewLine.setPath([]);
     if (polyVerts.length > 1) {
-      var dm = new google.maps.Marker({ position:{ lat:clickPt[1], lng:clickPt[0] }, map:jobMap, clickable:false, zIndex:100,
-        icon:{ path:google.maps.SymbolPath.CIRCLE, scale:7, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 } });
+      var dm = new google.maps.Marker({
+        position:{ lat:clickPt[1], lng:clickPt[0] }, map:jobMap, clickable:false, zIndex:100,
+        icon:{ path:google.maps.SymbolPath.CIRCLE, scale:7, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 }
+      });
       drawingMarkers.push(dm);
     }
     updateFirstVertexMarker();
@@ -989,17 +990,41 @@
     var proj = projOverlay.getProjection(); if (!proj) return;
     var movLL = proj.fromContainerPixelToLatLng(eventToMapPt(e));
     var preview = polyVerts.concat([[movLL.lng(), movLL.lat()]]);
-    if (selPreviewLine) selPreviewLine.setPath(preview.map(function(v){ return { lat:v[1], lng:v[0] }; }));
+    if (selPreviewLine) selPreviewLine.setPath(preview.map(function(v) { return { lat:v[1], lng:v[0] }; }));
     var near = polyVerts.length >= 3 && screenPixelDist(new google.maps.LatLng(polyVerts[0][1], polyVerts[0][0]), movLL) < 20;
     if (firstVertexMarker) firstVertexMarker.setIcon({ path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:near?'#000':'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 });
+  }
+
+  function setMapStyle(style) {
+    document.querySelectorAll('.map-toggle button').forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+    if (jobMap) jobMap.setMapTypeId(style === 'satellite' ? 'satellite' : 'roadmap');
+  }
+
+  function setMapTool(tool) {
+    mapTool = tool;
+    document.getElementById('tool-pan').classList.toggle('active', tool === 'pan');
+    document.getElementById('tool-draw').classList.toggle('active', tool === 'draw');
+    var cap = document.getElementById('draw-capture');
+    if (tool === 'draw') {
+      jobMap.setOptions({ draggable:false, draggableCursor:'crosshair' });
+      cap.style.display = '';
+      cap.style.cursor  = 'crosshair';
+      resetDraw();
+    } else {
+      jobMap.setOptions({ draggable:true, draggableCursor:'' });
+      cap.style.display = 'none';
+    }
   }
 
   function updateFirstVertexMarker() {
     if (firstVertexMarker) { firstVertexMarker.setMap(null); firstVertexMarker = null; }
     if (!polyVerts.length) return;
-    firstVertexMarker = new google.maps.Marker({ position:{ lat:polyVerts[0][1], lng:polyVerts[0][0] }, map:jobMap, zIndex:200, cursor:'pointer',
-      icon:{ path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 } });
-    google.maps.event.addListener(firstVertexMarker, 'click', function(){ if (polyVerts.length >= 3) closePolygon(); });
+    firstVertexMarker = new google.maps.Marker({
+      position:{ lat:polyVerts[0][1], lng:polyVerts[0][0] }, map:jobMap, zIndex:200, cursor:'pointer',
+      icon:{ path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:3 }
+    });
+    google.maps.event.addListener(firstVertexMarker, 'click', function() { if (polyVerts.length >= 3) closePolygon(); });
   }
 
   function closePolygon() {
@@ -1020,10 +1045,17 @@
   function addVertexMarkers() {
     clearVertexMarkers();
     polyVerts.forEach(function(coord, i) {
-      var m = new google.maps.Marker({ position:{ lat:coord[1], lng:coord[0] }, map:jobMap, draggable:true, zIndex:150,
-        icon:{ path:google.maps.SymbolPath.CIRCLE, scale:6, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:2 } });
+      var m = new google.maps.Marker({
+        position:{ lat:coord[1], lng:coord[0] }, map:jobMap, draggable:true, zIndex:150,
+        icon:{ path:google.maps.SymbolPath.CIRCLE, scale:6, fillColor:'#fff', fillOpacity:1, strokeColor:'#000', strokeWeight:2 }
+      });
       (function(idx, mk) {
-        google.maps.event.addListener(mk, 'drag', function(){ var pos = mk.getPosition(); polyVerts[idx] = [pos.lng(), pos.lat()]; updateFinalPolygon(); checkJobsInPolygon(); });
+        google.maps.event.addListener(mk, 'drag', function() {
+          var pos = mk.getPosition();
+          polyVerts[idx] = [pos.lng(), pos.lat()];
+          updateFinalPolygon();
+          checkJobsInPolygon();
+        });
       })(i, m);
       vertexMarkers.push(m);
     });
@@ -1032,26 +1064,28 @@
   function updateFinalPolygon() {
     if (polyVerts.length < 3) return;
     var coords = polyVerts.concat([polyVerts[0]]);
-    if (selPolygon) selPolygon.setPaths([coords.map(function(v){ return { lat:v[1], lng:v[0] }; })]);
+    if (selPolygon) selPolygon.setPaths([coords.map(function(v) { return { lat:v[1], lng:v[0] }; })]);
   }
 
   function resetDraw() {
     polyVerts = [];
     if (firstVertexMarker) { firstVertexMarker.setMap(null); firstVertexMarker = null; }
-    clearVertexMarkers(); clearDrawingMarkers();
+    clearVertexMarkers();
+    clearDrawingMarkers();
     if (selPolygon) selPolygon.setPaths([]);
     if (selDrawingLine) selDrawingLine.setPath([]);
     if (selPreviewLine) selPreviewLine.setPath([]);
   }
 
-  function clearVertexMarkers() { vertexMarkers.forEach(function(m){ m.setMap(null); }); vertexMarkers = []; }
-  function clearDrawingMarkers() { drawingMarkers.forEach(function(m){ m.setMap(null); }); drawingMarkers = []; }
+  function clearVertexMarkers()  { vertexMarkers.forEach(function(m)  { m.setMap(null); }); vertexMarkers  = []; }
+  function clearDrawingMarkers() { drawingMarkers.forEach(function(m) { m.setMap(null); }); drawingMarkers = []; }
 
   function pointInPolygon(pt, polygon) {
     var x = pt[0], y = pt[1], inside = false;
     for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
       var xi = polygon[i][0], yi = polygon[i][1], xj = polygon[j][0], yj = polygon[j][1];
-      if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+      var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
     }
     return inside;
   }
@@ -1060,7 +1094,8 @@
     if (polyVerts.length < 3) return;
     var filtered = getWeekFiltered();
     var inside = filtered.filter(function(j) {
-      var lat = j.Properties && j.Properties.lat, lng = j.Properties && j.Properties.lng;
+      var lat = j.Properties && j.Properties.lat;
+      var lng = j.Properties && j.Properties.lng;
       return lat && lng && pointInPolygon([parseFloat(lng), parseFloat(lat)], polyVerts);
     });
     if (inside.length) showStopPanel(inside);
@@ -1070,29 +1105,27 @@
     var panel = document.getElementById('stop-panel');
     var body  = document.getElementById('stop-body');
     panel.style.display = '';
-    document.getElementById('map-tool-panel').style.left = '260px';
-    var totalRev = selected.reduce(function(s, j){ return s + (parseFloat(j.amount)||0); }, 0);
-    var stops = {}; selected.forEach(function(j){ if (j.property_id) stops[j.property_id] = true; });
-    var catCounts = {};
-    selected.forEach(function(j){ var c = j.job_category || 'other'; catCounts[c] = (catCounts[c]||0) + 1; });
+    document.getElementById('map-tool-panel').style.left = '280px';
+    var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
+    var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
+    var svcCounts = {};
+    selected.forEach(function(x) { var c = x.job_category || 'other'; svcCounts[c] = (svcCounts[c] || 0) + 1; });
     var html = '<div class="sp-row" style="margin-bottom:6px;"><span><strong>Total Revenue</strong></span><span><strong>$' + totalRev.toFixed(2) + '</strong></span></div>';
-    Object.keys(catCounts).forEach(function(c){ html += '<div class="sp-row"><span>' + (CATEGORY_LABELS[c]||c) + '</span><span>' + catCounts[c] + '</span></div>'; });
+    Object.keys(svcCounts).forEach(function(n) { html += '<div class="sp-row"><span>' + (CATEGORY_LABELS[n] || n) + '</span><span>' + svcCounts[n] + '</span></div>'; });
     html += '<div class="sp-total-row"><span>JOBS SELECTED</span><span>' + selected.length + '</span></div>';
-    html += '<div class="sp-total-row"><span>PROPERTIES</span><span>' + Object.keys(stops).length + '</span></div>';
+    html += '<div class="sp-total-row"><span>TOTAL STOPS</span><span>' + stops + '</span></div>';
     body.innerHTML = html;
   }
 
-  function closeStopPanel() {
+  function clearMapSelection() {
     document.getElementById('stop-panel').style.display = 'none';
     document.getElementById('map-tool-panel').style.left = '10px';
     resetDraw();
   }
 
-  function clearMapSelection() { closeStopPanel(); }
-
   function loadMapMarkers() {
     if (!jobMap) return;
-    mapMarkers.forEach(function(m){ m.setMap(null); }); mapMarkers = [];
+    mapMarkers.forEach(function(m) { m.setMap(null); }); mapMarkers = [];
     var filtered = getWeekFiltered();
     var seen = {}; var bounds = new google.maps.LatLngBounds(); var hasPin = false;
     var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
@@ -1103,22 +1136,24 @@
       if (seen[key]) return; seen[key] = true;
       var pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
       bounds.extend(pos); hasPin = true;
-      var marker = new google.maps.Marker({ position: pos, map: jobMap,
+      var marker = new google.maps.Marker({
+        position: pos, map: jobMap,
         icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
-          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) } });
-      var related = filtered.filter(function(x){ return (x.property_id||'') === (j.property_id||''); });
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+      var related = filtered.filter(function(x) { return (x.property_id || '') === (j.property_id || ''); });
       var html = '<div style="font-family:Arial,sans-serif;font-size:13px;min-width:180px;max-width:240px;">';
-      html += '<div style="font-weight:700;color:#1e1208;margin-bottom:4px;">' + esc(j.client_name||'—') + '</div>';
-      html += '<div style="color:#666;font-size:12px;margin-bottom:8px;">' + esc(j.address||'') + '</div>';
+      html += '<div style="font-weight:700;color:#1e1208;margin-bottom:4px;">' + esc(j.client_name || '—') + '</div>';
+      html += '<div style="color:#666;font-size:12px;margin-bottom:8px;">' + esc(j.address || '') + '</div>';
       related.forEach(function(rj) {
-        html += '<div style="border-top:1px solid #eee;padding:6px 0 4px;"><div style="font-weight:600;">' + esc(rj.service||rj.name||'') + '</div>';
-        html += '<div style="color:#888;font-size:11px;">' + esc(rj.scheduled_date||'') + '</div>';
+        html += '<div style="border-top:1px solid #eee;padding:6px 0 4px;"><div style="font-weight:600;">' + esc(rj.service || rj.name || '') + '</div>';
+        html += '<div style="color:#888;font-size:11px;">' + esc(rj.scheduled_date || '') + '</div>';
         if (rj.amount) html += '<div style="color:#c47d0a;font-weight:700;font-size:12px;">$' + parseFloat(rj.amount).toFixed(2) + '</div>';
         html += '</div>';
       });
       html += '<div style="margin-top:6px;"><a href="#" style="color:#c47d0a;font-size:12px;font-weight:700;" onclick="if(window.parent&&window.parent.loadPage)window.parent.loadPage(\'jobdetail?id=' + j.id + '&from=jobboard\');return false;">View Details</a></div></div>';
       var iw = new google.maps.InfoWindow({ content: html });
-      google.maps.event.addListener(marker, 'click', function(){ iw.open(jobMap, marker); });
+      google.maps.event.addListener(marker, 'click', function() { iw.open(jobMap, marker); });
       mapMarkers.push(marker);
     });
     if (hasPin) jobMap.fitBounds(bounds);
