@@ -771,22 +771,14 @@
     if (businessLat && businessLng) return true;
     var addrStr = getStartAddr();
     if (!addrStr) return false;
-    // Use Directions API to geocode — avoids needing Geocoding API separately enabled
     return await new Promise(function(resolve) {
-      var dummyStop = getUniqueRouteStops(selectedForRoute)[0];
-      if (!dummyStop) { resolve(false); return; }
-      new google.maps.DirectionsService().route({
-        origin: addrStr,
-        destination: { lat: dummyStop.lat, lng: dummyStop.lng },
-        travelMode: google.maps.TravelMode.DRIVING
-      }, function(result, status) {
-        if (status === 'OK' && result.routes[0]) {
-          var leg = result.routes[0].legs[0];
-          businessLat = leg.start_location.lat();
-          businessLng = leg.start_location.lng();
+      new google.maps.Geocoder().geocode({ address: addrStr }, function(results, status) {
+        if (status === 'OK' && results[0]) {
+          businessLat = results[0].geometry.location.lat();
+          businessLng = results[0].geometry.location.lng();
           resolve(true);
         } else {
-          alert('Could not find that address. Check it and try again.');
+          alert('Could not find that address (' + status + '). Check it and try again.');
           resolve(false);
         }
       });
