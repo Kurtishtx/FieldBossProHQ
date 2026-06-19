@@ -291,29 +291,29 @@
 
 <!-- Toolbar: Saved Views + Week Nav + View Toggle -->
 <div class="toolbar">
-  <div class="toolbar-left">
-    <div class="app-dropdown" id="saved-views-dd">
-      <button class="app-btn" onclick="toggleSavedViews(event)" id="sv-btn">
-        Saved Views&nbsp;<span class="sv-current" id="sv-current-name"></span>
-      </button>
-      <div class="saved-filters-panel" id="sv-panel">
-        <div class="sfp-body">
-          <div class="sfp-title">Saved Views</div>
-          <button class="sfp-create" onclick="openSaveViewModal()">+ Save current filters as a view</button>
-          <div id="sv-list"></div>
-        </div>
+  <div class="app-dropdown" id="saved-views-dd">
+    <button class="app-btn" onclick="toggleSavedViews(event)" id="sv-btn">
+      Saved Views&nbsp;<span class="sv-current" id="sv-current-name"></span>
+    </button>
+    <div class="saved-filters-panel" id="sv-panel">
+      <div class="sfp-body">
+        <div class="sfp-title">Saved Views</div>
+        <button class="sfp-create" onclick="openSaveViewModal()">+ Save current filters as a view</button>
+        <div id="sv-list"></div>
       </div>
     </div>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <div class="date-nav">
       <button onclick="shiftWeek(-1)">&#8249;</button>
       <span id="week-label"></span>
       <button onclick="shiftWeek(1)">&#8250;</button>
       <button onclick="goToday()">Today</button>
     </div>
-  </div>
-  <div style="display:flex;background:#1e1208;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15);">
-    <button id="view-btn-list" onclick="setJobView('list')" style="padding:5px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#c47d0a;color:#fff;font-family:inherit;">List</button>
-    <button id="view-btn-cal"  onclick="setJobView('cal')"  style="padding:5px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.6);font-family:inherit;">Calendar</button>
+    <div style="display:flex;background:#1e1208;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15);">
+      <button id="view-btn-list" onclick="setJobView('list')" style="padding:5px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#c47d0a;color:#fff;font-family:inherit;">List</button>
+      <button id="view-btn-cal"  onclick="setJobView('cal')"  style="padding:5px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.6);font-family:inherit;">Calendar</button>
+    </div>
   </div>
 </div>
 
