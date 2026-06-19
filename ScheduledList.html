@@ -752,10 +752,22 @@
     var { data: s } = await sb.auth.getSession();
     var uid = s && s.session ? s.session.user.id : null;
     if (!uid) return;
-    var { data } = await sb.from('company_info').select('latitude, longitude').eq('user_id', uid).single();
-    if (data) {
-      businessLat = data.latitude  ? parseFloat(data.latitude)  : null;
-      businessLng = data.longitude ? parseFloat(data.longitude) : null;
+    var { data } = await sb.from('company_info').select('latitude, longitude, address1, city, state, zip').eq('user_id', uid).single();
+    if (!data) return;
+    if (data.latitude && data.longitude) {
+      businessLat = parseFloat(data.latitude);
+      businessLng = parseFloat(data.longitude);
+    } else if (data.address1 && data.city && data.state) {
+      var addr = [data.address1, data.city, data.state, data.zip].filter(Boolean).join(', ');
+      await new Promise(function(resolve) {
+        new google.maps.Geocoder().geocode({ address: addr }, function(results, status) {
+          if (status === 'OK' && results[0]) {
+            businessLat = results[0].geometry.location.lat();
+            businessLng = results[0].geometry.location.lng();
+          }
+          resolve();
+        });
+      });
     }
   }
 
@@ -1905,17 +1917,24 @@
     selectedForRoute = selected;
     var autoSect = document.getElementById('route-auto-section');
     if (autoSect) {
+      autoSect.style.display = '';
       var stops = new Set(selected.map(function(x) { return x.property_id; })).size;
-      autoSect.style.display = businessLat ? '' : 'none';
       var overMsg = document.getElementById('route-over-limit-msg');
       var optBtn  = document.getElementById('btn-google-optimize');
-      if (stops > 25) {
+      if (!businessLat || !businessLng) {
         overMsg.style.display = '';
-        overMsg.textContent = '⚠ ' + stops + ' stops — over 25 limit. Google Optimize disabled. Use Closest/Furthest First.';
+        overMsg.textContent = 'Business address not geocoded yet — save your address in Settings → Company Info.';
         if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; optBtn.style.cursor = 'not-allowed'; }
+        document.querySelectorAll('#route-auto-section button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = true; b.style.opacity = '.5'; });
+      } else if (stops > 25) {
+        overMsg.style.display = '';
+        overMsg.textContent = '⚠ ' + stops + ' stops — over 25. Google Optimize disabled. Use Closest/Furthest First.';
+        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; optBtn.style.cursor = 'not-allowed'; }
+        document.querySelectorAll('#route-auto-section button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
       } else {
         overMsg.style.display = 'none';
         if (optBtn) { optBtn.disabled = false; optBtn.style.opacity = '1'; optBtn.style.cursor = 'pointer'; }
+        document.querySelectorAll('#route-auto-section button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
       }
     }
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
