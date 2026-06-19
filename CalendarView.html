@@ -317,6 +317,7 @@
     var { data } = await sb.from('Services')
       .select('id, client_name, address, service, name, scheduled_date, amount, job_category, status, dispatched')
       .eq('user_id', uid)
+      .eq('dispatched', false)
       .not('scheduled_date', 'is', null)
       .order('scheduled_date');
     allJobs = data || [];
