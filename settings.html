@@ -327,6 +327,37 @@
   </div>
 </div>
 
+<!-- ── Integrations ── -->
+<div class="settings-group" id="group-integrations">
+  <div class="group-header" onclick="toggleGroup('integrations')">
+    <span>Integrations</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-integrations">
+
+    <div class="setting-item setting-item-toggle" data-name="quickbooks export accounting csv">
+      <div class="setting-icon">📊</div>
+      <div class="setting-text">
+        <div class="setting-name">QuickBooks Export</div>
+        <div class="setting-desc">Show a QuickBooks Export card on your dashboard to quickly download customers, invoices, and payments as QuickBooks-ready CSV files.</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="qb-export-toggle" onchange="saveQbExport(this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item" onclick="navigate('quickbooksexport')" data-name="quickbooks export accounting csv download">
+      <div class="setting-icon">⬇</div>
+      <div class="setting-text">
+        <div class="setting-name">Go to QuickBooks Export</div>
+        <div class="setting-desc">Download your customers, invoices, and payments as QuickBooks-ready CSV files.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div class="settings-group" id="group-services">
   <div class="group-header" onclick="toggleGroup('services')">
     <span>Services</span>
@@ -544,7 +575,22 @@
     await sb.from('company_info').update({ snow_mode: val }).eq('user_id', session.user.id);
   }
 
+  async function loadQbExport() {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    var { data } = await sb.from('company_info').select('qb_export_enabled').eq('user_id', session.user.id).single();
+    if (data && data.qb_export_enabled) document.getElementById('qb-export-toggle').checked = true;
+  }
+
+  async function saveQbExport(val) {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    var { error } = await sb.from('company_info').update({ qb_export_enabled: val }).eq('user_id', session.user.id);
+    if (error) alert('Error saving QuickBooks setting: ' + error.message);
+  }
+
   loadSnowMode();
+  loadQbExport();
 </script>
 </body>
 </html>
