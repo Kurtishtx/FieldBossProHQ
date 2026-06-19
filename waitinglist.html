@@ -254,21 +254,10 @@
 <!-- Filter tabs -->
 <div class="filter-bar">
   <span class="filter-bar-label">Select a Filter:</span>
-  <button class="filter-tab active" id="filter-tab-category" onclick="setFilter(this,'category')">Category</button>
   <button class="filter-tab" id="filter-tab-services" onclick="setFilter(this,'services')">Services</button>
   <button class="filter-tab" id="filter-tab-tags" onclick="setFilter(this,'tags')">Tags</button>
   <button class="filter-tab" id="filter-tab-status" onclick="setFilter(this,'status')">Status</button>
   <button class="filter-tab" id="filter-tab-pastdue" onclick="togglePastDueFilter(this)">Past Due</button>
-</div>
-
-<!-- Category sub-filter -->
-<div class="subfilter-bar visible" id="category-subfilter-bar">
-  <button class="cat-tab active" id="wl-cat-all" onclick="setWLCategory('all',this)">All</button>
-  <button class="cat-tab" onclick="setWLCategory('mowing',this)">Mowing</button>
-  <button class="cat-tab" onclick="setWLCategory('landscape',this)">Landscape</button>
-  <button class="cat-tab" onclick="setWLCategory('irrigation',this)">Irrigation</button>
-  <button class="cat-tab" onclick="setWLCategory('snow',this)">Snow</button>
-  <button class="cat-tab" onclick="setWLCategory('other',this)">Other</button>
 </div>
 
 <!-- Services sub-filter -->
