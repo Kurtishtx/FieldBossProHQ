@@ -552,10 +552,12 @@
       notes: document.getElementById('snow-notes').value.trim()
     };
     if (snowPropId) {
-      await sb.from('snow_properties').update(payload).eq('id', snowPropId);
+      var { error: upErr } = await sb.from('snow_properties').update(payload).eq('id', snowPropId);
+      if (upErr) { alert('Snow save error: ' + upErr.message); return; }
     } else if (enrolled) {
-      var { data } = await sb.from('snow_properties').insert(payload).select('id').single();
-      if (data) snowPropId = data.id;
+      var { data: insData, error: insErr } = await sb.from('snow_properties').insert(payload).select('id').single();
+      if (insErr) { alert('Snow save error: ' + insErr.message); return; }
+      if (insData) snowPropId = insData.id;
     }
   }
 
