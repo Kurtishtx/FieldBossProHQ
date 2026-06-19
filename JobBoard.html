@@ -406,8 +406,11 @@
       <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.6);">(pending snow jobs)</span>
       <span class="snow-bar-count" id="snow-job-count">0</span>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-size:11px;color:rgba(255,255,255,.55);" id="snow-bar-hint">click to expand</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:11px;color:rgba(255,255,255,.55);" id="snow-bar-hint">click to show</span>
+      <div class="unsched-toggle" id="snow-bar-toggle">
+        <div class="unsched-toggle-knob"></div>
+      </div>
     </div>
   </div>
   <div class="snow-bar-body" id="snow-bar-body">
@@ -1437,7 +1440,8 @@
   function toggleSnowBar() {
     snowBarOpen = !snowBarOpen;
     document.getElementById('snow-bar-body').classList.toggle('open', snowBarOpen);
-    document.getElementById('snow-bar-hint').textContent = snowBarOpen ? 'click to collapse' : 'click to expand';
+    document.getElementById('snow-bar-toggle').classList.toggle('on', snowBarOpen);
+    document.getElementById('snow-bar-hint').textContent = snowBarOpen ? 'click to hide' : 'click to show';
   }
 
   async function loadSnowMode() {
