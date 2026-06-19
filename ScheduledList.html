@@ -746,20 +746,20 @@
     var { data: s } = await sb.auth.getSession();
     var uid = s && s.session ? s.session.user.id : null;
     if (!uid) return;
-    var { data } = await sb.from('company_info')
-      .select('latitude, longitude, address1, city, state, zip, physAddr1, physCity, physState, physZip')
-      .eq('user_id', uid).single();
+    var { data } = await sb.from('company_info').select('*').eq('user_id', uid).single();
     if (!data) return;
-    if (data.latitude && data.longitude) {
-      businessLat = parseFloat(data.latitude);
-      businessLng = parseFloat(data.longitude);
+    var lat = data.latitude || data.lat;
+    var lng = data.longitude || data.lng;
+    if (lat && lng) {
+      businessLat = parseFloat(lat);
+      businessLng = parseFloat(lng);
       return;
     }
-    var addrStr = (data.address1 && data.city && data.state)
-      ? [data.address1, data.city, data.state, data.zip].filter(Boolean).join(', ')
-      : (data.physAddr1 && data.physCity && data.physState)
-        ? [data.physAddr1, data.physCity, data.physState, data.physZip].filter(Boolean).join(', ')
-        : null;
+    var a1   = data.address1   || data.phys_addr1  || data.physAddr1  || '';
+    var city = data.city       || data.phys_city   || data.physCity   || '';
+    var st   = data.state      || data.phys_state  || data.physState  || '';
+    var zip  = data.zip        || data.phys_zip    || data.physZip    || '';
+    var addrStr = [a1, city, st, zip].filter(Boolean).join(', ');
     if (!addrStr) return;
     await new Promise(function(resolve) {
       new google.maps.Geocoder().geocode({ address: addrStr }, function(results, status) {
