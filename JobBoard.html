@@ -6,7 +6,7 @@
   <title>Job Board</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; padding-bottom: 52px; }
 
     .btn-add { background:#c47d0a; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; cursor:pointer; border-radius:4px; font-family:inherit; white-space:nowrap; }
     .btn-add:hover { background:#a86808; }
@@ -166,8 +166,8 @@
     .cal-job-card.cat-snow      { background:#5a6777; }
     .cal-job-card.cat-other     { background:#c47d0a; }
 
-    /* Bottom bar — exact copy from ScheduledList */
-    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#1e1208; margin:0 16px; border-radius:8px 8px 0 0; position:relative; }
+    /* Bottom bar — fixed to viewport bottom */
+    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#1e1208; position:fixed; bottom:0; left:0; right:0; z-index:200; }
     .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px 0 0 3px; font-family:inherit; }
     .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); padding:5px 8px; font-size:12px; cursor:pointer; border-radius:0 3px 3px 0; font-family:inherit; }
     .day-tabs { display:flex; gap:2px; margin-left:4px; }
@@ -543,13 +543,20 @@
     render();
   }
 
-  // ── Filter tabs ──────────────────────────────────────
+  // ── Filter tabs — each toggles independently (stacks like ScheduledList) ──
   function setFilterTab(tab, el) {
-    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
-    el.classList.add('active');
-    document.getElementById('subfilter-category').classList.toggle('visible', tab === 'category');
-    document.getElementById('subfilter-status').classList.toggle('visible', tab === 'status');
-    document.getElementById('subfilter-trucks').classList.toggle('visible', tab === 'trucks');
+    var bar = document.getElementById('subfilter-' + tab);
+    var showing = bar.classList.contains('visible');
+    if (showing) {
+      bar.classList.remove('visible');
+      el.classList.remove('active');
+      if (tab === 'category') { activeCategory = 'all'; document.querySelectorAll('.cat-tab').forEach(function(b){ b.classList.remove('active'); }); document.getElementById('cat-all').classList.add('active'); render(); if (mapVisible) loadMapMarkers(); }
+      if (tab === 'status')   { activeStatuses = []; updateStatusLabel(); render(); }
+      if (tab === 'trucks')   { activeTrucks = [];  updateTruckLabel();  render(); }
+    } else {
+      bar.classList.add('visible');
+      el.classList.add('active');
+    }
   }
 
   // ── Category filter ──────────────────────────────────
@@ -596,7 +603,8 @@
     activeStatuses = [];
     updateStatusLabel();
     render();
-    document.getElementById('ftab-category').click();
+    document.getElementById('subfilter-status').classList.remove('visible');
+    document.getElementById('ftab-status').classList.remove('active');
   }
 
   // ── Truck filter ─────────────────────────────────────
@@ -635,7 +643,8 @@
     activeTrucks = [];
     updateTruckLabel();
     render();
-    document.getElementById('ftab-category').click();
+    document.getElementById('subfilter-trucks').classList.remove('visible');
+    document.getElementById('ftab-trucks').classList.remove('active');
   }
 
   // Close dropdowns when clicking outside
@@ -713,12 +722,14 @@
     // ui
     currentViewName = v.name;
     document.getElementById('sv-current-name').textContent = '> ' + v.name;
-    // show category tab
+    // reset filter UI: show category, hide others
     document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
     document.getElementById('ftab-category').classList.add('active');
     document.getElementById('subfilter-category').classList.add('visible');
     document.getElementById('subfilter-status').classList.remove('visible');
+    document.getElementById('ftab-status').classList.remove('active');
     document.getElementById('subfilter-trucks').classList.remove('visible');
+    document.getElementById('ftab-trucks').classList.remove('active');
     render(); if (mapVisible) loadMapMarkers();
   }
 
