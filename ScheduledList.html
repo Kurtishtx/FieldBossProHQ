@@ -746,23 +746,30 @@
     var { data: s } = await sb.auth.getSession();
     var uid = s && s.session ? s.session.user.id : null;
     if (!uid) return;
-    var { data } = await sb.from('company_info').select('latitude, longitude, address1, city, state, zip').eq('user_id', uid).single();
+    var { data } = await sb.from('company_info')
+      .select('latitude, longitude, address1, city, state, zip, physAddr1, physCity, physState, physZip')
+      .eq('user_id', uid).single();
     if (!data) return;
     if (data.latitude && data.longitude) {
       businessLat = parseFloat(data.latitude);
       businessLng = parseFloat(data.longitude);
-    } else if (data.address1 && data.city && data.state) {
-      var addr = [data.address1, data.city, data.state, data.zip].filter(Boolean).join(', ');
-      await new Promise(function(resolve) {
-        new google.maps.Geocoder().geocode({ address: addr }, function(results, status) {
-          if (status === 'OK' && results[0]) {
-            businessLat = results[0].geometry.location.lat();
-            businessLng = results[0].geometry.location.lng();
-          }
-          resolve();
-        });
-      });
+      return;
     }
+    var addrStr = (data.address1 && data.city && data.state)
+      ? [data.address1, data.city, data.state, data.zip].filter(Boolean).join(', ')
+      : (data.physAddr1 && data.physCity && data.physState)
+        ? [data.physAddr1, data.physCity, data.physState, data.physZip].filter(Boolean).join(', ')
+        : null;
+    if (!addrStr) return;
+    await new Promise(function(resolve) {
+      new google.maps.Geocoder().geocode({ address: addrStr }, function(results, status) {
+        if (status === 'OK' && results[0]) {
+          businessLat = results[0].geometry.location.lat();
+          businessLng = results[0].geometry.location.lng();
+        }
+        resolve();
+      });
+    });
   }
 
   function haversine(lat1, lng1, lat2, lng2) {
