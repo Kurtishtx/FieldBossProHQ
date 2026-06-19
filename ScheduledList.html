@@ -41,6 +41,11 @@
     .drp-wrap { position:relative; display:inline-block; }
     .drp-input { border:1px solid #bbb; padding:7px 16px; font-size:13.5px; cursor:pointer; background:#fff; min-width:190px; color:#333; border-radius:6px; display:flex; align-items:center; user-select:none; white-space:nowrap; }
     .drp-input:hover { background:#f5f5f5; }
+    .week-nav { display:flex; align-items:center; gap:0; background:#1e1208; border-radius:6px; overflow:hidden; }
+    .week-nav-btn { background:#1e1208; border:1px solid rgba(255,255,255,.25); color:#fff; padding:6px 14px; font-size:15px; cursor:pointer; font-family:inherit; line-height:1; }
+    .week-nav-btn:hover { background:#2a1a0a; }
+    .week-nav-label { color:#fff; font-size:13px; font-weight:700; padding:6px 18px; white-space:nowrap; cursor:pointer; border-top:1px solid rgba(255,255,255,.25); border-bottom:1px solid rgba(255,255,255,.25); }
+    .week-nav-label:hover { background:rgba(255,255,255,.07); }
     .drp-popup { display:none; position:absolute; top:calc(100% + 4px); right:0; background:#fff; border:1px solid #ccc; box-shadow:0 4px 16px rgba(0,0,0,.2); z-index:600; padding:10px 12px 8px; min-width:560px; max-width:98vw; overflow-x:auto; }
     .drp-popup.open { display:block; }
     .drp-close-btn { background:#c47d0a; color:#fff; border:2px solid #000; padding:4px 16px; cursor:pointer; font-size:12px; font-weight:700; border-radius:2px; }
@@ -320,8 +325,12 @@
   </div>
   <input type="checkbox" id="use-min-days" checked style="display:none;"/>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
-    <div class="drp-wrap" id="drp-wrap">
-      <div class="drp-input" id="drp-input" onclick="toggleDRP(event)">Loading</div>
+    <div class="week-nav">
+      <button class="week-nav-btn" onclick="slShiftWeek(-1)">&#8249;</button>
+      <span class="week-nav-label" id="sl-week-label" onclick="toggleDRP(event)">Loading</span>
+      <button class="week-nav-btn" onclick="slShiftWeek(1)">&#8250;</button>
+    </div>
+    <div class="drp-wrap" id="drp-wrap" style="position:absolute;">
       <div class="drp-popup" id="drp-popup" onclick="event.stopPropagation()">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <div class="drp-quick-row" style="margin-top:0; flex-wrap:wrap;">
@@ -1346,20 +1355,32 @@
 
   function initDRP() {
     var t = new Date(); t.setHours(0,0,0,0);
-    drpStart = new Date(t); drpEnd = new Date(t);
-    drpLY = t.getFullYear(); drpLM = t.getMonth();
-    var nx = new Date(t.getFullYear(), t.getMonth() + 1, 1);
+    drpStart = new Date(t); drpStart.setDate(t.getDate() - t.getDay());
+    drpEnd = new Date(drpStart); drpEnd.setDate(drpStart.getDate() + 6);
+    drpLY = drpStart.getFullYear(); drpLM = drpStart.getMonth();
+    var nx = new Date(drpStart.getFullYear(), drpStart.getMonth() + 1, 1);
     drpRY = nx.getFullYear(); drpRM = nx.getMonth();
     drpRender(); drpUpdateInput();
   }
 
   function drpUpdateInput() {
-    var el = document.getElementById('drp-input');
-    if (!drpStart) { el.textContent = 'All Dates'; return; }
-    var opts = { weekday:'short', month:'2-digit', day:'2-digit', year:'numeric' };
+    if (!drpStart) { document.getElementById('sl-week-label').textContent = 'All Dates'; return; }
+    var opts = { month:'short', day:'numeric', year:'numeric' };
     var s = drpStart.toLocaleDateString('en-US', opts);
-    el.textContent = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
+    var label = drpEnd && drpEnd.toDateString() !== drpStart.toDateString()
       ? s + ' – ' + drpEnd.toLocaleDateString('en-US', opts) : s;
+    document.getElementById('sl-week-label').textContent = label;
+  }
+
+  var slWeekOff = 0;
+  function slShiftWeek(dir) {
+    slWeekOff += dir;
+    var t = new Date(); t.setHours(0,0,0,0);
+    drpStart = new Date(t); drpStart.setDate(t.getDate() - t.getDay() + slWeekOff * 7);
+    drpEnd = new Date(drpStart); drpEnd.setDate(drpStart.getDate() + 6);
+    drpRender(); drpUpdateInput();
+    document.querySelectorAll('.day-tab').forEach(function(b){ b.classList.remove('active'); });
+    renderTable(); if (typeof loadMarkers === 'function') loadMarkers();
   }
 
   function toggleDRP(e) { e.stopPropagation(); document.getElementById('drp-popup').classList.toggle('open'); }
@@ -1424,16 +1445,18 @@
     drpRender(); drpUpdateInput();
   }
   function drpThisWeek() {
+    slWeekOff = 0;
     var t = new Date(); t.setHours(0,0,0,0);
     drpStart = new Date(t); drpStart.setDate(t.getDate() - t.getDay());
     drpEnd = new Date(drpStart); drpEnd.setDate(drpStart.getDate() + 6);
-    drpRender(); drpUpdateInput();
+    drpRender(); drpUpdateInput(); renderTable();
   }
   function drpNextWeek() {
+    slWeekOff = 1;
     var t = new Date(); t.setHours(0,0,0,0);
     drpStart = new Date(t); drpStart.setDate(t.getDate() - t.getDay() + 7);
     drpEnd = new Date(drpStart); drpEnd.setDate(drpStart.getDate() + 6);
-    drpRender(); drpUpdateInput();
+    drpRender(); drpUpdateInput(); renderTable();
   }
 
   var dayLetters = ['S','M','T','W','T','F','S'];
