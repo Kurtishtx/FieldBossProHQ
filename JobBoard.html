@@ -83,6 +83,14 @@
     .unsched-toggle-knob { width:16px; height:16px; background:#fff; border-radius:50%; position:absolute; top:2px; left:2px; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
     .unsched-toggle.on .unsched-toggle-knob { left:18px; }
 
+    /* ── Map ── */
+    .btn-map-toggle { background:#3d2510; color:#fff; border:1px solid rgba(255,255,255,.3); padding:4px 14px; font-size:13px; cursor:pointer; border-radius:4px; font-family:inherit; font-weight:600; }
+    .btn-map-toggle:hover, .btn-map-toggle.active { background:#1e1208; border-color:#c47d0a; }
+    .map-section { display:none; margin:4px 16px 0; height:450px; position:relative; border-radius:8px; overflow:hidden; border:1px solid #c8b898; }
+    .map-style-toggle { position:absolute; top:10px; right:10px; z-index:10; display:flex; background:#fff; border:1px solid #bbb; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+    .map-style-btn { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; font-family:inherit; }
+    .map-style-btn.active { background:#f0f0f0; font-weight:700; }
+
     /* ── Schedule Modal ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; }
@@ -101,6 +109,7 @@
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvA2wotDpOcWeKfEpv3ZsamxDaK1DQzmM"></script>
 </head>
 <body>
 
@@ -134,6 +143,16 @@
     <select class="filter-select" id="truck-filter" onchange="render()">
       <option value="">All Trucks</option>
     </select>
+    <button class="btn-map-toggle" id="toggle-map-btn" onclick="toggleMap()">&#128506; Map</button>
+  </div>
+</div>
+
+<!-- Map section -->
+<div class="map-section" id="map-section">
+  <div id="job-map" style="width:100%;height:100%;"></div>
+  <div class="map-style-toggle">
+    <button class="map-style-btn active" id="map-btn-sat" onclick="setMapStyle('satellite')">Satellite</button>
+    <button class="map-style-btn" id="map-btn-road" onclick="setMapStyle('roadmap')">Map</button>
   </div>
 </div>
 
@@ -257,8 +276,8 @@
     document.getElementById('week-label').textContent = fmt(s) + ' – ' + fmt(e);
   }
 
-  function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); }
-  function goToday() { weekOffset = 0; updateWeekLabel(); render(); }
+  function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
+  function goToday() { weekOffset = 0; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
   var unschedOpen = false;
   function toggleUnsched() {
     unschedOpen = !unschedOpen;
@@ -274,6 +293,7 @@
     document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
     el.classList.add('active');
     render();
+    if (mapVisible) loadMapMarkers();
   }
 
   function badgeClass(cat) {
@@ -385,7 +405,7 @@
 
   async function loadJobs() {
     var base = sb.from('Services')
-      .select('id, client_name, address, service, name, scheduled_date, amount, job_category, recurrence_type, truck_id, assigned_to, status')
+      .select('id, property_id, client_name, address, service, name, scheduled_date, amount, job_category, recurrence_type, truck_id, assigned_to, status, Properties(lat, lng)')
       .eq('user_id', uid)
       .eq('dispatched', false)
       .neq('job_category', 'chemical');
@@ -471,6 +491,103 @@
   }
 
   init();
+
+  // ── Map ──────────────────────────────────────────────
+  var jobMap     = null;
+  var mapMarkers = [];
+  var mapVisible = false;
+
+  function toggleMap() {
+    mapVisible = !mapVisible;
+    var section = document.getElementById('map-section');
+    var btn     = document.getElementById('toggle-map-btn');
+    section.style.display = mapVisible ? '' : 'none';
+    btn.classList.toggle('active', mapVisible);
+    btn.textContent = mapVisible ? '✕ Hide Map' : '🗺 Map';
+    if (mapVisible) {
+      if (!jobMap) initJobMap();
+      else { google.maps.event.trigger(jobMap, 'resize'); loadMapMarkers(); }
+    }
+  }
+
+  function initJobMap() {
+    jobMap = new google.maps.Map(document.getElementById('job-map'), {
+      center: { lat: 32.725, lng: -97.033 },
+      zoom: 11,
+      mapTypeId: 'satellite',
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      clickableIcons: false
+    });
+    google.maps.event.addListenerOnce(jobMap, 'idle', loadMapMarkers);
+  }
+
+  function setMapStyle(style) {
+    if (jobMap) jobMap.setMapTypeId(style);
+    document.getElementById('map-btn-sat').classList.toggle('active', style === 'satellite');
+    document.getElementById('map-btn-road').classList.toggle('active', style === 'roadmap');
+  }
+
+  function loadMapMarkers() {
+    if (!jobMap) return;
+    mapMarkers.forEach(function(m) { m.setMap(null); });
+    mapMarkers = [];
+
+    var s    = weekStart(weekOffset);
+    var e    = new Date(s); e.setDate(e.getDate() + 7);
+    var sIso = isoDate(s), eIso = isoDate(e);
+
+    var filtered = allJobs.filter(function(j) {
+      if (j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
+      if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
+      return true;
+    });
+
+    var seen   = {};
+    var bounds = new google.maps.LatLngBounds();
+    var hasPin = false;
+    var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+
+    filtered.forEach(function(j) {
+      var lat = j.Properties && j.Properties.lat;
+      var lng = j.Properties && j.Properties.lng;
+      if (!lat || !lng) return;
+      var key = j.property_id || (lat + ',' + lng);
+      if (seen[key]) return;
+      seen[key] = true;
+
+      var pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
+      bounds.extend(pos);
+      hasPin = true;
+
+      var marker = new google.maps.Marker({
+        position: pos, map: jobMap,
+        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+
+      var related = filtered.filter(function(x) { return (x.property_id || '') === (j.property_id || ''); });
+      var html = '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:13px;min-width:180px;max-width:240px;">';
+      html += '<div style="font-weight:700;color:#1e1208;margin-bottom:4px;">' + esc(j.client_name || '—') + '</div>';
+      html += '<div style="color:#666;font-size:12px;margin-bottom:8px;">' + esc(j.address || '') + '</div>';
+      related.forEach(function(rj) {
+        html += '<div style="border-top:1px solid #eee;padding:6px 0 4px;">';
+        html += '<div style="font-weight:600;">' + esc(rj.service || rj.name || '') + '</div>';
+        html += '<div style="color:#888;font-size:11px;">' + esc(rj.scheduled_date || '') + '</div>';
+        if (rj.amount) html += '<div style="color:#c47d0a;font-weight:700;font-size:12px;">$' + parseFloat(rj.amount).toFixed(2) + '</div>';
+        html += '</div>';
+      });
+      html += '<div style="margin-top:6px;"><a href="#" style="color:#c47d0a;font-size:12px;font-weight:700;" onclick="if(window.parent&&window.parent.loadPage)window.parent.loadPage(\'jobdetail?id=' + j.id + '&from=jobboard\');return false;">View Details</a></div>';
+      html += '</div>';
+
+      var infoWin = new google.maps.InfoWindow({ content: html });
+      google.maps.event.addListener(marker, 'click', function() { infoWin.open(jobMap, marker); });
+      mapMarkers.push(marker);
+    });
+
+    if (hasPin) jobMap.fitBounds(bounds);
+  }
 </script>
 </body>
 </html>

@@ -189,6 +189,7 @@
       <th>Clock Out</th>
       <th>Lunch</th>
       <th>Break</th>
+      <th>Job</th>
       <th>Hours</th>
       <th>Status</th>
       <th></th>
@@ -213,6 +214,12 @@
     <div class="modal-field">
       <label>Date</label>
       <input type="date" id="modal-date"/>
+    </div>
+    <div class="modal-field">
+      <label>Linked Job <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+      <select id="modal-job">
+        <option value="">— No job linked —</option>
+      </select>
     </div>
     <div class="modal-field">
       <label>Clock In</label>
@@ -263,6 +270,7 @@
 
   var employees = [];
   var logs      = [];
+  var jobs      = [];
   var editId    = null;
 
   function toggleDD(e) {
@@ -360,13 +368,34 @@
     });
   }
 
+  async function loadJobs() {
+    var { data: s } = await sb.auth.getSession();
+    var uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+    var { data } = await sb.from('Services')
+      .select('id, name, service, client_name, scheduled_date, job_category')
+      .eq('user_id', uid)
+      .eq('dispatched', false)
+      .not('scheduled_date', 'is', null)
+      .order('scheduled_date');
+    jobs = data || [];
+    var sel = document.getElementById('modal-job');
+    while (sel.options.length > 1) sel.remove(1);
+    jobs.forEach(function(j) {
+      var opt = document.createElement('option');
+      opt.value = j.id;
+      opt.textContent = (j.client_name ? j.client_name + ' — ' : '') + (j.name || j.service || '') + (j.scheduled_date ? ' (' + j.scheduled_date + ')' : '');
+      sel.appendChild(opt);
+    });
+  }
+
   async function load() {
     var empId   = document.getElementById('emp-select').value;
     var dateFrom = document.getElementById('date-from').value;
     var dateTo   = document.getElementById('date-to').value;
 
     var query = sb.from('employee_time_logs')
-      .select('id, employee_id, clock_in, clock_out, lunch_start, lunch_end, break_start, break_end')
+      .select('id, employee_id, service_id, clock_in, clock_out, lunch_start, lunch_end, break_start, break_end')
       .order('clock_in', { ascending: false });
 
     if (empId)   query = query.eq('employee_id', empId);
@@ -400,6 +429,9 @@
       var lunchCell = log.lunch_start ? (fmtTime(log.lunch_start) + (log.lunch_end ? ' ï¿½ ' + fmtTime(log.lunch_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(lunchH) + '</span>' : ' <span style="font-size:11px;color:#c47d0a;">out</span>')) : 'ï¿½';
       var breakCell = log.break_start ? (fmtTime(log.break_start) + (log.break_end ? ' ï¿½ ' + fmtTime(log.break_end) + '<br><span style="font-size:11px;color:#888;">' + fmtHours(breakH) + '</span>' : ' <span style="font-size:11px;color:#c47d0a;">out</span>')) : 'ï¿½';
 
+      var jobObj = log.service_id ? jobs.find(function(j) { return j.id === log.service_id; }) : null;
+      var jobCell = jobObj ? (jobObj.client_name ? jobObj.client_name + '<br><span style="font-size:11px;color:#888;">' + (jobObj.name || jobObj.service || '') + '</span>' : (jobObj.name || jobObj.service || '')) : '—';
+
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td><input type="checkbox" class="row-cb" data-id="' + log.id + '" onclick="event.stopPropagation()"/></td>' +
@@ -409,6 +441,7 @@
         '<td>' + fmtTime(log.clock_out) + '</td>' +
         '<td>' + lunchCell + '</td>' +
         '<td>' + breakCell + '</td>' +
+        '<td>' + jobCell + '</td>' +
         '<td>' + fmtHours(h) + '</td>' +
         '<td>' + status + '</td>' +
         '<td><span class="row-action" onclick="openModal(\'' + log.id + '\')">Edit</span></td>';
@@ -426,6 +459,7 @@
     document.getElementById('modal-title').textContent = editId ? 'Edit Time Entry' : 'Add Time Entry';
     document.getElementById('modal-delete-btn').style.display = editId ? '' : 'none';
     document.getElementById('modal-emp').value         = '';
+    document.getElementById('modal-job').value         = '';
     document.getElementById('modal-date').value        = toDateStr(new Date());
     document.getElementById('modal-in').value          = '';
     document.getElementById('modal-out').value         = '';
@@ -451,6 +485,7 @@
         if (log.lunch_end)   { var le = new Date(log.lunch_end);   document.getElementById('modal-lunch-end').value   = pad(le.getHours()) + ':' + pad(le.getMinutes()); }
         if (log.break_start) { var bs = new Date(log.break_start); document.getElementById('modal-break-start').value = pad(bs.getHours()) + ':' + pad(bs.getMinutes()); }
         if (log.break_end)   { var be = new Date(log.break_end);   document.getElementById('modal-break-end').value   = pad(be.getHours()) + ':' + pad(be.getMinutes()); }
+        if (log.service_id)  { document.getElementById('modal-job').value = log.service_id; }
       }
     }
 
@@ -485,8 +520,10 @@
 
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    var linkedJob = document.getElementById('modal-job').value;
     var payload = {
       employee_id:  empId,
+      service_id:   linkedJob || null,
       clock_in:     clockIn,
       clock_out:    clockOut,
       lunch_start:  lunchStart ? new Date(date + 'T' + lunchStart + ':00').toISOString() : null,
@@ -520,6 +557,7 @@
 
   async function init() {
     await loadEmployees();
+    await loadJobs();
     setRange('week');
   }
 
