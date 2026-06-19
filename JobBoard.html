@@ -375,8 +375,8 @@
   </div>
 
   <div class="map-toggle">
-    <button class="active" onclick="setMapStyle('satellite')">Satellite</button>
-    <button onclick="setMapStyle('streets')">Map</button>
+    <button onclick="setMapStyle('satellite')">Satellite</button>
+    <button class="active" onclick="setMapStyle('streets')">Map</button>
   </div>
 
   <div id="map" style="width:100%;height:100%;"></div>
@@ -1123,7 +1123,7 @@
     jobMap = new google.maps.Map(document.getElementById('map'), {
       center: { lat: 32.725, lng: -97.033 },
       zoom: 9,
-      mapTypeId: 'satellite',
+      mapTypeId: 'roadmap',
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
