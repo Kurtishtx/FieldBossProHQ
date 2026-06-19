@@ -273,64 +273,6 @@
   </div>
 </div>
 
-<!-- Snow Mode Bar -->
-<div class="snow-bar" id="snow-bar">
-  <div class="snow-bar-hdr" onclick="toggleSnowBar()">
-    <div class="snow-bar-title">
-      &#10052; Snow Mode
-      <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.6);">(pending snow jobs)</span>
-      <span class="snow-bar-count" id="snow-job-count">0</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-size:11px;color:rgba(255,255,255,.55);" id="snow-bar-hint">click to expand</span>
-    </div>
-  </div>
-  <div class="snow-bar-body" id="snow-bar-body">
-    <!-- Storm setup form -->
-    <div class="snow-storm-form" id="snow-storm-form">
-      <div>
-        <label>Storm Name</label>
-        <input type="text" id="snow-storm-name" placeholder="e.g. Storm #1" style="width:160px;"/>
-      </div>
-      <div>
-        <label>Start Time</label>
-        <input type="datetime-local" id="snow-storm-start"/>
-      </div>
-      <div>
-        <label>Snow Depth (in)</label>
-        <input type="number" id="snow-storm-depth" placeholder="0" min="0" step="0.5" style="width:90px;"/>
-      </div>
-      <div>
-        <label>&nbsp;</label>
-        <button class="btn-start-storm" onclick="activateStorm()">&#10052; Start Storm — Draw Circle on Map</button>
-      </div>
-      <div id="end-storm-wrap" style="display:none;">
-        <label>&nbsp;</label>
-        <button class="btn-end-storm" onclick="endStorm()">End Storm / Cleanup Mode</button>
-      </div>
-    </div>
-    <!-- Snow waiting list -->
-    <div id="snow-jobs-wrap">
-      <div style="background:#1a3a5c;color:#fff;padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:.3px;">SNOW WAITING LIST</div>
-      <table class="snow-jobs-table">
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Address</th>
-            <th>Billing</th>
-            <th>Rate</th>
-            <th>Pass #</th>
-            <th>Truck</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="snow-jobs-tbody"></tbody>
-      </table>
-      <div class="snow-empty" id="snow-jobs-empty">No snow jobs yet — start a storm and draw a circle on the map to add properties.</div>
-    </div>
-  </div>
-</div>
-
 <!-- Filter bar: Select a Filter tabs -->
 <div class="filter-bar">
   <span class="filter-bar-label">Select a Filter:</span>
@@ -454,6 +396,56 @@
   <div class="day-tabs" id="day-tabs"></div>
   <button class="bar-btn" onclick="clearDayFilter()">All Week</button>
 </div>
+</div>
+
+<!-- Snow Mode Bar -->
+<div class="snow-bar" id="snow-bar">
+  <div class="snow-bar-hdr" onclick="toggleSnowBar()">
+    <div class="snow-bar-title">
+      &#10052; Snow Mode
+      <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.6);">(pending snow jobs)</span>
+      <span class="snow-bar-count" id="snow-job-count">0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;color:rgba(255,255,255,.55);" id="snow-bar-hint">click to expand</span>
+    </div>
+  </div>
+  <div class="snow-bar-body" id="snow-bar-body">
+    <div class="snow-storm-form" id="snow-storm-form">
+      <div>
+        <label>Storm Name</label>
+        <input type="text" id="snow-storm-name" placeholder="e.g. Storm #1" style="width:160px;"/>
+      </div>
+      <div>
+        <label>Start Time</label>
+        <input type="datetime-local" id="snow-storm-start"/>
+      </div>
+      <div>
+        <label>Snow Depth (in)</label>
+        <input type="number" id="snow-storm-depth" placeholder="0" min="0" step="0.5" style="width:90px;"/>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-start-storm" onclick="activateStorm()">&#10052; Start Storm — Draw Circle on Map</button>
+      </div>
+      <div id="end-storm-wrap" style="display:none;">
+        <label>&nbsp;</label>
+        <button class="btn-end-storm" onclick="endStorm()">End Storm / Cleanup Mode</button>
+      </div>
+    </div>
+    <div id="snow-jobs-wrap">
+      <div style="background:#1a3a5c;color:#fff;padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:.3px;">SNOW WAITING LIST</div>
+      <table class="snow-jobs-table">
+        <thead>
+          <tr>
+            <th>Client</th><th>Address</th><th>Billing</th><th>Rate</th><th>Pass #</th><th>Truck</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="snow-jobs-tbody"></tbody>
+      </table>
+      <div class="snow-empty" id="snow-jobs-empty">No snow jobs yet — start a storm and draw a circle on the map to add properties.</div>
+    </div>
+  </div>
 </div>
 
 <!-- Unscheduled section -->
