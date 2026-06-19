@@ -848,7 +848,6 @@
       if (order) updates.push(sb.from('Services').update({ route_order: order }).eq('id', s.id));
     });
     await Promise.all(updates);
-    closeStopPanel();
     loadServices();
   }
 
