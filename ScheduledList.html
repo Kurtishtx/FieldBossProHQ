@@ -19,6 +19,9 @@
     .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); }
     .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
     .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
+    .cat-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); font-family:inherit; }
+    .cat-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .cat-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
 
     .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#8a7055; margin:2px 16px; border-radius:8px; overflow:visible; }
     .subfilter-bar.visible { display:flex; }
@@ -256,10 +259,23 @@
 <!-- Filter tabs -->
 <div class="filter-bar">
   <strong>Select a Filter:</strong>
+  <button class="filter-tab" id="filter-tab-category" onclick="setFilter(this,'category')">Category</button>
   <button class="filter-tab" id="filter-tab-services" onclick="setFilter(this,'services')">Services</button>
   <button class="filter-tab" id="filter-tab-tags" onclick="setFilter(this,'tags')">Tags</button>
   <button class="filter-tab" id="filter-tab-status" onclick="setFilter(this,'status')">Status</button>
   <button class="filter-tab" id="filter-tab-trucks" onclick="setFilter(this,'trucks')">Trucks</button>
+</div>
+
+<!-- Category sub-filter -->
+<div class="subfilter-bar" id="category-subfilter-bar">
+  <button class="sf-x-btn" onclick="closeCategoryFilter()">&#10005;</button>
+  <span class="sf-label" style="color:#fff;">Category</span>
+  <button class="cat-tab active" id="sl-cat-all" onclick="setSLCategory('all',this)">All</button>
+  <button class="cat-tab" onclick="setSLCategory('mowing',this)">Mowing</button>
+  <button class="cat-tab" onclick="setSLCategory('landscape',this)">Landscape</button>
+  <button class="cat-tab" onclick="setSLCategory('irrigation',this)">Irrigation</button>
+  <button class="cat-tab" onclick="setSLCategory('snow',this)">Snow</button>
+  <button class="cat-tab" onclick="setSLCategory('other',this)">Other</button>
 </div>
 
 <!-- Services sub-filter -->
@@ -708,6 +724,7 @@
   var selectedServices = [];
   var sortCol = 'order', sortDir = 1;
   var activeServiceFilter = [], activeTagFilter = [], activeStatusFilter = [], activeTruckFilter = [];
+  var activeSLCategory = 'all';
   var mapMarkers = [];
   var routeOrderMode = false, routeCounter = 0, routeOrderMap = {};
 
@@ -1004,6 +1021,9 @@
   function renderTable() {
     var filtered = services.slice();
 
+    if (activeSLCategory && activeSLCategory !== 'all') {
+      filtered = filtered.filter(function(s) { return s.job_category === activeSLCategory; });
+    }
     if (activeServiceFilter.length) {
       filtered = filtered.filter(function(s) { return activeServiceFilter.indexOf(s.service) >= 0; });
     }
@@ -1209,14 +1229,17 @@
   function setFilter(btn, type) {
     if (btn.classList.contains('active')) {
       btn.classList.remove('active');
-      if (type === 'services') closeSubfilter();
+      if (type === 'category') closeCategoryFilter();
+      else if (type === 'services') closeSubfilter();
       else if (type === 'tags') closeTagSubfilter();
       else if (type === 'status') closeStatusSubfilter();
       else if (type === 'trucks') closeTruckSubfilter();
       return;
     }
     btn.classList.add('active');
-    if (type === 'services') {
+    if (type === 'category') {
+      document.getElementById('category-subfilter-bar').classList.add('visible');
+    } else if (type === 'services') {
       document.getElementById('subfilter-bar').classList.add('visible');
       loadServiceDropdown();
     } else if (type === 'tags') {
@@ -1228,6 +1251,20 @@
       document.getElementById('truck-subfilter-bar').classList.add('visible');
       loadTrucksDropdown();
     }
+  }
+
+  function setSLCategory(cat, el) {
+    activeSLCategory = cat;
+    document.querySelectorAll('#category-subfilter-bar .cat-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    renderTable();
+  }
+  function closeCategoryFilter() {
+    activeSLCategory = 'all';
+    document.getElementById('category-subfilter-bar').classList.remove('visible');
+    document.getElementById('filter-tab-category').classList.remove('active');
+    document.getElementById('sl-cat-all').classList.add('active');
+    renderTable();
   }
 
   function closeSubfilter() {
