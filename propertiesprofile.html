@@ -1174,14 +1174,13 @@ function showPropTab(name, btn) {
     var { data: { session } } = await sb.auth.getSession();
     if (!session || !propId) return;
 
-    document.getElementById('snow-tab-btn').style.display = '';
-
     var { data } = await sb.from('snow_properties').select('*').eq('user_id', session.user.id).eq('property_id', propId).maybeSingle();
-    if (data) {
+    if (data && data.active !== false) {
+      document.getElementById('snow-tab-btn').style.display = '';
       snowPropRecordId = data.id;
-      document.getElementById('snow-enrolled-toggle').checked = data.active !== false;
-      document.getElementById('snow-toggle-slider').style.background = data.active !== false ? '#c47d0a' : '#ccc';
-      document.getElementById('snow-toggle-knob').style.transform    = data.active !== false ? 'translateX(20px)' : '';
+      document.getElementById('snow-enrolled-toggle').checked = true;
+      document.getElementById('snow-toggle-slider').style.background = '#c47d0a';
+      document.getElementById('snow-toggle-knob').style.transform = 'translateX(20px)';
       document.getElementById('snow-billing-type').value = data.billing_type || 'per_push';
       document.getElementById('snow-rate').value         = data.rate || '';
       document.getElementById('snow-notes').value        = data.notes || '';
