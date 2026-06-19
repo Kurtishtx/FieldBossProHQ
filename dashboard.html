@@ -614,10 +614,25 @@
 
 
   <div class="nav-section">
+    <div class="nav-label">Reports <span class="chevron">&#9660;</span></div>
+    <div class="nav-items">
+      <button class="nav-btn" data-page="reports" onclick="loadPage('reports', this)">
+        <span class="icon">&#128202;</span> Reports
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-section">
     <div class="nav-label">System <span class="chevron">&#9660;</span></div>
     <div class="nav-items">
       <button class="nav-btn" data-page="settings" onclick="loadPage('settings', this)">
         <span class="icon">&#9881;</span> Settings
+      </button>
+      <button class="nav-btn" data-page="materials" onclick="loadPage('materials', this)">
+        <span class="icon">&#128230;</span> Materials
+      </button>
+      <button class="nav-btn" data-page="materialcategories" onclick="loadPage('materialcategories', this)">
+        <span class="icon">&#127991;</span> Material Categories
       </button>
       <button class="nav-btn" data-page="servicecategories" onclick="loadPage('servicecategories', this)">
         <span class="icon">&#128203;</span> Service Categories
@@ -1329,6 +1344,11 @@
     discounts:      'Discounts.html',
     salestaxlist:     'SalesTaxList.html',
     salestaxadd:      'SalesTaxAdd.html',
+    materials:           'Materials.html',
+    materialadd:         'MaterialAdd.html',
+    materialcategories:  'MaterialCategories.html',
+    jobdetail:           'JobDetail.html',
+    reports:             'Reports.html',
     reportslist:      'ReportsList.html',
     salestaxreport:   'SalesTaxReport.html',
     importlist:       'ImportList.html',
@@ -1376,6 +1396,11 @@
     jobboard:     'Job Board',
     recurringadd: 'Add Recurring Job',
     dispatched:   'Scheduled List',
+    materials:          'Materials',
+    materialadd:        'Add Material',
+    materialcategories: 'Material Categories',
+    jobdetail:          'Job Detail',
+    reports:            'Reports',
     products:     'Products',
     productmixes: 'Product Mixes',
     invoices:     'Invoices',

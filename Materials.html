@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Materials Catalog</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .page-header { padding: 12px 20px 10px; display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #e0d8cc; flex-shrink: 0; }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
+    .btn-add { background: #c47d0a; color: #fff; border: none; padding: 8px 18px; font-size: 13px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-add:hover { background: #a86808; }
+
+    .filter-bar { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #7a6040; flex-wrap: wrap; flex-shrink: 0; }
+    .filter-label { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .pill { padding: 4px 14px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.1); font-size: 12.5px; cursor: pointer; border-radius: 20px; color: rgba(255,255,255,.85); font-family: inherit; font-weight: 600; transition: background .15s; }
+    .pill:hover { background: rgba(255,255,255,.22); }
+    .pill.active { background: #1e1208; color: #fff; border-color: #fff; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; background: #1e1208; flex-shrink: 0; }
+    .tab-set { display: flex; gap: 2px; }
+    .tab-btn { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: none; padding: 5px 14px; font-size: 13px; font-family: inherit; font-weight: 600; cursor: pointer; border-radius: 3px; }
+    .tab-btn.active { background: #fff; color: #1e1208; }
+    .tab-btn:hover:not(.active) { background: rgba(255,255,255,.2); color: #fff; }
+    .count-label { font-size: 12px; color: rgba(255,255,255,.6); margin-left: 8px; }
+
+    .delete-bar { display: none; align-items: center; gap: 12px; padding: 10px 20px; background: #7a1e1e; color: #fff; font-size: 13px; flex-shrink: 0; }
+    .delete-bar button { border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 13px; font-family: inherit; }
+    .btn-confirm-del { background: #fff; color: #c0392b; }
+    .btn-cancel-del  { background: rgba(255,255,255,.15); color: #fff; }
+
+    .table-wrap { flex: 1; overflow-y: auto; background: #fff; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #fff; border-bottom: 2px solid #e0d8cc; padding: 9px 14px; text-align: left; font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+    thead th:first-child { width: 36px; text-align: center; }
+    tbody tr { border-bottom: 1px solid #f0ece6; cursor: pointer; }
+    tbody tr:hover { background: #fdf8f0; }
+    tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
+    tbody td:first-child { text-align: center; }
+    input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #c47d0a; }
+
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700; background: #f0e8f5; color: #5a1a7a; }
+    .mat-name { font-weight: 600; color: #1e1208; }
+    .empty-msg { text-align: center; color: #aaa; padding: 60px 20px; font-size: 14px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>&#128230; Materials Catalog</h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span id="results-count" style="font-size:13px;color:#888;"></span>
+    <button class="btn-add" onclick="nav('materialadd')">+ Add Material</button>
+  </div>
+</div>
+
+<div class="filter-bar" id="filter-bar">
+  <span class="filter-label">Category:</span>
+  <button class="pill active" onclick="setCategory('all', this)">All</button>
+</div>
+
+<div class="toolbar">
+  <div style="display:flex;align-items:center;">
+    <div class="tab-set">
+      <button class="tab-btn active" onclick="setTab('active', this)">Active</button>
+      <button class="tab-btn" onclick="setTab('inactive', this)">Inactive</button>
+      <button class="tab-btn" onclick="setTab('all', this)">All</button>
+    </div>
+    <span class="count-label" id="count-label"></span>
+  </div>
+  <button onclick="deleteSelected()" style="background:rgba(220,50,50,.2);color:#ff9a9a;border:1px solid rgba(220,50,50,.3);padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;">Delete Selected</button>
+</div>
+
+<div class="delete-bar" id="delete-bar">
+  <span>Delete <strong id="del-count">0</strong> material(s)? This cannot be undone.</span>
+  <button class="btn-confirm-del" onclick="confirmDelete()">Yes, Delete</button>
+  <button class="btn-cancel-del" onclick="document.getElementById('delete-bar').style.display='none'">Cancel</button>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"/></th>
+        <th>Material Name</th>
+        <th>Category</th>
+        <th>Unit</th>
+        <th>Unit Cost</th>
+        <th>SKU / Code</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="mat-tbody"></tbody>
+  </table>
+  <div class="empty-msg" id="empty-msg" style="display:none;">No materials found. <button onclick="nav('materialadd')" style="background:#c47d0a;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;margin-left:8px;">+ Add Material</button></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var allMaterials    = [];
+  var currentCategory = 'all';
+  var currentTab      = 'active';
+  var uid             = null;
+  var DEFAULTS        = ['Mulch & Soil','Seed & Sod','Fertilizer','Irrigation','Lumber & Hardware','Equipment','Other'];
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    await Promise.all([loadCategoryPills(), loadMaterials()]);
+  }
+
+  async function loadCategoryPills() {
+    if (!uid) return;
+    var { data: cats } = await sb.from('material_categories')
+      .select('*').eq('user_id', uid).eq('active', true)
+      .order('sort_order').order('name');
+    var list = cats && cats.length ? cats : DEFAULTS.map(function(n){ return { name: n }; });
+    var bar  = document.getElementById('filter-bar');
+    list.forEach(function(cat) {
+      var key = catKey(cat.name);
+      var btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.textContent = cat.name;
+      btn.onclick = (function(k, b){ return function(){ setCategory(k, b); }; })(key, btn);
+      bar.appendChild(btn);
+    });
+  }
+
+  async function loadMaterials() {
+    var q = sb.from('materials').select('*');
+    if (uid) q = q.eq('user_id', uid);
+    var { data } = await q.order('name');
+    allMaterials = data || [];
+    render();
+  }
+
+  function catKey(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  }
+
+  function setCategory(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  }
+
+  function setTab(tab, btn) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  }
+
+  function render() {
+    var tbody = document.getElementById('mat-tbody');
+    tbody.innerHTML = '';
+
+    var list = allMaterials.filter(function(m) {
+      var cat = catKey(m.category || '');
+      if (currentCategory !== 'all' && cat !== currentCategory) return false;
+      if (currentTab === 'active')   return m.active !== false;
+      if (currentTab === 'inactive') return m.active === false;
+      return true;
+    });
+
+    document.getElementById('count-label').textContent = list.length + ' shown';
+    document.getElementById('results-count').textContent = list.length + ' of ' + allMaterials.length;
+    document.getElementById('empty-msg').style.display = list.length ? 'none' : '';
+
+    list.forEach(function(m) {
+      var cost = m.unit_cost != null ? '$' + parseFloat(m.unit_cost).toFixed(2) : '—';
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-cb" data-id="' + m.id + '" onclick="event.stopPropagation()"/></td>' +
+        '<td class="mat-name">' + esc(m.name || '') + '</td>' +
+        '<td><span class="badge">' + esc(m.category || '—') + '</span></td>' +
+        '<td style="color:#666;">' + esc(m.unit || 'each') + '</td>' +
+        '<td style="font-weight:600;color:#1e1208;">' + cost + '</td>' +
+        '<td style="color:#888;font-size:12px;">' + esc(m.sku || '') + '</td>' +
+        '<td style="color:' + (m.active !== false ? '#27a567' : '#aaa') + ';font-weight:600;">' + (m.active !== false ? 'Active' : 'Inactive') + '</td>';
+      tr.addEventListener('click', function(e) {
+        if (e.target.type === 'checkbox') return;
+        nav('materialadd?id=' + m.id);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = cb.checked; });
+  }
+
+  function deleteSelected() {
+    var ids = Array.from(document.querySelectorAll('.row-cb:checked')).map(function(c) { return c.dataset.id; });
+    if (!ids.length) { alert('Check the box next to materials you want to delete first.'); return; }
+    var bar = document.getElementById('delete-bar');
+    bar.dataset.ids = JSON.stringify(ids);
+    document.getElementById('del-count').textContent = ids.length;
+    bar.style.display = 'flex';
+  }
+
+  async function confirmDelete() {
+    var ids = JSON.parse(document.getElementById('delete-bar').dataset.ids || '[]');
+    document.getElementById('delete-bar').style.display = 'none';
+    for (var i = 0; i < ids.length; i += 50) {
+      var { error } = await sb.from('materials').delete().in('id', ids.slice(i, i+50));
+      if (error) { alert('Error: ' + error.message); return; }
+    }
+    await loadMaterials();
+  }
+
+  function nav(page) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page.split('?')[0] + '.html' + (page.includes('?') ? '?' + page.split('?')[1] : '');
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  init();
+</script>
+</body>
+</html>

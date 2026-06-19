@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reports</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .page-header { padding: 12px 20px 10px; display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #e0d8cc; flex-shrink: 0; }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
+
+    .range-bar { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #1e1208; flex-wrap: wrap; flex-shrink: 0; }
+    .range-label { font-size: 11px; color: rgba(255,255,255,.6); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .preset-btn { padding: 4px 14px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.1); font-size: 12.5px; cursor: pointer; border-radius: 4px; color: rgba(255,255,255,.8); font-family: inherit; font-weight: 600; }
+    .preset-btn:hover { background: rgba(255,255,255,.2); }
+    .preset-btn.active { background: #c47d0a; border-color: #c47d0a; color: #fff; }
+    .custom-dates { display: none; align-items: center; gap: 6px; margin-left: 4px; }
+    .custom-dates.show { display: flex; }
+    .custom-dates input { border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.1); color: #fff; padding: 4px 8px; font-size: 12px; font-family: inherit; border-radius: 4px; outline: none; }
+    .custom-dates input:focus { border-color: #c47d0a; }
+    .btn-apply { background: #c47d0a; color: #fff; border: none; padding: 4px 12px; font-size: 12px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
+
+    .content { flex: 1; overflow-y: auto; padding: 16px; }
+
+    /* Summary cards */
+    .cards-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .card { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .card-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .card-value { font-size: 26px; font-weight: 800; color: #1e1208; }
+    .card-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+    .card.green .card-value { color: #27a567; }
+    .card.amber .card-value { color: #c47d0a; }
+    .card.red   .card-value { color: #c0392b; }
+
+    /* Section */
+    .section { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; margin-bottom: 16px; }
+    .section-hdr { background: #1e1208; color: #fff; padding: 10px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+    .section-hdr span { color: rgba(255,255,255,.5); font-size: 12px; font-weight: 400; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 8px 12px; text-align: left; font-size: 11.5px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid #f0ece6; background: #fff; }
+    tbody tr { border-bottom: 1px solid #f5f0eb; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fdf8f0; }
+    tbody td { padding: 9px 12px; color: #333; vertical-align: middle; }
+
+    .profit-pos { color: #27a567; font-weight: 700; }
+    .profit-neg { color: #c0392b; font-weight: 700; }
+    .empty-row td { text-align: center; color: #aaa; padding: 32px; font-size: 13px; }
+    .loading-msg { text-align: center; color: #aaa; padding: 32px; font-size: 13px; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .badge-mowing    { background: #d4edda; color: #155724; }
+    .badge-landscape { background: #d1ecf1; color: #0c5460; }
+    .badge-irrigation{ background: #cce5ff; color: #004085; }
+    .badge-snow      { background: #e2e3e5; color: #383d41; }
+    .badge-other     { background: #fff3cd; color: #856404; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>&#128202; Reports</h1>
+  <span id="range-display" style="font-size:13px;color:#888;"></span>
+</div>
+
+<div class="range-bar">
+  <span class="range-label">Period:</span>
+  <button class="preset-btn" onclick="setPreset('week', this)">This Week</button>
+  <button class="preset-btn active" onclick="setPreset('month', this)">This Month</button>
+  <button class="preset-btn" onclick="setPreset('lastmonth', this)">Last Month</button>
+  <button class="preset-btn" onclick="setPreset('year', this)">This Year</button>
+  <button class="preset-btn" onclick="setPreset('custom', this)">Custom</button>
+  <div class="custom-dates" id="custom-dates">
+    <input type="date" id="cust-from"/>
+    <span style="color:rgba(255,255,255,.5);">to</span>
+    <input type="date" id="cust-to"/>
+    <button class="btn-apply" onclick="applyCustom()">Apply</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="cards-row" id="cards-row">
+    <div class="loading-msg" style="grid-column:1/-1;">Loading…</div>
+  </div>
+
+  <!-- Completed Jobs -->
+  <div class="section">
+    <div class="section-hdr">
+      Completed Jobs
+      <span id="jobs-count"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Service</th>
+          <th>Category</th>
+          <th>Revenue</th>
+          <th>Mat. Cost</th>
+          <th>Gross Profit</th>
+        </tr>
+      </thead>
+      <tbody id="jobs-tbody">
+        <tr><td colspan="7" class="loading-msg">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Employee Hours -->
+  <div class="section">
+    <div class="section-hdr">
+      Employee Hours
+      <span id="hours-total"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Entries</th>
+          <th>Total Hours</th>
+        </tr>
+      </thead>
+      <tbody id="hours-tbody">
+        <tr><td colspan="3" class="loading-msg">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var uid         = null;
+  var fromDate    = '';
+  var toDate      = '';
+  var activePreset = 'month';
+
+  var BADGE = { mowing:'badge-mowing', landscape:'badge-landscape', irrigation:'badge-irrigation', snow:'badge-snow' };
+
+  function isoDate(d) { return d.toISOString().split('T')[0]; }
+
+  function getRange(preset) {
+    var now = new Date();
+    var f, t;
+    if (preset === 'week') {
+      f = new Date(now); f.setDate(now.getDate() - now.getDay()); f.setHours(0,0,0,0);
+      t = new Date(f); t.setDate(f.getDate() + 6);
+    } else if (preset === 'month') {
+      f = new Date(now.getFullYear(), now.getMonth(), 1);
+      t = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    } else if (preset === 'lastmonth') {
+      f = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      t = new Date(now.getFullYear(), now.getMonth(), 0);
+    } else if (preset === 'year') {
+      f = new Date(now.getFullYear(), 0, 1);
+      t = new Date(now.getFullYear(), 11, 31);
+    }
+    return { from: isoDate(f), to: isoDate(t) };
+  }
+
+  function setPreset(preset, btn) {
+    document.querySelectorAll('.preset-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    activePreset = preset;
+    var cd = document.getElementById('custom-dates');
+    if (preset === 'custom') {
+      cd.classList.add('show');
+      return;
+    }
+    cd.classList.remove('show');
+    var range = getRange(preset);
+    fromDate = range.from;
+    toDate   = range.to;
+    loadAll();
+  }
+
+  function applyCustom() {
+    fromDate = document.getElementById('cust-from').value;
+    toDate   = document.getElementById('cust-to').value;
+    if (!fromDate || !toDate) { alert('Select both dates.'); return; }
+    loadAll();
+  }
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    var range = getRange('month');
+    fromDate  = range.from;
+    toDate    = range.to;
+    loadAll();
+  }
+
+  async function loadAll() {
+    document.getElementById('range-display').textContent = fromDate + ' — ' + toDate;
+    await Promise.all([loadJobs(), loadHours()]);
+  }
+
+  async function loadJobs() {
+    document.getElementById('jobs-tbody').innerHTML = '<tr><td colspan="7" class="loading-msg">Loading…</td></tr>';
+    document.getElementById('cards-row').innerHTML  = '<div class="loading-msg" style="grid-column:1/-1;">Loading…</div>';
+
+    var { data: jobs } = await sb.from('Services')
+      .select('id, name, amount, scheduled_date, job_category, Properties(address, Clients(first_name, last_name))')
+      .eq('user_id', uid)
+      .eq('dispatched', true)
+      .not('property_id', 'is', null)
+      .gte('scheduled_date', fromDate)
+      .lte('scheduled_date', toDate)
+      .order('scheduled_date', { ascending: false });
+
+    jobs = jobs || [];
+
+    var matCostMap = {};
+    if (jobs.length) {
+      var ids = jobs.map(function(j) { return j.id; });
+      var { data: mats } = await sb.from('job_materials')
+        .select('service_id, quantity, unit_cost')
+        .in('service_id', ids);
+      (mats || []).forEach(function(m) {
+        matCostMap[m.service_id] = (matCostMap[m.service_id] || 0) + (parseFloat(m.quantity)||1) * (parseFloat(m.unit_cost)||0);
+      });
+    }
+
+    var totalRev    = 0;
+    var totalMat    = 0;
+    var totalProfit = 0;
+
+    var tbody = document.getElementById('jobs-tbody');
+    tbody.innerHTML = '';
+
+    if (!jobs.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No completed jobs in this period.</td></tr>';
+    } else {
+      jobs.forEach(function(j) {
+        var rev    = parseFloat(j.amount || 0);
+        var mat    = matCostMap[j.id] || 0;
+        var profit = rev - mat;
+        totalRev    += rev;
+        totalMat    += mat;
+        totalProfit += profit;
+
+        var cat      = j.job_category || 'other';
+        var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+        var badgeCls = BADGE[cat] || 'badge-other';
+
+        var client = '—';
+        if (j.Properties && j.Properties.Clients) {
+          var c = j.Properties.Clients;
+          client = ((c.first_name || '') + ' ' + (c.last_name || '')).trim() || '—';
+        }
+
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="color:#888;font-size:12px;">' + esc(j.scheduled_date || '') + '</td>' +
+          '<td style="font-weight:600;">' + esc(client) + '</td>' +
+          '<td>' + esc(j.name || '') + '</td>' +
+          '<td><span class="badge ' + badgeCls + '">' + catLabel + '</span></td>' +
+          '<td style="font-weight:600;">$' + rev.toFixed(2) + '</td>' +
+          '<td style="color:#c0392b;">$' + mat.toFixed(2) + '</td>' +
+          '<td class="' + (profit >= 0 ? 'profit-pos' : 'profit-neg') + '">' + (profit >= 0 ? '$' : '-$') + Math.abs(profit).toFixed(2) + '</td>';
+        tr.style.cursor = 'pointer';
+        tr.onclick = function() { nav('jobdetail?id=' + j.id + '&from=reports'); };
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('jobs-count').textContent = jobs.length + ' job' + (jobs.length === 1 ? '' : 's');
+
+    // Summary cards
+    document.getElementById('cards-row').innerHTML =
+      summaryCard('Total Revenue',    '$' + totalRev.toFixed(2),    'amber', 'completed jobs') +
+      summaryCard('Material Costs',   '$' + totalMat.toFixed(2),    'red',   'supplies used') +
+      summaryCard('Gross Profit',     '$' + totalProfit.toFixed(2), totalProfit >= 0 ? 'green' : 'red', 'revenue − materials') +
+      summaryCard('Jobs Completed',   jobs.length,                  '',      fromDate + ' to ' + toDate);
+  }
+
+  function summaryCard(label, val, cls, sub) {
+    return '<div class="card ' + cls + '"><div class="card-label">' + label + '</div><div class="card-value">' + val + '</div><div class="card-sub">' + sub + '</div></div>';
+  }
+
+  async function loadHours() {
+    document.getElementById('hours-tbody').innerHTML = '<tr><td colspan="3" class="loading-msg">Loading…</td></tr>';
+
+    var { data: emps } = await sb.from('employees').select('id, first_name, last_name').eq('user_id', uid).eq('active', true);
+    var empIds = (emps || []).map(function(e) { return e.id; });
+
+    var logs = [];
+    if (empIds.length) {
+      var { data } = await sb.from('employee_time_logs')
+        .select('employee_id, clock_in, clock_out, lunch_start, lunch_end, break_start, break_end, employees(first_name, last_name)')
+        .in('employee_id', empIds)
+        .gte('clock_in', fromDate + 'T00:00:00')
+        .lte('clock_in', toDate + 'T23:59:59');
+      logs = data || [];
+    }
+
+    // Group by employee
+    var empMap = {};
+    logs.forEach(function(log) {
+      var name = log.employees ? ((log.employees.first_name || '') + ' ' + (log.employees.last_name || '')).trim() : log.employee_id;
+      if (!empMap[name]) empMap[name] = { hrs: 0, entries: 0 };
+      empMap[name].entries++;
+      empMap[name].hrs += calcHours(log);
+    });
+
+    var tbody   = document.getElementById('hours-tbody');
+    var names   = Object.keys(empMap).sort();
+    var totalHrs = logs.reduce(function(s, l) { return s + calcHours(l); }, 0);
+    tbody.innerHTML = '';
+
+    if (!names.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="3">No hours logged in this period.</td></tr>';
+    } else {
+      names.forEach(function(name) {
+        var e  = empMap[name];
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="font-weight:600;">' + esc(name) + '</td>' +
+          '<td style="color:#888;">' + e.entries + '</td>' +
+          '<td style="font-weight:700;">' + e.hrs.toFixed(2) + ' hrs</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('hours-total').textContent = totalHrs.toFixed(2) + ' hrs total';
+  }
+
+  function calcHours(log) {
+    if (!log.clock_in || !log.clock_out) return 0;
+    var hrs = (new Date(log.clock_out) - new Date(log.clock_in)) / 3600000;
+    if (log.lunch_start && log.lunch_end) hrs -= (new Date(log.lunch_end) - new Date(log.lunch_start)) / 3600000;
+    if (log.break_start && log.break_end) hrs -= (new Date(log.break_end) - new Date(log.break_start)) / 3600000;
+    return Math.max(0, hrs);
+  }
+
+  function nav(page) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page.split('?')[0] + '.html' + (page.includes('?') ? '?' + page.split('?')[1] : '');
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  init();
+</script>
+</body>
+</html>

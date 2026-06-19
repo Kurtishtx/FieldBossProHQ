@@ -310,6 +310,7 @@
         '<td>$' + parseFloat(j.amount || 0).toFixed(2) + '</td>' +
         '<td style="display:flex;gap:6px;align-items:center;">' +
           '<button class="btn-assign" onclick="openModal(\'' + j.id + '\', true)">Assign Date</button>' +
+          '<button class="btn-assign" style="background:#1e1208;" onclick="openDetail(\'' + j.id + '\')">Details</button>' +
           '<button class="btn-del" title="Delete" onclick="deleteJob(\'' + j.id + '\', true)">&#128465;</button>' +
         '</td>';
       tbody.appendChild(tr);
@@ -357,6 +358,7 @@
         '<td>$' + parseFloat(j.amount || 0).toFixed(2) + '</td>' +
         '<td style="display:flex;gap:6px;align-items:center;">' +
           '<button class="btn-schedule" onclick="openModal(\'' + j.id + '\')">Schedule</button>' +
+          '<button class="btn-schedule" style="background:#3d2510;" onclick="openDetail(\'' + j.id + '\')">Details</button>' +
           '<button class="btn-del" title="Delete" onclick="deleteJob(\'' + j.id + '\')">&#128465;</button>' +
         '</td>';
       tbody.appendChild(tr);
@@ -445,6 +447,11 @@
     allJobs     = allJobs.filter(function(j){ return j.id !== id; });
     unschedJobs = unschedJobs.filter(function(j){ return j.id !== id; });
     render();
+  }
+
+  function openDetail(id) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage('jobdetail?id=' + id + '&from=jobboard');
+    else window.location.href = 'JobDetail.html?id=' + id;
   }
 
   function openRecurring() {

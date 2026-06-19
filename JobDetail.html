@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Detail</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .page-header { padding: 10px 16px; background: #fff; border-bottom: 1px solid #e0d8cc; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .btn-back { background: #eee; color: #333; border: none; padding: 7px 14px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; font-weight: 600; }
+    .btn-back:hover { background: #ddd; }
+    .page-header h1 { font-size: 17px; font-weight: 800; color: #1e1208; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .content { flex: 1; overflow-y: auto; padding: 14px 16px 30px; }
+
+    .card { background: #fff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .card-title { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 12px; }
+
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .info-item label { display: block; font-size: 10.5px; color: #999; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
+    .info-item span { font-size: 13.5px; font-weight: 600; color: #222; }
+
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700; }
+    .badge-mowing    { background: #d4edda; color: #155724; }
+    .badge-landscape { background: #d1ecf1; color: #0c5460; }
+    .badge-irrigation{ background: #cce5ff; color: #004085; }
+    .badge-snow      { background: #e2e3e5; color: #383d41; }
+    .badge-other     { background: #fff3cd; color: #856404; }
+
+    /* Budget hours */
+    .hours-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hours-input { border: 1px solid #ccc; border-radius: 5px; padding: 8px 12px; font-size: 14px; font-family: inherit; width: 110px; outline: none; }
+    .hours-input:focus { border-color: #c47d0a; }
+    .hrs-label { font-size: 12px; color: #888; }
+    .btn-save-sm { background: #c47d0a; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-save-sm:hover { background: #a86808; }
+    .saved-flash { font-size: 12px; color: #27a567; font-weight: 600; display: none; }
+
+    /* Materials */
+    .mat-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .btn-add-mat { background: #c47d0a; color: #fff; border: none; padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    .btn-add-mat:hover { background: #a86808; }
+
+    .add-form { background: #fdf8f0; border: 1px solid #e8c88a; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: none; }
+    .add-form.open { display: block; }
+    .add-form-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: end; }
+    .af-field label { display: block; font-size: 10.5px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 4px; }
+    .af-field input, .af-field select { width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; }
+    .af-field input:focus, .af-field select:focus { border-color: #c47d0a; }
+    .btn-add-confirm { background: #1e1208; color: #fff; border: none; padding: 7px 14px; font-size: 13px; font-weight: 700; border-radius: 4px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-add-confirm:hover { background: #3d2510; }
+
+    .mat-table { width: 100%; border-collapse: collapse; }
+    .mat-table th { padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid #f0ece6; }
+    .mat-table td { padding: 9px 10px; border-bottom: 1px solid #f5f0eb; vertical-align: middle; }
+    .mat-table tr:last-child td { border-bottom: none; }
+    .btn-del-mat { background: none; border: none; color: #c0392b; cursor: pointer; font-size: 15px; padding: 2px 4px; }
+    .mat-empty { text-align: center; color: #bbb; padding: 20px; font-size: 13px; }
+
+    /* Summary */
+    .summary-card { background: #1e1208; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+    .summary-card .card-title { color: rgba(255,255,255,.5); }
+    .sum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .sum-item label { display: block; font-size: 10.5px; color: rgba(255,255,255,.5); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+    .sum-item span { font-size: 22px; font-weight: 700; color: #fff; }
+    .sum-revenue span { color: #c49a50; }
+    .sum-cost span    { color: #e07070; }
+    .sum-profit span  { color: #5dbb8a; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="btn-back" onclick="goBack()">&#8592; Back</button>
+  <h1 id="page-title">Job Detail</h1>
+</div>
+
+<div class="content">
+
+  <!-- Job Info -->
+  <div class="card">
+    <div class="card-title">Job Info</div>
+    <div class="info-grid" id="info-grid"><div style="color:#bbb;">Loading…</div></div>
+  </div>
+
+  <!-- Budget Hours -->
+  <div class="card">
+    <div class="card-title">Budget Hours</div>
+    <div class="hours-row">
+      <input type="number" class="hours-input" id="budget-hours" min="0" step="0.25" placeholder="0.00"/>
+      <span class="hrs-label">estimated hrs</span>
+      <button class="btn-save-sm" onclick="saveBudgetHours()">Save</button>
+      <span class="saved-flash" id="hours-saved">&#10003; Saved</span>
+    </div>
+  </div>
+
+  <!-- Materials Used -->
+  <div class="card">
+    <div class="mat-hdr">
+      <div class="card-title" style="margin:0;">Materials Used</div>
+      <button class="btn-add-mat" onclick="toggleAddForm()">+ Add Material</button>
+    </div>
+
+    <div class="add-form" id="add-form">
+      <div class="add-form-row">
+        <div class="af-field">
+          <label>Material</label>
+          <select id="mat-select" onchange="onMatSelect()">
+            <option value="">— Select —</option>
+          </select>
+        </div>
+        <div class="af-field">
+          <label>Qty</label>
+          <input type="number" id="mat-qty" min="0.001" step="0.1" value="1"/>
+        </div>
+        <div class="af-field">
+          <label>Unit Cost ($)</label>
+          <input type="number" id="mat-ucost" min="0" step="0.01" placeholder="0.00"/>
+        </div>
+        <button class="btn-add-confirm" onclick="addMaterial()">Add</button>
+      </div>
+      <div id="mat-unit-hint" style="font-size:11px;color:#888;margin-top:6px;"></div>
+    </div>
+
+    <table class="mat-table" id="mat-table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>Qty</th>
+          <th>Unit</th>
+          <th>Unit Cost</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="mat-tbody"></tbody>
+    </table>
+    <div class="mat-empty" id="mat-empty">No materials logged yet.</div>
+  </div>
+
+  <!-- Cost Summary -->
+  <div class="summary-card">
+    <div class="card-title">Cost Summary</div>
+    <div class="sum-grid">
+      <div class="sum-item sum-revenue">
+        <label>Job Revenue</label>
+        <span id="sum-rev">$0.00</span>
+      </div>
+      <div class="sum-item sum-cost">
+        <label>Material Cost</label>
+        <span id="sum-mat">$0.00</span>
+      </div>
+      <div class="sum-item sum-profit">
+        <label>Gross Profit</label>
+        <span id="sum-profit">$0.00</span>
+      </div>
+      <div class="sum-item">
+        <label>Budget Hours</label>
+        <span id="sum-hours" style="color:#fff;">—</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var uid       = null;
+  var serviceId = null;
+  var job       = null;
+  var catalog   = [];
+  var jobMats   = [];
+
+  var BADGE = { mowing:'badge-mowing', landscape:'badge-landscape', irrigation:'badge-irrigation', snow:'badge-snow' };
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    var params = new URLSearchParams(window.location.search);
+    serviceId = params.get('id');
+    if (!serviceId) { document.getElementById('info-grid').innerHTML = '<div style="color:#aaa;">No job ID specified.</div>'; return; }
+    await Promise.all([loadJob(), loadCatalog(), loadJobMaterials()]);
+  }
+
+  async function loadJob() {
+    var { data } = await sb.from('Services')
+      .select('*, Properties(address, Clients(first_name, last_name))')
+      .eq('id', serviceId).single();
+    job = data;
+    if (!job) return;
+
+    var svcName = job.name || job.service || 'Job';
+    document.getElementById('page-title').textContent = svcName;
+    document.getElementById('budget-hours').value = job.budget_hours != null ? job.budget_hours : '';
+    document.getElementById('sum-hours').textContent = job.budget_hours != null ? job.budget_hours + ' hrs' : '—';
+
+    var client  = '—';
+    var address = job.address || '—';
+    if (job.Properties) {
+      address = job.Properties.address || address;
+      if (job.Properties.Clients) {
+        var c = job.Properties.Clients;
+        client = ((c.first_name || '') + ' ' + (c.last_name || '')).trim() || '—';
+      }
+    }
+    if (job.client_name) client = job.client_name;
+
+    var cat      = job.job_category || 'other';
+    var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+    var badgeCls = BADGE[cat] || 'badge-other';
+
+    document.getElementById('info-grid').innerHTML =
+      ii('Client', client) +
+      ii('Address', address) +
+      ii('Service', esc(svcName)) +
+      ii('Category', '<span class="badge ' + badgeCls + '">' + catLabel + '</span>') +
+      ii('Scheduled Date', job.scheduled_date || '<span style="color:#aaa;">Unscheduled</span>') +
+      ii('Revenue', '<span style="color:#c47d0a;font-weight:700;">$' + parseFloat(job.amount || 0).toFixed(2) + '</span>') +
+      ii('Recurrence', job.recurrence_type ? (job.recurrence_type.charAt(0).toUpperCase() + job.recurrence_type.slice(1)) : 'One-Time');
+
+    updateSummary();
+  }
+
+  function ii(label, val) {
+    return '<div class="info-item"><label>' + label + '</label><span>' + val + '</span></div>';
+  }
+
+  async function loadCatalog() {
+    if (!uid) return;
+    var { data } = await sb.from('materials').select('*').eq('user_id', uid).eq('active', true).order('name');
+    catalog = data || [];
+    var sel = document.getElementById('mat-select');
+    catalog.forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.name;
+      opt.dataset.unit = m.unit || 'each';
+      opt.dataset.cost = m.unit_cost || 0;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function loadJobMaterials() {
+    var { data } = await sb.from('job_materials').select('*').eq('service_id', serviceId).order('created_at');
+    jobMats = data || [];
+    renderMaterials();
+  }
+
+  function onMatSelect() {
+    var sel = document.getElementById('mat-select');
+    var opt = sel.options[sel.selectedIndex];
+    if (opt && opt.dataset.cost !== undefined) {
+      document.getElementById('mat-ucost').value = opt.dataset.cost;
+      document.getElementById('mat-unit-hint').textContent = opt.dataset.unit ? 'Unit: ' + opt.dataset.unit : '';
+    } else {
+      document.getElementById('mat-ucost').value = '';
+      document.getElementById('mat-unit-hint').textContent = '';
+    }
+  }
+
+  function toggleAddForm() {
+    document.getElementById('add-form').classList.toggle('open');
+  }
+
+  async function addMaterial() {
+    var sel      = document.getElementById('mat-select');
+    var matId    = sel.value;
+    var qty      = parseFloat(document.getElementById('mat-qty').value) || 1;
+    var unitCost = parseFloat(document.getElementById('mat-ucost').value) || 0;
+    if (!matId) { alert('Select a material first.'); return; }
+    var mat = catalog.find(function(m) { return m.id === matId; });
+    if (!mat) return;
+    var payload = {
+      user_id: uid, service_id: serviceId,
+      material_id: matId, material_name: mat.name,
+      unit: mat.unit, unit_cost: unitCost, quantity: qty,
+    };
+    var { data, error } = await sb.from('job_materials').insert(payload).select().single();
+    if (error) { alert('Error: ' + error.message); return; }
+    jobMats.push(data);
+    renderMaterials();
+    sel.value = '';
+    document.getElementById('mat-qty').value = 1;
+    document.getElementById('mat-ucost').value = '';
+    document.getElementById('mat-unit-hint').textContent = '';
+    document.getElementById('add-form').classList.remove('open');
+  }
+
+  function renderMaterials() {
+    var tbody = document.getElementById('mat-tbody');
+    var empty = document.getElementById('mat-empty');
+    tbody.innerHTML = '';
+    var hasMats = jobMats.length > 0;
+    document.getElementById('mat-table').style.display = hasMats ? '' : 'none';
+    empty.style.display = hasMats ? 'none' : '';
+
+    jobMats.forEach(function(jm) {
+      var total = (parseFloat(jm.quantity) || 1) * (parseFloat(jm.unit_cost) || 0);
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="font-weight:600;">' + esc(jm.material_name) + '</td>' +
+        '<td>' + jm.quantity + '</td>' +
+        '<td style="color:#888;">' + esc(jm.unit || '') + '</td>' +
+        '<td>$' + parseFloat(jm.unit_cost || 0).toFixed(2) + '</td>' +
+        '<td style="font-weight:700;">$' + total.toFixed(2) + '</td>' +
+        '<td><button class="btn-del-mat" onclick="deleteMat(\'' + jm.id + '\')" title="Remove">&#128465;</button></td>';
+      tbody.appendChild(tr);
+    });
+    updateSummary();
+  }
+
+  async function deleteMat(id) {
+    if (!confirm('Remove this material from the job?')) return;
+    var { error } = await sb.from('job_materials').delete().eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    jobMats = jobMats.filter(function(jm) { return jm.id !== id; });
+    renderMaterials();
+  }
+
+  function updateSummary() {
+    var revenue = parseFloat((job && job.amount) || 0);
+    var matCost = jobMats.reduce(function(s, jm) { return s + (parseFloat(jm.quantity)||1) * (parseFloat(jm.unit_cost)||0); }, 0);
+    var profit  = revenue - matCost;
+    document.getElementById('sum-rev').textContent    = '$' + revenue.toFixed(2);
+    document.getElementById('sum-mat').textContent    = '$' + matCost.toFixed(2);
+    document.getElementById('sum-profit').textContent = (profit >= 0 ? '$' : '-$') + Math.abs(profit).toFixed(2);
+    document.getElementById('sum-profit').style.color = profit >= 0 ? '#5dbb8a' : '#e07070';
+  }
+
+  async function saveBudgetHours() {
+    var hrs = document.getElementById('budget-hours').value;
+    var val = hrs !== '' ? parseFloat(hrs) : null;
+    var { error } = await sb.from('Services').update({ budget_hours: val }).eq('id', serviceId);
+    if (error) { alert('Error: ' + error.message); return; }
+    if (job) job.budget_hours = val;
+    document.getElementById('sum-hours').textContent = val != null ? val + ' hrs' : '—';
+    var fl = document.getElementById('hours-saved');
+    fl.style.display = 'inline';
+    clearTimeout(saveBudgetHours._t);
+    saveBudgetHours._t = setTimeout(function() { fl.style.display = 'none'; }, 2000);
+  }
+
+  function goBack() {
+    var params = new URLSearchParams(window.location.search);
+    var from = params.get('from') || 'jobboard';
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(from);
+    else window.history.back();
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  init();
+</script>
+</body>
+</html>

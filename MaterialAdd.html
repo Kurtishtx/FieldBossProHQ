@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Material</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .page-header { padding: 12px 20px; background: #fff; border-bottom: 1px solid #e0d8cc; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
+
+    .cat-bar { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #7a6040; flex-wrap: wrap; flex-shrink: 0; }
+    .cat-bar-label { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .cat-pill { padding: 4px 14px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.1); font-size: 12.5px; cursor: pointer; border-radius: 20px; color: rgba(255,255,255,.85); font-family: inherit; font-weight: 600; transition: background .15s; }
+    .cat-pill:hover { background: rgba(255,255,255,.22); }
+    .cat-pill.active { background: #1e1208; color: #fff; border-color: #fff; }
+
+    .form-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+    .form-card { background: #fff; border-radius: 10px; padding: 20px; max-width: 600px; box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 11.5px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+    .field input, .field select, .field textarea { width: 100%; border: 1px solid #ccc; border-radius: 5px; padding: 9px 12px; font-size: 13px; font-family: inherit; outline: none; background: #fff; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #c47d0a; }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .toggle-row { display: flex; align-items: center; gap: 10px; }
+    .toggle-label { font-size: 13px; color: #333; }
+    input[type="checkbox"].toggle-cb { width: 18px; height: 18px; accent-color: #c47d0a; cursor: pointer; }
+
+    .action-bar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; background: #fff; border-top: 1px solid #e0d8cc; flex-shrink: 0; }
+    .btn-save     { background: #c47d0a; color: #fff; border: none; padding: 9px 24px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #a86808; }
+    .btn-save-new { background: #1e1208; color: #fff; border: none; padding: 9px 20px; font-size: 13px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-save-new:hover { background: #2e2010; }
+    .btn-cancel   { background: #eee; color: #333; border: none; padding: 9px 18px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-cancel:hover { background: #ddd; }
+    .btn-delete   { background: none; color: #c0392b; border: 1px solid #e8c0c0; padding: 9px 18px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; margin-left: auto; }
+    .btn-delete:hover { background: #fdf0ef; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <h1 id="page-title">Add Material</h1>
+</div>
+
+<div class="cat-bar" id="cat-bar">
+  <span class="cat-bar-label">Category:</span>
+</div>
+
+<div class="form-scroll">
+  <div class="form-card">
+
+    <div class="row-2">
+      <div class="field">
+        <label>Material Name *</label>
+        <input type="text" id="mat-name" placeholder="e.g. Double Shredded Hardwood Mulch"/>
+      </div>
+      <div class="field">
+        <label>SKU / Code</label>
+        <input type="text" id="mat-sku" placeholder="e.g. MULCH-DBL"/>
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Unit</label>
+        <select id="mat-unit">
+          <option value="each">Each</option>
+          <option value="bag">Bag</option>
+          <option value="yard">Yard (cu yd)</option>
+          <option value="gallon">Gallon</option>
+          <option value="lb">Lb</option>
+          <option value="sq ft">Sq Ft</option>
+          <option value="linear ft">Linear Ft</option>
+          <option value="ton">Ton</option>
+          <option value="pallet">Pallet</option>
+          <option value="roll">Roll</option>
+          <option value="bundle">Bundle</option>
+          <option value="box">Box</option>
+          <option value="hour">Hour</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Unit Cost ($)</label>
+        <input type="number" id="mat-cost" min="0" step="0.01" placeholder="0.00"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="mat-notes" placeholder="Supplier info, specs, order notes…"></textarea>
+    </div>
+
+    <div class="field">
+      <div class="toggle-row">
+        <input type="checkbox" class="toggle-cb" id="mat-active" checked/>
+        <label class="toggle-label" for="mat-active">Active — shows in catalog and job cost forms</label>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="action-bar">
+  <button class="btn-save" onclick="saveMaterial(false)">Save</button>
+  <button class="btn-save-new" onclick="saveMaterial(true)">Save &amp; Add Another</button>
+  <button class="btn-cancel" onclick="nav('materials')">Cancel</button>
+  <button class="btn-delete" id="btn-delete" style="display:none" onclick="deleteMaterial()">Delete</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var uid      = null;
+  var editId   = null;
+  var selCat   = '';
+  var DEFAULTS = ['Mulch & Soil', 'Seed & Sod', 'Fertilizer', 'Irrigation', 'Lumber & Hardware', 'Equipment', 'Other'];
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+
+    var params = new URLSearchParams(window.location.search);
+    editId = params.get('id') || null;
+
+    await loadCategoryPills();
+
+    if (editId) {
+      document.getElementById('page-title').textContent = 'Edit Material';
+      document.getElementById('btn-delete').style.display = '';
+      var { data: m } = await sb.from('materials').select('*').eq('id', editId).single();
+      if (m) {
+        document.getElementById('mat-name').value    = m.name || '';
+        document.getElementById('mat-sku').value     = m.sku  || '';
+        document.getElementById('mat-unit').value    = m.unit || 'each';
+        document.getElementById('mat-cost').value    = m.unit_cost != null ? m.unit_cost : '';
+        document.getElementById('mat-notes').value   = m.notes || '';
+        document.getElementById('mat-active').checked = m.active !== false;
+        selectCat(m.category || '');
+      }
+    }
+  }
+
+  async function loadCategoryPills() {
+    if (!uid) return;
+    var { data: cats } = await sb.from('material_categories')
+      .select('*').eq('user_id', uid).eq('active', true)
+      .order('sort_order').order('name');
+    var list = cats && cats.length ? cats : DEFAULTS.map(function(n){ return { name: n }; });
+    var bar  = document.getElementById('cat-bar');
+    list.forEach(function(cat) {
+      var btn = document.createElement('button');
+      btn.className = 'cat-pill';
+      btn.textContent = cat.name;
+      btn.dataset.cat = cat.name;
+      btn.onclick = (function(name){ return function(){ selectCat(name); }; })(cat.name);
+      bar.appendChild(btn);
+    });
+    if (!editId && list.length) selectCat(list[0].name);
+  }
+
+  function selectCat(name) {
+    selCat = name;
+    document.querySelectorAll('.cat-pill').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.cat === name);
+    });
+  }
+
+  async function saveMaterial(andNew) {
+    var name = document.getElementById('mat-name').value.trim();
+    if (!name) { alert('Material name is required.'); document.getElementById('mat-name').focus(); return; }
+
+    var payload = {
+      user_id:   uid,
+      name:      name,
+      category:  selCat,
+      sku:       document.getElementById('mat-sku').value.trim() || null,
+      unit:      document.getElementById('mat-unit').value,
+      unit_cost: parseFloat(document.getElementById('mat-cost').value) || 0,
+      notes:     document.getElementById('mat-notes').value.trim() || null,
+      active:    document.getElementById('mat-active').checked,
+    };
+
+    var error;
+    if (editId) {
+      ({ error } = await sb.from('materials').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await sb.from('materials').insert(payload));
+    }
+    if (error) { alert('Error: ' + error.message); return; }
+
+    if (andNew) {
+      document.getElementById('mat-name').value  = '';
+      document.getElementById('mat-sku').value   = '';
+      document.getElementById('mat-cost').value  = '';
+      document.getElementById('mat-notes').value = '';
+      document.getElementById('mat-active').checked = true;
+      editId = null;
+      document.getElementById('page-title').textContent = 'Add Material';
+      document.getElementById('btn-delete').style.display = 'none';
+      document.getElementById('mat-name').focus();
+    } else {
+      nav('materials');
+    }
+  }
+
+  async function deleteMaterial() {
+    if (!confirm('Delete this material? It will no longer appear in the catalog.')) return;
+    var { error } = await sb.from('materials').delete().eq('id', editId);
+    if (error) { alert('Error: ' + error.message); return; }
+    nav('materials');
+  }
+
+  function nav(page) {
+    if (window.parent && window.parent.loadPage) window.parent.loadPage(page);
+    else window.location.href = page.split('?')[0] + '.html' + (page.includes('?') ? '?' + page.split('?')[1] : '');
+  }
+
+  init();
+</script>
+</body>
+</html>
