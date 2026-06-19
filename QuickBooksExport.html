@@ -146,12 +146,14 @@
   }
 
   async function exportPayments() {
-    var { data, error } = await sb.from('Invoices').select('inv_num, client_name, date, payment, inv_total').eq('user_id', uid).not('payment', 'is', null).neq('payment', '').order('date', { ascending: false });
+    var { data, error } = await sb.from('Invoices').select('inv_num, client_name, date, inv_total, inv_bal').eq('user_id', uid).order('date', { ascending: false });
     if (error) { alert('Error: ' + error.message); return; }
     var rows = [['*Customer','*InvoiceNo','*PaymentDate','*PaymentMethod','*Amount']];
     (data || []).forEach(function(inv) {
-      if (!inv.payment || inv.payment === 'Unpaid') return;
-      rows.push([inv.client_name||'', inv.inv_num||'', inv.date||'', inv.payment||'', parseFloat(inv.inv_total||0).toFixed(2)]);
+      var bal = parseFloat(inv.inv_bal);
+      var total = parseFloat(inv.inv_total || 0);
+      if (isNaN(bal) || bal > 0 || total === 0) return;
+      rows.push([inv.client_name||'', inv.inv_num||'', inv.date||'', 'Payment', total.toFixed(2)]);
     });
     downloadCsv(rows, 'qb_payments.csv');
     showStatus();
