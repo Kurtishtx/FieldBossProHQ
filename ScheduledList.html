@@ -839,7 +839,15 @@
   async function renderRouteOptOrder(orderedStops) {
     clearRouteOptMarkers();
     var orderMap = {};
-    orderedStops.forEach(function(s, i) { orderMap[String(s.job.property_id)] = i + 1; });
+    orderedStops.forEach(function(s, i) {
+      orderMap[String(s.job.property_id)] = i + 1;
+      var m = new google.maps.Marker({
+        position: { lat: s.lat, lng: s.lng }, map: map, zIndex: 200,
+        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(i + 1, false)),
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+      routeOptMarkers.push(m);
+    });
     var updates = [], seen = {};
     services.forEach(function(s) {
       if (seen[s.id]) return;
