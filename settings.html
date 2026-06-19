@@ -116,6 +116,40 @@
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .toggle-switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      min-width: 46px;
+      margin-left: auto;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #ccc;
+      border-radius: 26px;
+      transition: .2s;
+    }
+    .toggle-slider:before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: .2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #c47d0a; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .setting-item-toggle { cursor: default; }
+    .setting-item-toggle:hover { background: #fafafa; }
+  </style>
 </head>
 <body>
 
@@ -387,6 +421,29 @@
   </div>
 </div>
 
+<!-- ── Snow ── -->
+<div class="settings-group" id="group-snow">
+  <div class="group-header" onclick="toggleGroup('snow')">
+    <span>Snow</span>
+    <span class="caret">&#9660;</span>
+  </div>
+  <div class="group-body" id="body-snow">
+
+    <div class="setting-item setting-item-toggle" data-name="snow mode snow removal plowing dispatch">
+      <div class="setting-icon">&#10052;</div>
+      <div class="setting-text">
+        <div class="setting-name">Turn On Snow Mode</div>
+        <div class="setting-desc">When enabled, a Snow Mode bar will appear at the top of the Job Board as a pending job area for snow dispatch — circle properties on the map, assign passes, and track each push.</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="snow-mode-toggle" onchange="saveSnowMode(this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+  </div>
+</div>
+
 <div class="settings-group" id="group-system">
   <div class="group-header" onclick="toggleGroup('system')">
     <span>System</span>
@@ -459,6 +516,27 @@
       item.style.display = (!q || name.includes(q) || desc.includes(q)) ? '' : 'none';
     });
   }
+
+  var SUPABASE_URL = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  async function loadSnowMode() {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    var { data } = await sb.from('company_info').select('snow_mode').eq('user_id', session.user.id).single();
+    if (data && data.snow_mode) {
+      document.getElementById('snow-mode-toggle').checked = true;
+    }
+  }
+
+  async function saveSnowMode(val) {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    await sb.from('company_info').update({ snow_mode: val }).eq('user_id', session.user.id);
+  }
+
+  loadSnowMode();
 </script>
 </body>
 </html>
