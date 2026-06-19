@@ -761,18 +761,32 @@
     }
   }
 
+  function getStartAddr() {
+    var v = ((document.getElementById('route-start-addr') || {}).value || '').trim();
+    if (!v) { alert('Enter your starting address in the Auto Route box.'); return null; }
+    return v;
+  }
+
   async function resolveStartLatLng() {
-    var addrStr = (document.getElementById('route-start-addr') || {}).value || '';
-    if (!addrStr.trim()) { alert('Enter your starting address in the Auto Route box.'); return false; }
     if (businessLat && businessLng) return true;
+    var addrStr = getStartAddr();
+    if (!addrStr) return false;
+    // Use Directions API to geocode — avoids needing Geocoding API separately enabled
     return await new Promise(function(resolve) {
-      new google.maps.Geocoder().geocode({ address: addrStr }, function(results, status) {
-        if (status === 'OK' && results[0]) {
-          businessLat = results[0].geometry.location.lat();
-          businessLng = results[0].geometry.location.lng();
+      var dummyStop = getUniqueRouteStops(selectedForRoute)[0];
+      if (!dummyStop) { resolve(false); return; }
+      new google.maps.DirectionsService().route({
+        origin: addrStr,
+        destination: { lat: dummyStop.lat, lng: dummyStop.lng },
+        travelMode: google.maps.TravelMode.DRIVING
+      }, function(result, status) {
+        if (status === 'OK' && result.routes[0]) {
+          var leg = result.routes[0].legs[0];
+          businessLat = leg.start_location.lat();
+          businessLng = leg.start_location.lng();
           resolve(true);
         } else {
-          alert('Could not find that address. Try a full street address including city and state.');
+          alert('Could not find that address. Check it and try again.');
           resolve(false);
         }
       });
@@ -811,19 +825,24 @@
   async function optimizeGoogleRoute() {
     var stops = getUniqueRouteStops(selectedForRoute);
     if (stops.length < 2) { alert('Need at least 2 stops.'); return; }
-    var ok = await resolveStartLatLng();
-    if (!ok) return;
+    var addrStr = getStartAddr();
+    if (!addrStr) return;
     var btn = document.getElementById('btn-google-optimize');
     if (btn) { btn.textContent = 'Optimizing...'; btn.disabled = true; }
     new google.maps.DirectionsService().route({
-      origin: new google.maps.LatLng(businessLat, businessLng),
-      destination: new google.maps.LatLng(businessLat, businessLng),
+      origin: addrStr,
+      destination: addrStr,
       waypoints: stops.map(function(s) { return { location: new google.maps.LatLng(s.lat, s.lng), stopover: true }; }),
       optimizeWaypoints: true,
       travelMode: google.maps.TravelMode.DRIVING
     }, function(result, status) {
       if (btn) { btn.textContent = '▶ Google Optimize'; btn.disabled = false; }
       if (status !== 'OK') { alert('Google route optimization failed: ' + status); return; }
+      if (!businessLat || !businessLng) {
+        var leg = result.routes[0].legs[0];
+        businessLat = leg.start_location.lat();
+        businessLng = leg.start_location.lng();
+      }
       var order = result.routes[0].waypoint_order;
       renderRouteOptOrder(order.map(function(i) { return stops[i]; }));
     });
