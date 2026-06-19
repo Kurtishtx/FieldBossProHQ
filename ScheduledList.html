@@ -451,6 +451,7 @@
         <button onclick="sortByDistance(true)"  style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Furthest First</button>
       </div>
     </div>
+    <button class="orange-btn" onclick="showRouteOrder()">Show Route Order</button>
     <button class="orange-btn" onclick="startRouteOrder()">Set Route Order (Manual)</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
       <select id="marker-mode" onchange="loadMarkers()" style="width:100%; padding:7px 28px 7px 10px; background:#e8ddd0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
@@ -2051,6 +2052,34 @@
     var visibleIds = new Set();
     document.querySelectorAll('.row-cb').forEach(function(cb) { visibleIds.add(cb.getAttribute('data-id')); });
     document.querySelectorAll('.row-cb:checked').forEach(function(cb) {
+      var propId = cb.getAttribute('data-prop-id');
+      if (!propId || seen[propId]) return;
+      seen[propId] = true;
+      var visibleSvcs = services.filter(function(s) {
+        return String(s.property_id) === propId && visibleIds.has(String(s.id));
+      });
+      var svc = visibleSvcs[0];
+      if (!svc || !svc.Properties || !svc.Properties.lat || !svc.Properties.lng) return;
+      var savedOrder = visibleSvcs.reduce(function(found, s) { return found || s.route_order || null; }, null);
+      var pinSvg = savedOrder
+        ? createRoutePinSVG(savedOrder)
+        : '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+      var marker = new google.maps.Marker({
+        position: { lat: svc.Properties.lat, lng: svc.Properties.lng }, map: map,
+        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+      mapMarkers.push(marker);
+    });
+  }
+
+  function showRouteOrder() {
+    mapMarkers.forEach(function(m) { m.setMap(null); });
+    mapMarkers = [];
+    var seen = {};
+    var visibleIds = new Set();
+    document.querySelectorAll('.row-cb').forEach(function(cb) { visibleIds.add(cb.getAttribute('data-id')); });
+    document.querySelectorAll('.row-cb').forEach(function(cb) {
       var propId = cb.getAttribute('data-prop-id');
       if (!propId || seen[propId]) return;
       seen[propId] = true;
