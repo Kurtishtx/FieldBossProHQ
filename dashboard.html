@@ -1179,10 +1179,6 @@
       clockTz = tzMap[data.phys_timezone];
       updateClock();
     }
-    if (data && data.qb_export_enabled === false) {
-      var qbCard = document.getElementById('qb-export-card');
-      if (qbCard) qbCard.style.display = 'none';
-    }
   })();
 
   window.loadDashboardSettings = async function loadDashboardSettings() {
