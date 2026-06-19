@@ -20,7 +20,7 @@
     .export-card.invoices { border-color: #c47d0a; }
     .export-card.payments { border-color: #1a5276; }
     .export-card h3 { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 6px; }
-    .export-card p { font-size: 12.5px; color: #666; margin-bottom: 18px; line-height: 1.5; flex: 1; }
+    .export-card p { font-size: 12.5px; color: #666; margin-bottom: 18px; line-height: 1.5; }
     .export-card .fields { font-size: 11px; color: #888; margin-bottom: 16px; font-family: monospace; background: #f5f5f5; padding: 8px 10px; border-radius: 4px; line-height: 1.8; }
     .btn-export { background: #2ca01c; color: #fff; border: none; padding: 10px 24px; font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer; font-family: inherit; width: 100%; }
     .btn-export:hover { background: #248016; }
@@ -60,21 +60,21 @@
 
   <div class="export-card">
     <h3>👤 Customers</h3>
-    <p>All your clients exported as QuickBooks customers. Import this first before importing invoices.</p>
+    <p>Export all your clients as QuickBooks customers. Import this file first, before importing invoices.</p>
     <div class="fields">Name · Email · Phone · Address · City · State · Zip</div>
     <button class="btn-export" onclick="exportCustomers()">Download Customers CSV</button>
   </div>
 
   <div class="export-card invoices">
     <h3>🧾 Invoices</h3>
-    <p>All invoices formatted for QuickBooks import with invoice number, customer, date, and amount.</p>
+    <p>All invoices formatted for QuickBooks with line items, customer name, dates, and amounts.</p>
     <div class="fields">InvoiceNo · Customer · InvoiceDate · DueDate · ItemName · Qty · Rate · Amount</div>
     <button class="btn-export orange" onclick="exportInvoices()">Download Invoices CSV</button>
   </div>
 
   <div class="export-card payments">
     <h3>💳 Payments</h3>
-    <p>All recorded payments exported for QuickBooks to apply against invoices.</p>
+    <p>Fully paid invoices exported as payments for QuickBooks to apply against open balances.</p>
     <div class="fields">Customer · InvoiceNo · PaymentDate · PaymentMethod · Amount</div>
     <button class="btn-export blue" onclick="exportPayments()">Download Payments CSV</button>
   </div>
