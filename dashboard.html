@@ -740,7 +740,7 @@
       </div>
       <div class="welcome-logo">&#127757;</div>
     </div>
-    <div id="qb-export-card" onclick="loadPage('quickbooksexport')" style="display:none;background:#fff;border-radius:10px;padding:18px 24px;margin-bottom:16px;align-items:center;justify-content:space-between;cursor:pointer;border-left:4px solid #2ca01c;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+    <div id="qb-export-card" onclick="loadPage('quickbooksexport')" style="display:flex;background:#fff;border-radius:10px;padding:18px 24px;margin-bottom:16px;align-items:center;justify-content:space-between;cursor:pointer;border-left:4px solid #2ca01c;box-shadow:0 2px 8px rgba(0,0,0,.08);">
       <div>
         <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px;">📊 QuickBooks Export</div>
         <div style="font-size:12.5px;color:#666;">Download your customers, invoices, and payments as QuickBooks-ready CSV files.</div>
@@ -1179,9 +1179,9 @@
       clockTz = tzMap[data.phys_timezone];
       updateClock();
     }
-    if (data && data.qb_export_enabled) {
+    if (data && data.qb_export_enabled === false) {
       var qbCard = document.getElementById('qb-export-card');
-      if (qbCard) qbCard.style.display = 'flex';
+      if (qbCard) qbCard.style.display = 'none';
     }
   })();
 
