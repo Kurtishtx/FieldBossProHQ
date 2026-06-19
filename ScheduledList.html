@@ -430,10 +430,23 @@
   <div class="stop-panel" id="stop-panel">
     <div class="stop-panel-hdr">
       <span>Selection Summary</span>
+      <button onclick="closeStopPanel()" title="Close" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;line-height:1;padding:0;">&#x2715;</button>
     </div>
     <div class="stop-body" id="stop-body"></div>
-    <button class="orange-btn" onclick="showRouteOrder()">Show Route Order</button>
-    <button class="orange-btn" onclick="startRouteOrder()">Set Route Order</button>
+    <div id="route-auto-section" style="padding:0 8px 4px;border-top:2px solid #ede5d8;margin-top:2px;display:none;">
+      <div style="font-size:10px;font-weight:700;color:#7a6040;text-transform:uppercase;letter-spacing:.6px;padding:6px 0 5px;">Auto Route</div>
+      <div style="display:flex;gap:4px;margin-bottom:4px;">
+        <button onclick="sortByDistance(false)" style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Closest First</button>
+        <button onclick="sortByDistance(true)"  style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Furthest First</button>
+      </div>
+      <div id="route-over-limit-msg" style="display:none;font-size:11px;color:#c47d0a;font-weight:600;margin-bottom:4px;"></div>
+      <button id="btn-google-optimize" onclick="optimizeGoogleRoute()" style="width:100%;background:#c47d0a;color:#fff;border:none;padding:7px;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">&#9654; Google Optimize</button>
+      <div id="route-order-list" style="margin-top:6px;max-height:180px;overflow-y:auto;"></div>
+      <div id="route-maps-wrap" style="display:none;margin-top:4px;margin-bottom:4px;">
+        <a id="route-maps-btn" href="#" target="_blank" style="display:block;background:#4285f4;color:#fff;text-align:center;padding:7px;border-radius:3px;font-size:12px;font-weight:700;text-decoration:none;">&#127759; Open in Google Maps</a>
+      </div>
+    </div>
+    <button class="orange-btn" onclick="startRouteOrder()">Set Route Order (Manual)</button>
     <div id="marker-mode-wrap" style="display:none; position:relative; width:calc(100% - 16px); margin:4px 8px 8px;">
       <select id="marker-mode" onchange="loadMarkers()" style="width:100%; padding:7px 28px 7px 10px; background:#e8ddd0; color:#333; border:1px solid #bbb; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px; appearance:none; -webkit-appearance:none;">
         <option value="selected">Show Only Selected</option>
@@ -449,13 +462,19 @@
         <path d="M18 11V8a2 2 0 0 0-4 0v5M14 8V6a2 2 0 0 0-4 0v6M10 7V5a2 2 0 0 0-4 0v9l-1-1a2 2 0 0 0-2.7.1L6 21h12l2-7H18"/>
       </svg>
     </button>
-    <button id="tool-draw" class="map-tool-btn" title="Draw polygon" onclick="setMapTool('draw')">
+    <button id="tool-draw" class="map-tool-btn" title="Draw polygon to select stops" onclick="setMapTool('draw')">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="1"/>
         <circle cx="3" cy="3" r="1.5" fill="#333"/>
         <circle cx="21" cy="3" r="1.5" fill="#333"/>
         <circle cx="21" cy="21" r="1.5" fill="#333"/>
         <circle cx="3" cy="21" r="1.5" fill="#333"/>
+      </svg>
+    </button>
+    <button id="tool-pick" class="map-tool-btn" title="Click pins to manually build route" onclick="setMapTool('pick')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/>
+        <circle cx="12" cy="10" r="3"/>
       </svg>
     </button>
   </div>
@@ -725,6 +744,114 @@
   var activeSLCategory = 'all';
   var mapMarkers = [];
   var routeOrderMode = false, routeCounter = 0, routeOrderMap = {};
+  var businessLat = null, businessLng = null;
+  var selectedForRoute = [];
+  var routeOptMarkers = [];
+
+  async function loadBusinessLocation() {
+    var { data: s } = await sb.auth.getSession();
+    var uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+    var { data } = await sb.from('company_info').select('latitude, longitude').eq('user_id', uid).single();
+    if (data) {
+      businessLat = data.latitude  ? parseFloat(data.latitude)  : null;
+      businessLng = data.longitude ? parseFloat(data.longitude) : null;
+    }
+  }
+
+  function haversine(lat1, lng1, lat2, lng2) {
+    var R = 3959;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function getUniqueRouteStops(jobs) {
+    var seen = {}, stops = [];
+    jobs.forEach(function(j) {
+      var lat = j.Properties && j.Properties.lat;
+      var lng = j.Properties && j.Properties.lng;
+      if (!lat || !lng) return;
+      var key = String(j.property_id);
+      if (!seen[key]) {
+        seen[key] = true;
+        stops.push({ job: j, lat: parseFloat(lat), lng: parseFloat(lng) });
+      }
+    });
+    return stops;
+  }
+
+  function sortByDistance(furthestFirst) {
+    if (!businessLat || !businessLng) return;
+    var stops = getUniqueRouteStops(selectedForRoute);
+    stops.forEach(function(s) { s.dist = haversine(businessLat, businessLng, s.lat, s.lng); });
+    stops.sort(function(a, b) { return furthestFirst ? b.dist - a.dist : a.dist - b.dist; });
+    renderRouteOptOrder(stops);
+  }
+
+  function optimizeGoogleRoute() {
+    var stops = getUniqueRouteStops(selectedForRoute);
+    if (stops.length < 2) { alert('Need at least 2 stops to optimize.'); return; }
+    var btn = document.getElementById('btn-google-optimize');
+    if (btn) { btn.textContent = 'Optimizing...'; btn.disabled = true; }
+    var svc = new google.maps.DirectionsService();
+    svc.route({
+      origin: new google.maps.LatLng(businessLat, businessLng),
+      destination: new google.maps.LatLng(businessLat, businessLng),
+      waypoints: stops.map(function(s) { return { location: new google.maps.LatLng(s.lat, s.lng), stopover: true }; }),
+      optimizeWaypoints: true,
+      travelMode: google.maps.TravelMode.DRIVING
+    }, function(result, status) {
+      if (btn) { btn.textContent = '▶ Google Optimize'; btn.disabled = false; }
+      if (status !== 'OK') { alert('Google route optimization failed: ' + status); return; }
+      var order = result.routes[0].waypoint_order;
+      renderRouteOptOrder(order.map(function(i) { return stops[i]; }));
+    });
+  }
+
+  function renderRouteOptOrder(orderedStops) {
+    clearRouteOptMarkers();
+    var listEl   = document.getElementById('route-order-list');
+    var mapsWrap = document.getElementById('route-maps-wrap');
+    var mapsBtn  = document.getElementById('route-maps-btn');
+    if (!listEl) return;
+
+    listEl.innerHTML = orderedStops.map(function(s, i) {
+      var name = (s.job.Properties && s.job.Properties.client_name) || s.job.client_name || '—';
+      var addr = (s.job.Properties && s.job.Properties.address)     || s.job.address    || '';
+      return '<div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #f0ebe3;font-size:12px;">' +
+        '<span style="background:#c47d0a;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;">' + (i+1) + '</span>' +
+        '<div><div style="font-weight:600;color:#1e1208;">' + (name) + '</div>' +
+        '<div style="color:#888;font-size:11px;">' + (addr) + '</div></div></div>';
+    }).join('');
+
+    orderedStops.forEach(function(s, i) {
+      var m = new google.maps.Marker({
+        position: { lat: s.lat, lng: s.lng }, map: map, zIndex: 200,
+        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(createRoutePinSVG(i + 1, false)),
+          scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
+      });
+      routeOptMarkers.push(m);
+    });
+
+    var mapsUrl = 'https://www.google.com/maps/dir/?api=1' +
+      '&origin=' + businessLat + ',' + businessLng +
+      '&destination=' + businessLat + ',' + businessLng +
+      '&waypoints=' + orderedStops.map(function(s) { return s.lat + ',' + s.lng; }).join('|') +
+      '&travelmode=driving';
+    if (mapsBtn) mapsBtn.href = mapsUrl;
+    if (mapsWrap) mapsWrap.style.display = '';
+  }
+
+  function clearRouteOptMarkers() {
+    routeOptMarkers.forEach(function(m) { m.setMap(null); });
+    routeOptMarkers = [];
+    var listEl = document.getElementById('route-order-list');
+    var mapsWrap = document.getElementById('route-maps-wrap');
+    if (listEl) listEl.innerHTML = '';
+    if (mapsWrap) mapsWrap.style.display = 'none';
+  }
 
   async function loadCustomFields() {
     var { data, error } = await sb.from('custom_fields').select('id, key, name, display_order').eq('active', true).order('display_order', { ascending: true });
@@ -1625,20 +1752,51 @@
     map.setMapTypeId(style === 'satellite' ? 'satellite' : 'roadmap');
   }
 
+  var pickedPropIds = {};
+
   function setMapTool(tool) {
     mapTool = tool;
     document.getElementById('tool-pan').classList.toggle('active', tool === 'pan');
     document.getElementById('tool-draw').classList.toggle('active', tool === 'draw');
+    document.getElementById('tool-pick').classList.toggle('active', tool === 'pick');
     var cap = document.getElementById('draw-capture');
     if (tool === 'draw') {
       map.setOptions({ draggable:false, draggableCursor:'crosshair' });
       cap.style.display = '';
       cap.style.cursor  = 'crosshair';
       resetDraw();
+      pickedPropIds = {};
+    } else if (tool === 'pick') {
+      map.setOptions({ draggable:true, draggableCursor:'pointer' });
+      cap.style.display = 'none';
+      resetDraw();
+      pickedPropIds = {};
+      selectedForRoute = [];
+      clearRouteOptMarkers();
+      document.getElementById('stop-panel').style.display = 'none';
+      document.getElementById('map-tool-panel').style.left = '10px';
     } else {
       map.setOptions({ draggable:true, draggableCursor:'' });
       cap.style.display = 'none';
+      pickedPropIds = {};
     }
+  }
+
+  function togglePickedProp(propId) {
+    if (pickedPropIds[propId]) {
+      delete pickedPropIds[propId];
+    } else {
+      pickedPropIds[propId] = true;
+    }
+    var pickedSvcs = services.filter(function(s) { return !!pickedPropIds[String(s.property_id)]; });
+    if (pickedSvcs.length) {
+      showStopPanel(pickedSvcs);
+    } else {
+      document.getElementById('stop-panel').style.display = 'none';
+      document.getElementById('map-tool-panel').style.left = '10px';
+      clearRouteOptMarkers();
+    }
+    loadMarkers();
   }
 
   function updateFirstVertexMarker() {
@@ -1744,6 +1902,22 @@
     panel.style.display = '';
     document.getElementById('map-tool-panel').style.left = '280px';
     document.getElementById('marker-mode-wrap').style.display = 'block';
+    selectedForRoute = selected;
+    var autoSect = document.getElementById('route-auto-section');
+    if (autoSect) {
+      var stops = new Set(selected.map(function(x) { return x.property_id; })).size;
+      autoSect.style.display = businessLat ? '' : 'none';
+      var overMsg = document.getElementById('route-over-limit-msg');
+      var optBtn  = document.getElementById('btn-google-optimize');
+      if (stops > 25) {
+        overMsg.style.display = '';
+        overMsg.textContent = '⚠ ' + stops + ' stops — over 25 limit. Google Optimize disabled. Use Closest/Furthest First.';
+        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; optBtn.style.cursor = 'not-allowed'; }
+      } else {
+        overMsg.style.display = 'none';
+        if (optBtn) { optBtn.disabled = false; optBtn.style.opacity = '1'; optBtn.style.cursor = 'pointer'; }
+      }
+    }
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
     var stops = [...new Set(selected.map(function(x) { return x.property_id; }))].length;
     var areaTotals = {};
@@ -1782,6 +1956,8 @@
     document.getElementById('stop-panel').style.display = 'none';
     document.getElementById('marker-mode-wrap').style.display = 'none';
     document.getElementById('map-tool-panel').style.left = '10px';
+    clearRouteOptMarkers();
+    selectedForRoute = [];
     resetDraw();
   }
 
@@ -1836,16 +2012,21 @@
           });
         })(propId, marker);
       } else {
-        var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+        var isPicked = !!pickedPropIds[propId];
+        var pinFill = isPicked ? '#1a6abf' : '#c47d0a';
+        var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="' + pinFill + '" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
         marker = new google.maps.Marker({
           position: pos, map: map,
           icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
             scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
         });
         var relatedSvcs = services.filter(function(s) { return String(s.property_id) === propId; });
-        (function(svcs, m) {
-          google.maps.event.addListener(m, 'click', function() { showStopPanel(svcs); });
-        })(relatedSvcs, marker);
+        (function(svcs, pid, m) {
+          google.maps.event.addListener(m, 'click', function() {
+            if (mapTool === 'pick') { togglePickedProp(pid); }
+            else { showStopPanel(svcs); }
+          });
+        })(relatedSvcs, propId, marker);
       }
       mapMarkers.push(marker);
     });
@@ -2581,7 +2762,7 @@
   document.getElementById('use-min-days').addEventListener('change', renderTable);
 
   (async function() {
-    await Promise.all([loadCustomFields(), loadColPrefs(), loadSavedViews(), loadAreaTreatedTypes()]);
+    await Promise.all([loadCustomFields(), loadColPrefs(), loadSavedViews(), loadAreaTreatedTypes(), loadBusinessLocation()]);
     await loadDefaultView();
     buildTableHeader();
     await loadServices();
