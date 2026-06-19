@@ -6,7 +6,7 @@
   <title>Job Board</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; padding-bottom: 52px; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #ede5d8; }
 
     .btn-add { background:#c47d0a; color:#fff; border:none; padding:7px 18px; font-size:13px; font-weight:700; cursor:pointer; border-radius:4px; font-family:inherit; white-space:nowrap; }
     .btn-add:hover { background:#a86808; }
@@ -166,8 +166,8 @@
     .cal-job-card.cat-snow      { background:#5a6777; }
     .cal-job-card.cat-other     { background:#c47d0a; }
 
-    /* Bottom bar — fixed to viewport bottom */
-    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#1e1208; position:fixed; bottom:0; left:0; right:0; z-index:200; }
+    /* Bottom bar — above the table, matching ScheduledList */
+    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#1e1208; margin:2px 16px 0; border-radius:8px 8px 0 0; position:relative; }
     .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px 0 0 3px; font-family:inherit; }
     .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); padding:5px 8px; font-size:12px; cursor:pointer; border-radius:0 3px 3px 0; font-family:inherit; }
     .day-tabs { display:flex; gap:2px; margin-left:4px; }
@@ -386,6 +386,21 @@
   </div>
 </div>
 
+<div id="bottom-bar-wrap">
+<div class="bottom-bar">
+  <div style="position:relative;display:flex;">
+    <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
+    <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
+    <div class="actions-dd" id="actions-dd">
+      <a onclick="scheduleSelected(event)">Schedule Selected</a>
+      <a onclick="deleteSelectedJobs(event)">Delete Selected</a>
+    </div>
+  </div>
+  <div class="day-tabs" id="day-tabs"></div>
+  <button class="bar-btn" onclick="clearDayFilter()">All Week</button>
+</div>
+</div>
+
 <div id="sched-section-wrap">
 <div class="sched-section-hdr">
   <div class="sched-section-hdr-title">
@@ -414,21 +429,6 @@
 <div id="cal-view" style="display:none;margin:0 16px 16px;border-radius:10px;overflow:hidden;border:1px solid #ddd;background:#fff;">
   <div id="cal-head" style="display:grid;grid-template-columns:repeat(7,1fr);background:#1e1208;"></div>
   <div id="cal-body" style="display:grid;grid-template-columns:repeat(7,1fr);min-height:420px;"></div>
-</div>
-
-<div id="bottom-bar-wrap">
-<div class="bottom-bar">
-  <div style="position:relative;display:flex;">
-    <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
-    <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
-    <div class="actions-dd" id="actions-dd">
-      <a onclick="scheduleSelected(event)">Schedule Selected</a>
-      <a onclick="deleteSelectedJobs(event)">Delete Selected</a>
-    </div>
-  </div>
-  <div class="day-tabs" id="day-tabs"></div>
-  <button class="bar-btn" onclick="clearDayFilter()">All Week</button>
-</div>
 </div>
 
 <!-- Schedule Modal -->
