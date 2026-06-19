@@ -90,6 +90,17 @@
     <label class="switch"><input type="checkbox" id="show-banner" checked/><span class="slider"></span></label>
   </div>
 
+  <!-- QuickBooks Export -->
+  <div class="section-title">Integrations</div>
+
+  <div class="toggle-row">
+    <div class="toggle-info">
+      <div class="toggle-name">Show QuickBooks Export Card</div>
+      <div class="toggle-sub">Show the QuickBooks Export shortcut on your dashboard</div>
+    </div>
+    <label class="switch"><input type="checkbox" id="show-qb-export" checked/><span class="slider"></span></label>
+  </div>
+
   <!-- Quick Access -->
   <div class="section-title">Quick Access</div>
 
@@ -211,6 +222,7 @@
     if (!data) return;
 
     document.getElementById('show-banner').checked = data.show_banner !== false;
+    document.getElementById('show-qb-export').checked = data.show_qb_export !== false;
 
     STAT_KEYS.forEach(function(k) {
       var col = 'show_stat_' + k;
@@ -283,6 +295,7 @@
     var row = {
       user_id:          uid,
       show_banner:      document.getElementById('show-banner').checked,
+      show_qb_export:   document.getElementById('show-qb-export').checked,
       updated_at:       new Date().toISOString(),
     };
 

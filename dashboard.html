@@ -1258,6 +1258,8 @@
     }
 
     if (data.show_banner === false) document.getElementById('welcome-banner').style.display = 'none';
+    var qbCard = document.getElementById('qb-export-card');
+    if (qbCard) qbCard.style.display = (data.show_qb_export === false) ? 'none' : 'flex';
 
     allStats.forEach(function(k) {
       var col = 'show_stat_' + k.replace(/-/g,'_');
