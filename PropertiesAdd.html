@@ -171,7 +171,14 @@
       <div class="field-row">
         <label for="office-notes">Notes</label>
         <div style="flex:1;">
-          <textarea id="office-notes" rows="8" placeholder="Internal notes about this property..."></textarea>
+          <textarea id="office-notes" rows="5" placeholder="Internal notes about this property..."></textarea>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:16px;">Irrigation Notes</div>
+      <div class="field-row">
+        <label for="irrigation-notes">Irrigation</label>
+        <div style="flex:1;">
+          <textarea id="irrigation-notes" rows="6" placeholder="Zone layout, controller location, backflow info, special instructions...&#10;e.g. Zone 1 - Front rotors, Zone 2 - Back drip, Controller in garage, Backflow on south wall"></textarea>
         </div>
       </div>
     </div>
@@ -298,7 +305,8 @@
       set('svc-zip',       p.zip);
       set('svc-city',      p.city);
       set('svc-state',     p.state);
-      set('office-notes',  p.notes);
+      set('office-notes',      p.notes);
+      set('irrigation-notes',  p.irrigation_notes);
       document.getElementById('alert-scheduled-next').checked = !!p.alert_scheduled_next;
       document.getElementById('prop-title').textContent = p.name || p.address || 'Property';
 
@@ -442,7 +450,8 @@
       city:         city,
       state:        state,
       zip:          zip,
-      notes:        document.getElementById('office-notes').value.trim(),
+      notes:             document.getElementById('office-notes').value.trim(),
+      irrigation_notes:  document.getElementById('irrigation-notes').value.trim() || null,
       customer_id:          document.getElementById('master-client').value || null,
       sales_tax_id:         document.getElementById('prop-sales-tax').value || null,
       alert_scheduled_next: document.getElementById('alert-scheduled-next').checked,

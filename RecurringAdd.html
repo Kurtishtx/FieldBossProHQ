@@ -119,19 +119,27 @@
         <label>Frequency</label>
         <select id="recur-type" onchange="updatePreview()">
           <option value="weekly">Weekly</option>
-          <option value="biweekly">Bi-Weekly</option>
+          <option value="biweekly">Every Other Week</option>
           <option value="monthly">Monthly</option>
         </select>
       </div>
-      <div></div>
-    </div>
-    <div style="height:12px;"></div>
-    <div class="two-col">
       <div class="field-row" style="margin-bottom:0;">
         <label>Start Date</label>
         <input type="date" id="start-date" onchange="updatePreview()"/>
       </div>
+    </div>
+    <div style="height:12px;"></div>
+    <div class="two-col">
       <div class="field-row" style="margin-bottom:0;">
+        <label>Generate For</label>
+        <select id="gen-range" onchange="onGenRangeChange()">
+          <option value="3">Next 3 Months</option>
+          <option value="6" selected>Next 6 Months</option>
+          <option value="12">Next 1 Year</option>
+          <option value="custom">Custom End Date</option>
+        </select>
+      </div>
+      <div class="field-row" style="margin-bottom:0;" id="end-date-row" style="display:none;">
         <label>End Date</label>
         <input type="date" id="end-date" onchange="updatePreview()"/>
       </div>
@@ -177,6 +185,22 @@
   var uid = null;
   var allProps = [];
 
+  function getEndDate() {
+    var range = document.getElementById('gen-range').value;
+    if (range === 'custom') return document.getElementById('end-date').value;
+    var start = document.getElementById('start-date').value;
+    if (!start) return '';
+    var d = new Date(start + 'T00:00:00');
+    d.setMonth(d.getMonth() + parseInt(range));
+    return d.toISOString().split('T')[0];
+  }
+
+  function onGenRangeChange() {
+    var isCustom = document.getElementById('gen-range').value === 'custom';
+    document.getElementById('end-date-row').style.display = isCustom ? '' : 'none';
+    updatePreview();
+  }
+
   function calcDates(startStr, endStr, type) {
     var dates = [];
     if (!startStr || !endStr) return dates;
@@ -185,9 +209,9 @@
     if (cur > end) return dates;
     while (cur <= end) {
       dates.push(cur.toISOString().split('T')[0]);
-      if (type === 'weekly')   cur.setDate(cur.getDate() + 7);
+      if (type === 'weekly')        cur.setDate(cur.getDate() + 7);
       else if (type === 'biweekly') cur.setDate(cur.getDate() + 14);
-      else if (type === 'monthly') cur.setMonth(cur.getMonth() + 1);
+      else if (type === 'monthly')  cur.setMonth(cur.getMonth() + 1);
       else break;
       if (dates.length > 500) break;
     }
@@ -196,24 +220,31 @@
 
   function updatePreview() {
     var start = document.getElementById('start-date').value;
-    var end   = document.getElementById('end-date').value;
+    var end   = getEndDate();
     var type  = document.getElementById('recur-type').value;
     var prev  = document.getElementById('recur-preview');
     var datesEl = document.getElementById('preview-dates');
     var countEl = document.getElementById('preview-count');
 
-    if (!start || !end) { prev.style.display = 'none'; return; }
+    if (!start) { prev.style.display = 'none'; return; }
+
+    var FREQ_LABEL = { weekly:'Every Week', biweekly:'Every Other Week', monthly:'Every Month' };
+    var startParts = start.split('-');
+    var startDisp  = new Date(+startParts[0], +startParts[1]-1, +startParts[2]);
+    var dayName    = startDisp.toLocaleDateString('en-US', { weekday:'long' });
+
+    if (!end) { prev.style.display = 'none'; return; }
     var dates = calcDates(start, end, type);
     if (!dates.length) { prev.style.display = 'none'; return; }
 
     prev.style.display = 'block';
-    var show = dates.slice(0, 12);
+    var show = dates.slice(0, 16);
     datesEl.innerHTML = show.map(function(d) {
       var parts = d.split('-');
-      var disp = new Date(+parts[0], +parts[1]-1, +parts[2]);
-      return '<span class="preview-date">' + disp.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + '</span>';
+      var disp  = new Date(+parts[0], +parts[1]-1, +parts[2]);
+      return '<span class="preview-date">' + disp.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) + '</span>';
     }).join('');
-    countEl.textContent = dates.length + ' occurrence' + (dates.length === 1 ? '' : 's') + ' total' + (dates.length > 12 ? ' (showing first 12)' : '');
+    countEl.textContent = (FREQ_LABEL[type]||type) + ' on ' + dayName + 's — ' + dates.length + ' job' + (dates.length === 1 ? '' : 's') + ' total' + (dates.length > 16 ? ' (showing first 16)' : '');
   }
 
   async function searchProps(val) {
@@ -263,13 +294,14 @@
     var notes     = document.getElementById('notes').value;
     var recurType = document.getElementById('recur-type').value;
     var start     = document.getElementById('start-date').value;
-    var end       = document.getElementById('end-date').value;
+    var end       = getEndDate();
     var truckId   = document.getElementById('truck-select').value || null;
     var assignTo  = document.getElementById('employee-select').value || null;
     var statusEl  = document.getElementById('status-msg');
 
-    if (!propId)   { alert('Please select a property.'); return; }
-    if (!start || !end) { alert('Please set start and end dates.'); return; }
+    if (!propId) { alert('Please select a property.'); return; }
+    if (!start)  { alert('Please set a start date.'); return; }
+    if (!end)    { alert('Please set a custom end date.'); return; }
 
     var dates = calcDates(start, end, recurType);
     if (!dates.length) { alert('No occurrences generated — check your dates.'); return; }
