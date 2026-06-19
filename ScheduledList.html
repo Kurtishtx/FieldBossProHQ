@@ -430,10 +430,10 @@
   <div class="stop-panel" id="stop-panel">
     <div class="stop-panel-hdr">
       <span>Selection Summary</span>
-      <button onclick="closeStopPanel()" title="Close" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;line-height:1;padding:0;">&#x2715;</button>
+      <button onclick="closeStopPanel()" title="Close">&#x2715;</button>
     </div>
     <div class="stop-body" id="stop-body"></div>
-    <div id="route-auto-section" style="padding:0 8px 4px;border-top:2px solid #ede5d8;margin-top:2px;display:none;">
+    <div id="route-auto-section" style="display:none;padding:0 8px 4px;border-top:2px solid #ede5d8;">
       <div style="font-size:10px;font-weight:700;color:#7a6040;text-transform:uppercase;letter-spacing:.6px;padding:6px 0 5px;">Auto Route</div>
       <div style="display:flex;gap:4px;margin-bottom:4px;">
         <button onclick="sortByDistance(false)" style="flex:1;background:#1e1208;color:#fff;border:none;padding:6px 3px;font-size:10.5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:inherit;">Closest First</button>
@@ -462,7 +462,7 @@
         <path d="M18 11V8a2 2 0 0 0-4 0v5M14 8V6a2 2 0 0 0-4 0v6M10 7V5a2 2 0 0 0-4 0v9l-1-1a2 2 0 0 0-2.7.1L6 21h12l2-7H18"/>
       </svg>
     </button>
-    <button id="tool-draw" class="map-tool-btn" title="Draw polygon to select stops" onclick="setMapTool('draw')">
+    <button id="tool-draw" class="map-tool-btn" title="Draw polygon" onclick="setMapTool('draw')">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="1"/>
         <circle cx="3" cy="3" r="1.5" fill="#333"/>
@@ -787,10 +787,7 @@
       var lng = j.Properties && j.Properties.lng;
       if (!lat || !lng) return;
       var key = String(j.property_id);
-      if (!seen[key]) {
-        seen[key] = true;
-        stops.push({ job: j, lat: parseFloat(lat), lng: parseFloat(lng) });
-      }
+      if (!seen[key]) { seen[key] = true; stops.push({ job: j, lat: parseFloat(lat), lng: parseFloat(lng) }); }
     });
     return stops;
   }
@@ -805,11 +802,10 @@
 
   function optimizeGoogleRoute() {
     var stops = getUniqueRouteStops(selectedForRoute);
-    if (stops.length < 2) { alert('Need at least 2 stops to optimize.'); return; }
+    if (stops.length < 2) { alert('Need at least 2 stops.'); return; }
     var btn = document.getElementById('btn-google-optimize');
     if (btn) { btn.textContent = 'Optimizing...'; btn.disabled = true; }
-    var svc = new google.maps.DirectionsService();
-    svc.route({
+    new google.maps.DirectionsService().route({
       origin: new google.maps.LatLng(businessLat, businessLng),
       destination: new google.maps.LatLng(businessLat, businessLng),
       waypoints: stops.map(function(s) { return { location: new google.maps.LatLng(s.lat, s.lng), stopover: true }; }),
@@ -829,16 +825,14 @@
     var mapsWrap = document.getElementById('route-maps-wrap');
     var mapsBtn  = document.getElementById('route-maps-btn');
     if (!listEl) return;
-
     listEl.innerHTML = orderedStops.map(function(s, i) {
-      var name = (s.job.Properties && s.job.Properties.client_name) || s.job.client_name || '—';
-      var addr = (s.job.Properties && s.job.Properties.address)     || s.job.address    || '';
+      var name = (s.job.Properties && s.job.Properties.client_name) || '—';
+      var addr = (s.job.Properties && s.job.Properties.address)     || '';
       return '<div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #f0ebe3;font-size:12px;">' +
         '<span style="background:#c47d0a;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;">' + (i+1) + '</span>' +
-        '<div><div style="font-weight:600;color:#1e1208;">' + (name) + '</div>' +
-        '<div style="color:#888;font-size:11px;">' + (addr) + '</div></div></div>';
+        '<div><div style="font-weight:600;color:#1e1208;">' + name + '</div>' +
+        '<div style="color:#888;font-size:11px;">' + addr + '</div></div></div>';
     }).join('');
-
     orderedStops.forEach(function(s, i) {
       var m = new google.maps.Marker({
         position: { lat: s.lat, lng: s.lng }, map: map, zIndex: 200,
@@ -847,7 +841,6 @@
       });
       routeOptMarkers.push(m);
     });
-
     var mapsUrl = 'https://www.google.com/maps/dir/?api=1' +
       '&origin=' + businessLat + ',' + businessLng +
       '&destination=' + businessLat + ',' + businessLng +
@@ -1765,51 +1758,20 @@
     map.setMapTypeId(style === 'satellite' ? 'satellite' : 'roadmap');
   }
 
-  var pickedPropIds = {};
-
   function setMapTool(tool) {
     mapTool = tool;
     document.getElementById('tool-pan').classList.toggle('active', tool === 'pan');
     document.getElementById('tool-draw').classList.toggle('active', tool === 'draw');
-    document.getElementById('tool-pick').classList.toggle('active', tool === 'pick');
     var cap = document.getElementById('draw-capture');
     if (tool === 'draw') {
       map.setOptions({ draggable:false, draggableCursor:'crosshair' });
       cap.style.display = '';
       cap.style.cursor  = 'crosshair';
       resetDraw();
-      pickedPropIds = {};
-    } else if (tool === 'pick') {
-      map.setOptions({ draggable:true, draggableCursor:'pointer' });
-      cap.style.display = 'none';
-      resetDraw();
-      pickedPropIds = {};
-      selectedForRoute = [];
-      clearRouteOptMarkers();
-      document.getElementById('stop-panel').style.display = 'none';
-      document.getElementById('map-tool-panel').style.left = '10px';
     } else {
       map.setOptions({ draggable:true, draggableCursor:'' });
       cap.style.display = 'none';
-      pickedPropIds = {};
     }
-  }
-
-  function togglePickedProp(propId) {
-    if (pickedPropIds[propId]) {
-      delete pickedPropIds[propId];
-    } else {
-      pickedPropIds[propId] = true;
-    }
-    var pickedSvcs = services.filter(function(s) { return !!pickedPropIds[String(s.property_id)]; });
-    if (pickedSvcs.length) {
-      showStopPanel(pickedSvcs);
-    } else {
-      document.getElementById('stop-panel').style.display = 'none';
-      document.getElementById('map-tool-panel').style.left = '10px';
-      clearRouteOptMarkers();
-    }
-    loadMarkers();
   }
 
   function updateFirstVertexMarker() {
@@ -1917,25 +1879,25 @@
     document.getElementById('marker-mode-wrap').style.display = 'block';
     selectedForRoute = selected;
     var autoSect = document.getElementById('route-auto-section');
+    var overMsg  = document.getElementById('route-over-limit-msg');
+    var optBtn   = document.getElementById('btn-google-optimize');
     if (autoSect) {
       autoSect.style.display = '';
-      var stops = new Set(selected.map(function(x) { return x.property_id; })).size;
-      var overMsg = document.getElementById('route-over-limit-msg');
-      var optBtn  = document.getElementById('btn-google-optimize');
+      var stopCount = new Set(selected.map(function(x) { return x.property_id; })).size;
       if (!businessLat || !businessLng) {
         overMsg.style.display = '';
-        overMsg.textContent = 'Business address not geocoded yet — save your address in Settings → Company Info.';
-        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; optBtn.style.cursor = 'not-allowed'; }
-        document.querySelectorAll('#route-auto-section button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = true; b.style.opacity = '.5'; });
-      } else if (stops > 25) {
+        overMsg.textContent = 'Business address not found — add your address in Settings → Company Info.';
+        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; }
+        autoSect.querySelectorAll('button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = true; b.style.opacity = '.5'; });
+      } else if (stopCount > 25) {
         overMsg.style.display = '';
-        overMsg.textContent = '⚠ ' + stops + ' stops — over 25. Google Optimize disabled. Use Closest/Furthest First.';
-        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; optBtn.style.cursor = 'not-allowed'; }
-        document.querySelectorAll('#route-auto-section button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
+        overMsg.textContent = '⚠ ' + stopCount + ' stops — over 25. Google Optimize disabled.';
+        if (optBtn) { optBtn.disabled = true; optBtn.style.opacity = '.5'; }
+        autoSect.querySelectorAll('button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
       } else {
         overMsg.style.display = 'none';
-        if (optBtn) { optBtn.disabled = false; optBtn.style.opacity = '1'; optBtn.style.cursor = 'pointer'; }
-        document.querySelectorAll('#route-auto-section button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
+        if (optBtn) { optBtn.disabled = false; optBtn.style.opacity = '1'; }
+        autoSect.querySelectorAll('button:not(#btn-google-optimize)').forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
       }
     }
     var totalRev = selected.reduce(function(s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
@@ -2032,21 +1994,16 @@
           });
         })(propId, marker);
       } else {
-        var isPicked = !!pickedPropIds[propId];
-        var pinFill = isPicked ? '#1a6abf' : '#c47d0a';
-        var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="' + pinFill + '" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+        var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
         marker = new google.maps.Marker({
           position: pos, map: map,
           icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSvg),
             scaledSize: new google.maps.Size(32, 42), anchor: new google.maps.Point(16, 42) }
         });
         var relatedSvcs = services.filter(function(s) { return String(s.property_id) === propId; });
-        (function(svcs, pid, m) {
-          google.maps.event.addListener(m, 'click', function() {
-            if (mapTool === 'pick') { togglePickedProp(pid); }
-            else { showStopPanel(svcs); }
-          });
-        })(relatedSvcs, propId, marker);
+        (function(svcs, m) {
+          google.maps.event.addListener(m, 'click', function() { showStopPanel(svcs); });
+        })(relatedSvcs, marker);
       }
       mapMarkers.push(marker);
     });
