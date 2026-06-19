@@ -15,9 +15,12 @@
     .avatar { width:34px; height:34px; border-radius:50%; background:#8a5518; color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
 
     .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#7a6040; flex-wrap:wrap; margin:4px 16px; border-radius:8px; overflow:hidden; }
-    .filter-bar strong { font-size:13px; color:#333; }
-    .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); }
+    .filter-bar-label { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; white-space:nowrap; margin-right:2px; }
+    .filter-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); font-family:inherit; }
     .filter-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .cat-tab { padding:3px 12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.12); font-size:13px; cursor:pointer; border-radius:4px; color:rgba(255,255,255,.8); font-family:inherit; }
+    .cat-tab:hover { background:rgba(255,255,255,.22); color:#fff; }
+    .cat-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
     .filter-tab.active { background:#1e1208; color:#fff; border:2px solid #fff; font-weight:700; }
 
     .subfilter-bar { display:none; align-items:center; gap:8px; padding:5px 10px; background:#8a7055; margin:2px 16px; border-radius:8px; overflow:visible; }
@@ -250,11 +253,22 @@
 
 <!-- Filter tabs -->
 <div class="filter-bar">
-  <strong>Select a Filter:</strong>
+  <span class="filter-bar-label">Select a Filter:</span>
+  <button class="filter-tab active" id="filter-tab-category" onclick="setFilter(this,'category')">Category</button>
   <button class="filter-tab" id="filter-tab-services" onclick="setFilter(this,'services')">Services</button>
   <button class="filter-tab" id="filter-tab-tags" onclick="setFilter(this,'tags')">Tags</button>
   <button class="filter-tab" id="filter-tab-status" onclick="setFilter(this,'status')">Status</button>
   <button class="filter-tab" id="filter-tab-pastdue" onclick="togglePastDueFilter(this)">Past Due</button>
+</div>
+
+<!-- Category sub-filter -->
+<div class="subfilter-bar visible" id="category-subfilter-bar">
+  <button class="cat-tab active" id="wl-cat-all" onclick="setWLCategory('all',this)">All</button>
+  <button class="cat-tab" onclick="setWLCategory('mowing',this)">Mowing</button>
+  <button class="cat-tab" onclick="setWLCategory('landscape',this)">Landscape</button>
+  <button class="cat-tab" onclick="setWLCategory('irrigation',this)">Irrigation</button>
+  <button class="cat-tab" onclick="setWLCategory('snow',this)">Snow</button>
+  <button class="cat-tab" onclick="setWLCategory('other',this)">Other</button>
 </div>
 
 <!-- Services sub-filter -->
@@ -930,6 +944,10 @@
   function renderTable() {
     var filtered = services.slice();
 
+    /* category filter */
+    if (activeWLCategory && activeWLCategory !== 'all') {
+      filtered = filtered.filter(function(s) { return s.job_category === activeWLCategory; });
+    }
     /* service filter */
     if (activeServiceFilter.length) {
       filtered = filtered.filter(function(s) { return activeServiceFilter.indexOf(s.service) >= 0; });
@@ -1264,19 +1282,29 @@
     loadMarkers();
   }
 
+  var activeWLCategory = 'all';
+
+  function setWLCategory(cat, el) {
+    activeWLCategory = cat;
+    document.querySelectorAll('#category-subfilter-bar .cat-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    renderTable();
+  }
+
   /* -- Filter logic -- */
   function setFilter(btn, type) {
     if (btn.classList.contains('active')) {
       btn.classList.remove('active');
-      if (type === 'services') closeSubfilter();
+      if (type === 'category') { document.getElementById('category-subfilter-bar').classList.toggle('visible'); activeWLCategory='all'; document.getElementById('wl-cat-all').classList.add('active'); renderTable(); }
+      else if (type === 'services') closeSubfilter();
       else if (type === 'tags') closeTagSubfilter();
       else if (type === 'status') closeStatusSubfilter();
       return;
     }
-    document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
-    document.querySelectorAll('.subfilter-bar').forEach(function(b) { b.classList.remove('visible'); });
-    if (type === 'services') {
+    if (type === 'category') {
+      document.getElementById('category-subfilter-bar').classList.add('visible');
+    } else if (type === 'services') {
       document.getElementById('subfilter-bar').classList.add('visible');
       loadServiceDropdown();
     } else if (type === 'tags') {
