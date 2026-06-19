@@ -149,6 +149,22 @@
     .btn-del { background:none; border:none; color:#cc2222; font-size:16px; cursor:pointer; padding:0 4px; }
     .empty-msg { text-align:center; padding:48px 24px; color:#888; font-size:15px; }
 
+    /* Bottom bar — exact copy from ScheduledList */
+    .bottom-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#1e1208; margin:0 16px; border-radius:8px 8px 0 0; position:relative; }
+    .btn-actions { background:#e8c000; color:#000; border:2px solid #fff; border-right:none; padding:5px 14px; font-size:13px; font-weight:600; cursor:pointer; border-radius:3px 0 0 3px; font-family:inherit; }
+    .btn-actions-caret { background:#e8c000; color:#000; border:2px solid #fff; border-left:1px solid rgba(0,0,0,.15); padding:5px 8px; font-size:12px; cursor:pointer; border-radius:0 3px 3px 0; font-family:inherit; }
+    .day-tabs { display:flex; gap:2px; margin-left:4px; }
+    .day-tab { border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); padding:3px 10px; font-size:12px; cursor:pointer; text-align:center; line-height:1.4; border-radius:4px; color:rgba(255,255,255,.6); font-family:inherit; }
+    .day-tab:hover { background:rgba(255,255,255,.12); color:#fff; }
+    .day-tab.active { background:rgba(255,255,255,.18); border:2px solid #fff; font-weight:700; color:#fff; }
+    .day-tab .day-letter { font-weight:700; display:block; }
+    .day-tab .day-num { display:block; }
+    .bar-btn { border:1px solid #bbb; background:#fff; padding:5px 12px; font-size:12.5px; cursor:pointer; border-radius:2px; color:#333; font-family:inherit; }
+    .bar-btn:hover { background:#e8e8e8; }
+    .actions-dd { display:none; position:fixed; background:#fff; border:1px solid #ccc; box-shadow:0 -4px 12px rgba(0,0,0,.2); min-width:180px; z-index:9999; padding:4px 0; }
+    .actions-dd a { display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:13px; cursor:pointer; }
+    .actions-dd a:hover { background:#f5f5f5; }
+
     /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; }
@@ -357,12 +373,24 @@
   <span class="sched-section-sub" id="sched-week-label"></span>
 </div>
 
-<div class="results-bar" id="results-bar"></div>
+<div class="bottom-bar">
+  <div style="position:relative;display:flex;">
+    <button class="btn-actions" onclick="toggleActionsDD(event)">Actions</button>
+    <button class="btn-actions-caret" onclick="toggleActionsDD(event)">&#9660;</button>
+    <div class="actions-dd" id="actions-dd">
+      <a onclick="scheduleSelected(event)">Schedule Selected</a>
+      <a onclick="deleteSelectedJobs(event)">Delete Selected</a>
+    </div>
+  </div>
+  <div class="day-tabs" id="day-tabs"></div>
+  <button class="bar-btn" onclick="clearDayFilter()">All Week</button>
+</div>
 
 <div class="table-container">
   <table class="data-table">
     <thead>
       <tr>
+        <th style="width:32px;text-align:center;"><input type="checkbox" id="select-all-jobs" onchange="toggleAllJobs(this)"/></th>
         <th>Date</th>
         <th>Client</th>
         <th>Address</th>
@@ -481,8 +509,8 @@
     var swl = document.getElementById('sched-week-label');
     if (swl) swl.textContent = label;
   }
-  function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
-  function goToday()       { weekOffset = 0;   updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
+  function shiftWeek(dir) { weekOffset += dir; activeDayFilter = null; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
+  function goToday()       { weekOffset = 0;   activeDayFilter = null; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
 
   // ── Search ───────────────────────────────────────────
   function onSearch() {
@@ -735,9 +763,14 @@
   function renderScheduled() {
     var s = weekStart(weekOffset); var e = new Date(s); e.setDate(e.getDate() + 7);
     var sIso = isoDate(s); var eIso = isoDate(e);
+    buildDayTabs();
 
     var filtered = allJobs.filter(function(j) {
       if (!j.scheduled_date || j.scheduled_date < sIso || j.scheduled_date >= eIso) return false;
+      if (activeDayFilter !== null) {
+        var d = new Date(s); d.setDate(d.getDate() + activeDayFilter);
+        if (j.scheduled_date !== isoDate(d)) return false;
+      }
       if (activeCategory !== 'all' && j.job_category !== activeCategory) return false;
       if (activeStatuses.length && !activeStatuses.includes(j.status)) return false;
       if (activeTrucks.length && !activeTrucks.includes(j.truck_id)) return false;
@@ -766,6 +799,7 @@
       var cat = j.job_category || 'other';
       var tr = document.createElement('tr');
       tr.innerHTML =
+        '<td style="text-align:center;"><input type="checkbox" class="job-row-cb" value="' + j.id + '"/></td>' +
         '<td style="color:#888;font-size:12px;">' + esc(j.scheduled_date) + '</td>' +
         '<td style="font-weight:600;">' + esc(j.client_name||'') + '</td>' +
         '<td style="color:#555;">' + esc(j.address||'') + '</td>' +
@@ -1157,6 +1191,68 @@
       mapMarkers.push(marker);
     });
     if (hasPin) jobMap.fitBounds(bounds);
+  }
+
+  // ── Day tabs ─────────────────────────────────────────
+  var activeDayFilter = null;
+
+  function buildDayTabs() {
+    var s = weekStart(weekOffset);
+    var tabs = document.getElementById('day-tabs');
+    tabs.innerHTML = '';
+    var DAYS = ['S','M','T','W','T','F','S'];
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(s); d.setDate(d.getDate() + i);
+      var btn = document.createElement('button');
+      btn.className = 'day-tab' + (activeDayFilter === i ? ' active' : '');
+      btn.innerHTML = '<span class="day-letter">' + DAYS[i] + '</span><span class="day-num">' + d.getDate() + '</span>';
+      (function(idx) { btn.onclick = function() { setDayFilter(idx); }; })(i);
+      tabs.appendChild(btn);
+    }
+  }
+
+  function setDayFilter(idx) {
+    activeDayFilter = (activeDayFilter === idx) ? null : idx;
+    buildDayTabs();
+    render();
+  }
+
+  function clearDayFilter() {
+    activeDayFilter = null;
+    buildDayTabs();
+    render();
+  }
+
+  // ── Actions dropdown ──────────────────────────────────
+  function toggleActionsDD(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('actions-dd');
+    var rect = e.currentTarget.closest('div').getBoundingClientRect();
+    dd.style.left = rect.left + 'px';
+    dd.style.top  = (rect.top - 2) + 'px';
+    dd.style.transform = 'translateY(-100%)';
+    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+  }
+  document.addEventListener('click', function() { var dd = document.getElementById('actions-dd'); if (dd) dd.style.display = 'none'; });
+
+  function scheduleSelected(e) { if (e) e.stopPropagation(); document.getElementById('actions-dd').style.display='none'; alert('Select a job row to schedule it.'); }
+
+  function deleteSelectedJobs(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('actions-dd').style.display = 'none';
+    var checked = document.querySelectorAll('.job-row-cb:checked');
+    if (!checked.length) { alert('No jobs selected.'); return; }
+    if (!confirm('Delete ' + checked.length + ' job(s)?')) return;
+    var ids = Array.from(checked).map(function(cb){ return cb.value; });
+    Promise.all(ids.map(function(id){ return sb.from('Services').delete().eq('id', id); })).then(function() {
+      allJobs     = allJobs.filter(function(j){ return !ids.includes(j.id); });
+      unschedJobs = unschedJobs.filter(function(j){ return !ids.includes(j.id); });
+      render();
+    });
+  }
+
+  function toggleAllJobs(cb) {
+    document.querySelectorAll('.job-row-cb').forEach(function(c){ c.checked = cb.checked; });
   }
 
   // ── Init ─────────────────────────────────────────────
