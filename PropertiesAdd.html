@@ -89,6 +89,7 @@
     <button class="tab-btn" data-tab="notes">Office Notes</button>
     <button class="tab-btn" data-tab="custom">Custom Fields</button>
     <button class="tab-btn" data-tab="area">Area Treated</button>
+    <button class="tab-btn" id="snow-tab-btn" data-tab="snow" style="display:none;">&#10052; Snow</button>
   </div>
 
   <!-- Property Information panel -->
@@ -202,6 +203,39 @@
     </div>
   </div>
 
+  <div class="tab-panel" id="tab-snow">
+    <div class="dialog-body">
+      <div class="section-label" style="padding-top:0;border-top:none;">Snow Service</div>
+      <div class="field-row" style="align-items:center;">
+        <label style="cursor:pointer;">Enrolled in Snow Service</label>
+        <div style="flex:1;display:flex;align-items:center;gap:12px;">
+          <input type="checkbox" id="snow-enrolled" style="width:18px;height:18px;cursor:pointer;accent-color:#1a3a5c;" onchange="toggleSnowFields()"/>
+          <span style="font-size:12.5px;color:#111;">This property is a snow removal customer.</span>
+        </div>
+      </div>
+      <div id="snow-fields" style="display:none;">
+        <div class="field-row">
+          <label>Billing Type</label>
+          <div style="flex:1;">
+            <select id="snow-billing" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;">
+              <option value="per_push">Per Push</option>
+              <option value="per_inch">Per Inch</option>
+              <option value="seasonal">Seasonal</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <label>Rate ($)</label>
+          <div style="flex:1;"><input type="number" id="snow-rate" placeholder="0.00" step="0.01" min="0" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;"/></div>
+        </div>
+        <div class="field-row">
+          <label>Snow Notes</label>
+          <div style="flex:1;"><textarea id="snow-notes" rows="3" placeholder="e.g. Plow around shed, gate code 1234..." style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;resize:vertical;"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="dialog-footer">
     <button class="btn-save" onclick="saveProperty()">Save</button>
     <span class="btn-cancel" onclick="cancelEdit(event)">Cancel</span>
@@ -234,7 +268,10 @@
   var params   = new URLSearchParams(window.location.search);
   var editId   = params.get('id');
   var presetClientId = params.get('clientId');
-  if (editId) document.getElementById('btn-delete-property').style.display = '';
+  if (editId) {
+    document.getElementById('btn-delete-property').style.display = '';
+    document.getElementById('snow-tab-btn').style.display = '';
+  }
 
   /* ── Tab switching ── */
   document.querySelectorAll('.tab-btn').forEach(function(tab) {
@@ -314,6 +351,7 @@
 
       await loadClientOptions(p.customer_id);
       await loadSalesTaxOptions(p.sales_tax_id || null);
+      loadSnowTab();
     } else {
       await loadClientOptions(presetClientId || null);
       await loadSalesTaxOptions(null);
@@ -481,6 +519,47 @@
     }
   }
 
+  function toggleSnowFields() {
+    document.getElementById('snow-fields').style.display =
+      document.getElementById('snow-enrolled').checked ? '' : 'none';
+  }
+
+  var snowPropId = null;
+
+  async function loadSnowTab() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    if (!uid || !editId) return;
+    var { data } = await sb.from('snow_properties').select('*').eq('user_id', uid).eq('property_id', editId).maybeSingle();
+    if (data) {
+      snowPropId = data.id;
+      document.getElementById('snow-enrolled').checked = data.active !== false;
+      document.getElementById('snow-billing').value = data.billing_type || 'per_push';
+      document.getElementById('snow-rate').value = data.rate || '';
+      document.getElementById('snow-notes').value = data.notes || '';
+      toggleSnowFields();
+    }
+  }
+
+  async function saveSnowTab(uid) {
+    if (!editId) return;
+    var enrolled = document.getElementById('snow-enrolled').checked;
+    if (!enrolled && !snowPropId) return;
+    var payload = {
+      user_id: uid, property_id: editId,
+      active: enrolled,
+      billing_type: document.getElementById('snow-billing').value,
+      rate: parseFloat(document.getElementById('snow-rate').value) || 0,
+      notes: document.getElementById('snow-notes').value.trim()
+    };
+    if (snowPropId) {
+      await sb.from('snow_properties').update(payload).eq('id', snowPropId);
+    } else if (enrolled) {
+      var { data } = await sb.from('snow_properties').insert(payload).select('id').single();
+      if (data) snowPropId = data.id;
+    }
+  }
+
   async function persistProperty(record) {
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
@@ -497,6 +576,8 @@
     }
 
     if (error) { alert('Error saving property: ' + error.message); return; }
+
+    await saveSnowTab(uid);
 
     if (!editId && savedId) {
       if (window.parent && window.parent.loadPage) {
