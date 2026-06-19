@@ -1597,26 +1597,56 @@
     await loadSnowJobs();
   }
 
-  // #3 — Mark complete + auto-create next pass
+  // #3 — Mark complete + auto-create next pass + invoice
   async function completeSnowJob(id) {
     var job = snowJobs.find(function(j){ return j.id === id; });
     if (!job) return;
     var nextPass = (job.pass_number || 1) + 1;
-    var moreSnow = confirm('Mark Push #' + (job.pass_number||1) + ' complete?\n\nClick OK to auto-create Push #' + nextPass + ' (more snow accumulating).\nClick Cancel to mark done without another pass.');
+    var moreSnow = confirm('Mark Push #' + (job.pass_number||1) + ' complete?\n\nClick OK to auto-create Push #' + nextPass + ' (more snow accumulating).\nClick Cancel to mark done and generate invoice.');
     await sb.from('snow_jobs').update({ completed: true }).eq('id', id);
     if (moreSnow) {
+      var depth = parseFloat(document.getElementById('snow-storm-depth').value) || job.snow_depth || 0;
       await sb.from('snow_jobs').insert({
-        user_id: uid,
-        snow_property_id: job.snow_property_id,
-        storm_name: job.storm_name,
-        pass_number: nextPass,
-        billing_type: job.billing_type,
-        rate: job.rate,
-        dispatched: false,
-        completed: false
+        user_id: uid, snow_property_id: job.snow_property_id,
+        storm_name: job.storm_name, pass_number: nextPass,
+        billing_type: job.billing_type, rate: job.rate,
+        snow_depth: depth, dispatched: false, completed: false
       });
+    } else {
+      // #5 — generate invoice on final pass
+      await createSnowInvoice(job);
     }
     await loadSnowJobs();
+  }
+
+  // #5 — Snow invoice generation
+  async function createSnowInvoice(job) {
+    if (job.billing_type === 'seasonal') return; // seasonal = no per-job invoice
+    var sp   = job.snow_properties || {};
+    var prop = sp.Properties || {};
+    var depth  = parseFloat(job.snow_depth || 0);
+    var amount = parseFloat(job.rate || 0);
+    if (job.billing_type === 'per_inch') amount = amount * depth;
+    if (amount <= 0) return;
+
+    var { data: lastInv } = await sb.from('Invoices').select('inv_num').eq('user_id', uid).order('inv_num', { ascending: false }).limit(1);
+    var nextNum = 1;
+    if (lastInv && lastInv.length) { var parsed = parseInt(lastInv[0].inv_num); if (!isNaN(parsed)) nextNum = parsed + 1; }
+
+    var today = new Date().toISOString().split('T')[0];
+    var billingLabel = { per_push: 'Per Push', per_inch: 'Per Inch (' + depth + '")', hourly: 'Hourly' }[job.billing_type] || job.billing_type;
+    await sb.from('Invoices').insert({
+      user_id: uid,
+      property_id: sp.property_id || null,
+      client_name: prop.client_name || '',
+      address: prop.address || '',
+      date: today,
+      inv_num: String(nextNum),
+      inv_total: amount,
+      inv_bal: amount,
+      service_lines: [{ name: 'Snow Removal — ' + (job.storm_name || 'Storm'), description: billingLabel + ' — Push #' + (job.pass_number || 1), date: today, rate: amount, qty: 1, amount: amount }],
+      deleted: false, past_due: false, incomplete: false
+    });
   }
 
   async function confirmSnowJobs() {
@@ -1646,8 +1676,8 @@
         snowPropId = newSp ? newSp.id : null;
       }
       if (!snowPropId) continue;
-      // Create the snow job (pass #1)
-      await sb.from('snow_jobs').insert({ user_id: uid, snow_property_id: snowPropId, storm_name: stormName, pass_number: 1, billing_type: item.billing, rate: item.rate, dispatched: false, completed: false });
+      var snowDepth = parseFloat(document.getElementById('snow-storm-depth').value) || 0;
+      await sb.from('snow_jobs').insert({ user_id: uid, snow_property_id: snowPropId, storm_name: stormName, pass_number: 1, billing_type: item.billing, rate: item.rate, snow_depth: snowDepth, dispatched: false, completed: false });
     }
 
     closeSnowModal();
@@ -1678,9 +1708,8 @@
   }
 
   async function loadSnowJobs() {
-    // #4 — fixed join: snow_jobs → snow_properties → Properties
     var { data } = await sb.from('snow_jobs')
-      .select('id, pass_number, billing_type, rate, truck_id, storm_name, snow_property_id, completed, snow_properties(id, property_id, Properties(client_name, address))')
+      .select('id, pass_number, billing_type, rate, truck_id, storm_name, snow_property_id, completed, snow_depth, cleanup, snow_properties(id, property_id, Properties(client_name, address))')
       .eq('user_id', uid)
       .eq('completed', false)
       .order('created_at');
@@ -1699,12 +1728,13 @@
       var sp   = j.snow_properties || {};
       var prop = sp.Properties || {};
       var truckName = j.truck_id ? ((truckList.find(function(t){ return t.id===j.truck_id; })||{}).name || 'Assigned') : 'Unassigned';
-      var dispatched = j.dispatched;
+      var isCleanup = j.cleanup;
       var tr = document.createElement('tr');
+      tr.style.background = isCleanup ? '#fff8f0' : '';
       tr.innerHTML =
         '<td style="font-weight:600;">' + esc(prop.client_name || '—') + '</td>' +
         '<td style="color:#555;font-size:12px;">' + esc(prop.address || '—') + '</td>' +
-        '<td><span class="badge-snow-billing">' + esc(j.billing_type || '—') + '</span></td>' +
+        '<td><span class="badge-snow-billing" style="' + (isCleanup ? 'background:#ffe0b2;color:#b35c00;' : '') + '">' + (isCleanup ? '&#9875; Cleanup' : esc(j.billing_type || '—')) + '</span></td>' +
         '<td>$' + parseFloat(j.rate || 0).toFixed(2) + '</td>' +
         '<td style="font-weight:700;color:#1a3a5c;">Push #' + (j.pass_number || 1) + '</td>' +
         '<td style="color:' + (j.truck_id ? '#1a3a5c' : '#999') + ';font-weight:' + (j.truck_id ? '700' : '400') + ';">' + esc(truckName) + '</td>' +
@@ -1728,11 +1758,14 @@
     alert('Storm "' + name + '" started! Draw a circle on the map to select snow properties.');
   }
 
-  function endStorm() {
-    if (!confirm('End this storm and move to Cleanup Mode?')) return;
+  // #7 — Cleanup mode
+  async function endStorm() {
+    if (!confirm('End this storm and move remaining jobs to Cleanup Mode?')) return;
+    var stormName = document.getElementById('snow-storm-name').value.trim() || 'Storm #1';
+    await sb.from('snow_jobs').update({ cleanup: true }).eq('user_id', uid).eq('storm_name', stormName).eq('completed', false);
     activeStorm = null;
     document.getElementById('end-storm-wrap').style.display = 'none';
-    alert('Storm ended. Remaining jobs moved to Cleanup Queue.');
+    await loadSnowJobs();
   }
 
 
