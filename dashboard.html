@@ -565,6 +565,9 @@
       <button class="nav-btn" data-page="dispatched" onclick="loadPage('dispatched', this)">
         <span class="icon">&#128665;</span> Scheduled
       </button>
+      <button class="nav-btn" id="snow-props-nav" data-page="snowproperties" onclick="loadPage('snowproperties', this)" style="display:none;">
+        <span class="icon">&#10052;</span> Snow Properties
+      </button>
     </div>
   </div>
 
@@ -1166,10 +1169,14 @@
       var adminMobileBtn = document.getElementById('admin-mobile-nav-btn');
       if (adminMobileBtn) adminMobileBtn.style.display = 'flex';
     }
-    var { data } = await sbMain.from('company_info').select('phys_timezone').eq('user_id', user.id).single();
+    var { data } = await sbMain.from('company_info').select('phys_timezone, snow_mode').eq('user_id', user.id).single();
     if (data && data.phys_timezone && tzMap[data.phys_timezone]) {
       clockTz = tzMap[data.phys_timezone];
       updateClock();
+    }
+    if (data && data.snow_mode) {
+      var snowNav = document.getElementById('snow-props-nav');
+      if (snowNav) snowNav.style.display = '';
     }
   })();
 
@@ -1290,8 +1297,9 @@
     services:           'services.html',
     servicescreate:     'servicescreate.html',
     servicecategories:  'ServiceCategories.html',
-    waitinglist:  'waitinglist.html',
-    jobboard:     'JobBoard.html',
+    waitinglist:     'waitinglist.html',
+    jobboard:        'JobBoard.html',
+    snowproperties:  'SnowProperties.html',
     calendarview: 'CalendarView.html',
     recurringadd: 'RecurringAdd.html',
     dispatched:   'ScheduledList.html',
