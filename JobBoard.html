@@ -116,7 +116,11 @@
     .btn-assign:hover { background:#1e1208; }
 
     /* Scheduled table */
-    .results-bar { padding:4px 24px; font-size:13px; font-weight:700; color:#111; text-align:right; }
+    .sched-section-hdr { display:flex; align-items:center; justify-content:space-between; background:#1e1208; color:#fff; padding:8px 14px; margin:12px 16px 0; border-radius:10px 10px 0 0; }
+    .sched-section-hdr-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .sched-count-badge { background:rgba(255,255,255,.18); border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; }
+    .sched-section-sub { font-size:11px; color:rgba(255,255,255,.55); }
+    .results-bar { display:none; }
     .table-container { margin:0 16px 16px; border-radius:0 0 10px 10px; overflow:hidden; border:1px solid #ddd; border-top:none; }
     .data-table { width:100%; border-collapse:collapse; }
     .data-table thead tr { background:#1e1208; color:#fff; }
@@ -296,7 +300,7 @@
 <div class="unsched-section">
   <div class="unsched-hdr" onclick="toggleUnsched()">
     <div class="unsched-hdr-title">
-      &#9888; Unscheduled Jobs
+      &#9888; Unscheduled Jobs <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.6);">(no date assigned)</span>
       <span class="unsched-count" id="unsched-count">0</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -323,6 +327,14 @@
     </table>
     <div class="unsched-empty" id="unsched-empty" style="display:none;">No unscheduled jobs &#10003;</div>
   </div>
+</div>
+
+<div class="sched-section-hdr">
+  <div class="sched-section-hdr-title">
+    &#128197; Scheduled Jobs
+    <span class="sched-count-badge" id="sched-count">0</span>
+  </div>
+  <span class="sched-section-sub" id="sched-week-label"></span>
 </div>
 
 <div class="results-bar" id="results-bar"></div>
@@ -444,7 +456,10 @@
   function updateWeekLabel() {
     var s = weekStart(weekOffset);
     var e = new Date(s); e.setDate(e.getDate() + 6);
-    document.getElementById('week-label').textContent = fmt(s) + ' – ' + fmt(e);
+    var label = fmt(s) + ' – ' + fmt(e);
+    document.getElementById('week-label').textContent = label;
+    var swl = document.getElementById('sched-week-label');
+    if (swl) swl.textContent = label;
   }
   function shiftWeek(dir) { weekOffset += dir; updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
   function goToday()       { weekOffset = 0;   updateWeekLabel(); render(); if (mapVisible) loadMapMarkers(); }
@@ -714,7 +729,7 @@
     var tbody = document.getElementById('job-tbody');
     tbody.innerHTML = '';
     document.getElementById('empty-msg').style.display = filtered.length ? 'none' : 'block';
-    document.getElementById('results-bar').textContent = filtered.length + ' scheduled job' + (filtered.length === 1 ? '' : 's') + ' this week';
+    document.getElementById('sched-count').textContent = filtered.length;
 
     updateStats(filtered);
 
