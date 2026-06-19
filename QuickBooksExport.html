@@ -122,14 +122,24 @@
   }
 
   async function exportInvoices() {
-    var { data, error } = await sb.from('Invoices').select('inv_num, client_name, date, frequency, inv_total, payment').eq('user_id', uid).order('date', { ascending: false });
+    var { data, error } = await sb.from('Invoices').select('inv_num, client_name, date, inv_total, payment, service_lines').eq('user_id', uid).order('date', { ascending: false });
     if (error) { alert('Error: ' + error.message); return; }
     var rows = [['*InvoiceNo','*Customer','*InvoiceDate','*DueDate','*ItemName','ItemDescription','*ItemQuantity','*ItemRate','*ItemAmount']];
     (data || []).forEach(function(inv) {
       var date = inv.date || '';
       var due  = date ? new Date(new Date(date).getTime() + 30*24*60*60*1000).toISOString().slice(0,10) : '';
-      var total = parseFloat(inv.inv_total) || 0;
-      rows.push([inv.inv_num||'', inv.client_name||'', date, due, inv.frequency||'Service', inv.frequency||'', '1', total.toFixed(2), total.toFixed(2)]);
+      var lines = inv.service_lines && inv.service_lines.length ? inv.service_lines : null;
+      if (lines) {
+        lines.forEach(function(line) {
+          var qty = parseFloat(line.qty) || 1;
+          var rate = parseFloat(line.rate) || 0;
+          var amt = parseFloat(line.amount) || (qty * rate);
+          rows.push([inv.inv_num||'', inv.client_name||'', date, due, line.name||'Service', line.description||'', qty, rate.toFixed(2), amt.toFixed(2)]);
+        });
+      } else {
+        var total = parseFloat(inv.inv_total) || 0;
+        rows.push([inv.inv_num||'', inv.client_name||'', date, due, 'Service', '', '1', total.toFixed(2), total.toFixed(2)]);
+      }
     });
     downloadCsv(rows, 'qb_invoices.csv');
     showStatus();
