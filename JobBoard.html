@@ -594,6 +594,27 @@
   </div>
 </div>
 
+<!-- Snow Dispatch Modal -->
+<div class="modal-overlay" id="snow-dispatch-modal">
+  <div class="modal" style="width:380px;">
+    <div class="modal-hdr" style="background:#1a3a5c;">
+      &#10052; Dispatch Snow Job
+      <button onclick="closeSnowDispatch()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info" id="snow-dispatch-info"></div>
+      <div class="modal-field">
+        <label>Assign Truck</label>
+        <select id="snow-dispatch-truck"><option value="">— Unassigned —</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeSnowDispatch()">Cancel</button>
+      <button class="btn-confirm" style="background:#1a3a5c;" onclick="confirmSnowDispatch()">Dispatch &#8594;</button>
+    </div>
+  </div>
+</div>
+
 <!-- Save View Modal -->
 <div class="sv-overlay" id="sv-overlay">
   <div class="sv-modal">
@@ -1488,32 +1509,42 @@
     snowAllProps = data || [];
   }
 
-  function checkSnowPropertiesInPolygon() {
+  async function checkSnowPropertiesInPolygon() {
     var inside = snowAllProps.filter(function(p) {
       return p.lat && p.lng && pointInPolygon([parseFloat(p.lng), parseFloat(p.lat)], polyVerts);
     });
     if (!inside.length) { alert('No properties with map pins found in that area. Make sure properties have lat/lng set.'); return; }
     snowSelectedProps = inside;
-    openSnowSelectModal(inside);
+    // #1 — pre-fill from existing enrollments
+    var propIds = inside.map(function(p){ return p.id; });
+    var { data: enrollments } = await sb.from('snow_properties').select('property_id, billing_type, rate, id').eq('user_id', uid).in('property_id', propIds);
+    var enrollMap = {};
+    (enrollments || []).forEach(function(e){ enrollMap[e.property_id] = e; });
+    openSnowSelectModal(inside, enrollMap);
   }
 
-  function openSnowSelectModal(props) {
+  function openSnowSelectModal(props, enrollMap) {
+    enrollMap = enrollMap || {};
     var tbody = document.getElementById('snow-select-tbody');
     tbody.innerHTML = '';
     props.forEach(function(p, i) {
+      var enroll  = enrollMap[p.id] || {};
+      var billing = enroll.billing_type || 'per_push';
+      var rate    = enroll.rate != null ? enroll.rate : 0;
+      var enrolled = !!enroll.id;
       var tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #eee';
       tr.innerHTML =
         '<td style="padding:7px 10px;"><input type="checkbox" class="snow-prop-cb" checked data-idx="' + i + '"/></td>' +
-        '<td style="padding:7px 10px;font-weight:600;">' + esc(p.client_name || '—') + '</td>' +
+        '<td style="padding:7px 10px;font-weight:600;">' + esc(p.client_name || '—') + (enrolled ? ' <span style="font-size:10px;color:#27ae60;font-weight:700;">&#10003; enrolled</span>' : '') + '</td>' +
         '<td style="padding:7px 10px;color:#555;font-size:12px;">' + esc(p.address || '') + '</td>' +
         '<td style="padding:7px 10px;"><select class="snow-billing-sel" style="font-size:12px;border:1px solid #ccc;border-radius:3px;padding:4px 7px;font-family:inherit;">' +
-          '<option value="per_push">Per Push</option>' +
-          '<option value="per_inch">Per Inch</option>' +
-          '<option value="seasonal">Seasonal</option>' +
-          '<option value="hourly">Hourly</option>' +
+          '<option value="per_push"' + (billing==='per_push'?' selected':'') + '>Per Push</option>' +
+          '<option value="per_inch"' + (billing==='per_inch'?' selected':'') + '>Per Inch</option>' +
+          '<option value="seasonal"' + (billing==='seasonal'?' selected':'') + '>Seasonal</option>' +
+          '<option value="hourly"' + (billing==='hourly'?' selected':'') + '>Hourly</option>' +
         '</select></td>' +
-        '<td style="padding:7px 10px;"><input type="number" class="snow-rate-inp" value="0" step="0.01" min="0" style="width:80px;font-size:12px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-family:inherit;"/></td>';
+        '<td style="padding:7px 10px;"><input type="number" class="snow-rate-inp" value="' + parseFloat(rate).toFixed(2) + '" step="0.01" min="0" style="width:80px;font-size:12px;border:1px solid #ccc;border-radius:3px;padding:4px 6px;font-family:inherit;"/></td>';
       tbody.appendChild(tr);
     });
     document.getElementById('snow-select-all').checked = true;
@@ -1534,6 +1565,58 @@
     var rate    = document.getElementById('snow-default-rate').value;
     document.querySelectorAll('.snow-billing-sel').forEach(function(s){ s.value = billing; });
     document.querySelectorAll('.snow-rate-inp').forEach(function(i){ i.value = rate; });
+  }
+
+  // #2 — Proper dispatch modal
+  var snowDispatchJobId = null;
+
+  function openSnowDispatch(id) {
+    snowDispatchJobId = id;
+    var job  = snowJobs.find(function(j){ return j.id === id; });
+    var prop = job && job.snow_properties && job.snow_properties.Properties;
+    document.getElementById('snow-dispatch-info').textContent =
+      (prop ? (prop.client_name || '') + ' — ' + (prop.address || '') : 'Snow Job') +
+      ' — Push #' + (job ? job.pass_number : '');
+    var sel = document.getElementById('snow-dispatch-truck');
+    sel.innerHTML = '<option value="">— Unassigned —</option>';
+    truckList.forEach(function(t){ sel.appendChild(new Option(t.name, t.id)); });
+    if (job && job.truck_id) sel.value = job.truck_id;
+    document.getElementById('snow-dispatch-modal').classList.add('open');
+  }
+
+  function closeSnowDispatch() {
+    document.getElementById('snow-dispatch-modal').classList.remove('open');
+    snowDispatchJobId = null;
+  }
+
+  async function confirmSnowDispatch() {
+    if (!snowDispatchJobId) return;
+    var truckId = document.getElementById('snow-dispatch-truck').value || null;
+    await sb.from('snow_jobs').update({ dispatched: true, truck_id: truckId }).eq('id', snowDispatchJobId);
+    closeSnowDispatch();
+    await loadSnowJobs();
+  }
+
+  // #3 — Mark complete + auto-create next pass
+  async function completeSnowJob(id) {
+    var job = snowJobs.find(function(j){ return j.id === id; });
+    if (!job) return;
+    var nextPass = (job.pass_number || 1) + 1;
+    var moreSnow = confirm('Mark Push #' + (job.pass_number||1) + ' complete?\n\nClick OK to auto-create Push #' + nextPass + ' (more snow accumulating).\nClick Cancel to mark done without another pass.');
+    await sb.from('snow_jobs').update({ completed: true }).eq('id', id);
+    if (moreSnow) {
+      await sb.from('snow_jobs').insert({
+        user_id: uid,
+        snow_property_id: job.snow_property_id,
+        storm_name: job.storm_name,
+        pass_number: nextPass,
+        billing_type: job.billing_type,
+        rate: job.rate,
+        dispatched: false,
+        completed: false
+      });
+    }
+    await loadSnowJobs();
   }
 
   async function confirmSnowJobs() {
@@ -1595,10 +1678,11 @@
   }
 
   async function loadSnowJobs() {
+    // #4 — fixed join: snow_jobs → snow_properties → Properties
     var { data } = await sb.from('snow_jobs')
-      .select('id, pass_number, billing_type, rate, truck_id, snow_properties(property_id, Properties(client_name, address))')
+      .select('id, pass_number, billing_type, rate, truck_id, storm_name, snow_property_id, completed, snow_properties(id, property_id, Properties(client_name, address))')
       .eq('user_id', uid)
-      .eq('dispatched', false)
+      .eq('completed', false)
       .order('created_at');
     snowJobs = data || [];
     renderSnowJobs();
@@ -1612,17 +1696,22 @@
     if (!snowJobs.length) { empty.style.display = ''; return; }
     empty.style.display = 'none';
     snowJobs.forEach(function(j) {
-      var sp = j.snow_properties || {};
+      var sp   = j.snow_properties || {};
       var prop = sp.Properties || {};
+      var truckName = j.truck_id ? ((truckList.find(function(t){ return t.id===j.truck_id; })||{}).name || 'Assigned') : 'Unassigned';
+      var dispatched = j.dispatched;
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td style="font-weight:600;">' + esc(prop.client_name || '—') + '</td>' +
-        '<td style="color:#555;">' + esc(prop.address || '—') + '</td>' +
+        '<td style="color:#555;font-size:12px;">' + esc(prop.address || '—') + '</td>' +
         '<td><span class="badge-snow-billing">' + esc(j.billing_type || '—') + '</span></td>' +
         '<td>$' + parseFloat(j.rate || 0).toFixed(2) + '</td>' +
         '<td style="font-weight:700;color:#1a3a5c;">Push #' + (j.pass_number || 1) + '</td>' +
-        '<td>' + esc(j.truck_id ? (truckList.find(function(t){ return t.id===j.truck_id; })||{name:'—'}).name : 'Unassigned') + '</td>' +
-        '<td><button class="btn-snow-dispatch" onclick="dispatchSnowJob(\'' + j.id + '\')">Dispatch</button></td>';
+        '<td style="color:' + (j.truck_id ? '#1a3a5c' : '#999') + ';font-weight:' + (j.truck_id ? '700' : '400') + ';">' + esc(truckName) + '</td>' +
+        '<td style="display:flex;gap:5px;">' +
+          '<button class="btn-snow-dispatch" onclick="openSnowDispatch(\'' + j.id + '\')">&#128663; Dispatch</button>' +
+          '<button class="btn-snow-dispatch" style="background:#27ae60;" onclick="completeSnowJob(\'' + j.id + '\')">&#10003; Complete</button>' +
+        '</td>';
       tbody.appendChild(tr);
     });
   }
@@ -1646,12 +1735,6 @@
     alert('Storm ended. Remaining jobs moved to Cleanup Queue.');
   }
 
-  async function dispatchSnowJob(id) {
-    var truck = prompt('Enter truck name or leave blank:');
-    var truckId = truck ? (truckList.find(function(t){ return t.name.toLowerCase()===truck.toLowerCase(); })||{}).id || null : null;
-    await sb.from('snow_jobs').update({ dispatched: true, truck_id: truckId }).eq('id', id);
-    await loadSnowJobs();
-  }
 
   // ── Init ─────────────────────────────────────────────
   async function init() {
