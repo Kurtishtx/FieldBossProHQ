@@ -75,11 +75,12 @@
     .sfp-empty { color:#888; font-size:12px; font-style:italic; }
     .sv-current { color:#c47d0a; font-weight:700; font-size:12px; }
 
-    /* Date nav */
-    .date-nav { display:flex; align-items:center; gap:6px; }
-    .date-nav button { background:#1e1208; border:1px solid rgba(255,255,255,.2); color:#fff; padding:5px 10px; cursor:pointer; border-radius:4px; font-size:13px; font-family:inherit; }
+    /* Date nav — matches ScheduledList week-nav pill */
+    .date-nav { display:flex; align-items:center; gap:0; background:#1e1208; border-radius:6px; overflow:hidden; }
+    .date-nav button { background:#1e1208; border:1px solid rgba(255,255,255,.25); color:#fff; padding:6px 14px; font-size:15px; cursor:pointer; font-family:inherit; line-height:1; }
     .date-nav button:hover { background:#2a1a0a; }
-    .date-nav span { color:#fff; font-size:13px; font-weight:600; min-width:200px; text-align:center; }
+    .date-nav button.today-btn { font-size:13px; font-weight:600; }
+    .date-nav span { color:#fff; font-size:13px; font-weight:700; padding:6px 18px; white-space:nowrap; border-top:1px solid rgba(255,255,255,.25); border-bottom:1px solid rgba(255,255,255,.25); }
 
     /* Map — exact copy from ScheduledList */
     .map-section { position:relative; width:calc(100% - 32px); height:500px; background:#e8e8e8; border:1px solid #ccc; border-radius:8px; overflow:hidden; margin:2px 16px; }
