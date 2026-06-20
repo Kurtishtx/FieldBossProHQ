@@ -1,0 +1,17 @@
+{
+  "name": "FieldBossPro",
+  "short_name": "FieldBoss",
+  "description": "Field Management for Lawn Care & Pest Control",
+  "start_url": "/dashboard.html",
+  "display": "standalone",
+  "theme_color": "#e07820",
+  "background_color": "#e07820",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
