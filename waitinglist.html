@@ -1199,7 +1199,7 @@
       var clientCell = activeCoreColumns.indexOf('client') >= 0 ? '<td style="white-space:normal;max-width:180px;"><a style="color:#8a5518;font-weight:600;cursor:pointer;text-decoration:none;" onclick="goToProperty(\'' + svc.property_id + '\')">' + clientName + '</a><br><span style="font-size:11px;color:#111;">' + addr + '</span>' + notesHtml + '</td>' : '';
       var displaySvc = resolvedServiceName(svc);
       var serviceCell = activeCoreColumns.indexOf('service') >= 0 ? '<td>' + displaySvc + '</td>' : '';
-      var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + (isPastDue ? ' ?' : '') + '</td>';
+      var dueCell = '<td style="font-weight:700;' + (isPastDue ? 'color:#cc0000;' : 'color:#333;') + '">' + dueDateDisplay + '</td>';
       var lastSvcCell = activeCoreColumns.indexOf('lastsvc') >= 0 ? '<td>' + lastSvc + '</td>' : '';
       var amtCell = activeCoreColumns.indexOf('amount') >= 0 ? '<td>$' + amt.toFixed(2) + '</td>' : '';
 
