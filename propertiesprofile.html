@@ -1610,10 +1610,7 @@ function showPropTab(name, btn) {
     }
     document.getElementById('pkg-modal-preview').style.display = 'none';
     document.getElementById('pkg-modal-rows').innerHTML = '';
-    // Load existing property notes
     document.getElementById('pkg-notes-rows').innerHTML = '';
-    var existingNotes = (prop && Array.isArray(prop.property_notes)) ? prop.property_notes : [];
-    existingNotes.forEach(function(n) { pkgAddNoteRow(n); });
     switchPkgTab('services');
   }
 
@@ -1872,10 +1869,14 @@ function showPropTab(name, btn) {
     if (!inserts.length) { alert('No services selected. Check at least one service to add.'); return; }
     var { error } = await sb.from('Services').insert(inserts);
     if (error) { alert('Error adding services: ' + error.message); return; }
-    // Save property notes
+    // Append new notes to existing property notes
     var notes = pkgGetNotes();
-    await sb.from('Properties').update({ property_notes: notes }).eq('id', propId);
-    if (prop) prop.property_notes = notes;
+    if (notes.length) {
+      var existingNotes = (prop && Array.isArray(prop.property_notes)) ? prop.property_notes : [];
+      var mergedNotes = existingNotes.concat(notes);
+      await sb.from('Properties').update({ property_notes: mergedNotes }).eq('id', propId);
+      if (prop) prop.property_notes = mergedNotes;
+    }
     closePkgModal();
     window.location.reload();
   }
