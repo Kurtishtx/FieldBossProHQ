@@ -203,7 +203,7 @@
     .data-table tbody tr { border-bottom:1px solid #e8e8e8; }
     .data-table tbody tr.past-due td { background:#ffe8e8; }
     .data-table tbody tr.row-checked td { background:#fdfbe8; }
-    .data-table tbody tr.row-hover:not(.row-checked) td { background:#fce7b0 !important; }
+    .data-table tbody tr.row-hover:not(.row-checked) td { background:#fdecc8 !important; }
     .data-table tbody td { padding:5px 8px; border-right:1px solid #eee; white-space:nowrap; }
     .data-table tbody td a { color:#444; text-decoration:none; }
     .data-table tbody td a:hover { text-decoration:underline; }
@@ -2496,20 +2496,17 @@
   })();
 
   var _hoverTr = null;
-  function _applyHover(x, y) {
-    var el = document.elementFromPoint(x, y);
+  document.addEventListener('pointermove', function(e) {
+    var el = document.elementFromPoint(e.clientX, e.clientY);
     var tr = el && el.closest ? el.closest('#table-body tr') : null;
-    document.title = 'el:' + (el ? el.tagName : 'null') + ' tr:' + (tr ? tr.dataset.id || 'yes' : 'null');
     if (tr === _hoverTr) return;
     if (_hoverTr) _hoverTr.classList.remove('row-hover');
     _hoverTr = tr;
     if (tr) tr.classList.add('row-hover');
-  }
-  document.addEventListener('pointermove', function(e) { _applyHover(e.clientX, e.clientY); });
+  });
   document.addEventListener('pointerleave', function() {
     if (_hoverTr) _hoverTr.classList.remove('row-hover');
     _hoverTr = null;
-    document.title = 'Waiting List';
   });
 </script>
 </body>
