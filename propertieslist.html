@@ -496,6 +496,28 @@
 <!-- Results count -->
 <div class="results-bar" id="results-bar">0 items in 1 pages</div>
 
+<!-- Send Upsell / Custom Message modal -->
+<div id="send-msg-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:28px 28px 24px;max-width:520px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:17px;font-weight:800;color:#1e1208;margin-bottom:6px;" id="send-msg-title">Send Upsell Email</div>
+    <div style="font-size:12.5px;color:#777;margin-bottom:16px;" id="send-msg-subtitle">Sending to <strong id="send-msg-count">0</strong> selected properties.</div>
+    <div id="send-msg-warn" style="display:none;background:#fff3cd;border:1.5px solid #c47d0a;border-radius:6px;padding:10px 14px;font-size:12.5px;color:#7a4000;margin-bottom:14px;line-height:1.5;"></div>
+    <div style="margin-bottom:10px;" id="send-msg-subject-row">
+      <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:4px;">Subject</label>
+      <input type="text" id="send-msg-subject" style="width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;" placeholder="Email subject"/>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:4px;">Message</label>
+      <textarea id="send-msg-body" rows="7" style="width:100%;border:1px solid #ddd;border-radius:6px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;line-height:1.6;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+      <span id="send-msg-status" style="font-size:12.5px;color:#555;flex:1;"></span>
+      <button onclick="closeSendMsgModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Cancel</button>
+      <button id="send-msg-btn" onclick="confirmSendMsg()" style="padding:9px 24px;background:#c47d0a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">Send</button>
+    </div>
+  </div>
+</div>
+
 <div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#1e1208;color:#fff;font-size:13px;">
   <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> property(s)? This cannot be undone.</span>
   <button onclick="confirmDeleteProperties()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
@@ -513,6 +535,9 @@
       <button class="dropdown-item" onclick="makePropertiesActive(true)">Make Active</button>
       <button class="dropdown-item" onclick="makePropertiesActive(false)">Make Inactive</button>
       <button class="dropdown-item" onclick="deleteSelectedProperties()">Delete</button>
+      <div style="height:1px;background:#eee;margin:4px 0;"></div>
+      <button class="dropdown-item" onclick="sendUpsellEmail()">Send Upsell Email</button>
+      <button class="dropdown-item" onclick="sendCustomMessage()">Send Custom Message</button>
     </div>
   </div>
   <div id="pagination-bar" style="display:none;align-items:center;gap:6px;font-size:13px;color:#ccc;">
@@ -885,6 +910,98 @@
   document.getElementById('prop-modal-overlay').addEventListener('click', function(e) {
     if (e.target === this) closePropertyModal(false);
   });
+
+  var _sendMsgMode = 'upsell';
+
+  function getSelectedPropIds() {
+    var ids = [];
+    document.querySelectorAll('#property-tbody tr').forEach(function(tr) {
+      var cb = tr.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked) ids.push(tr.dataset.id);
+    });
+    return ids;
+  }
+
+  async function sendUpsellEmail() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedPropIds();
+    if (!ids.length) { alert('Check the box next to each property you want to email first.'); return; }
+    _sendMsgMode = 'upsell';
+    document.getElementById('send-msg-title').textContent = 'Send Upsell Email';
+    document.getElementById('send-msg-count').textContent = ids.length;
+    document.getElementById('send-msg-warn').style.display = 'none';
+    document.getElementById('send-msg-subject-row').style.display = '';
+    document.getElementById('send-msg-status').textContent = '';
+    document.getElementById('send-msg-btn').textContent = 'Send Email';
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    if (uid) {
+      var { data: tmpl } = await sb.from('email_templates').select('subject,body').eq('key','upsell_email').eq('user_id',uid).single();
+      document.getElementById('send-msg-subject').value = (tmpl && tmpl.subject) ? tmpl.subject : 'A special offer from us';
+      document.getElementById('send-msg-body').value    = (tmpl && tmpl.body)    ? tmpl.body    : '';
+    }
+    document.getElementById('send-msg-overlay').style.display = 'flex';
+  }
+
+  async function sendCustomMessage() {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedPropIds();
+    if (!ids.length) { alert('Check the box next to each property you want to message first.'); return; }
+    _sendMsgMode = 'custom';
+    document.getElementById('send-msg-title').textContent = 'Send Custom Message';
+    document.getElementById('send-msg-count').textContent = ids.length;
+    document.getElementById('send-msg-warn').textContent = '⚠️ Do not use for spam or upsells! Use email (Upsell Email) for marketing. Sending texts for promotional purposes can get your number banned.';
+    document.getElementById('send-msg-warn').style.display = '';
+    document.getElementById('send-msg-subject-row').style.display = '';
+    document.getElementById('send-msg-status').textContent = '';
+    document.getElementById('send-msg-btn').textContent = 'Send Email';
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    if (uid) {
+      var { data: tmpl } = await sb.from('email_templates').select('subject,body').eq('key','custom_message').eq('user_id',uid).single();
+      document.getElementById('send-msg-subject').value = (tmpl && tmpl.subject) ? tmpl.subject : '';
+      document.getElementById('send-msg-body').value    = (tmpl && tmpl.body)    ? tmpl.body    : '';
+    }
+    document.getElementById('send-msg-overlay').style.display = 'flex';
+  }
+
+  function closeSendMsgModal() {
+    document.getElementById('send-msg-overlay').style.display = 'none';
+  }
+
+  async function confirmSendMsg() {
+    var ids = getSelectedPropIds();
+    if (!ids.length) { alert('No properties selected.'); return; }
+    var subject = document.getElementById('send-msg-subject').value.trim();
+    var body    = document.getElementById('send-msg-body').value.trim();
+    if (!body) { alert('Please enter a message.'); return; }
+    var btn = document.getElementById('send-msg-btn');
+    var statusEl = document.getElementById('send-msg-status');
+    btn.disabled = true; btn.textContent = 'Sending…'; statusEl.textContent = '';
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    var tmplKey = _sendMsgMode === 'custom' ? 'custom_message' : 'upsell_email';
+    try {
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-upsell-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (sess?.session?.access_token || '') },
+        body: JSON.stringify({ property_ids: ids, user_id: uid, subject: subject, body: body, template_key: tmplKey })
+      });
+      var data = await res.json();
+      btn.disabled = false; btn.textContent = 'Send Email';
+      if (data.ok) {
+        statusEl.style.color = '#28a745';
+        statusEl.textContent = 'Sent to ' + data.sent + ' client(s).' + (data.skipped ? ' Skipped ' + data.skipped + ' (no email on file).' : '');
+        setTimeout(closeSendMsgModal, 2500);
+      } else {
+        statusEl.style.color = '#c0392b';
+        statusEl.textContent = 'Error: ' + (data.error || 'Unknown error');
+      }
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Send Email';
+      statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + e.message;
+    }
+  }
 
   function deleteSelectedProperties() {
     document.getElementById('actions-dropdown').classList.remove('open');

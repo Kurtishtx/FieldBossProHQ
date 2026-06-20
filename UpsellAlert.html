@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upsell Email</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; font-size: 13px; color: #222; }
+    .page-hdr { padding: 18px 24px 14px; border-bottom: 1px solid #eee; }
+    .page-hdr p { font-size: 13px; color: #777; margin-top: 4px; }
+    .content { padding: 20px 24px; max-width: 680px; }
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #888; margin-bottom: 10px; margin-top: 22px; }
+    .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .field-label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; min-width: 90px; }
+    .field-input { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; outline: none; background: #fafafa; }
+    .field-input:focus { border-color: #c47d0a; background: #fff; }
+    .var-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .var-row label { font-size: 12.5px; font-weight: 600; color: #555; white-space: nowrap; }
+    .var-select { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #333; background: #fafafa; outline: none; cursor: pointer; }
+    .var-select:focus { border-color: #c47d0a; background: #fff; }
+    .insert-btn { padding: 9px 18px; background: #c47d0a; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .insert-btn:hover { background: #a36608; }
+    textarea.msg-area { width: 100%; min-height: 200px; border: 1px solid #ddd; border-radius: 8px; padding: 14px; font-size: 14px; font-family: inherit; color: #222; resize: vertical; outline: none; line-height: 1.6; margin-bottom: 6px; }
+    textarea.msg-area:focus { border-color: #c47d0a; }
+    .save-btn { padding: 10px 30px; background: #c47d0a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .save-btn:hover { background: #a36608; }
+    .save-btn:disabled { background: #d4a76a; cursor: default; }
+    .save-btn.saved { background: #28a745; }
+    .status-msg { font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+    .status-msg.ok  { color: #28a745; }
+    .status-msg.err { color: #d9534f; }
+    .info-box { background: #fff8f0; border: 1px solid #f0c890; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: #7a4800; line-height: 1.5; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+<div class="page-hdr">
+  <p>Compose the email sent when you use "Send Upsell Email" from a property or the properties list.</p>
+</div>
+<div class="content">
+
+  <div class="info-box">
+    This email is sent <strong>manually</strong> — you trigger it from the property profile or properties list. Use it to offer additional services to existing clients.
+  </div>
+
+  <div class="section-title">Email Subject</div>
+  <div class="field-row">
+    <span class="field-label">Subject</span>
+    <input type="text" id="subject-input" class="field-input" placeholder="e.g. A special offer for you, [clientfirstname]!"/>
+  </div>
+
+  <div class="section-title">Message Body</div>
+
+  <div class="var-row">
+    <label>Insert Variable</label>
+    <select class="var-select" id="var-select">
+      <option value="">— choose a variable —</option>
+      <optgroup label="Client">
+        <option value="[clientname]">[clientname] — Full name</option>
+        <option value="[clientfirstname]">[clientfirstname] — First name</option>
+      </optgroup>
+      <optgroup label="Company">
+        <option value="[companyname]">[companyname] — Company name</option>
+        <option value="[companyphone]">[companyphone] — Company phone</option>
+      </optgroup>
+    </select>
+    <button class="insert-btn" onclick="insertVar()">Insert</button>
+  </div>
+
+  <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+    <button onclick="resetMsg()" style="background:#1e1208; border:1px solid #1e1208; color:#fff; font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; font-family:inherit;">Reset to Default</button>
+  </div>
+  <textarea class="msg-area" id="msg-area"></textarea>
+
+  <button class="save-btn" id="save-btn" onclick="save()">Save</button>
+  <div class="status-msg" id="status-msg"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL      = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
+
+  var DEFAULT_SUBJECT = 'A special offer from [companyname]';
+  var DEFAULT_MSG = 'Hi [clientfirstname],\n\nAs one of our valued clients, we wanted to reach out with a special offer.\n\nWe now offer additional services that could be a great fit for your property. Reply to this email or give us a call at [companyphone] and we\'ll be happy to put together a custom quote.\n\nThank you for your continued business!\n\n[companyname]';
+
+  async function init() {
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData?.session?.user?.id;
+    if (!uid) return;
+    var { data } = await sb.from('email_templates')
+      .select('subject, body').eq('key', 'upsell_email').eq('user_id', uid).single();
+    document.getElementById('subject-input').value = (data && data.subject) ? data.subject : DEFAULT_SUBJECT;
+    document.getElementById('msg-area').value = (data && data.body) ? data.body : DEFAULT_MSG;
+  }
+
+  function insertVar() {
+    var sel = document.getElementById('var-select'); var val = sel.value; if (!val) return;
+    var ta = document.getElementById('msg-area'); var s = ta.selectionStart, e = ta.selectionEnd;
+    ta.value = ta.value.substring(0, s) + val + ta.value.substring(e);
+    ta.selectionStart = ta.selectionEnd = s + val.length;
+    ta.focus(); sel.value = '';
+  }
+
+  function resetMsg() {
+    document.getElementById('subject-input').value = DEFAULT_SUBJECT;
+    document.getElementById('msg-area').value = DEFAULT_MSG;
+  }
+
+  async function save() {
+    var btn = document.getElementById('save-btn');
+    var statusEl = document.getElementById('status-msg');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    statusEl.textContent = ''; statusEl.className = 'status-msg';
+    await sb.auth.refreshSession();
+    var { data: sessionData } = await sb.auth.getSession();
+    var uid = sessionData?.session?.user?.id;
+    if (!uid) { btn.disabled = false; btn.textContent = 'Save'; statusEl.textContent = 'Not logged in.'; statusEl.className = 'status-msg err'; return; }
+    var subject = document.getElementById('subject-input').value.trim();
+    var body    = document.getElementById('msg-area').value;
+    if (!subject) { btn.disabled = false; btn.textContent = 'Save'; statusEl.textContent = 'Please enter a subject.'; statusEl.className = 'status-msg err'; return; }
+    var { data: saved, error } = await sb.from('email_templates').upsert({
+      user_id: uid, key: 'upsell_email', subject: subject, body: body, updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,key' }).select();
+    btn.disabled = false;
+    if (error || !saved?.length) {
+      btn.textContent = 'Save';
+      statusEl.textContent = 'Error: ' + (error ? error.message : 'Save did not complete.'); statusEl.className = 'status-msg err';
+    } else {
+      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+      statusEl.textContent = 'Saved successfully.'; statusEl.className = 'status-msg ok';
+      setTimeout(function() { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2500);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
