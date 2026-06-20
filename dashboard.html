@@ -1486,6 +1486,24 @@
     if (hash) loadPage(hash);
   });
 
+  // Handle browser back/forward — update title and iframe without pushing a new history entry
+  window.addEventListener('popstate', function(e) {
+    var page = (e.state && e.state.page) ? e.state.page : window.location.hash.replace('#', '');
+    if (!page || page === 'home') { goHome(); return; }
+    var parts = page.split('?');
+    var pageKey = parts[0];
+    var queryStr = parts[1] ? '?' + parts[1] : '';
+    var file = pageFiles[pageKey];
+    if (!file) return;
+    var frame = document.getElementById('page-frame');
+    var homeScreen = document.getElementById('home-screen');
+    homeScreen.style.display = 'none';
+    frame.style.display = 'flex';
+    frame.src = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
+    document.getElementById('page-title').textContent = pageTitles[pageKey] || pageKey;
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.page === pageKey); });
+  });
+
   // ── Global Search ──
   var _searchTimer = null;
   var _searchTab = 'active';
