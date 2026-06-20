@@ -1313,7 +1313,7 @@
     filtered.forEach(function(s) { if (s.property_id) uniquePropIds[s.property_id] = 1; });
     document.getElementById('summary-props').textContent = Object.keys(uniquePropIds).length;
     document.getElementById('summary-svcs').textContent = filtered.length;
-    document.getElementById('summary-total').textContent = '$' + preTotal.toFixed(2);
+    document.getElementById('summary-total').textContent = '$' + preTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     var jtEl = document.getElementById('jobs-total');
     jtEl.classList.remove('compact', 'mini');
     jtEl.innerHTML = pills || '';
