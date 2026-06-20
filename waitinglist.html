@@ -201,7 +201,9 @@
     .data-table thead th .sort-arrow { font-size:10px; margin-left:3px; }
     .data-table .totals-row td { background:#1e1208; color:#fff; padding:5px 8px; font-weight:600; border-right:1px solid #555; }
     .data-table tbody tr { border-bottom:1px solid #e8e8e8; }
-    .data-table tbody tr:hover { background:#fdfbe8; }
+    .data-table tbody tr.past-due td { background:#ffe8e8; }
+    .data-table tbody tr.row-checked td { background:#fdfbe8; }
+    .data-table tbody tr.row-hover:not(.row-checked) td { background:#fce7b0 !important; }
     .data-table tbody td { padding:5px 8px; border-right:1px solid #eee; white-space:nowrap; }
     .data-table tbody td a { color:#444; text-decoration:none; }
     .data-table tbody td a:hover { text-decoration:underline; }
@@ -576,6 +578,7 @@
   var activeServiceFilter = [], activeTagFilter = [], activeStatusFilter = [], pastDueFilter = false;
   var mapMarkers = [];
   var routeOrderMode = false, routeCounter = 0, routeOrderMap = {};
+  var mapPins = [];
 
   /* -- Custom fields -- */
   async function loadCustomFields() {
@@ -840,6 +843,22 @@
     });
     await loadServiceCatalog(catalogIds, svcNames);
     renderTable();
+  }
+
+  async function loadMapPins() {
+    var all = [], from = 0, BATCH = 1000;
+    while (true) {
+      var { data } = await sb.from('Services')
+        .select('id, property_id, service, status, Properties(lat, lng)')
+        .not('property_id', 'is', null)
+        .not('dispatched', 'is', true)
+        .range(from, from + BATCH - 1);
+      all = all.concat(data || []);
+      if (!data || data.length < BATCH) break;
+      from += BATCH;
+    }
+    mapPins = all;
+    if (mapVisible) loadMarkers();
   }
 
   var propertyData = {};
@@ -1153,7 +1172,6 @@
     }
 
     var tbody = document.getElementById('table-body');
-    var totalsRow = document.getElementById('totals-row');
     var emptyRow = document.getElementById('empty-row');
     tbody.querySelectorAll('tr:not(#totals-row):not(#empty-row)').forEach(function(r) { r.remove(); });
 
@@ -1161,9 +1179,6 @@
     var areaTotals = {};
     var seenPropForArea = {};
     filtered.forEach(function(svc) {
-      var prop = propertyData[svc.property_id] || {};
-      var clientName = svc.client_name || clientNameMap[prop.customer_id] || prop.client_name || ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim() || prop.company_name || 'Unknown';
-      var addr = svc.address || prop.address || '';
       var amt = parseFloat(svc.amount) || 0;
       totalAmt += amt;
       var aa = getCatalogAreas(svc);
@@ -1177,16 +1192,37 @@
         var areaMap = areaTreatedByProperty[svc.property_id] || {};
         areaTotals[k] = (areaTotals[k] || 0) + (parseFloat(areaMap[areaDataKey]) || 0);
       });
+    });
+
+    appendServiceRows(filtered, refDateStr);
+
+    AREA_COL_KEYS.forEach(function(k) {
+      var td = document.getElementById('total-' + k);
+      if (td) td.textContent = areaTotals[k] ? Number(areaTotals[k]).toLocaleString() : '';
+    });
+    document.getElementById('total-amt').textContent = '$' + totalAmt.toFixed(2);
+    emptyRow.style.display = filtered.length ? 'none' : '';
+
+    updateStatsPanel(filtered, totalAmt);
+  }
+
+  function appendServiceRows(svcs, refDateStr) {
+    var tbody = document.getElementById('table-body');
+    var emptyRow = document.getElementById('empty-row');
+    var todayMidnight = new Date(); todayMidnight.setHours(0,0,0,0);
+    svcs.forEach(function(svc) {
+      var prop = propertyData[svc.property_id] || {};
+      var clientName = svc.client_name || clientNameMap[prop.customer_id] || prop.client_name || ((prop.first_name || '') + ' ' + (prop.last_name || '')).trim() || prop.company_name || 'Unknown';
+      var addr = svc.address || prop.address || '';
+      var amt = parseFloat(svc.amount) || 0;
       var lastSvcRaw = lastDispatchMap[svc.property_id + '_' + svc.service] || '';
       var lastSvc = lastSvcRaw ? new Date(lastSvcRaw + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
 
-      var todayMidnight = new Date(); todayMidnight.setHours(0,0,0,0);
       var isPastDue = !!(svc.end_date && todayMidnight > new Date(svc.end_date + 'T00:00:00'));
       var dueDateDisplay = svc.end_date ? new Date(svc.end_date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : '';
 
       var orderCell = activeCoreColumns.indexOf('order') >= 0 ? '<td style="text-align:center;font-weight:700;color:#c47d0a;">' + (svc.route_order || '') + '</td>' : '';
-      /* active route sheet notes for this service */
-      var todayStr = refDateStr; /* already computed above as YYYY-MM-DD */
+      var todayStr = refDateStr;
       var activeNotes = (prop.property_notes || []).filter(function(n) {
         if (!n.note || !n.note.trim()) return false;
         if (n.start_date && n.start_date > todayStr) return false;
@@ -1227,30 +1263,25 @@
       var tr = document.createElement('tr');
       tr.dataset.id = svc.id;
       tr.dataset.svcName = displaySvc;
-      if (isPastDue) tr.style.background = '#ffe8e8';
+      if (isPastDue) tr.classList.add('past-due');
       tr.style.cursor = 'pointer';
       tr.innerHTML =
-        '<td class="cb-cell"><input type="checkbox" class="row-cb" data-id="' + svc.id + '" data-prop-id="' + svc.property_id + '" onchange="loadMarkers()"/></td>' +
+        '<td class="cb-cell"><input type="checkbox" class="row-cb" data-id="' + svc.id + '" data-prop-id="' + svc.property_id + '"/></td>' +
         orderCell + clientCell + serviceCell + dueCell + lastSvcCell + amtCell +
         areaCells + customCells;
+      tr.querySelector('.row-cb').addEventListener('change', function() {
+        tr.classList.toggle('row-checked', this.checked);
+        loadMarkers();
+      });
       tr.addEventListener('click', function(ev) {
         if (ev.target.type === 'checkbox') return;
         var cb = tr.querySelector('.row-cb');
         cb.checked = !cb.checked;
-        tr.style.background = cb.checked ? '#fdfbe8' : (isPastDue ? '#ffe8e8' : '');
+        tr.classList.toggle('row-checked', cb.checked);
         loadMarkers();
       });
       tbody.insertBefore(tr, emptyRow);
     });
-
-    AREA_COL_KEYS.forEach(function(k) {
-      var td = document.getElementById('total-' + k);
-      if (td) td.textContent = areaTotals[k] ? Number(areaTotals[k]).toLocaleString() : '';
-    });
-    document.getElementById('total-amt').textContent = '$' + totalAmt.toFixed(2);
-    emptyRow.style.display = filtered.length ? 'none' : '';
-
-    updateStatsPanel(filtered, totalAmt);
   }
 
   function updateStatsPanel(filtered, totalAmt) {
@@ -1723,7 +1754,7 @@
   function checkBoxesInPolygon() {
     if (polyVerts.length < 3) return;
     var insideSet = {};
-    services.forEach(function(svc) {
+    mapPins.forEach(function(svc) {
       var lat = svc.Properties && svc.Properties.lat;
       var lng = svc.Properties && svc.Properties.lng;
       if (!lat || !lng) return;
@@ -1851,7 +1882,7 @@
     var mode = modeEl ? modeEl.value : 'selected';
     var propIds = [];
     if (mode === 'all') {
-      services.forEach(function(s) { if (s.property_id && !seen[s.property_id]) { seen[s.property_id] = true; propIds.push(String(s.property_id)); } });
+      mapPins.forEach(function(s) { if (s.property_id && !seen[s.property_id]) { seen[s.property_id] = true; propIds.push(String(s.property_id)); } });
       seen = {};
     } else {
       document.querySelectorAll('.row-cb:checked').forEach(function(cb) { propIds.push(cb.getAttribute('data-prop-id')); });
@@ -1859,9 +1890,9 @@
     propIds.forEach(function(propId) {
       if (!propId || seen[propId]) return;
       seen[propId] = true;
-      var svc = services.find(function(s) { return String(s.property_id) === propId; });
-      if (!svc || !svc.Properties || !svc.Properties.lat || !svc.Properties.lng) return;
-      var pos = { lat: svc.Properties.lat, lng: svc.Properties.lng };
+      var pin = mapPins.find(function(s) { return String(s.property_id) === propId; });
+      if (!pin || !pin.Properties || !pin.Properties.lat || !pin.Properties.lng) return;
+      var pos = { lat: pin.Properties.lat, lng: pin.Properties.lng };
       var marker;
       if (routeOrderMode) {
         marker = new google.maps.Marker({
@@ -2449,7 +2480,6 @@
   initDRP();
   buildDayTabs();
 
-
   (async function() {
     await loadSavedViews();
     await Promise.all([loadCustomFields(), loadColPrefs(), loadAreaTreatedTypes()]);
@@ -2462,8 +2492,18 @@
     if (pendingCb) pendingCb.checked = true;
     document.getElementById('status-ms-btn').textContent = '1 selected';
     document.getElementById('active-filter-label').textContent = '> pending';
-    await loadServices();
+    await Promise.all([loadMapPins(), loadServices()]);
   })();
+
+  var _hoverTr = null;
+  document.addEventListener('mousemove', function(e) {
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    var tr = el && el.closest ? el.closest('#table-body tr') : null;
+    if (tr === _hoverTr) return;
+    if (_hoverTr) _hoverTr.classList.remove('row-hover');
+    _hoverTr = tr;
+    if (tr) tr.classList.add('row-hover');
+  });
 </script>
 </body>
 </html>
