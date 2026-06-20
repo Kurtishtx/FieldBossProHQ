@@ -247,6 +247,33 @@
   <div class="link-arrow" onclick="navigate('paymentfollowup3')">&#8250;</div>
 </div>
 
+<div class="section-label">Client Marketing</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('upsellalert')">&#128231;</div>
+  <div class="link-text" onclick="navigate('upsellalert')">
+    <div class="link-name">Upsell Email</div>
+    <div class="link-desc">Email template for offering additional services to existing clients. Safe for marketing.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">&#128231;</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="upsell_email" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('upsellalert')">&#8250;</div>
+</div>
+
+<div class="link-item">
+  <div class="link-icon" onclick="navigate('customalert')">&#128172;</div>
+  <div class="link-text" onclick="navigate('customalert')">
+    <div class="link-name">Custom Message</div>
+    <div class="link-desc">Blank template for one-off service-related messages. Do not use for spam or marketing.</div>
+  </div>
+  <div class="toggle-group">
+    <div class="toggle-row"><span class="t-icon">&#128172;</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="custom_message" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="t-icon">&#128231;</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="custom_message" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
+  </div>
+  <div class="link-arrow" onclick="navigate('customalert')">&#8250;</div>
+</div>
+
 <div class="section-label">Employee Alerts</div>
 
 <div class="link-item">
@@ -301,33 +328,6 @@
     <div class="toggle-row"><span class="t-icon">📧</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="mobile_property_scheduled" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
   </div>
   <div class="link-arrow" onclick="navigate('mobilepropertyscheduled')">&#8250;</div>
-</div>
-
-<div class="section-label">Client Marketing</div>
-
-<div class="link-item">
-  <div class="link-icon" onclick="navigate('upsellalert')">&#128231;</div>
-  <div class="link-text" onclick="navigate('upsellalert')">
-    <div class="link-name">Upsell Email</div>
-    <div class="link-desc">Email template for offering additional services to existing clients. Safe for marketing.</div>
-  </div>
-  <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">&#128231;</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="upsell_email" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-  </div>
-  <div class="link-arrow" onclick="navigate('upsellalert')">&#8250;</div>
-</div>
-
-<div class="link-item">
-  <div class="link-icon" onclick="navigate('customalert')">&#128172;</div>
-  <div class="link-text" onclick="navigate('customalert')">
-    <div class="link-name">Custom Message</div>
-    <div class="link-desc">Blank template for one-off service-related messages. Do not use for spam or marketing.</div>
-  </div>
-  <div class="toggle-group">
-    <div class="toggle-row"><span class="t-icon">&#128172;</span><span class="t-lbl">Text</span><label class="toggle-switch"><input type="checkbox" data-type="custom_message" data-channel="sms" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="t-icon">&#128231;</span><span class="t-lbl">Email</span><label class="toggle-switch"><input type="checkbox" data-type="custom_message" data-channel="email" onchange="saveToggle(this)"/><span class="toggle-track"></span></label></div>
-  </div>
-  <div class="link-arrow" onclick="navigate('customalert')">&#8250;</div>
 </div>
 
 <div style="height:28px;background:#1e1208;"></div>
