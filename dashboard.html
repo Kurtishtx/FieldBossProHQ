@@ -1699,7 +1699,10 @@
       // Hide home screen, show iframe and load the file
       homeScreen.style.display = 'none';
       frame.style.display = 'flex';
-      frame.src = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
+      // Use replace() so the iframe doesn't add entries to the joint session history,
+      // which would cause the browser back button to navigate the iframe instead of the parent.
+      var _frameUrl = file + queryStr + (queryStr ? '&' : '?') + '_v=' + Date.now();
+      try { frame.contentWindow.location.replace(_frameUrl); } catch(e) { frame.src = _frameUrl; }
       // Fix 100vh inside iframe — inject CSS so right content scrolls correctly
       frame.onload = function() {
         try {
