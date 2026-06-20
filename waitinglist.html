@@ -2495,10 +2495,17 @@
     await Promise.all([loadMapPins(), loadServices()]);
   })();
 
+  var _dbg = document.createElement('div');
+  _dbg.style.cssText = 'position:fixed;bottom:8px;right:8px;background:#c00;color:#fff;padding:4px 10px;font-size:11px;font-weight:700;z-index:99999;border-radius:3px;';
+  _dbg.textContent = 'move mouse here';
+  document.body.appendChild(_dbg);
+
   var _hoverTr = null;
   document.addEventListener('mousemove', function(e) {
+    _dbg.textContent = 'mm:' + Math.round(e.clientX) + ',' + Math.round(e.clientY);
     var el = document.elementFromPoint(e.clientX, e.clientY);
     var tr = el && el.closest ? el.closest('#table-body tr') : null;
+    _dbg.textContent += ' el:' + (el ? el.tagName : 'null') + ' tr:' + (tr ? tr.dataset.id : 'null');
     if (tr === _hoverTr) return;
     if (_hoverTr) _hoverTr.classList.remove('row-hover');
     _hoverTr = tr;
