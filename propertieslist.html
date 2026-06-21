@@ -1033,6 +1033,11 @@
     loadProperties();
   }
 </script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intro.js@7/introjs.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/intro.js@7/intro.min.js"></script>
+<script src="tour.js"></script>
+<style>.help-tour-btn{position:fixed;bottom:22px;right:22px;width:42px;height:42px;border-radius:50%;background:#e07820;color:#fff;border:none;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:999;display:flex;align-items:center;justify-content:center;line-height:1;} .help-tour-btn:hover{background:#c96a10;transform:scale(1.08);}</style>
+<button class="help-tour-btn" data-tour-page="propertieslist" onclick="startTour('propertieslist')" title="Page walkthrough">?</button>
 </body>
 </html>
 
