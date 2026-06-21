@@ -40,24 +40,29 @@
       border-bottom: 1px solid rgba(255,255,255,.1);
       background: transparent;
       flex-shrink: 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
     }
-    .sidebar-brand .brand-icon {
-      font-size: 26px;
-      display: block;
-      margin-bottom: 4px;
+    .sidebar-brand img.brand-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
     }
+    .sidebar-brand .brand-text { display: flex; flex-direction: column; }
     .sidebar-brand h2 {
       color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: .4px;
-      line-height: 1.2;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -.2px;
+      line-height: 1.15;
+      margin: 0;
     }
+    .sidebar-brand h2 .pro { color: #f5c400; }
     .sidebar-brand span {
-      color: #c49a50;
+      color: #5bc4e8;
       font-size: 11px;
-      font-weight: 400;
-      display: block;
+      font-weight: 500;
       margin-top: 2px;
     }
     .nav-section {
@@ -542,7 +547,11 @@
 <div class="sidebar">
 
   <div class="sidebar-brand">
-    <img src="logo-white.svg" alt="IndustryBossPro" style="height:48px; display:block; max-width:100%;"/>
+    <img src="brand-icon.svg" alt="" class="brand-icon"/>
+    <div class="brand-text">
+      <h2>IndustryBoss<span class="pro">Pro</span></h2>
+      <span>Field Management</span>
+    </div>
   </div>
 
   <div class="nav-section">
