@@ -161,7 +161,7 @@ serve(async (req: Request) => {
                   method: "POST",
                   headers: { Authorization: "Bearer " + co.resend_api_key, "Content-Type": "application/json" },
                   body: JSON.stringify({
-                    from: (co.company_name || "FieldBossPro") + " <mail@fieldbossprohq.com>",
+                    from: (co.company_name || "IndustryBossPro") + " <mail@industrybosspro.com>",
                     to: [ownerEmail],
                     subject: "Text Received: " + displayName,
                     html: `<!DOCTYPE html><html><body style="max-width:600px;margin:0 auto;padding:24px">${htmlBody}</body></html>`,

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-FieldBossPro Online — a multi-tenant web app for lawn care / pest control businesses. Pure static HTML/CSS/JS with no build step. Deployed to Vercel as a static site.
+IndustryBossPro Online — a multi-tenant web app for lawn care / pest control businesses. Pure static HTML/CSS/JS with no build step. Deployed to Vercel as a static site.
 
 ## No build system
 
@@ -56,7 +56,7 @@ Functions use `Deno.env.get("SUPABASE_URL")` and `Deno.env.get("SUPABASE_SERVICE
 |---|---|
 | `add-card` | Stripe — attach/detach payment methods to customers |
 | `stripe-setup-card` | Stripe setup intent flow |
-| `send-estimate-email` | Send estimate via Resend (`mail@fieldbossprohq.com`); reads template from `email_templates`; falls back to `Leads` table if no client email found |
+| `send-estimate-email` | Send estimate via Resend (`mail@industrybosspro.com`); reads template from `email_templates`; falls back to `Leads` table if no client email found |
 | `send-sms-alert` | Send automated SMS alerts via VoIP.ms API; reads credentials from `twilio_settings` |
 | `send-manual-sms` | Send a one-off SMS from the Texts page via VoIP.ms |
 | `sms-webhook` | Receive inbound VoIP.ms SMS; matches DID to `twilio_settings.phone_number` (tries full, digits-only, and last-10-digit formats); saves to `sms_messages` |
@@ -72,7 +72,7 @@ Functions use `Deno.env.get("SUPABASE_URL")` and `Deno.env.get("SUPABASE_SERVICE
 ## Email system (Resend)
 
 - Resend API key stored in `company_info.resend_api_key` per account
-- From address: `mail@fieldbossprohq.com`
+- From address: `mail@industrybosspro.com`
 - `site_url` in `company_info` is used to build the estimate view link in emails
 
 ## Supabase project

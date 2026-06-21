@@ -37,14 +37,14 @@ async function login() {
   // Block mobile-only accounts
   if (prof && prof.role === 'mobile') {
     await client.auth.signOut();
-    alert('This account is for the mobile app only. Please use the FieldBossPro mobile app to log in.');
+    alert('This account is for the mobile app only. Please use the IndustryBossPro mobile app to log in.');
     return;
   }
 
   // Block accounts that belong to a different product
   if (prof && prof.product && prof.product !== 'fieldbosspro') {
     await client.auth.signOut();
-    alert('This account is not registered for FieldBossPro. Please log in at the correct software.');
+    alert('This account is not registered for IndustryBossPro. Please log in at the correct software.');
     return;
   }
 

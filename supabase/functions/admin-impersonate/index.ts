@@ -34,7 +34,7 @@ serve(async (req: Request) => {
     const { data, error } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email,
-      options: { redirectTo: "https://my.fieldbossprohq.com/dashboard.html" }
+      options: { redirectTo: "https://my.industrybosspro.com/dashboard.html" }
     });
 
     if (error) {

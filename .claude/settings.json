@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Haman/OneDrive/Desktop/SprayBossPro-Backend/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"c:\\Users\\Haman\\OneDrive\\Desktop\\FieldBossProHQ\" && git add -A && git diff --cached --quiet || git commit -m \"Auto-save changes\" && git push",
+            "shell": "powershell"
+          }
+        ]
+      }
+    ]
+  }
+}

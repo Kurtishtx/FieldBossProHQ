@@ -95,7 +95,7 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { autoRefreshToken: true, detectSessionInUrl: false } });
   var ALERT_TYPE = 'text_received';
-  var DEFAULT_MSG = 'Text from [clientname]:\n\n[message]\n\nhttps://my.fieldbossprohq.com/dashboard.html#texts';
+  var DEFAULT_MSG = 'Text from [clientname]:\n\n[message]\n\nhttps://my.industrybosspro.com/dashboard.html#texts';
 
   async function init() {
     var { data: sessionData } = await sb.auth.getSession();

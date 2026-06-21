@@ -37,7 +37,7 @@ serve(async (req) => {
 
     // Load company info for sender name
     const { data: co } = await supabase.from("company_info").select("company_name, display_name").eq("user_id", inv.user_id).single();
-    const compName = co?.display_name || co?.company_name || "FieldBossPro";
+    const compName = co?.display_name || co?.company_name || "IndustryBossPro";
 
     // Find client email: try property → client chain, then search Clients by name
     let toEmail = "";
@@ -121,7 +121,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: "Bearer " + RESEND_API_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: compName + " <Mail@fieldbossprohq.com>",
+        from: compName + " <Mail@industrybosspro.com>",
         to: [toEmail],
         subject: `Invoice from ${compName}`,
         html: html,

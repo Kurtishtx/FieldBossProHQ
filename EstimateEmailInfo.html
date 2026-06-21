@@ -90,7 +90,7 @@
 
   <div class="field-row">
     <label>From Name</label>
-    <input type="text" id="from-name" placeholder="e.g. FieldBossPro"/>
+    <input type="text" id="from-name" placeholder="e.g. IndustryBossPro"/>
     <div class="hint">The name clients will see in their inbox.</div>
   </div>
 
@@ -139,7 +139,7 @@
   function updatePreview() {
     var subject = document.getElementById('email-subject').value;
     var body    = document.getElementById('email-body').value;
-    var sample  = { '[clientname]': 'Smith, John', '[estimatenumber]': '42', '[estimatetotal]': '$850.00', '[expirydate]': '06/15/2026', '[companyname]': 'FieldBoss Pro', '[estimatelink]': 'https://yourdomain.com/estimate/abc123' };
+    var sample  = { '[clientname]': 'Smith, John', '[estimatenumber]': '42', '[estimatetotal]': '$850.00', '[expirydate]': '06/15/2026', '[companyname]': 'Industry Boss Pro', '[estimatelink]': 'https://yourdomain.com/estimate/abc123' };
     function replace(s) { return s.replace(/\[clientname\]|\[estimatenumber\]|\[estimatetotal\]|\[expirydate\]|\[companyname\]|\[estimatelink\]/g, function(m) { return sample[m] || m; }); }
     var preview = 'Subject: ' + replace(subject) + '\n\n' + replace(body);
     document.getElementById('preview-box').textContent = preview;

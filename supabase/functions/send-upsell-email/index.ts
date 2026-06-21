@@ -80,7 +80,7 @@ serve(async (req) => {
         finalBody.replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</pre>";
 
       const emailPayload: any = {
-        from:    fromName + " <Mail@fieldbossprohq.com>",
+        from:    fromName + " <Mail@industrybosspro.com>",
         to:      [client.email],
         subject: finalSubject,
         html:    htmlBody,
