@@ -1598,6 +1598,14 @@
       document.getElementById('mobile-search').value = '';
     }
   });
+  /* Close search when user clicks inside the iframe (clicks don't bubble to parent) */
+  window.addEventListener('blur', function() {
+    if (document.activeElement === document.getElementById('page-frame')) {
+      closeSearchDD();
+      document.getElementById('global-search').value = '';
+      document.getElementById('mobile-search').value = '';
+    }
+  });
 
   function sriSub(parts) {
     return parts.filter(Boolean).map(function(p) { return '<span>' + p + '</span>'; }).join(' &nbsp;|&nbsp; ');
