@@ -1842,6 +1842,49 @@
     }
   })();
 </script>
+
+<!-- ── First-login Walkthrough Prompt ── -->
+<div id="wt-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:36px 32px 28px;max-width:440px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+    <div style="font-size:52px;margin-bottom:12px;">&#128640;</div>
+    <h2 style="font-size:22px;font-weight:800;color:#111;margin-bottom:10px;">Welcome to FieldBossPro!</h2>
+    <p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:26px;">Would you like a guided walkthrough to get your account set up? We'll walk you through adding clients, scheduling services, and everything you need to go live.</p>
+    <button onclick="wtAction('yes')" style="width:100%;background:#c47d0a;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">Yes, show me around &#128200;</button>
+    <button onclick="wtAction('later')" style="width:100%;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">Remind me tomorrow</button>
+    <button onclick="wtAction('skip')" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px 0;">Skip — I'll find it on my own</button>
+    <p style="font-size:11px;color:#bbb;margin-top:16px;">You can always access this from <strong style="color:#888;">Settings → Launch Setup Walkthrough</strong></p>
+  </div>
+</div>
+<script>
+  _dashAuthPromise.then(async function(user) {
+    if (!user) return;
+    try {
+      var {data} = await sbMain.from('company_info').select('walkthrough_prompt').eq('user_id', user.id).single();
+      var prompt = data && data.walkthrough_prompt;
+      var show = false;
+      if (!prompt) { show = true; }
+      else if (prompt.startsWith('later:')) {
+        var until = parseInt(prompt.split(':')[1], 10);
+        if (Date.now() >= until) show = true;
+      }
+      if (show) {
+        var ov = document.getElementById('wt-overlay');
+        ov.style.display = 'flex';
+        ov._uid = user.id;
+      }
+    } catch(e) {}
+  });
+  async function wtAction(action) {
+    var ov = document.getElementById('wt-overlay');
+    ov.style.display = 'none';
+    var uid = ov._uid;
+    var val;
+    if (action === 'yes') { val = 'done'; loadPage('setupguide'); }
+    else if (action === 'later') { val = 'later:' + (Date.now() + 24*60*60*1000); }
+    else { val = 'skip'; }
+    if (uid) { try { await sbMain.from('company_info').update({walkthrough_prompt: val}).eq('user_id', uid); } catch(e) {} }
+  }
+</script>
 </body>
 </html>
 
