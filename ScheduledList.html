@@ -1573,6 +1573,19 @@
     document.getElementById('map-section').style.display = mapVisible ? '' : 'none';
     document.getElementById('toggle-map-btn').textContent = mapVisible ? 'Hide Map' : 'Show Map';
     if (mapVisible && map) google.maps.event.trigger(map, 'resize');
+    if (mapVisible) {
+      document.getElementById('stop-panel').style.display = '';
+      var autoSect = document.getElementById('route-auto-section');
+      if (autoSect) {
+        autoSect.style.display = '';
+        loadAvoidHighways();
+        var addrInput = document.getElementById('route-start-addr');
+        if (addrInput && !addrInput._hasChangeListener) {
+          addrInput._hasChangeListener = true;
+          addrInput.addEventListener('input', function() { businessLat = null; businessLng = null; });
+        }
+      }
+    }
   }
 
   var drpStart, drpEnd, drpLY, drpLM, drpRY, drpRM;
