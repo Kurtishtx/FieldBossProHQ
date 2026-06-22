@@ -816,7 +816,14 @@
 
   async function sortByDistance(furthestFirst) {
     var avoidHighways = localStorage.getItem('avoidHighways') === '1';
-    var stops = getUniqueRouteStops(selectedForRoute);
+    var source = selectedForRoute.length ? selectedForRoute : (function() {
+      if (!drpStart) return services;
+      var pad2 = function(n) { return String(n).padStart(2,'0'); };
+      var s0 = drpStart.getFullYear()+'-'+pad2(drpStart.getMonth()+1)+'-'+pad2(drpStart.getDate());
+      var s1 = drpEnd ? drpEnd.getFullYear()+'-'+pad2(drpEnd.getMonth()+1)+'-'+pad2(drpEnd.getDate()) : s0;
+      return services.filter(function(s) { return s.scheduled_date >= s0 && s.scheduled_date <= s1; });
+    })();
+    var stops = getUniqueRouteStops(source);
     if (!stops.length) return;
     if (avoidHighways) {
       var addrStr = getStartAddr();
