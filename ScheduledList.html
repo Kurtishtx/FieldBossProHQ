@@ -155,10 +155,10 @@
     .map-toggle button { padding:4px 14px; border:none; background:#fff; font-size:12.5px; cursor:pointer; }
     .map-toggle button.active { background:#f0f0f0; font-weight:700; }
 
-    .stop-panel { display:block; position:absolute; top:10px; left:10px; width:260px; background:#fff; border:1px solid #bbb; box-shadow:0 2px 8px rgba(0,0,0,.25); z-index:20; font-size:12.5px; }
+    .stop-panel { display:block; position:absolute; top:10px; left:10px; width:260px; background:#fff; border:1px solid #bbb; box-shadow:0 2px 8px rgba(0,0,0,.25); z-index:20; font-size:12.5px; max-height:calc(100% - 20px); display:flex; flex-direction:column; overflow:hidden; }
     .stop-panel-hdr { background:#1e1208; color:#fff; padding:6px 10px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
     .stop-panel-hdr button { background:none; border:none; color:#fff; cursor:pointer; font-size:15px; line-height:1; }
-    .stop-body { padding:8px 10px; }
+    .stop-body { padding:8px 10px; overflow-y:auto; flex:1; }
     .sp-section { font-weight:700; font-size:12px; color:#333; margin:6px 0 3px; }
     .sp-row { display:flex; justify-content:space-between; font-size:12px; padding:1px 0; }
     .sp-total-row { display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; margin-top:4px; border-top:1px solid #eee; padding-top:4px; }
