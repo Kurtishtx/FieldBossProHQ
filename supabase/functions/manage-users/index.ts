@@ -16,7 +16,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
-    const { action, email, password, user_id } = await req.json();
+    const { action, email, password, user_id, company_name, trial_ends_at } = await req.json();
 
     /* ── Create user ── */
     if (action === "create") {
@@ -27,6 +27,17 @@ serve(async (req) => {
         email_confirm: true,
       });
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+
+      // Also record in platform_accounts so admin sign-up panel works
+      await supabase.from("platform_accounts").insert({
+        user_id:       data.user.id,
+        email:         data.user.email,
+        company_name:  company_name || null,
+        trial_ends_at: trial_ends_at || null,
+        active:        false,
+        onboarded:     false,
+      }).catch(() => {});
+
       return new Response(JSON.stringify({ ok: true, user: { id: data.user.id, email: data.user.email } }), { headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
