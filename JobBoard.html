@@ -1794,6 +1794,7 @@
   var trackingPolylines= [];
   var trackingDotMarkers = [];
   var trackingIWs      = [];
+  var trackGeocoder    = null;
   // Distinct hue palette — each crew always gets a different hue
   var TRACK_COLORS = ['#e74c3c','#3498db','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#c0392b','#2980b9','#1abc9c'];
   var empColorMap  = {}; // employee_id -> color (persists across refreshes)
@@ -1889,6 +1890,7 @@
       });
 
       // Big stop dots (parked > 5 min)
+      if (!trackGeocoder) trackGeocoder = new google.maps.Geocoder();
       for (var i = 1; i < pts.length; i++) {
         var gap = (new Date(pts[i].recorded_at) - new Date(pts[i-1].recorded_at)) / 60000;
         if (gap >= 5) {
@@ -1896,12 +1898,33 @@
             position: { lat: pts[i-1].lat, lng: pts[i-1].lng }, map: jobMap, zIndex: 8,
             icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
           });
-          var stopTime = Math.round(gap) + ' min stop';
-          (function(m, t) {
-            var iw = new google.maps.InfoWindow({ content: '<div style="font-size:12px;padding:2px 4px;">' + t + '</div>' });
-            m.addListener('click', function() { iw.open(jobMap, m); });
+          var mins       = Math.round(gap);
+          var durLabel   = mins >= 60 ? Math.floor(mins/60) + 'h ' + (mins%60) + 'm' : mins + ' min';
+          var arriveTime = new Date(pts[i-1].recorded_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+          var leaveTime  = new Date(pts[i].recorded_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+          (function(m, dur, latLng, empLabel, arrive, leave) {
+            function buildContent(addrLine) {
+              return '<div style="font-size:13px;font-weight:700;padding:4px 6px 2px;">' + empLabel + '</div>' +
+                     '<div style="font-size:12px;padding:0 6px 2px;color:#333;">&#9679; Stopped ' + dur + '</div>' +
+                     '<div style="font-size:11px;padding:0 6px;color:#666;">' + arrive + ' &ndash; ' + leave + '</div>' +
+                     addrLine;
+            }
+            var iw = new google.maps.InfoWindow({ content: buildContent('<div style="font-size:11px;padding:2px 6px 4px;color:#aaa;">Loading address...</div>') });
+            var geocoded = false;
+            m.addListener('click', function() {
+              iw.open(jobMap, m);
+              if (geocoded) return;
+              geocoded = true;
+              trackGeocoder.geocode({ location: latLng }, function(results, status) {
+                var addr = (status === 'OK' && results && results[0]) ? results[0].formatted_address : '';
+                var addrLine = addr
+                  ? '<div style="font-size:11px;padding:2px 6px 4px;color:#555;">' + addr + '</div>'
+                  : '<div style="font-size:11px;padding:2px 6px 4px;color:#aaa;">(address unavailable)</div>';
+                iw.setContent(buildContent(addrLine));
+              });
+            });
             trackingIWs.push(iw);
-          })(stopDot, stopTime);
+          })(stopDot, durLabel, { lat: pts[i-1].lat, lng: pts[i-1].lng }, emp.name, arriveTime, leaveTime);
           trackingDotMarkers.push(stopDot);
         }
       }
