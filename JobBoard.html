@@ -21,6 +21,7 @@
     .tsb-right { display:flex; align-items:center; gap:8px; }
     .btn-orange-outline { background:#1e1208; border:2px solid #c47d0a; color:#fff; font-weight:700; border-radius:6px; padding:7px 16px; font-size:13.5px; font-family:inherit; cursor:pointer; transition:background .15s; }
     .btn-orange-outline:hover, .btn-orange-outline.active { background:#2a1a0a; }
+    .btn-orange-outline.tracking-on { background:#1a4a2a; border-color:#4caf50; color:#4caf50; }
 
     /* Filter bar */
     .filter-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:#7a6040; flex-wrap:wrap; margin:2px 16px; border-radius:8px; }
@@ -269,6 +270,8 @@
   </div>
   <div class="tsb-right">
     <button class="btn-orange-outline" id="toggle-map-btn" onclick="toggleMap()">Show Map</button>
+    <button class="btn-orange-outline" id="tracking-btn" onclick="toggleTracking()">&#128225; Live Tracking</button>
+    <input type="date" id="tracking-date" style="display:none;border:2px solid #c47d0a;background:#1e1208;color:#fff;border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit;cursor:pointer;" onchange="loadTrackingData()" title="View breadcrumbs for this date"/>
     <button class="btn-orange-outline" onclick="window.print()">Print</button>
   </div>
 </div>
@@ -381,6 +384,9 @@
   </div>
 
   <div id="map" style="width:100%;height:100%;"></div>
+  <div id="tracking-badge" style="display:none;position:absolute;bottom:10px;left:10px;z-index:20;background:rgba(0,0,0,.7);color:#fff;border-radius:6px;padding:6px 12px;font-size:12px;font-family:Arial,sans-serif;">
+    <span style="color:#4caf50;font-size:10px;">&#9679;</span> Live Tracking &nbsp;<span id="tracking-refresh-lbl" style="color:#aaa;"></span>
+  </div>
   <div id="draw-capture" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:14;"></div>
 </div>
 
@@ -1780,6 +1786,152 @@
   }
 
   init();
+
+  // ── Live Tracking ──────────────────────────────────────
+  var trackingOn       = false;
+  var trackingInterval = null;
+  var trackingMarkers  = [];
+  var trackingPolylines= [];
+  var trackingDotMarkers = [];
+  var trackingIWs      = [];
+  // Distinct hue palette — each crew always gets a different hue
+  var TRACK_COLORS = ['#e74c3c','#3498db','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#c0392b','#2980b9','#1abc9c'];
+  var empColorMap  = {}; // employee_id -> color (persists across refreshes)
+  var empColorIdx  = 0;
+
+  function getEmpColor(empId) {
+    if (!empColorMap[empId]) {
+      empColorMap[empId] = TRACK_COLORS[empColorIdx++ % TRACK_COLORS.length];
+    }
+    return empColorMap[empId];
+  }
+
+  // Truck SVG icon pointing in heading direction
+  function truckIcon(color, heading) {
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+      '<g transform="rotate(' + (heading || 0) + ' 16 16)">' +
+      '<rect x="8" y="10" width="16" height="12" rx="2" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>' +
+      '<rect x="11" y="6" width="9" height="7" rx="1" fill="' + color + '" stroke="#fff" stroke-width="1"/>' +
+      '<circle cx="11" cy="23" r="2.5" fill="#222" stroke="#fff" stroke-width="1"/>' +
+      '<circle cx="21" cy="23" r="2.5" fill="#222" stroke="#fff" stroke-width="1"/>' +
+      '<rect x="22" y="14" width="3" height="4" rx="1" fill="#ffe082"/>' +
+      '</g></svg>';
+    return { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg), scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) };
+  }
+
+  function toggleTracking() {
+    trackingOn = !trackingOn;
+    var btn       = document.getElementById('tracking-btn');
+    var dateInput = document.getElementById('tracking-date');
+    var badge     = document.getElementById('tracking-badge');
+    btn.classList.toggle('tracking-on', trackingOn);
+    btn.innerHTML = trackingOn ? '&#9679; Live ON' : '&#128225; Live Tracking';
+    dateInput.style.display = trackingOn ? '' : 'none';
+    badge.style.display     = trackingOn ? '' : 'none';
+    if (trackingOn) {
+      if (!mapVisible) toggleMap();
+      // Default date picker to today
+      var today = new Date();
+      dateInput.value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+      loadTrackingData();
+      trackingInterval = setInterval(function() {
+        // Only auto-refresh if showing today
+        var today2 = new Date();
+        var todayStr = today2.getFullYear() + '-' + String(today2.getMonth()+1).padStart(2,'0') + '-' + String(today2.getDate()).padStart(2,'0');
+        if (dateInput.value === todayStr) loadTrackingData();
+      }, 30000);
+    } else {
+      clearInterval(trackingInterval);
+      clearTrackingOverlay();
+    }
+  }
+
+  async function loadTrackingData() {
+    var dateVal = document.getElementById('tracking-date').value;
+    if (!dateVal) return;
+    var start = new Date(dateVal + 'T00:00:00').toISOString();
+    var end   = new Date(dateVal + 'T23:59:59').toISOString();
+    var { data } = await sb.from('employee_locations')
+      .select('*').eq('user_id', uid)
+      .gte('recorded_at', start).lte('recorded_at', end)
+      .order('recorded_at', { ascending: true });
+    clearTrackingOverlay();
+    if (!data || !data.length) {
+      document.getElementById('tracking-refresh-lbl').textContent = 'No data for this date';
+      return;
+    }
+    var byEmp = {};
+    data.forEach(function(r) {
+      if (!byEmp[r.employee_id]) byEmp[r.employee_id] = { name: r.employee_name || 'Employee', pts: [] };
+      byEmp[r.employee_id].pts.push(r);
+    });
+    Object.keys(byEmp).forEach(function(empId) {
+      var emp   = byEmp[empId];
+      var color = getEmpColor(empId);
+      var pts   = emp.pts;
+
+      // Dashed breadcrumb polyline
+      trackingPolylines.push(new google.maps.Polyline({
+        path: pts.map(function(p) { return { lat: p.lat, lng: p.lng }; }),
+        strokeColor: color, strokeOpacity: 0, strokeWeight: 0,
+        icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.9, strokeColor: color, scale: 3 }, offset: '0', repeat: '14px' }],
+        map: jobMap, zIndex: 4
+      }));
+
+      // Small breadcrumb dots at each ping
+      pts.forEach(function(p, i) {
+        if (i === pts.length - 1) return; // skip last — will be truck
+        var dot = new google.maps.Marker({
+          position: { lat: p.lat, lng: p.lng }, map: jobMap, zIndex: 6,
+          icon: { path: google.maps.SymbolPath.CIRCLE, scale: 4, fillColor: color, fillOpacity: 0.7, strokeColor: '#fff', strokeWeight: 1 }
+        });
+        trackingDotMarkers.push(dot);
+      });
+
+      // Big stop dots (parked > 5 min)
+      for (var i = 1; i < pts.length; i++) {
+        var gap = (new Date(pts[i].recorded_at) - new Date(pts[i-1].recorded_at)) / 60000;
+        if (gap >= 5) {
+          var stopDot = new google.maps.Marker({
+            position: { lat: pts[i-1].lat, lng: pts[i-1].lng }, map: jobMap, zIndex: 8,
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+          });
+          var stopTime = Math.round(gap) + ' min stop';
+          (function(m, t) {
+            var iw = new google.maps.InfoWindow({ content: '<div style="font-size:12px;padding:2px 4px;">' + t + '</div>' });
+            m.addListener('click', function() { iw.open(jobMap, m); });
+            trackingIWs.push(iw);
+          })(stopDot, stopTime);
+          trackingDotMarkers.push(stopDot);
+        }
+      }
+
+      // Truck marker at latest position
+      var last    = pts[pts.length - 1];
+      var heading = last.heading || 0;
+      var truck   = new google.maps.Marker({
+        position: { lat: last.lat, lng: last.lng }, map: jobMap, zIndex: 20,
+        icon: truckIcon(color, heading),
+        title: emp.name
+      });
+      var iw = new google.maps.InfoWindow({
+        content: '<div style="font-size:13px;font-weight:700;padding:2px 4px;">' + emp.name + '</div>' +
+                 '<div style="font-size:11px;color:#666;padding:0 4px 2px;">Last ping: ' + new Date(last.recorded_at).toLocaleTimeString() + '</div>'
+      });
+      truck.addListener('click', function() { iw.open(jobMap, truck); });
+      trackingMarkers.push(truck);
+      trackingIWs.push(iw);
+    });
+    document.getElementById('tracking-refresh-lbl').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  }
+
+  function clearTrackingOverlay() {
+    trackingMarkers.forEach(function(m)    { m.setMap(null); });
+    trackingPolylines.forEach(function(p)  { p.setMap(null); });
+    trackingDotMarkers.forEach(function(m) { m.setMap(null); });
+    trackingIWs.forEach(function(w)        { w.close(); });
+    trackingMarkers = []; trackingPolylines = []; trackingDotMarkers = []; trackingIWs = [];
+  }
 </script>
 </body>
 </html>
