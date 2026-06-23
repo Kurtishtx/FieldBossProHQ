@@ -27,7 +27,10 @@
     .badge-landscape { background: #d1ecf1; color: #0c5460; }
     .badge-irrigation{ background: #cce5ff; color: #004085; }
     .badge-snow      { background: #e2e3e5; color: #383d41; }
+    .badge-pool      { background: #d0edf7; color: #0a4a6e; }
     .badge-other     { background: #fff3cd; color: #856404; }
+    .btn-chem-log { background: #1e5a7a; color: #fff; border: none; padding: 9px 20px; font-size: 13px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; display: none; }
+    .btn-chem-log:hover { background: #164a62; }
 
     /* Budget hours */
     .hours-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -85,6 +88,15 @@
   <div class="card">
     <div class="card-title">Job Info</div>
     <div class="info-grid" id="info-grid"><div style="color:#bbb;">Loading…</div></div>
+  </div>
+
+  <!-- Pool Chemical Log shortcut (shown only for pool category) -->
+  <div class="card" id="pool-log-card" style="display:none;">
+    <div class="card-title">Pool Service</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn-chem-log" id="btn-chem-log" onclick="openChemLog()">&#128200; Log Chemical Reading</button>
+      <span style="font-size:12px;color:#888;">Record water chemistry for this service visit.</span>
+    </div>
   </div>
 
   <!-- Budget Hours -->
@@ -181,7 +193,7 @@
   var catalog   = [];
   var jobMats   = [];
 
-  var BADGE = { mowing:'badge-mowing', landscape:'badge-landscape', irrigation:'badge-irrigation', snow:'badge-snow' };
+  var BADGE = { mowing:'badge-mowing', landscape:'badge-landscape', irrigation:'badge-irrigation', snow:'badge-snow', pool:'badge-pool' };
 
   async function init() {
     var { data: s } = await sb.auth.getSession();
@@ -228,7 +240,21 @@
       ii('Revenue', '<span style="color:#c47d0a;font-weight:700;">$' + parseFloat(job.amount || 0).toFixed(2) + '</span>') +
       ii('Recurrence', job.recurrence_type ? (job.recurrence_type.charAt(0).toUpperCase() + job.recurrence_type.slice(1)) : 'One-Time');
 
+    if ((job.job_category || '').toLowerCase() === 'pool') {
+      document.getElementById('pool-log-card').style.display = '';
+      document.getElementById('btn-chem-log').style.display = '';
+    }
     updateSummary();
+  }
+
+  function openChemLog() {
+    var pid = job && job.property_id ? job.property_id : '';
+    var url = 'PoolChemicalLog.html?property_id=' + pid + '&service_id=' + serviceId;
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('poolchemlog?property_id=' + pid + '&service_id=' + serviceId);
+    } else {
+      window.location.href = url;
+    }
   }
 
   function ii(label, val) {

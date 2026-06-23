@@ -801,6 +801,7 @@
     <button class="page-tab" onclick="showPropTab('officenotes',this)">Office Notes</button>
     <button class="page-tab" onclick="showPropTab('attachments',this)">Attachments</button>
     <button class="page-tab" id="snow-tab-btn" onclick="showPropTab('snow',this)" style="display:none;">&#10052; Snow</button>
+    <button class="page-tab" id="pool-tab-btn" onclick="showPropTab('pool',this)" style="display:none;">&#127946; Pool</button>
   </div>
 </div>
 
@@ -995,6 +996,71 @@
         <div style="display:flex;align-items:center;gap:12px;">
           <button onclick="saveSnowSettings()" style="background:#1a3a5c;color:#fff;border:none;padding:9px 24px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;font-family:inherit;">Save Snow Settings</button>
           <span id="snow-save-msg" style="font-size:13px;color:#27ae60;display:none;">Saved &#10003;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Pool -->
+  <div class="tab-panel" id="tab-pool">
+    <div style="padding:20px 24px;max-width:560px;">
+      <div style="background:#1e5a7a;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;font-size:14px;font-weight:700;">&#127946; Pool Info</div>
+      <div style="background:#fff;border:1px solid #9abdd0;border-top:none;border-radius:0 0 8px 8px;padding:20px;" id="pool-info-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1e5a7a;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Pool Type</label>
+            <select id="pp-pool-type" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;">
+              <option value="">--</option>
+              <option value="Inground">Inground</option>
+              <option value="Above-Ground">Above-Ground</option>
+              <option value="Spa/Hot Tub">Spa/Hot Tub</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1e5a7a;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Pool Surface</label>
+            <select id="pp-pool-surface" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;">
+              <option value="">--</option>
+              <option value="Plaster">Plaster</option>
+              <option value="Pebble">Pebble</option>
+              <option value="Vinyl">Vinyl</option>
+              <option value="Fiberglass">Fiberglass</option>
+              <option value="Tile">Tile</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1e5a7a;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Pool Size (gallons)</label>
+            <input type="number" id="pp-pool-size" min="0" step="1" placeholder="e.g. 15000" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;"/>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1e5a7a;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Filter Type</label>
+            <select id="pp-filter-type" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;">
+              <option value="">--</option>
+              <option value="Sand">Sand</option>
+              <option value="Cartridge">Cartridge</option>
+              <option value="Diatomaceous Earth">Diatomaceous Earth</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1e5a7a;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Pump Brand</label>
+            <input type="text" id="pp-pump-brand" placeholder="e.g. Pentair" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;"/>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#1e5a7a;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Gate Code</label>
+            <input type="text" id="pp-gate-code" placeholder="e.g. #1234" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;"/>
+          </div>
+        </div>
+        <div style="margin-bottom:18px;display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="pp-has-salt" style="width:18px;height:18px;cursor:pointer;accent-color:#c47d0a;"/>
+          <label for="pp-has-salt" style="font-size:14px;font-weight:600;color:#111;cursor:pointer;">Salt Chlorination System</label>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;border-top:1px solid #eee;padding-top:14px;margin-top:4px;">
+          <button onclick="savePoolSettings()" style="background:#1e5a7a;color:#fff;border:none;padding:9px 24px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;font-family:inherit;">Save Pool Info</button>
+          <span id="pool-save-msg" style="font-size:13px;color:#27ae60;display:none;">Saved &#10003;</span>
+          <a href="#" onclick="openPoolChemLog(event)" style="margin-left:auto;background:#c47d0a;color:#fff;text-decoration:none;padding:9px 20px;font-size:13px;font-weight:700;border-radius:4px;">&#128200; Chemical Log</a>
         </div>
       </div>
     </div>
@@ -1211,6 +1277,55 @@ function showPropTab(name, btn) {
   }
 
   loadSnowSettings();
+
+  /* ── Pool Settings ── */
+  async function loadPoolSettings() {
+    if (!propId) return;
+    var { data: p } = await sb.from('Properties')
+      .select('pool_type,pool_surface,pool_size_gallons,pool_filter_type,pool_pump_brand,pool_has_salt,gate_code')
+      .eq('id', propId).single();
+    if (!p) return;
+    var tabBtn = document.getElementById('pool-tab-btn');
+    if (tabBtn) tabBtn.style.display = '';
+    function sv(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; }
+    sv('pp-pool-type',    p.pool_type);
+    sv('pp-pool-surface', p.pool_surface);
+    sv('pp-pool-size',    p.pool_size_gallons != null ? p.pool_size_gallons : '');
+    sv('pp-filter-type',  p.pool_filter_type);
+    sv('pp-pump-brand',   p.pool_pump_brand);
+    sv('pp-gate-code',    p.gate_code);
+    document.getElementById('pp-has-salt').checked = !!p.pool_has_salt;
+  }
+
+  async function savePoolSettings() {
+    if (!propId) return;
+    var payload = {
+      pool_type:         document.getElementById('pp-pool-type').value || null,
+      pool_surface:      document.getElementById('pp-pool-surface').value || null,
+      pool_size_gallons: document.getElementById('pp-pool-size').value !== '' ? parseInt(document.getElementById('pp-pool-size').value) : null,
+      pool_filter_type:  document.getElementById('pp-filter-type').value || null,
+      pool_pump_brand:   document.getElementById('pp-pump-brand').value.trim() || null,
+      pool_has_salt:     document.getElementById('pp-has-salt').checked,
+      gate_code:         document.getElementById('pp-gate-code').value.trim() || null
+    };
+    var { error } = await sb.from('Properties').update(payload).eq('id', propId);
+    if (error) { alert('Error saving pool info: ' + error.message); return; }
+    var msg = document.getElementById('pool-save-msg');
+    msg.style.display = '';
+    setTimeout(function(){ msg.style.display = 'none'; }, 2500);
+  }
+
+  function openPoolChemLog(e) {
+    if (e) e.preventDefault();
+    var url = 'PoolChemicalLog.html?property_id=' + propId;
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('poolchemlog?property_id=' + propId);
+    } else {
+      window.location.href = url;
+    }
+  }
+
+  loadPoolSettings();
 
   function openPropEditModal(e) {
     if (e) e.preventDefault();

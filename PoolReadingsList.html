@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pool Readings</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; color: #222; }
+
+    .page-header { padding: 14px 20px; background: #fff; border-bottom: 1px solid #e0d8cc; display: flex; align-items: center; justify-content: space-between; }
+    .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
+    .page-sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .content { max-width: 1100px; margin: 20px auto; padding: 0 16px 40px; }
+
+    .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .search-box { border: 1px solid #ccc; border-radius: 5px; padding: 7px 12px; font-size: 13px; font-family: inherit; outline: none; min-width: 240px; }
+    .search-box:focus { border-color: #c47d0a; }
+
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); overflow: hidden; }
+    .card-hdr { background: #1e1208; color: #fff; padding: 12px 18px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+    .card-hdr span { color: rgba(255,255,255,.55); font-size: 12px; font-weight: 400; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    thead th { background: #e8ddd0; color: #222; padding: 7px 10px; text-align: left; font-weight: 700; border-bottom: 2px solid #c8bfb0; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid #f0ece6; }
+    tbody tr:hover { background: #fdf8f0; }
+    tbody td { padding: 8px 10px; vertical-align: middle; }
+    tbody td a { color: #c47d0a; text-decoration: none; font-weight: 600; }
+    tbody td a:hover { text-decoration: underline; }
+    .val-ok   { color: #1a7a3c; font-weight: 700; }
+    .val-warn { color: #c47d0a; font-weight: 700; }
+    .val-bad  { color: #c0392b; font-weight: 700; }
+    .empty-row td { color: #aaa; font-style: italic; padding: 20px 10px; text-align: center; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>&#127946; Pool Readings</h1>
+    <div class="page-sub">Chemical log entries across all pool properties</div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="toolbar">
+    <input type="text" class="search-box" id="search" placeholder="Search by address or client…" oninput="filterTable()"/>
+    <span id="count-label" style="font-size:12px;color:#888;"></span>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      All Pool Readings
+      <span id="hdr-count"></span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Address</th>
+            <th>Client</th>
+            <th>Free Cl</th>
+            <th>pH</th>
+            <th>Alkalinity</th>
+            <th>CYA</th>
+            <th>Salt</th>
+            <th>Phosphates</th>
+            <th>Tech</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr class="empty-row"><td colspan="11">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var allRows = [];
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    var uid = s && s.session ? s.session.user.id : null;
+    if (!uid) return;
+
+    var { data } = await sb.from('pool_readings')
+      .select('*, Properties(address, city, state, Clients(name))')
+      .eq('user_id', uid)
+      .order('reading_date', { ascending: false });
+
+    allRows = data || [];
+    render(allRows);
+  }
+
+  function render(rows) {
+    var tbody = document.getElementById('table-body');
+    document.getElementById('hdr-count').textContent = rows.length + ' reading' + (rows.length === 1 ? '' : 's');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="11">No readings found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function(r) {
+      var p = r.Properties || {};
+      var addr = [p.address, p.city, p.state].filter(Boolean).join(', ') || '—';
+      var client = (p.Clients && p.Clients.name) ? p.Clients.name : '—';
+      var dateStr = r.reading_date ? new Date(r.reading_date + 'T12:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+      return '<tr>' +
+        '<td>' + esc(dateStr) + '</td>' +
+        '<td><a href="#" onclick="openPropLog(event,\'' + r.property_id + '\')">' + esc(addr) + '</a></td>' +
+        '<td>' + esc(client) + '</td>' +
+        '<td class="' + colorCl(r.free_chlorine, 1, 3, 5) + '">' + fmt(r.free_chlorine) + '</td>' +
+        '<td class="' + colorPh(r.ph) + '">' + fmt(r.ph) + '</td>' +
+        '<td class="' + colorRange(r.alkalinity, 80, 120, 180) + '">' + fmt(r.alkalinity) + '</td>' +
+        '<td class="' + colorRange(r.cya, 30, 80, 120) + '">' + fmt(r.cya) + '</td>' +
+        '<td>' + fmt(r.salt) + '</td>' +
+        '<td>' + fmt(r.phosphates) + '</td>' +
+        '<td>' + esc(r.technician || '') + '</td>' +
+        '<td><a href="#" onclick="openPropLog(event,\'' + r.property_id + '\')">View Log</a></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function fmt(v) { return (v !== null && v !== undefined) ? String(v) : '—'; }
+
+  function colorCl(v, lo, hi, max) {
+    if (v == null) return '';
+    var n = parseFloat(v);
+    if (n >= lo && n <= hi) return 'val-ok';
+    if (n > hi && n <= max) return 'val-warn';
+    return 'val-bad';
+  }
+
+  function colorPh(v) {
+    if (v == null) return '';
+    var n = parseFloat(v);
+    if (n >= 7.2 && n <= 7.8) return 'val-ok';
+    if (n > 7.8 && n <= 8.2) return 'val-warn';
+    return 'val-bad';
+  }
+
+  function colorRange(v, lo, hi, max) {
+    if (v == null) return '';
+    var n = parseFloat(v);
+    if (n >= lo && n <= hi) return 'val-ok';
+    if ((n > hi && n <= max) || n < lo) return 'val-warn';
+    return 'val-bad';
+  }
+
+  function filterTable() {
+    var q = document.getElementById('search').value.trim().toLowerCase();
+    var filtered = !q ? allRows : allRows.filter(function(r) {
+      var p = r.Properties || {};
+      var addr = (p.address || '') + ' ' + (p.city || '') + ' ' + (p.state || '');
+      var client = p.Clients ? (p.Clients.name || '') : '';
+      return (addr + ' ' + client).toLowerCase().includes(q);
+    });
+    render(filtered);
+  }
+
+  function openPropLog(e, propertyId) {
+    e.preventDefault();
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('poolchemlog?property_id=' + propertyId);
+    } else {
+      window.location.href = 'PoolChemicalLog.html?property_id=' + propertyId;
+    }
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  init();
+</script>
+</body>
+</html>

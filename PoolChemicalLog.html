@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pool Chemical Log</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #ede5d8; color: #222; }
+
+    .page-header { padding: 12px 20px; background: #1e1208; display: flex; align-items: center; gap: 12px; margin: 8px 16px; border-radius: 10px; }
+    .btn-back { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.25); padding: 6px 14px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; font-weight: 600; }
+    .btn-back:hover { background: rgba(255,255,255,.2); }
+    .page-header h1 { font-size: 16px; font-weight: 800; color: #fff; flex: 1; }
+    .page-header .prop-sub { font-size: 12px; color: rgba(255,255,255,.55); }
+    .btn-add-reading { background: #c47d0a; color: #fff; border: none; padding: 8px 18px; font-size: 13px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-add-reading:hover { background: #a86808; }
+
+    .content { padding: 12px 16px 40px; }
+
+    /* History list */
+    .log-list { display: flex; flex-direction: column; gap: 10px; }
+    .log-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.07); overflow: hidden; }
+    .log-card-hdr { background: #1e1208; color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .log-card-hdr .lc-date { font-size: 14px; font-weight: 700; }
+    .log-card-hdr .lc-tech { font-size: 12px; color: rgba(255,255,255,.6); }
+    .log-card-hdr .lc-actions { display: flex; gap: 6px; }
+    .lc-btn { background: none; border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.8); padding: 3px 10px; font-size: 12px; border-radius: 3px; cursor: pointer; font-family: inherit; }
+    .lc-btn:hover { background: rgba(255,255,255,.12); }
+    .lc-btn-del { border-color: rgba(220,80,60,.5); color: rgba(255,100,80,.9); }
+    .lc-btn-del:hover { background: rgba(220,80,60,.15); }
+    .log-card-body { padding: 14px 16px; }
+    .readings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .r-item { display: flex; flex-direction: column; gap: 2px; }
+    .r-label { font-size: 10.5px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+    .r-val { font-size: 15px; font-weight: 700; color: #1e1208; }
+    .r-val.ok { color: #1a7a3c; }
+    .r-val.warn { color: #c47d0a; }
+    .r-val.bad { color: #c0392b; }
+    .r-unit { font-size: 11px; color: #aaa; font-weight: 400; }
+    .log-chems { margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0ece6; }
+    .log-chems-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+    .log-chems-text { font-size: 13px; color: #333; white-space: pre-wrap; line-height: 1.5; }
+    .log-notes { margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0ece6; font-size: 13px; color: #666; white-space: pre-wrap; font-style: italic; }
+    .empty-state { text-align: center; padding: 48px 20px; color: #aaa; }
+    .empty-state p { margin-top: 8px; font-size: 13px; }
+
+    /* Modal overlay */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; align-items: flex-start; justify-content: center; padding-top: 40px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 10px; width: 96vw; max-width: 680px; box-shadow: 0 8px 40px rgba(0,0,0,.3); overflow: hidden; margin-bottom: 40px; }
+    .modal-hdr { background: #1e1208; color: #fff; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .modal-hdr h2 { font-size: 16px; font-weight: 700; }
+    .modal-close { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }
+    .modal-body { padding: 20px 24px 8px; }
+    .form-section { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin: 16px 0 8px; border-top: 1px solid #eee; padding-top: 12px; }
+    .form-section:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .fields-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .f-group { display: flex; flex-direction: column; gap: 4px; }
+    .f-group label { font-size: 11.5px; font-weight: 700; color: #555; }
+    .f-group input, .f-group select { border: 1px solid #ccc; border-radius: 4px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; width: 100%; }
+    .f-group input:focus, .f-group select:focus { border-color: #c47d0a; }
+    .f-group.full { grid-column: 1 / -1; }
+    .f-group textarea { border: 1px solid #ccc; border-radius: 4px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; width: 100%; resize: vertical; }
+    .f-group textarea:focus { border-color: #c47d0a; }
+    .salt-row { display: none; }
+    .modal-footer { padding: 16px 24px 22px; display: flex; gap: 10px; border-top: 1px solid #eee; margin-top: 16px; }
+    .btn-save-modal { background: #c47d0a; color: #fff; border: none; padding: 9px 26px; font-size: 14px; font-weight: 700; border-radius: 5px; cursor: pointer; }
+    .btn-save-modal:hover { background: #a86808; }
+    .btn-cancel-modal { background: none; border: 1px solid #ccc; color: #555; padding: 9px 18px; font-size: 13px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+    .btn-cancel-modal:hover { background: #f5f5f5; }
+  </style>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="btn-back" onclick="goBack()">&#8592; Back</button>
+  <div style="flex:1;">
+    <h1 id="page-title">Pool Chemical Log</h1>
+    <div class="prop-sub" id="prop-address"></div>
+  </div>
+  <button class="btn-add-reading" onclick="openAddModal()">+ Log Reading</button>
+</div>
+
+<div class="content">
+  <div id="log-list" class="log-list">
+    <div class="empty-state"><div style="font-size:32px;">&#127946;</div><p>No readings logged yet.<br>Hit &ldquo;Log Reading&rdquo; to add the first entry.</p></div>
+  </div>
+</div>
+
+<!-- Add / Edit Reading Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2 id="modal-title">Log Chemical Reading</h2>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">Reading Info</div>
+      <div class="fields-grid">
+        <div class="f-group">
+          <label>Date *</label>
+          <input type="date" id="f-date"/>
+        </div>
+        <div class="f-group">
+          <label>Technician</label>
+          <input type="text" id="f-tech" placeholder="Name or initials"/>
+        </div>
+      </div>
+
+      <div class="form-section">Chemical Readings</div>
+      <div class="fields-grid">
+        <div class="f-group">
+          <label>Free Chlorine (ppm)</label>
+          <input type="number" id="f-free-cl" min="0" step="0.1" placeholder="0.0"/>
+        </div>
+        <div class="f-group">
+          <label>Total Chlorine (ppm)</label>
+          <input type="number" id="f-total-cl" min="0" step="0.1" placeholder="0.0"/>
+        </div>
+        <div class="f-group">
+          <label>pH</label>
+          <input type="number" id="f-ph" min="0" step="0.01" placeholder="7.4"/>
+        </div>
+        <div class="f-group">
+          <label>Total Alkalinity (ppm)</label>
+          <input type="number" id="f-alk" min="0" step="1" placeholder="100"/>
+        </div>
+        <div class="f-group">
+          <label>CYA / Stabilizer (ppm)</label>
+          <input type="number" id="f-cya" min="0" step="1" placeholder="50"/>
+        </div>
+        <div class="f-group">
+          <label>Calcium Hardness (ppm)</label>
+          <input type="number" id="f-calcium" min="0" step="1" placeholder="250"/>
+        </div>
+        <div class="f-group salt-row" id="salt-field-group">
+          <label>Salt (ppm)</label>
+          <input type="number" id="f-salt" min="0" step="10" placeholder="3200"/>
+        </div>
+        <div class="f-group">
+          <label>Phosphates (ppb)</label>
+          <input type="number" id="f-phosphates" min="0" step="10" placeholder="0"/>
+        </div>
+      </div>
+
+      <div class="form-section">Chemicals Added</div>
+      <div class="f-group full">
+        <label>Chemicals Added (name + amount per line)</label>
+        <textarea id="f-chemicals" rows="4" placeholder="e.g.&#10;Chlorine 32 oz&#10;Muriatic Acid 16 oz&#10;Algaecide 8 oz"></textarea>
+      </div>
+
+      <div class="form-section">Notes</div>
+      <div class="f-group full">
+        <label>Technician Notes</label>
+        <textarea id="f-notes" rows="3" placeholder="Observations, issues, follow-up needed…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save-modal" onclick="saveReading()">Save Reading</button>
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://knjdbgroiyhvqwrpqzcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g',
+    { auth: { autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+
+  var params     = new URLSearchParams(window.location.search);
+  var propertyId = params.get('property_id');
+  var serviceId  = params.get('service_id') || null;
+  var uid        = null;
+  var hasSalt    = false;
+  var editingId  = null;
+  var readings   = [];
+
+  async function init() {
+    var { data: s } = await sb.auth.getSession();
+    uid = s && s.session ? s.session.user.id : null;
+    if (!propertyId) { document.getElementById('log-list').innerHTML = '<div class="empty-state"><p>No property specified.</p></div>'; return; }
+
+    var { data: p } = await sb.from('Properties').select('address, city, state, pool_has_salt').eq('id', propertyId).single();
+    if (p) {
+      hasSalt = !!p.pool_has_salt;
+      var addr = [p.address, p.city, p.state].filter(Boolean).join(', ');
+      document.getElementById('prop-address').textContent = addr;
+      document.getElementById('page-title').textContent = 'Chemical Log — ' + (p.address || 'Property');
+      if (hasSalt) {
+        document.querySelectorAll('.salt-row').forEach(function(el){ el.style.display = ''; });
+      }
+    }
+
+    if (serviceId) {
+      document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+      openAddModal();
+    }
+
+    await loadReadings();
+  }
+
+  async function loadReadings() {
+    var { data } = await sb.from('pool_readings')
+      .select('*').eq('property_id', propertyId).order('reading_date', { ascending: false });
+    readings = data || [];
+    renderReadings();
+  }
+
+  function renderReadings() {
+    var list = document.getElementById('log-list');
+    if (!readings.length) {
+      list.innerHTML = '<div class="empty-state"><div style="font-size:32px;">&#127946;</div><p>No readings logged yet.<br>Hit &ldquo;Log Reading&rdquo; to add the first entry.</p></div>';
+      return;
+    }
+
+    list.innerHTML = readings.map(function(r) {
+      var dateStr = r.reading_date ? new Date(r.reading_date + 'T12:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+      var saltHtml = (hasSalt && r.salt != null) ? ('<div class="r-item"><div class="r-label">Salt</div><div class="r-val">' + r.salt + '<span class="r-unit"> ppm</span></div></div>') : '';
+      return '<div class="log-card">' +
+        '<div class="log-card-hdr">' +
+          '<div><div class="lc-date">&#128200; ' + esc(dateStr) + '</div>' +
+          (r.technician ? '<div class="lc-tech">Tech: ' + esc(r.technician) + '</div>' : '') + '</div>' +
+          '<div class="lc-actions">' +
+            '<button class="lc-btn" onclick="editReading(\'' + r.id + '\')">Edit</button>' +
+            '<button class="lc-btn lc-btn-del" onclick="deleteReading(\'' + r.id + '\')">&#10005;</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="log-card-body">' +
+          '<div class="readings-grid">' +
+            fmtReading('Free Cl', r.free_chlorine, 'ppm', 1, 3, 5) +
+            fmtReading('Total Cl', r.total_chlorine, 'ppm', 1, 4, 6) +
+            fmtReading('pH', r.ph, '', 7.2, 7.8, 8.2) +
+            fmtReading('Alkalinity', r.alkalinity, 'ppm', 80, 120, 180) +
+            fmtReading('CYA', r.cya, 'ppm', 30, 80, 120) +
+            fmtReading('Ca Hardness', r.calcium, 'ppm', 200, 400, 600) +
+            saltHtml +
+            fmtReading('Phosphates', r.phosphates, 'ppb', 0, 200, 500) +
+          '</div>' +
+          (r.chemicals_added ? '<div class="log-chems"><div class="log-chems-label">Chemicals Added</div><div class="log-chems-text">' + esc(r.chemicals_added) + '</div></div>' : '') +
+          (r.notes ? '<div class="log-notes">' + esc(r.notes) + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function fmtReading(label, val, unit, lo, hi, max) {
+    if (val === null || val === undefined) return '';
+    var cls = 'r-val';
+    if (typeof lo === 'number') {
+      var n = parseFloat(val);
+      if (n >= lo && n <= hi) cls += ' ok';
+      else if (n > hi && n <= max) cls += ' warn';
+      else if (n > max || n < lo) cls += ' bad';
+    }
+    return '<div class="r-item"><div class="r-label">' + label + '</div><div class="' + cls + '">' + val + (unit ? '<span class="r-unit"> ' + unit + '</span>' : '') + '</div></div>';
+  }
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'Log Chemical Reading';
+    clearForm();
+    if (!document.getElementById('f-date').value) {
+      document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+    }
+    document.getElementById('modal-overlay').classList.add('show');
+  }
+
+  function editReading(id) {
+    var r = readings.find(function(x){ return x.id === id; });
+    if (!r) return;
+    editingId = id;
+    document.getElementById('modal-title').textContent = 'Edit Reading';
+    function sv(elId, v) { var el = document.getElementById(elId); if (el) el.value = (v != null ? v : ''); }
+    sv('f-date',       r.reading_date);
+    sv('f-tech',       r.technician);
+    sv('f-free-cl',    r.free_chlorine);
+    sv('f-total-cl',   r.total_chlorine);
+    sv('f-ph',         r.ph);
+    sv('f-alk',        r.alkalinity);
+    sv('f-cya',        r.cya);
+    sv('f-calcium',    r.calcium);
+    sv('f-salt',       r.salt);
+    sv('f-phosphates', r.phosphates);
+    sv('f-chemicals',  r.chemicals_added);
+    sv('f-notes',      r.notes);
+    document.getElementById('modal-overlay').classList.add('show');
+  }
+
+  function clearForm() {
+    ['f-date','f-tech','f-free-cl','f-total-cl','f-ph','f-alk','f-cya','f-calcium','f-salt','f-phosphates','f-chemicals','f-notes']
+      .forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('show');
+    editingId = null;
+  }
+
+  async function saveReading() {
+    var dateVal = document.getElementById('f-date').value;
+    if (!dateVal) { alert('Please enter a reading date.'); return; }
+
+    function numVal(id) {
+      var v = document.getElementById(id).value;
+      return v !== '' ? parseFloat(v) : null;
+    }
+
+    var payload = {
+      user_id:          uid,
+      property_id:      propertyId,
+      service_id:       serviceId || null,
+      reading_date:     dateVal,
+      technician:       document.getElementById('f-tech').value.trim() || null,
+      free_chlorine:    numVal('f-free-cl'),
+      total_chlorine:   numVal('f-total-cl'),
+      ph:               numVal('f-ph'),
+      alkalinity:       numVal('f-alk'),
+      cya:              numVal('f-cya'),
+      calcium:          numVal('f-calcium'),
+      salt:             hasSalt ? numVal('f-salt') : null,
+      phosphates:       numVal('f-phosphates'),
+      chemicals_added:  document.getElementById('f-chemicals').value.trim() || null,
+      notes:            document.getElementById('f-notes').value.trim() || null,
+    };
+
+    var error;
+    if (editingId) {
+      var res = await sb.from('pool_readings').update(payload).eq('id', editingId);
+      error = res.error;
+    } else {
+      var res = await sb.from('pool_readings').insert(payload);
+      error = res.error;
+    }
+
+    if (error) { alert('Error saving reading: ' + error.message); return; }
+    closeModal();
+    await loadReadings();
+  }
+
+  async function deleteReading(id) {
+    if (!confirm('Delete this reading? This cannot be undone.')) return;
+    var { error } = await sb.from('pool_readings').delete().eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    readings = readings.filter(function(r){ return r.id !== id; });
+    renderReadings();
+  }
+
+  function goBack() {
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('propprofile?id=' + propertyId);
+    } else {
+      window.history.back();
+    }
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  init();
+</script>
+</body>
+</html>

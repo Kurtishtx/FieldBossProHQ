@@ -90,6 +90,7 @@
     <button class="tab-btn" data-tab="custom">Custom Fields</button>
     <button class="tab-btn" data-tab="area">Area Treated</button>
     <button class="tab-btn" id="snow-tab-btn" data-tab="snow" style="display:none;">&#10052; Snow</button>
+    <button class="tab-btn" id="pool-tab-btn" data-tab="pool" style="display:none;">&#127946; Pool</button>
   </div>
 
   <!-- Property Information panel -->
@@ -236,6 +237,66 @@
     </div>
   </div>
 
+  <div class="tab-panel" id="tab-pool">
+    <div class="dialog-body">
+      <div class="section-label" style="padding-top:0;border-top:none;">Pool Information</div>
+      <div class="field-row">
+        <label>Pool Type</label>
+        <div style="flex:1;">
+          <select id="pool-type" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;">
+            <option value="">-- None --</option>
+            <option value="Inground">Inground</option>
+            <option value="Above-Ground">Above-Ground</option>
+            <option value="Spa/Hot Tub">Spa/Hot Tub</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Pool Surface</label>
+        <div style="flex:1;">
+          <select id="pool-surface" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;">
+            <option value="">-- None --</option>
+            <option value="Plaster">Plaster</option>
+            <option value="Pebble">Pebble</option>
+            <option value="Vinyl">Vinyl</option>
+            <option value="Fiberglass">Fiberglass</option>
+            <option value="Tile">Tile</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Pool Size (gal)</label>
+        <div style="flex:1;"><input type="number" id="pool-size-gallons" min="0" step="1" placeholder="e.g. 15000" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;"/></div>
+      </div>
+      <div class="field-row">
+        <label>Filter Type</label>
+        <div style="flex:1;">
+          <select id="pool-filter-type" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;">
+            <option value="">-- None --</option>
+            <option value="Sand">Sand</option>
+            <option value="Cartridge">Cartridge</option>
+            <option value="Diatomaceous Earth">Diatomaceous Earth</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Pump Brand</label>
+        <div style="flex:1;"><input type="text" id="pool-pump-brand" placeholder="e.g. Pentair, Hayward…" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;"/></div>
+      </div>
+      <div class="field-row" style="align-items:center;">
+        <label>Salt System</label>
+        <div style="flex:1;display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="pool-has-salt" style="width:18px;height:18px;cursor:pointer;accent-color:#c47d0a;"/>
+          <span style="font-size:12.5px;color:#111;">This pool has a salt chlorination system.</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Gate Code</label>
+        <div style="flex:1;"><input type="text" id="pool-gate-code" placeholder="e.g. #1234" style="width:100%;border:1px solid #ccc;padding:7px 10px;font-size:13px;font-family:inherit;border-radius:2px;outline:none;"/></div>
+      </div>
+    </div>
+  </div>
+
   <div class="dialog-footer">
     <button class="btn-save" onclick="saveProperty()">Save</button>
     <span class="btn-cancel" onclick="cancelEdit(event)">Cancel</span>
@@ -271,6 +332,7 @@
   if (editId) {
     document.getElementById('btn-delete-property').style.display = '';
     document.getElementById('snow-tab-btn').style.display = '';
+    document.getElementById('pool-tab-btn').style.display = '';
   }
 
   /* ── Tab switching ── */
@@ -352,6 +414,7 @@
       await loadClientOptions(p.customer_id);
       await loadSalesTaxOptions(p.sales_tax_id || null);
       loadSnowTab();
+      loadPoolTab(p);
     } else {
       await loadClientOptions(presetClientId || null);
       await loadSalesTaxOptions(null);
@@ -496,6 +559,13 @@
 
     if (cfLoaded) record.custom_fields = buildCfValues();
     if (_atTypes.length) record.area_treated = buildAtValues();
+    record.pool_type         = document.getElementById('pool-type').value || null;
+    record.pool_surface      = document.getElementById('pool-surface').value || null;
+    record.pool_size_gallons = document.getElementById('pool-size-gallons').value !== '' ? parseInt(document.getElementById('pool-size-gallons').value) : null;
+    record.pool_filter_type  = document.getElementById('pool-filter-type').value || null;
+    record.pool_pump_brand   = document.getElementById('pool-pump-brand').value.trim() || null;
+    record.pool_has_salt     = document.getElementById('pool-has-salt').checked;
+    record.gate_code         = document.getElementById('pool-gate-code').value.trim() || null;
 
     var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
     var fullAddress = [addr1, city, state, zip].filter(Boolean).join(', ');
@@ -559,6 +629,18 @@
       if (insErr) { alert('Snow save error: ' + insErr.message); return; }
       if (insData) snowPropId = insData.id;
     }
+  }
+
+  function loadPoolTab(p) {
+    if (!p) return;
+    function setVal(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; }
+    setVal('pool-type',         p.pool_type);
+    setVal('pool-surface',      p.pool_surface);
+    setVal('pool-size-gallons', p.pool_size_gallons != null ? p.pool_size_gallons : '');
+    setVal('pool-filter-type',  p.pool_filter_type);
+    setVal('pool-pump-brand',   p.pool_pump_brand);
+    setVal('pool-gate-code',    p.gate_code);
+    document.getElementById('pool-has-salt').checked = !!p.pool_has_salt;
   }
 
   async function persistProperty(record) {
