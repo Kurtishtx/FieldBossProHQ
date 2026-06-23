@@ -401,6 +401,16 @@
         trial_ends_at:    trialEnd
       }, { onConflict: 'id' });
 
+      /* 4b. Record in platform_accounts so admin can see this new sign-up */
+      await sb.from('platform_accounts').upsert({
+        user_id:       uid,
+        email:         loginEmail,
+        company_name:  document.getElementById('company-name').value.trim(),
+        trial_ends_at: trialEnd,
+        active:        false,
+        onboarded:     false
+      }, { onConflict: 'user_id' });
+
       /* 6. Insert company info row so their account is ready on first login */
       var companyName = document.getElementById('company-name').value.trim();
       var address1    = document.getElementById('address1').value.trim() || null;
