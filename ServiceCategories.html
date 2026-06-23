@@ -11,6 +11,8 @@
     .page-header { padding: 14px 20px; background: #fff; border-bottom: 1px solid #e0d8cc; display: flex; align-items: center; justify-content: space-between; }
     .page-header h1 { font-size: 20px; font-weight: 800; color: #1e1208; }
     .page-sub { font-size: 12px; color: #888; margin-top: 2px; }
+    .btn-add-cat { background: #c47d0a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-add-cat:hover { background: #a86808; }
 
     .content { max-width: 540px; margin: 28px auto; padding: 0 16px 40px; }
 
@@ -20,12 +22,6 @@
     .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); overflow: hidden; }
     .card-hdr { background: #1e1208; color: #fff; padding: 12px 18px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
     .card-hdr span { color: rgba(255,255,255,.55); font-size: 12px; font-weight: 400; }
-
-    .add-form { display: flex; gap: 8px; padding: 14px 16px; border-bottom: 1px solid #f0ece6; }
-    .add-form input { flex: 1; border: 1px solid #ccc; border-radius: 5px; padding: 8px 12px; font-size: 13px; font-family: inherit; outline: none; }
-    .add-form input:focus { border-color: #c47d0a; }
-    .btn-add { background: #c47d0a; color: #fff; border: none; padding: 8px 18px; border-radius: 5px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .btn-add:hover { background: #a86808; }
 
     .flash { font-size: 12px; color: #27a567; font-weight: 600; padding: 6px 16px; display: none; border-bottom: 1px solid #f0ece6; }
 
@@ -42,6 +38,19 @@
     .btn-del:hover { background: #fdf0ef; }
 
     .empty-msg { padding: 28px 16px; text-align: center; color: #aaa; font-size: 13px; }
+
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:10px; padding:24px; width:340px; box-shadow:0 8px 32px rgba(0,0,0,.2); }
+    .modal h2 { font-size:16px; font-weight:800; color:#1e1208; margin-bottom:16px; }
+    .modal input { width:100%; border:1px solid #ccc; border-radius:5px; padding:9px 12px; font-size:13px; font-family:inherit; outline:none; margin-bottom:14px; }
+    .modal input:focus { border-color:#c47d0a; }
+    .modal-btns { display:flex; gap:8px; justify-content:flex-end; }
+    .btn-cancel { background:none; border:1px solid #ccc; color:#555; padding:7px 16px; border-radius:5px; font-size:13px; cursor:pointer; font-family:inherit; }
+    .btn-cancel:hover { border-color:#999; }
+    .btn-save { background:#c47d0a; color:#fff; border:none; padding:7px 18px; border-radius:5px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .btn-save:hover { background:#a86808; }
   </style>
   <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="theme.css"/>
@@ -50,9 +59,10 @@
 
 <div class="page-header">
   <div>
-    <h1>Service Categories</h1>
-    <div class="page-sub">Job Board — categories shown on the Add Service form</div>
+    <h1>Service Categories List</h1>
+    <div class="page-sub">Categories shown on the Add Service form</div>
   </div>
+  <button class="btn-add-cat" onclick="openModal()">+ Add Category</button>
 </div>
 
 <div class="content">
@@ -64,21 +74,27 @@
 
   <div class="card">
     <div class="card-hdr">
-      Job Board Categories
+      Categories
       <span id="cat-count"></span>
     </div>
-
-    <div class="add-form">
-      <input type="text" id="new-name" placeholder="e.g. Tree Trimming, Hardscape, Cleanup…" maxlength="40"
-        onkeydown="if(event.key==='Enter') addCat()"/>
-      <button class="btn-add" onclick="addCat()">+ Add</button>
-    </div>
-
     <div class="flash" id="flash">&#10003; Saved</div>
     <ul class="cat-list" id="cat-list"></ul>
-    <div class="empty-msg" id="empty-msg" style="display:none;">No categories yet — add one above.</div>
+    <div class="empty-msg" id="empty-msg" style="display:none;">No categories yet — click "Add Category" to get started.</div>
   </div>
 
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <h2>Add Category</h2>
+    <input type="text" id="new-name" placeholder="e.g. Tree Trimming, Hardscape…" maxlength="40"
+      onkeydown="if(event.key==='Enter') addCat()"/>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="addCat()">Add</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -91,7 +107,7 @@
 
   var uid  = null;
   var cats = [];
-  var DEFAULTS = ['Mowing', 'Landscape', 'Irrigation', 'Snow', 'Pool', 'Spray', 'Other'];
+  var DEFAULTS = ['Mowing', 'Landscape', 'Irrigation', 'Pool', 'Spray', 'Other'];
 
   async function init() {
     var { data: s } = await sb.auth.getSession();
@@ -101,7 +117,6 @@
     var { data } = await sb.from('service_categories').select('*').eq('user_id', uid).order('sort_order').order('name');
     cats = data || [];
 
-    // Seed defaults on first open
     if (!cats.length) {
       var inserts = DEFAULTS.map(function(name, i) {
         return { user_id: uid, name: name, sort_order: i, active: true };
@@ -133,6 +148,16 @@
         '<button class="btn-del" onclick="deleteCat(\'' + cat.id + '\')">&#10005;</button>';
       list.appendChild(li);
     });
+  }
+
+  function openModal() {
+    document.getElementById('new-name').value = '';
+    document.getElementById('modal-overlay').classList.add('open');
+    setTimeout(function() { document.getElementById('new-name').focus(); }, 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
   }
 
   function startEdit(btn) {
@@ -167,7 +192,7 @@
       .select().single();
     if (error) { alert('Error: ' + error.message); return; }
     cats.push(data);
-    input.value = '';
+    closeModal();
     flash();
     render();
   }
