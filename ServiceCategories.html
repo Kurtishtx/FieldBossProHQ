@@ -14,9 +14,9 @@
     .btn-add-cat { background: #c47d0a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
     .btn-add-cat:hover { background: #a86808; }
 
-    .content { max-width: 540px; margin: 28px auto; padding: 0 16px 40px; }
+    .content { max-width: 540px; margin: 28px auto; padding: 0 16px 40px; display: flex; flex-direction: column; gap: 20px; }
 
-    .note-box { background: #fdf8f0; border: 1px solid #e8c88a; border-radius: 8px; padding: 12px 16px; font-size: 12.5px; color: #5a3a10; line-height: 1.6; margin-bottom: 20px; }
+    .note-box { background: #fdf8f0; border: 1px solid #e8c88a; border-radius: 8px; padding: 12px 16px; font-size: 12.5px; color: #5a3a10; line-height: 1.6; }
     .note-box strong { display: block; margin-bottom: 3px; font-size: 13px; color: #3d2510; }
 
     .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); overflow: hidden; }
@@ -25,7 +25,23 @@
 
     .flash { font-size: 12px; color: #27a567; font-weight: 600; padding: 6px 16px; display: none; border-bottom: 1px solid #f0ece6; }
 
-    .cat-list { list-style: none; }
+    /* Default category rows with toggle */
+    .def-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f5f0eb; }
+    .def-item:last-child { border-bottom: none; }
+    .def-name { flex: 1; font-size: 13.5px; font-weight: 600; color: #222; }
+    .def-name.off { color: #aaa; }
+    .def-status { font-size: 11px; color: #aaa; width: 28px; }
+    .def-status.on { color: #27a567; }
+
+    /* Toggle switch */
+    .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: .2s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+    .toggle input:checked + .toggle-slider { background: #c47d0a; }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+    /* Custom category rows */
     .cat-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-bottom: 1px solid #f5f0eb; }
     .cat-item:last-child { border-bottom: none; }
     .cat-name { flex: 1; font-size: 13.5px; font-weight: 600; color: #222; }
@@ -37,7 +53,7 @@
     .btn-del { background: none; border: 1px solid #e8c0c0; color: #c0392b; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; }
     .btn-del:hover { background: #fdf0ef; }
 
-    .empty-msg { padding: 28px 16px; text-align: center; color: #aaa; font-size: 13px; }
+    .empty-msg { padding: 22px 16px; text-align: center; color: #aaa; font-size: 13px; }
 
     /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
@@ -60,7 +76,7 @@
 <div class="page-header">
   <div>
     <h1>Service Categories List</h1>
-    <div class="page-sub">Categories shown on the Add Service form</div>
+    <div class="page-sub">Manage which categories appear on the Add Service form</div>
   </div>
   <button class="btn-add-cat" onclick="openModal()">+ Add Category</button>
 </div>
@@ -69,17 +85,22 @@
 
   <div class="note-box">
     <strong>&#9432; How this works</strong>
-    <strong>Chemical</strong> is a built-in system category and always appears first — those services go to the <strong>Waiting List</strong>. Everything you add here goes to the <strong>Job Board</strong>. The Add Service form pulls from this list automatically.
+    Toggle default categories on or off. Add your own custom categories below. <strong>Chemical</strong> is always available — those services go to the <strong>Waiting List</strong>. Everything else goes to the <strong>Job Board</strong>.
   </div>
 
+  <!-- Default categories -->
   <div class="card">
-    <div class="card-hdr">
-      Categories
-      <span id="cat-count"></span>
-    </div>
-    <div class="flash" id="flash">&#10003; Saved</div>
+    <div class="card-hdr">Default Categories <span>toggle on / off</span></div>
+    <div class="flash" id="flash-def">&#10003; Saved</div>
+    <div id="def-list"></div>
+  </div>
+
+  <!-- Custom categories -->
+  <div class="card">
+    <div class="card-hdr">Custom Categories <span id="custom-count"></span></div>
+    <div class="flash" id="flash-custom">&#10003; Saved</div>
     <ul class="cat-list" id="cat-list"></ul>
-    <div class="empty-msg" id="empty-msg" style="display:none;">No categories yet — click "Add Category" to get started.</div>
+    <div class="empty-msg" id="empty-msg">No custom categories yet — click "+ Add Category" to add one.</div>
   </div>
 
 </div>
@@ -107,7 +128,7 @@
 
   var uid  = null;
   var cats = [];
-  var DEFAULTS = ['Mowing', 'Landscape', 'Irrigation', 'Pool', 'Spray', 'Other'];
+  var DEFAULTS = ['Mowing', 'Landscape', 'Irrigation', 'Snow', 'Pool', 'Spray', 'Other'];
 
   async function init() {
     var { data: s } = await sb.auth.getSession();
@@ -123,19 +144,61 @@
       });
       var { data: seeded } = await sb.from('service_categories').insert(inserts).select();
       cats = seeded || [];
+    } else {
+      // Ensure all defaults exist as rows
+      for (var i = 0; i < DEFAULTS.length; i++) {
+        var dname = DEFAULTS[i];
+        var exists = cats.find(function(c) { return c.name.toLowerCase() === dname.toLowerCase(); });
+        if (!exists) {
+          var maxOrder = cats.reduce(function(m, c) { return Math.max(m, c.sort_order || 0); }, -1);
+          var { data: newRow } = await sb.from('service_categories')
+            .insert({ user_id: uid, name: dname, sort_order: maxOrder + 1, active: true })
+            .select().single();
+          if (newRow) cats.push(newRow);
+        }
+      }
     }
 
     render();
   }
 
+  function isDefault(cat) {
+    return DEFAULTS.some(function(d) { return d.toLowerCase() === cat.name.toLowerCase(); });
+  }
+
+  function defaultOrder(cat) {
+    var idx = DEFAULTS.findIndex(function(d) { return d.toLowerCase() === cat.name.toLowerCase(); });
+    return idx === -1 ? 999 : idx;
+  }
+
   function render() {
+    var defaults = cats.filter(isDefault).sort(function(a, b) { return defaultOrder(a) - defaultOrder(b); });
+    var custom   = cats.filter(function(c) { return !isDefault(c); });
+
+    // Render defaults with toggles
+    var defList = document.getElementById('def-list');
+    defList.innerHTML = '';
+    defaults.forEach(function(cat) {
+      var active = cat.active !== false;
+      var div = document.createElement('div');
+      div.className = 'def-item';
+      div.innerHTML =
+        '<span class="def-name' + (active ? '' : ' off') + '" id="def-name-' + cat.id + '">' + esc(cat.name) + '</span>' +
+        '<label class="toggle">' +
+          '<input type="checkbox"' + (active ? ' checked' : '') + ' onchange="toggleDefault(\'' + cat.id + '\', this.checked)"/>' +
+          '<span class="toggle-slider"></span>' +
+        '</label>';
+      defList.appendChild(div);
+    });
+
+    // Render custom categories
     var list  = document.getElementById('cat-list');
     var empty = document.getElementById('empty-msg');
     list.innerHTML = '';
-    document.getElementById('cat-count').textContent = cats.length + ' categor' + (cats.length === 1 ? 'y' : 'ies');
-    empty.style.display = cats.length ? 'none' : '';
+    document.getElementById('custom-count').textContent = custom.length ? custom.length + ' added' : '';
+    empty.style.display = custom.length ? 'none' : '';
 
-    cats.forEach(function(cat) {
+    custom.forEach(function(cat) {
       var li = document.createElement('li');
       li.className = 'cat-item';
       li.innerHTML =
@@ -148,6 +211,15 @@
         '<button class="btn-del" onclick="deleteCat(\'' + cat.id + '\')">&#10005;</button>';
       list.appendChild(li);
     });
+  }
+
+  async function toggleDefault(id, active) {
+    var { error } = await sb.from('service_categories').update({ active: active }).eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    var c = cats.find(function(x) { return x.id === id; });
+    if (c) c.active = active;
+    flashEl('flash-def');
+    render();
   }
 
   function openModal() {
@@ -178,7 +250,7 @@
     if (error) { alert('Error: ' + error.message); return; }
     var c = cats.find(function(x) { return x.id === id; });
     if (c) c.name = name;
-    flash();
+    flashEl('flash-custom');
     render();
   }
 
@@ -193,7 +265,7 @@
     if (error) { alert('Error: ' + error.message); return; }
     cats.push(data);
     closeModal();
-    flash();
+    flashEl('flash-custom');
     render();
   }
 
@@ -206,11 +278,11 @@
     render();
   }
 
-  function flash() {
-    var el = document.getElementById('flash');
+  function flashEl(id) {
+    var el = document.getElementById(id);
     el.style.display = 'block';
-    clearTimeout(flash._t);
-    flash._t = setTimeout(function() { el.style.display = 'none'; }, 2000);
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.style.display = 'none'; }, 2000);
   }
 
   function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
