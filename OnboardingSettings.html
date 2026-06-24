@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Onboarding</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #d4cfe0; font-size: 13px; color: #333; padding: 24px 16px 40px; }
+
+    .form-card { background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 18px rgba(0,0,0,.18); max-width: 700px; margin: 0 auto; }
+    .card-header { padding: 18px 22px 12px; border-bottom: 1px solid #eee; }
+    .card-header h1 { font-size: 22px; font-weight: 800; color: #111; }
+
+    .tabs-row { display: flex; align-items: center; gap: 6px; padding: 10px 22px 8px; border-bottom: 1px solid #eee; }
+    .tab-btn { background: none; border: none; font-size: 13.5px; font-family: inherit; cursor: pointer; padding: 6px 14px; border-radius: 4px; color: #2272c3; font-weight: 600; }
+    .tab-btn:hover { text-decoration: underline; }
+    .tab-btn.active { background: #555; color: #fff; text-decoration: none; }
+
+    .tab-pane { display: none; padding: 0 0 24px; }
+    .tab-pane.active { display: block; }
+
+    .section-bar { background: #130520; padding: 6px 22px; font-size: 11.5px; font-weight: 700; color: #aaa; letter-spacing: .5px; text-transform: uppercase; }
+
+    .field-row { display: flex; align-items: flex-start; gap: 16px; padding: 14px 22px; border-bottom: 1px solid #f0f0f0; }
+    .field-lbl { font-size: 13px; font-weight: 700; color: #333; min-width: 200px; padding-top: 3px; }
+    .field-lbl .field-sub { font-size: 11.5px; font-weight: 400; color: #888; margin-top: 2px; }
+    .field-val { flex: 1; }
+
+    textarea { width: 100%; border: 1.5px solid #ddd; border-radius: 5px; padding: 9px 11px; font-family: inherit; font-size: 13px; color: #333; resize: vertical; min-height: 80px; }
+    textarea:focus { outline: none; border-color: #c47d0a; }
+
+    /* Toggle row */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; border-bottom: 1px solid #f0f0f0; }
+    .toggle-lbl { font-size: 13px; font-weight: 700; color: #333; }
+    .toggle-lbl .toggle-sub { font-size: 11.5px; font-weight: 400; color: #888; margin-top: 2px; }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 24px; transition: .3s; }
+    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+    .toggle-switch input:checked + .toggle-slider { background: #c47d0a; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+    /* Alert choice row — shown when toggle is on */
+    .choice-row { display: flex; align-items: center; gap: 8px; padding: 8px 22px 14px 22px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+    .choice-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; background: #f0f0f0; border: 1.5px solid #ddd; border-radius: 6px; padding: 6px 14px; transition: all .15s; }
+    .choice-row input[type=radio] { accent-color: #c47d0a; }
+    .choice-row label:has(input:checked) { background: #fff5ec; border-color: #c47d0a; color: #c05000; }
+
+    .save-row { padding: 18px 22px 6px; display: flex; align-items: center; gap: 14px; }
+    .btn-save { background: #c47d0a; color: #fff; border: none; border-radius: 5px; padding: 10px 28px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #a86808; }
+    .save-status { font-size: 12.5px; }
+
+    /* Form preview tab */
+    .preview-card { margin: 20px 22px; border: 1.5px solid #ddd; border-radius: 10px; overflow: hidden; }
+    .preview-card .pc-header { background: #130520; color: #fff; padding: 12px 18px; font-size: 14px; font-weight: 700; }
+    .preview-section { padding: 16px 18px; border-bottom: 1px solid #eee; }
+    .preview-section:last-child { border-bottom: none; }
+    .preview-section .ps-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #999; margin-bottom: 6px; }
+    .preview-section .ps-value { font-size: 13px; color: #333; }
+    .ps-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .ps-chip { background: #f0f0f0; border: 1.5px solid #ddd; border-radius: 6px; padding: 5px 14px; font-size: 12.5px; color: #555; font-weight: 600; }
+    .ps-chip.selected { background: #fff5ec; border-color: #c47d0a; color: #c05000; }
+  </style>
+</head>
+<body>
+<div class="form-card">
+  <div class="card-header">
+    <h1>Onboarding</h1>
+  </div>
+
+  <div class="tabs-row">
+    <button class="tab-btn active" onclick="switchTab('settings', this)">Onboard Settings</button>
+    <button class="tab-btn" onclick="switchTab('form', this)">Onboarding Form</button>
+  </div>
+
+  <!-- ── Tab: Onboard Settings ── -->
+  <div class="tab-pane active" id="tab-settings">
+
+    <div class="section-bar">Welcome Message</div>
+
+    <div class="field-row">
+      <div class="field-lbl">
+        Welcome Text
+        <div class="field-sub">Shown at the top of the onboarding page clients receive.</div>
+      </div>
+      <div class="field-val">
+        <textarea id="welcome-text" placeholder="Welcome! We're glad to have you on board. It only takes a minute to get set up."></textarea>
+      </div>
+    </div>
+
+    <div class="section-bar">Alert Preferences</div>
+
+    <!-- Day Before toggle -->
+    <div class="toggle-row">
+      <div class="toggle-lbl">
+        Day Before Service Alert
+        <div class="toggle-sub">Ask clients if they want a reminder the day before their service.</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-day-before" onchange="toggleAlert('day-before', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="choice-row" id="choices-day-before" style="display:none;">
+      <label><input type="radio" name="day-before-type" value="email"/> Email</label>
+      <label><input type="radio" name="day-before-type" value="text"/> Text</label>
+      <label><input type="radio" name="day-before-type" value="both" checked/> Both (let them choose)</label>
+    </div>
+
+    <!-- On The Way toggle -->
+    <div class="toggle-row">
+      <div class="toggle-lbl">
+        On The Way Alert
+        <div class="toggle-sub">Ask clients if they want a heads up when you're at the property before theirs.</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-on-the-way" onchange="toggleAlert('on-the-way', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="choice-row" id="choices-on-the-way" style="display:none;">
+      <label><input type="radio" name="on-the-way-type" value="email"/> Email</label>
+      <label><input type="radio" name="on-the-way-type" value="text"/> Text</label>
+      <label><input type="radio" name="on-the-way-type" value="both" checked/> Both (let them choose)</label>
+    </div>
+
+    <div class="save-row">
+      <button class="btn-save" onclick="saveSettings()">Save</button>
+      <span class="save-status" id="save-status"></span>
+    </div>
+  </div>
+
+  <!-- ── Tab: Onboarding Form ── -->
+  <div class="tab-pane" id="tab-form">
+    <div style="padding:18px 22px 10px;">
+      <p style="font-size:13px;color:#555;line-height:1.6;">This is a preview of what your clients will see when they open the onboarding link. Fields shown depend on your Onboard Settings.</p>
+    </div>
+
+    <div class="preview-card">
+      <div class="pc-header">&#127881; Welcome</div>
+
+      <div class="preview-section">
+        <div class="ps-label">Welcome Message</div>
+        <div class="ps-value" id="preview-welcome" style="color:#555;font-style:italic;">Loading…</div>
+      </div>
+
+      <div class="preview-section" id="preview-day-before-section" style="display:none;">
+        <div class="ps-label">Day Before Service</div>
+        <div class="ps-value">Would you like a reminder the day before your service?</div>
+        <div class="ps-chips" id="preview-day-before-chips"></div>
+      </div>
+
+      <div class="preview-section" id="preview-on-the-way-section" style="display:none;">
+        <div class="ps-label">On The Way</div>
+        <div class="ps-value">Would you like a heads up when we're at the property before yours?</div>
+        <div class="ps-chips" id="preview-on-the-way-chips"></div>
+      </div>
+
+      <div class="preview-section">
+        <div class="ps-label">Payment</div>
+        <div class="ps-value">Add your card on file — used for automatic billing.</div>
+        <div class="ps-chips" style="margin-top:8px;">
+          <span class="ps-chip" style="background:#fff5ec;border-color:#c47d0a;color:#c05000;">&#128179; Add Card (Stripe)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var SURL = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var sb = supabase.createClient(SURL, SKEY);
+  var uid = null;
+
+  (async function() {
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    uid = session.user.id;
+    await loadSettings();
+  })();
+
+  async function loadSettings() {
+    var { data } = await sb.from('company_info')
+      .select('onboard_welcome_text, onboard_day_before, onboard_on_the_way')
+      .eq('user_id', uid).single();
+    if (!data) return;
+
+    if (data.onboard_welcome_text) document.getElementById('welcome-text').value = data.onboard_welcome_text;
+
+    if (data.onboard_day_before && data.onboard_day_before !== 'off') {
+      document.getElementById('toggle-day-before').checked = true;
+      document.getElementById('choices-day-before').style.display = 'flex';
+      var r = document.querySelector('input[name="day-before-type"][value="' + data.onboard_day_before + '"]');
+      if (r) r.checked = true;
+    }
+
+    if (data.onboard_on_the_way && data.onboard_on_the_way !== 'off') {
+      document.getElementById('toggle-on-the-way').checked = true;
+      document.getElementById('choices-on-the-way').style.display = 'flex';
+      var r2 = document.querySelector('input[name="on-the-way-type"][value="' + data.onboard_on_the_way + '"]');
+      if (r2) r2.checked = true;
+    }
+
+    updatePreview(data);
+  }
+
+  function toggleAlert(key, on) {
+    document.getElementById('choices-' + key).style.display = on ? 'flex' : 'none';
+    updatePreviewFromForm();
+  }
+
+  function updatePreview(data) {
+    var welcome = (data && data.onboard_welcome_text) || document.getElementById('welcome-text').value || 'Welcome! We\'re glad to have you on board.';
+    document.getElementById('preview-welcome').textContent = welcome;
+    document.getElementById('preview-welcome').style.fontStyle = 'normal';
+
+    var dayOn = data ? (data.onboard_day_before && data.onboard_day_before !== 'off') : document.getElementById('toggle-day-before').checked;
+    var dayType = data ? (data.onboard_day_before || 'both') : getRadio('day-before-type');
+    var wayOn = data ? (data.onboard_on_the_way && data.onboard_on_the_way !== 'off') : document.getElementById('toggle-on-the-way').checked;
+    var wayType = data ? (data.onboard_on_the_way || 'both') : getRadio('on-the-way-type');
+
+    setPreviewSection('day-before', dayOn, dayType);
+    setPreviewSection('on-the-way', wayOn, wayType);
+  }
+
+  function updatePreviewFromForm() {
+    updatePreview(null);
+    document.getElementById('preview-welcome').textContent = document.getElementById('welcome-text').value || 'Welcome! We\'re glad to have you on board.';
+  }
+
+  function setPreviewSection(key, on, type) {
+    var section = document.getElementById('preview-' + key + '-section');
+    section.style.display = on ? '' : 'none';
+    if (!on) return;
+    var chipsEl = document.getElementById('preview-' + key + '-chips');
+    var chips = [];
+    if (type === 'email' || type === 'both') chips.push('Email');
+    if (type === 'text'  || type === 'both') chips.push('Text');
+    chips.push('No thanks');
+    chipsEl.innerHTML = chips.map(function(c, i) {
+      return '<span class="ps-chip' + (i === 0 ? ' selected' : '') + '">' + c + '</span>';
+    }).join('');
+  }
+
+  function getRadio(name) {
+    var r = document.querySelector('input[name="' + name + '"]:checked');
+    return r ? r.value : 'both';
+  }
+
+  async function saveSettings() {
+    if (!uid) return;
+    var statusEl = document.getElementById('save-status');
+    statusEl.style.color = '#888'; statusEl.textContent = 'Saving…';
+
+    var dayBefore = document.getElementById('toggle-day-before').checked ? getRadio('day-before-type') : 'off';
+    var onTheWay  = document.getElementById('toggle-on-the-way').checked  ? getRadio('on-the-way-type')  : 'off';
+
+    var { error } = await sb.from('company_info').update({
+      onboard_welcome_text: document.getElementById('welcome-text').value.trim() || null,
+      onboard_day_before:   dayBefore,
+      onboard_on_the_way:   onTheWay,
+    }).eq('user_id', uid);
+
+    if (error) {
+      statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + error.message;
+    } else {
+      statusEl.style.color = '#28a745'; statusEl.textContent = 'Saved!';
+      setTimeout(function() { statusEl.textContent = ''; }, 3000);
+      updatePreviewFromForm();
+    }
+  }
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'form') updatePreviewFromForm();
+  }
+
+  document.getElementById('welcome-text').addEventListener('input', updatePreviewFromForm);
+  document.querySelectorAll('input[name="day-before-type"], input[name="on-the-way-type"]').forEach(function(r) {
+    r.addEventListener('change', updatePreviewFromForm);
+  });
+</script>
+</body>
+</html>
