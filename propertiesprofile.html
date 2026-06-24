@@ -611,7 +611,10 @@
       <div class="dropdown-menu" id="send-menu">
         <a href="#" onclick="sendText();return false;">Text</a>
         <a href="#">Email</a>
-        <a href="#" onclick="openPropSendModal('upsell');return false;">Upsell Email</a>
+        <a href="#" onclick="openSendModal('text-update-cc');return false;">Text - Update CC Info</a>
+        <a href="#" onclick="openSendModal('email-update-cc');return false;">Email - Update CC Info</a>
+        <a href="#" onclick="openSendModal('text-onboarding');return false;">Text - Onboarding</a>
+        <a href="#" onclick="openSendModal('email-onboarding');return false;">Email - Onboarding</a>
       </div>
     </div>
   </div>
@@ -3285,7 +3288,180 @@ function showPropTab(name, btn) {
       statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + e.message;
     }
   }
+
+  async function openSendModal(mode) {
+    if (mode === 'email-update-cc') {
+      document.getElementById('cc-update-status').textContent = '';
+      document.getElementById('cc-update-btn').disabled = false;
+      document.getElementById('cc-update-btn').textContent = 'Send Email';
+      document.getElementById('cc-update-overlay').style.display = 'flex';
+    } else if (mode === 'text-update-cc') {
+      document.getElementById('cc-sms-status').textContent = '';
+      document.getElementById('cc-sms-btn').disabled = false;
+      document.getElementById('cc-sms-btn').textContent = 'Send Text';
+      document.getElementById('cc-sms-overlay').style.display = 'flex';
+    } else if (mode === 'email-onboarding') {
+      document.getElementById('ob-email-status').textContent = '';
+      document.getElementById('ob-email-btn').disabled = false;
+      document.getElementById('ob-email-btn').textContent = 'Send Email';
+      document.getElementById('ob-email-overlay').style.display = 'flex';
+    } else if (mode === 'text-onboarding') {
+      document.getElementById('ob-sms-status').textContent = '';
+      document.getElementById('ob-sms-btn').disabled = false;
+      document.getElementById('ob-sms-btn').textContent = 'Send Text';
+      document.getElementById('ob-sms-overlay').style.display = 'flex';
+    }
+  }
+
+  function closeCcUpdateModal() {
+    document.getElementById('cc-update-overlay').style.display = 'none';
+  }
+
+  function closeCcSmsModal() {
+    document.getElementById('cc-sms-overlay').style.display = 'none';
+  }
+
+  async function confirmCcUpdate() {
+    var btn = document.getElementById('cc-update-btn');
+    var statusEl = document.getElementById('cc-update-status');
+    btn.disabled = true; btn.textContent = 'Sending…'; statusEl.textContent = '';
+    try {
+      var { data: sess } = await sb.auth.getSession();
+      var uid = sess?.session?.user?.id;
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-cc-update-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (sess?.session?.access_token || '') },
+        body: JSON.stringify({ property_id: propId, user_id: uid })
+      });
+      var data = await res.json();
+      btn.disabled = false; btn.textContent = 'Send Email';
+      if (data.ok) {
+        statusEl.style.color = '#28a745';
+        statusEl.textContent = data.sent ? 'Email sent!' : 'Skipped — no email on file for this client.';
+        setTimeout(closeCcUpdateModal, 2000);
+      } else {
+        statusEl.style.color = '#c0392b';
+        statusEl.textContent = 'Error: ' + (data.error || 'Unknown error');
+      }
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Send Email';
+      statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + e.message;
+    }
+  }
+
+  async function confirmCcSms() {
+    var btn = document.getElementById('cc-sms-btn');
+    var statusEl = document.getElementById('cc-sms-status');
+    btn.disabled = true; btn.textContent = 'Sending…'; statusEl.textContent = '';
+    try {
+      var { data: sess } = await sb.auth.getSession();
+      var uid = sess?.session?.user?.id;
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/send-cc-update-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (sess?.session?.access_token || '') },
+        body: JSON.stringify({ property_id: propId, user_id: uid })
+      });
+      var data = await res.json();
+      btn.disabled = false; btn.textContent = 'Send Text';
+      if (data.ok) {
+        statusEl.style.color = '#28a745';
+        statusEl.textContent = data.sent ? 'Text sent!' : 'Skipped — no phone number on file for this client.';
+        setTimeout(closeCcSmsModal, 2000);
+      } else {
+        statusEl.style.color = '#c0392b';
+        statusEl.textContent = 'Error: ' + (data.error || 'Unknown error');
+      }
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Send Text';
+      statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + e.message;
+    }
+  }
+
+  async function sendOnboarding(channel) {
+    var isEmail  = channel === 'email';
+    var btnId    = isEmail ? 'ob-email-btn'    : 'ob-sms-btn';
+    var statusId = isEmail ? 'ob-email-status' : 'ob-sms-status';
+    var overlayId= isEmail ? 'ob-email-overlay': 'ob-sms-overlay';
+    var endpoint = isEmail ? 'send-onboarding-email' : 'send-onboarding-sms';
+    var btn = document.getElementById(btnId);
+    var statusEl = document.getElementById(statusId);
+    btn.disabled = true; btn.textContent = 'Sending…'; statusEl.textContent = '';
+    try {
+      var { data: sess } = await sb.auth.getSession();
+      var uid = sess?.session?.user?.id;
+      var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/' + endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (sess?.session?.access_token || '') },
+        body: JSON.stringify({ property_id: propId, user_id: uid })
+      });
+      var data = await res.json();
+      btn.disabled = false; btn.textContent = isEmail ? 'Send Email' : 'Send Text';
+      if (data.ok) {
+        statusEl.style.color = '#28a745';
+        statusEl.textContent = data.sent ? (isEmail ? 'Email sent!' : 'Text sent!') : ('Skipped — ' + (data.reason || 'no contact info on file.'));
+        setTimeout(function() { document.getElementById(overlayId).style.display = 'none'; }, 2000);
+      } else {
+        statusEl.style.color = '#c0392b';
+        statusEl.textContent = 'Error: ' + (data.error || 'Unknown error');
+      }
+    } catch(e) {
+      btn.disabled = false; btn.textContent = isEmail ? 'Send Email' : 'Send Text';
+      statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + e.message;
+    }
+  }
 </script>
+
+<!-- Onboarding Email modal -->
+<div id="ob-email-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:28px 28px 24px;max-width:460px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:17px;font-weight:800;color:#1e1208;margin-bottom:10px;">Email — Onboarding</div>
+    <p style="font-size:13.5px;color:#555;line-height:1.6;margin-bottom:20px;">This will send the client an email with a link to complete their onboarding — set notification preferences and add their card on file.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+      <span id="ob-email-status" style="font-size:12.5px;flex:1;"></span>
+      <button onclick="document.getElementById('ob-email-overlay').style.display='none'" style="padding:9px 20px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Cancel</button>
+      <button id="ob-email-btn" onclick="sendOnboarding('email')" style="padding:9px 24px;background:#c47d0a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">Send Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- Onboarding SMS modal -->
+<div id="ob-sms-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:28px 28px 24px;max-width:460px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:17px;font-weight:800;color:#1e1208;margin-bottom:10px;">Text — Onboarding</div>
+    <p style="font-size:13.5px;color:#555;line-height:1.6;margin-bottom:20px;">This will send the client a text message with a link to complete their onboarding — set notification preferences and add their card on file.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+      <span id="ob-sms-status" style="font-size:12.5px;flex:1;"></span>
+      <button onclick="document.getElementById('ob-sms-overlay').style.display='none'" style="padding:9px 20px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Cancel</button>
+      <button id="ob-sms-btn" onclick="sendOnboarding('sms')" style="padding:9px 24px;background:#c47d0a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">Send Text</button>
+    </div>
+  </div>
+</div>
+
+<!-- CC Update SMS modal -->
+<div id="cc-sms-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:28px 28px 24px;max-width:460px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:17px;font-weight:800;color:#1e1208;margin-bottom:10px;">Text — Update CC Info</div>
+    <p style="font-size:13.5px;color:#555;line-height:1.6;margin-bottom:20px;">This will send the client a text message with a secure link to update their card on file. When they tap the link and enter their new card, it will automatically update in their active account.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+      <span id="cc-sms-status" style="font-size:12.5px;flex:1;"></span>
+      <button onclick="closeCcSmsModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Cancel</button>
+      <button id="cc-sms-btn" onclick="confirmCcSms()" style="padding:9px 24px;background:#c47d0a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">Send Text</button>
+    </div>
+  </div>
+</div>
+
+<!-- CC Update Email modal -->
+<div id="cc-update-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:28px 28px 24px;max-width:460px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:17px;font-weight:800;color:#1e1208;margin-bottom:10px;">Email — Update CC Info</div>
+    <p style="font-size:13.5px;color:#555;line-height:1.6;margin-bottom:20px;">This will send the client an email with a secure link to update their card on file. When they click the link and enter their new card, it will automatically update in their active account.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+      <span id="cc-update-status" style="font-size:12.5px;flex:1;"></span>
+      <button onclick="closeCcUpdateModal()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Cancel</button>
+      <button id="cc-update-btn" onclick="confirmCcUpdate()" style="padding:9px 24px;background:#c47d0a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">Send Email</button>
+    </div>
+  </div>
+</div>
 
 <!-- Send modal for property profile -->
 <div id="prop-send-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
