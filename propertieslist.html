@@ -518,6 +518,19 @@
   </div>
 </div>
 
+<!-- Bulk Send (CC / Onboarding) modal -->
+<div id="bulk-send-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:28px 28px 24px;max-width:440px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:17px;font-weight:800;color:#1e1208;margin-bottom:6px;" id="bulk-send-title">Send</div>
+    <div style="font-size:13px;color:#555;margin-bottom:20px;">Sending to <strong id="bulk-send-count">0</strong> selected properties.</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+      <span id="bulk-send-status" style="font-size:12.5px;color:#555;flex:1;"></span>
+      <button onclick="closeBulkSend()" style="padding:9px 20px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Cancel</button>
+      <button id="bulk-send-btn" onclick="confirmBulkSend()" style="padding:9px 24px;background:#c47d0a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">Send</button>
+    </div>
+  </div>
+</div>
+
 <div id="delete-confirm-bar" style="display:none;align-items:center;gap:12px;padding:10px 20px;background:#1e1208;color:#fff;font-size:13px;">
   <span>Are you sure you want to delete <strong id="delete-confirm-count">0</strong> property(s)? This cannot be undone.</span>
   <button onclick="confirmDeleteProperties()" style="background:#c0392b;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:700;">Yes, Delete</button>
@@ -538,6 +551,11 @@
       <div style="height:1px;background:#eee;margin:4px 0;"></div>
       <button class="dropdown-item" onclick="sendUpsellEmail()">Send Upsell Email</button>
       <button class="dropdown-item" onclick="sendCustomMessage()">Send Custom Message</button>
+      <div style="height:1px;background:#eee;margin:4px 0;"></div>
+      <button class="dropdown-item" onclick="openBulkSend('text-update-cc')">Text - Update CC Info</button>
+      <button class="dropdown-item" onclick="openBulkSend('email-update-cc')">Email - Update CC Info</button>
+      <button class="dropdown-item" onclick="openBulkSend('text-onboarding')">Text - Onboarding</button>
+      <button class="dropdown-item" onclick="openBulkSend('email-onboarding')">Email - Onboarding</button>
     </div>
   </div>
   <div id="pagination-bar" style="display:none;align-items:center;gap:6px;font-size:13px;color:#ccc;">
@@ -1001,6 +1019,62 @@
       btn.disabled = false; btn.textContent = 'Send Email';
       statusEl.style.color = '#c0392b'; statusEl.textContent = 'Error: ' + e.message;
     }
+  }
+
+  var _bulkSendMode = '';
+
+  function openBulkSend(mode) {
+    document.getElementById('actions-dropdown').classList.remove('open');
+    var ids = getSelectedPropIds();
+    if (!ids.length) { alert('Check the box next to each property first.'); return; }
+    _bulkSendMode = mode;
+    var labels = { 'text-update-cc': 'Text - Update CC Info', 'email-update-cc': 'Email - Update CC Info', 'text-onboarding': 'Text - Onboarding', 'email-onboarding': 'Email - Onboarding' };
+    document.getElementById('bulk-send-title').textContent = labels[mode] || mode;
+    document.getElementById('bulk-send-count').textContent = ids.length;
+    document.getElementById('bulk-send-status').textContent = '';
+    document.getElementById('bulk-send-btn').disabled = false;
+    document.getElementById('bulk-send-btn').textContent = 'Send';
+    document.getElementById('bulk-send-overlay').style.display = 'flex';
+  }
+
+  function closeBulkSend() {
+    document.getElementById('bulk-send-overlay').style.display = 'none';
+  }
+
+  async function confirmBulkSend() {
+    var ids = getSelectedPropIds();
+    if (!ids.length) { alert('No properties selected.'); return; }
+    var { data: sess } = await sb.auth.getSession();
+    var uid = sess?.session?.user?.id;
+    var token = sess?.session?.access_token || '';
+    var fnMap = {
+      'text-update-cc':   'send-cc-update-sms',
+      'email-update-cc':  'send-cc-update-email',
+      'text-onboarding':  'send-onboarding-sms',
+      'email-onboarding': 'send-onboarding-email'
+    };
+    var fn = fnMap[_bulkSendMode];
+    var btn = document.getElementById('bulk-send-btn');
+    var statusEl = document.getElementById('bulk-send-status');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    var sent = 0, skipped = 0, errors = 0;
+    for (var i = 0; i < ids.length; i++) {
+      statusEl.style.color = '#555';
+      statusEl.textContent = 'Sending ' + (i + 1) + ' of ' + ids.length + '…';
+      try {
+        var res = await fetch('https://knjdbgroiyhvqwrpqzcx.supabase.co/functions/v1/' + fn, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ property_id: ids[i], user_id: uid })
+        });
+        var d = await res.json();
+        if (d.ok) sent++; else skipped++;
+      } catch(e) { errors++; }
+    }
+    btn.disabled = false; btn.textContent = 'Send';
+    statusEl.style.color = '#28a745';
+    statusEl.textContent = 'Done! Sent: ' + sent + (skipped ? ', Skipped: ' + skipped : '') + (errors ? ', Errors: ' + errors : '');
+    setTimeout(closeBulkSend, 3000);
   }
 
   function deleteSelectedProperties() {
