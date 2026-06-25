@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IndustryBossPro | Lawn Care & Pest Control Software</title>
   <meta name="description" content="IndustryBossPro is premium lawn care and pest control software built by people who've run real routes. Circle a map area and instantly know sq ft, stops, and chemical needs. $129/month, everything included."/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -591,8 +590,17 @@
   var sbpClient = null;
   var sbpOpenForm = 0;
 
-  function getSbpClient() {
-    if (!sbpClient) sbpClient = window.supabase.createClient(SBP_URL, SBP_ANON);
+  async function getSbpClient() {
+    if (sbpClient) return sbpClient;
+    if (!window.supabase) {
+      await new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    sbpClient = window.supabase.createClient(SBP_URL, SBP_ANON);
     return sbpClient;
   }
 
@@ -671,7 +679,7 @@
       });
       var result = await res.json();
       if (result.error) throw new Error(result.error);
-      var sb = getSbpClient();
+      var sb = await getSbpClient();
       var { data: signInData, error: signInErr } = await sb.auth.signInWithPassword({ email, password });
       if (signInErr) throw new Error(signInErr.message);
       var uid = signInData.user.id;
