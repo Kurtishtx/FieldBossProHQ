@@ -1357,7 +1357,7 @@
     mapMarkers.forEach(function(m) { m.setMap(null); }); mapMarkers = [];
     var filtered = getWeekFiltered();
     var seen = {}; var bounds = new google.maps.LatLngBounds(); var hasPin = false;
-    var pinSvg = '<svg viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
+    var pinSvg = '<svg viewBox="0 0 32 42" width="32" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M16 1C8.8 1 3 6.8 3 14c0 10.5 13 27 13 27s13-16.5 13-27C29 6.8 23.2 1 16 1z" fill="#c47d0a" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="14" r="5" fill="#ffffff"/></svg>';
     filtered.forEach(function(j) {
       var lat = j.Properties && j.Properties.lat, lng = j.Properties && j.Properties.lng;
       if (!lat || !lng) return;
