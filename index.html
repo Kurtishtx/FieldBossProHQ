@@ -153,53 +153,27 @@
     var trialStripe, trialCardEl, trialUserId;
 
     function initTrialCardForm(userId) {
+      // Card is now collected on Stripe Checkout, so hide the old inline card field + its label.
       trialUserId = userId;
-      trialStripe = Stripe(STRIPE_PK);
-      var elements = trialStripe.elements();
-      trialCardEl = elements.create('card', {
-        style: { base: { fontSize: '15px', fontFamily: '\'Segoe UI\', Arial, sans-serif', color: '#333', '::placeholder': { color: '#aaa' } } }
-      });
-      trialCardEl.mount('#trial-card-element');
-      trialCardEl.on('change', function(e) {
-        var err = document.getElementById('trial-card-error');
-        if (e.error) { err.textContent = e.error.message; err.style.display = 'block'; }
-        else { err.style.display = 'none'; }
-      });
+      var el = document.getElementById('trial-card-element');
+      if (el) { if (el.previousElementSibling) el.previousElementSibling.style.display = 'none'; el.style.display = 'none'; }
     }
 
     async function submitTrialCard() {
       var btn = document.getElementById('trial-pay-btn');
       var err = document.getElementById('trial-card-error');
       err.style.display = 'none';
-      btn.disabled = true; btn.textContent = 'Saving…';
-
+      btn.disabled = true; btn.textContent = 'Loading…';
       try {
-        var siRes = await fetch(EDGE_BASE + '/platform-card-setup', {
+        // Create a Stripe Checkout subscription session, then send the customer to Stripe to pay.
+        var res = await fetch(EDGE_BASE + '/create-subscription-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
-          body: JSON.stringify({ action: 'create_payment_intent', user_id: trialUserId })
+          body: JSON.stringify({ user_id: trialUserId })
         });
-        var si = await siRes.json();
-        if (si.error) throw new Error(si.error);
-
-        // Charges $199 immediately and saves card for future monthly billing
-        var result = await trialStripe.confirmCardPayment(si.client_secret, {
-          payment_method: { card: trialCardEl }
-        });
-        if (result.error) throw new Error(result.error.message);
-
-        var saveRes = await fetch(EDGE_BASE + '/platform-card-setup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
-          body: JSON.stringify({ action: 'save_card', user_id: trialUserId, payment_method_id: result.paymentIntent.payment_method })
-        });
-        var saved = await saveRes.json();
-        if (saved.error) throw new Error(saved.error);
-
-        document.getElementById('trial-card-form').style.display = 'none';
-        document.getElementById('trial-card-success').style.display = 'block';
-        setTimeout(function() { window.location.href = 'dashboard.html'; }, 2000);
-
+        var data = await res.json();
+        if (data.error) throw new Error(data.error);
+        window.location.href = data.url;
       } catch(e) {
         err.textContent = e.message; err.style.display = 'block';
         btn.disabled = false; btn.textContent = 'Activate — $199/month';

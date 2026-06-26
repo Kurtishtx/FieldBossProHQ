@@ -129,18 +129,10 @@
       }
     }
 
-    // Mount Stripe card element
+    // Card is collected on Stripe Checkout now, so just show the activate view and hide the old card field.
     show('card-view');
-    elements   = stripe.elements();
-    cardElement = elements.create('card', {
-      style: { base: { fontSize: '15px', fontFamily: '\'Segoe UI\', Arial, sans-serif', color: '#333', '::placeholder': { color: '#aaa' } } }
-    });
-    cardElement.mount('#card-element');
-    cardElement.on('change', function(e) {
-      var el = document.getElementById('card-error');
-      if (e.error) { el.textContent = e.error.message; el.style.display = 'block'; }
-      else { el.style.display = 'none'; }
-    });
+    var _cardEl = document.getElementById('card-element');
+    if (_cardEl) { if (_cardEl.previousElementSibling) _cardEl.previousElementSibling.style.display = 'none'; _cardEl.style.display = 'none'; }
   }
 
   async function doLogin() {
@@ -165,48 +157,17 @@
     var btn   = document.getElementById('pay-btn');
     var errEl = document.getElementById('card-error');
     errEl.style.display = 'none';
-    btn.disabled = true; btn.textContent = 'Saving…';
-
+    btn.disabled = true; btn.textContent = 'Loading…';
     try {
-      // Get SetupIntent client_secret from edge function
-      var siRes = await fetch(EDGE_BASE + '/platform-card-setup', {
+      // Create a Stripe Checkout subscription session, then send the customer to Stripe to pay.
+      var res = await fetch(EDGE_BASE + '/create-subscription-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
-        body: JSON.stringify({ action: 'create_setup_intent', user_id: currentUser.id })
+        body: JSON.stringify({ user_id: currentUser.id })
       });
-      var si = await siRes.json();
-      if (si.error) throw new Error(si.error);
-
-      // Confirm the card setup with Stripe.js
-      var result = await stripe.confirmCardSetup(si.client_secret, {
-        payment_method: { card: cardElement }
-      });
-      if (result.error) throw new Error(result.error.message);
-
-      // Save card info to our database
-      var saveRes = await fetch(EDGE_BASE + '/platform-card-setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
-        body: JSON.stringify({ action: 'save_card', user_id: currentUser.id, payment_method_id: result.setupIntent.payment_method })
-      });
-      var saved = await saveRes.json();
-      if (saved.error) throw new Error(saved.error);
-
-      // Show success
-      var dayLabel = ordinal(saved.billing_day);
-      document.getElementById('billing-day-text').textContent = dayLabel;
-      document.getElementById('card-view').style.display = 'none';
-      document.getElementById('success-view').style.display = 'block';
-
-      var secs = 4;
-      var cd = document.getElementById('redirect-countdown');
-      cd.textContent = 'Redirecting in ' + secs + ' seconds…';
-      var iv = setInterval(function() {
-        secs--;
-        if (secs <= 0) { clearInterval(iv); window.location.href = 'https://my.industrybosspro.com/dashboard.html'; }
-        else cd.textContent = 'Redirecting in ' + secs + ' second' + (secs === 1 ? '' : 's') + '…';
-      }, 1000);
-
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+      window.location.href = data.url;
     } catch(e) {
       errEl.textContent = e.message; errEl.style.display = 'block';
       btn.disabled = false; btn.textContent = 'Activate Subscription — $199/mo';
