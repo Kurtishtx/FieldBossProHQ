@@ -121,14 +121,14 @@
       <div style="text-align:center; margin-bottom:20px;">
         <div style="font-size:40px; margin-bottom:10px;">⏰</div>
         <h2 style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:8px;">Your Free Trial Has Ended</h2>
-        <p style="color:#666; font-size:14px; line-height:1.6;">Add your card to reactivate immediately — $129/month, cancel anytime. All your data is saved.</p>
+        <p style="color:#666; font-size:14px; line-height:1.6;">Add your card to reactivate immediately — $199/month, cancel anytime. All your data is saved.</p>
       </div>
       <!-- Card form -->
       <div id="trial-card-form">
         <label style="display:block; font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">Card Information</label>
         <div id="trial-card-element" style="border:1.5px solid #ddd; border-radius:6px; padding:12px; background:#fff; margin-bottom:4px;"></div>
         <div id="trial-card-error" style="color:#c0392b; font-size:13px; margin:8px 0; display:none;"></div>
-        <button id="trial-pay-btn" onclick="submitTrialCard()" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px;">Activate — $129/month</button>
+        <button id="trial-pay-btn" onclick="submitTrialCard()" style="width:100%; background:#c47d0a; color:#fff; border:none; border-radius:6px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px;">Activate — $199/month</button>
         <p style="text-align:center; font-size:11.5px; color:#aaa; margin-top:10px;">Secured by Stripe &middot; Cancel anytime</p>
       </div>
       <!-- Success -->
@@ -182,7 +182,7 @@
         var si = await siRes.json();
         if (si.error) throw new Error(si.error);
 
-        // Charges $129 immediately and saves card for future monthly billing
+        // Charges $199 immediately and saves card for future monthly billing
         var result = await trialStripe.confirmCardPayment(si.client_secret, {
           payment_method: { card: trialCardEl }
         });
@@ -202,7 +202,7 @@
 
       } catch(e) {
         err.textContent = e.message; err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Activate — $129/month';
+        btn.disabled = false; btn.textContent = 'Activate — $199/month';
       }
     }
   </script>

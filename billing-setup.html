@@ -41,7 +41,7 @@
 <div class="card">
   <div class="card-header">
     <img src="logo-white.svg" alt="IndustryBossPro" class="logo-img" style="height:44px; display:block;"/>
-    <div class="card-header-sub">Activate your subscription — $129/month</div>
+    <div class="card-header-sub">Activate your subscription — $199/month</div>
   </div>
 
   <!-- Login view (shown if not authenticated) -->
@@ -71,7 +71,7 @@
     <label>Card Information</label>
     <div id="card-element" class="stripe-element"></div>
     <div class="error-msg" id="card-error"></div>
-    <button class="btn" id="pay-btn" onclick="submitCard()">Activate Subscription — $129/mo</button>
+    <button class="btn" id="pay-btn" onclick="submitCard()">Activate Subscription — $199/mo</button>
     <p style="font-size:11.5px;color:#aaa;text-align:center;margin-top:12px;">Cancel anytime. No contracts. Secured by Stripe.</p>
   </div>
 
@@ -79,7 +79,7 @@
   <div class="success-view" id="success-view">
     <div class="success-icon">✓</div>
     <div class="success-title">You're activated!</div>
-    <p class="success-sub">Your card has been saved. You'll be billed $129 on the <strong id="billing-day-text"></strong> of each month.<br/>Taking you to your dashboard…</p>
+    <p class="success-sub">Your card has been saved. You'll be billed $199 on the <strong id="billing-day-text"></strong> of each month.<br/>Taking you to your dashboard…</p>
     <div id="redirect-countdown" style="font-size:12px;color:#aaa;margin-top:12px;"></div>
   </div>
 </div>
@@ -209,7 +209,7 @@
 
     } catch(e) {
       errEl.textContent = e.message; errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Activate Subscription — $129/mo';
+      btn.disabled = false; btn.textContent = 'Activate Subscription — $199/mo';
     }
   }
 

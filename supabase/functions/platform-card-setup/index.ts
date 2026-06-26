@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
       .eq('user_id', user_id)
       .single()
 
-    // ── create_payment_intent: charge $129 now and save card for future ──
+    // ── create_payment_intent: charge $199 now and save card for future ──
     if (!action || action === 'create_payment_intent') {
       let customerId = acct?.stripe_customer_id
 
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
 
       // PaymentIntent charges immediately and saves card for future monthly charges
       const payment = await stripePost('/payment_intents', {
-        amount: '12900',
+        amount: '19900',
         currency: 'usd',
         customer: customerId,
         setup_future_usage: 'off_session',
@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
         card_brand:     card.brand,
         card_added_at:  todayStr,
         billing_day:    billingDay,
-        monthly_amount: 129,
+        monthly_amount: 199,
         plan:           'Monthly Subscription',
         active:         true,
         paused:         false,
@@ -123,13 +123,13 @@ Deno.serve(async (req) => {
         account_user_id: user_id,
         date:            todayStr,
         inv_num:         String(nextNum),
-        inv_total:       129,
+        inv_total:       199,
         inv_bal:         0,
         payment:         `${card.brand} ****${card.last4}`,
         status_text:     'sent',
         failed_charge:   false,
         deleted:         false,
-        service_lines:   [{ name: 'Monthly Subscription', description: 'IndustryBossPro — first month', date: todayStr, rate: 129, qty: 1, amount: 129 }],
+        service_lines:   [{ name: 'Monthly Subscription', description: 'IndustryBossPro — first month', date: todayStr, rate: 199, qty: 1, amount: 199 }],
       })
 
       return new Response(

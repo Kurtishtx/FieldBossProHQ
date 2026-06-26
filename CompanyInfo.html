@@ -392,22 +392,6 @@
       </div>
 
       <div class="fr">
-        <span class="lbl">Resend API Key</span>
-        <div class="field">
-          <input type="password" id="resend-api-key" placeholder="re_..." autocomplete="off"/>
-          <div class="field-note">Used to send estimate emails. Get a free key at <strong>resend.com</strong> — free tier is 100 emails/day.</div>
-        </div>
-      </div>
-
-      <div class="fr">
-        <span class="lbl">Site URL</span>
-        <div class="field">
-          <input type="text" id="site-url" placeholder="https://yourdomain.com"/>
-          <div class="field-note">The public URL where your app is hosted. Used in estimate links sent to clients.</div>
-        </div>
-      </div>
-
-      <div class="fr">
         <span class="lbl">Stripe Publishable Key</span>
         <div class="field">
           <input type="text" id="stripe-pub-key" placeholder="pk_live_..." autocomplete="off"/>
@@ -505,8 +489,6 @@
       enableClasses:       cb('enable-classes'),
       productPrint:        v('product-print'),
       deletePassword:      v('delete-password'),
-      resendApiKey:        v('resend-api-key'),
-      siteUrl:             v('site-url'),
       stripePubKey:        v('stripe-pub-key'),
       stripeSecretKey:     v('stripe-secret-key'),
     };
@@ -543,7 +525,6 @@
     set('max-man-hours', d.maxManHours);    set('multiday-days', d.multidayDays);
     set('enable-classes', d.enableClasses); set('product-print', d.productPrint);
     set('delete-password', d.deletePassword);
-    set('resend-api-key', d.resendApiKey);  set('site-url', d.siteUrl);
     set('stripe-pub-key', d.stripePubKey);  set('stripe-secret-key', d.stripeSecretKey);
   }
 
@@ -588,8 +569,6 @@
       latitude:               d.latitude           || null,
       longitude:              d.longitude          || null,
       delete_password:        d.deletePassword     || null,
-      resend_api_key:         d.resendApiKey       || null,
-      site_url:               d.siteUrl            || null,
       stripe_publishable_key: d.stripePubKey       || null,
       stripe_secret_key:      d.stripeSecretKey    || null,
     };
