@@ -959,10 +959,10 @@
     if (activeWLCategory && activeWLCategory !== 'all') {
       filtered = filtered.filter(function(s) { return s.job_category === activeWLCategory; });
     }
-    /* service filter */
-    if (activeServiceFilter.length) {
-      filtered = filtered.filter(function(s) { return activeServiceFilter.indexOf(s.service) >= 0; });
-    }
+    /* NOTE: the service-type filter is applied LAST (after all the due /
+       package-sequential / master-dependency logic) so it only narrows the
+       finished waiting list and doesn't corrupt those inter-package
+       calculations. */
 
     /* tag filter */
     if (activeTagFilter.length) {
@@ -1081,6 +1081,17 @@
           return !!activePkgs[masterPkgId];
         });
       }
+    }
+
+    /* service-type filter — applied LAST so it only narrows the finished
+       waiting list and doesn't corrupt the package-sequential / master
+       dependency calculations above. */
+    if (activeServiceFilter.length) {
+      filtered = filtered.filter(function(s) {
+        return activeServiceFilter.indexOf(resolvedServiceName(s)) >= 0
+            || activeServiceFilter.indexOf(s.service) >= 0
+            || activeServiceFilter.indexOf(s.name) >= 0;
+      });
     }
 
     /* sort */
@@ -1376,9 +1387,10 @@
     document.getElementById('status-ms-dropdown').classList.toggle('open');
   }
 
-  function loadServiceDropdown() {
+  async function loadServiceDropdown() {
     var dd = document.getElementById('ms-dropdown');
-    var names = [...new Set(services.map(function(s) { return s.service; }).filter(Boolean))].sort();
+    var { data } = await sb.from('Services').select('name').is('property_id', null).order('name', { ascending: true });
+    var names = [...new Set((data || []).map(function(s) { return s.name; }).filter(Boolean))];
     dd.innerHTML = names.map(function(n) {
       return '<div class="ms-item"><input type="checkbox" value="' + n + '" id="sf-' + n.replace(/\s/g,'_') + '"/><label for="sf-' + n.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + n + '</label></div>';
     }).join('');
