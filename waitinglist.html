@@ -1375,8 +1375,7 @@
     document.getElementById('ms-dropdown').classList.toggle('open');
   }
   function closeMsDropdown() {
-    var dd = document.getElementById('ms-dropdown');
-    if (dd.classList.contains('open')) { applyServiceFilter(); }
+    document.getElementById('ms-dropdown').classList.remove('open');
   }
   function toggleTagDropdown(e) {
     e.stopPropagation();
@@ -1392,7 +1391,8 @@
     var { data } = await sb.from('Services').select('name').is('property_id', null).order('name', { ascending: true });
     var names = [...new Set((data || []).map(function(s) { return s.name; }).filter(Boolean))];
     dd.innerHTML = names.map(function(n) {
-      return '<div class="ms-item"><input type="checkbox" value="' + n + '" id="sf-' + n.replace(/\s/g,'_') + '"/><label for="sf-' + n.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + n + '</label></div>';
+      var checked = activeServiceFilter.indexOf(n) >= 0 ? ' checked' : '';
+      return '<div class="ms-item"><input type="checkbox"' + checked + ' onchange="applyServiceFilter()" value="' + n + '" id="sf-' + n.replace(/\s/g,'_') + '"/><label for="sf-' + n.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + n + '</label></div>';
     }).join('');
   }
 
@@ -1408,7 +1408,6 @@
     activeServiceFilter = [];
     document.querySelectorAll('#ms-dropdown input:checked').forEach(function(cb) { activeServiceFilter.push(cb.value); });
     document.getElementById('ms-btn').textContent = activeServiceFilter.length ? activeServiceFilter.length + ' selected' : '-- Select --';
-    document.getElementById('ms-dropdown').classList.remove('open');
     renderTable();
   }
   function applyTagFilter() {
