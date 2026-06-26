@@ -279,9 +279,9 @@
 <div class="subfilter-bar" id="tag-subfilter-bar">
   <button class="sf-x-btn" onclick="closeTagSubfilter()">&#10005;</button>
   <span class="sf-label">Tags</span>
-  <div class="ms-wrap">
+  <div class="ms-wrap" onmouseleave="closeTagDropdown()">
     <button class="ms-btn" id="tag-ms-btn" onclick="toggleTagDropdown(event)">-- Select --</button>
-    <div class="ms-dropdown" id="tag-ms-dropdown"></div>
+    <div class="ms-dropdown" id="tag-ms-dropdown" onclick="event.stopPropagation()"></div>
   </div>
   <button class="apply-btn" id="tag-apply-btn" onclick="applyTagFilter()">Apply</button>
 </div>
@@ -959,18 +959,10 @@
     if (activeWLCategory && activeWLCategory !== 'all') {
       filtered = filtered.filter(function(s) { return s.job_category === activeWLCategory; });
     }
-    /* NOTE: the service-type filter is applied LAST (after all the due /
-       package-sequential / master-dependency logic) so it only narrows the
-       finished waiting list and doesn't corrupt those inter-package
+    /* NOTE: the service-type and tag filters are applied LAST (after all the
+       due / package-sequential / master-dependency logic) so they only narrow
+       the finished waiting list and don't corrupt those inter-package
        calculations. */
-
-    /* tag filter */
-    if (activeTagFilter.length) {
-      filtered = filtered.filter(function(s) {
-        var tags = s.tags || [];
-        return activeTagFilter.some(function(t) { return tags.indexOf(t) >= 0; });
-      });
-    }
 
     /* status filter */
     if (activeStatusFilter.length) {
@@ -1091,6 +1083,16 @@
         return activeServiceFilter.indexOf(resolvedServiceName(s)) >= 0
             || activeServiceFilter.indexOf(s.service) >= 0
             || activeServiceFilter.indexOf(s.name) >= 0;
+      });
+    }
+
+    /* tag filter — tags live on the property (property_tags), applied last
+       for the same reason as the service filter. */
+    if (activeTagFilter.length) {
+      filtered = filtered.filter(function(s) {
+        var prop = propertyData[s.property_id] || {};
+        var tags = prop.property_tags || [];
+        return activeTagFilter.some(function(t) { return tags.indexOf(t) >= 0; });
       });
     }
 
@@ -1400,7 +1402,8 @@
     var dd = document.getElementById('tag-ms-dropdown');
     var { data } = await sb.from('tags').select('name').eq('active', true).order('name', { ascending: true });
     dd.innerHTML = (data || []).map(function(t) {
-      return '<div class="ms-item"><input type="checkbox" value="' + t.name + '" id="tag-' + t.name.replace(/\s/g,'_') + '"/><label for="tag-' + t.name.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + t.name + '</label></div>';
+      var checked = activeTagFilter.indexOf(t.name) >= 0 ? ' checked' : '';
+      return '<div class="ms-item"><input type="checkbox"' + checked + ' onchange="applyTagFilter()" value="' + t.name + '" id="tag-' + t.name.replace(/\s/g,'_') + '"/><label for="tag-' + t.name.replace(/\s/g,'_') + '" style="cursor:pointer;margin-left:3px;">' + t.name + '</label></div>';
     }).join('');
   }
 
@@ -1414,8 +1417,10 @@
     activeTagFilter = [];
     document.querySelectorAll('#tag-ms-dropdown input:checked').forEach(function(cb) { activeTagFilter.push(cb.value); });
     document.getElementById('tag-ms-btn').textContent = activeTagFilter.length ? activeTagFilter.length + ' selected' : '-- Select --';
-    document.getElementById('tag-ms-dropdown').classList.remove('open');
     renderTable();
+  }
+  function closeTagDropdown() {
+    document.getElementById('tag-ms-dropdown').classList.remove('open');
   }
   function applyStatusFilter() {
     activeStatusFilter = [];
