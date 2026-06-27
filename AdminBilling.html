@@ -529,6 +529,7 @@
         '</td>' +
         '<td style="white-space:nowrap;">' +
           '<button class="rec-action-btn" onclick="openEditRecurringModal(\'' + acct.id + '\')">Edit</button> ' +
+          '<button class="rec-action-btn danger" onclick="cancelClient(\'' + acct.user_id + '\')">Cancel Sub</button> ' +
           '<button class="rec-action-btn danger" onclick="deleteRecurring(\'' + acct.id + '\')">Delete</button>' +
         '</td>';
       tbody.appendChild(tr);
@@ -538,6 +539,22 @@
   async function toggleActive(id, val) {
     await sb.from('platform_accounts').update({ active: val }).eq('id', id);
     loadRecurring();
+  }
+
+  // Cancel a client's Stripe subscription (stops their billing) from the admin.
+  async function cancelClient(userId) {
+    if (!confirm('Cancel this client\'s subscription in Stripe? This stops their billing immediately. They would need to re-subscribe to start again.')) return;
+    try {
+      var res = await fetch(SUPABASE_URL + '/functions/v1/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ user_id: userId })
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+      alert(data.had_subscription ? 'Subscription canceled in Stripe. Billing stopped.' : 'No active Stripe subscription found — account marked inactive.');
+      loadRecurring();
+    } catch(e) { alert('Cancel failed: ' + e.message); }
   }
 
   async function deleteRecurring(id) {
