@@ -1,8 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// ── IndustryBossPro $199/month price. Swap this for your TEST-mode price_... when testing. ──
-const PRICE_ID = 'price_1TmjFtE12pIruePYrNy9ywOm'
-const BASE_URL = 'https://my.industrybosspro.com'
+// ── Per-product config. Both products live in the same Stripe account (BossProEnterprises). ──
+// The frontend passes `product`; default = IndustryBossPro for backward compatibility.
+const PRODUCTS: Record<string, { price: string; base: string }> = {
+  fieldbosspro: { price: 'price_1TmjFtE12pIruePYrNy9ywOm', base: 'https://my.industrybosspro.com' }, // $199/mo
+  spraybosspro: { price: 'price_1TmjKLE12pIruePYiYUm3kmL', base: 'https://my.spraybosspro.com'    }, // $129/mo
+}
 
 const CORS = {
   'Access-Control-Allow-Origin':  '*',
@@ -31,10 +34,11 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
   try {
-    const { user_id } = await req.json()
+    const { user_id, product } = await req.json()
     if (!user_id) {
       return new Response(JSON.stringify({ error: 'Missing user_id' }), { status: 400, headers: CORS })
     }
+    const cfg = PRODUCTS[product as string] || PRODUCTS.fieldbosspro
 
     const { data: acct } = await sb
       .from('platform_accounts')
@@ -64,10 +68,10 @@ Deno.serve(async (req) => {
     const session = await stripePost('/checkout/sessions', {
       mode: 'subscription',
       customer: customerId,
-      'line_items[0][price]': PRICE_ID,
+      'line_items[0][price]': cfg.price,
       'line_items[0][quantity]': '1',
-      success_url: BASE_URL + '/dashboard.html?subscribed=1',
-      cancel_url: BASE_URL + '/billing-setup.html?canceled=1',
+      success_url: cfg.base + '/dashboard.html?subscribed=1',
+      cancel_url: cfg.base + '/billing-setup.html?canceled=1',
       'metadata[user_id]': user_id,
       'subscription_data[metadata][user_id]': user_id,
       client_reference_id: user_id,

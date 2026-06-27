@@ -41,13 +41,14 @@ async function syncSubscription(sub: any) {
   const account    = await findAccount(userId, sub.customer)
   if (!account) return
   const flags = flagsFor(sub.status)
+  const amt = (sub.items?.data?.[0]?.price?.unit_amount ?? 0) / 100  // 129 or 199, from the actual Stripe price
   await sb.from('platform_accounts').update({
     stripe_subscription_id: sub.id,
     stripe_customer_id:     sub.customer,
     sub_status:             flags.sub_status,
     active:                 flags.active,
     locked:                 flags.locked,
-    monthly_amount:         199,
+    monthly_amount:         amt || null,
     plan:                   'Monthly Subscription',
     // billing_day stays the ORIGINAL cycle date; late payments never move it
     billing_day:            new Date(sub.current_period_end * 1000).getDate(),
