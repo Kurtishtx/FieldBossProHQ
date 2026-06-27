@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Update Payment Info</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f7fc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { background: #fff; border-radius: 12px; padding: 36px 32px; max-width: 420px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.10); }
+    .logo { font-size: 20px; font-weight: 800; color: #130520; margin-bottom: 6px; }
+    .logo span { color: #c47d0a; }
+    .title { font-size: 18px; font-weight: 700; color: #130520; margin-bottom: 6px; margin-top: 20px; }
+    .sub { font-size: 13.5px; color: #666; margin-bottom: 24px; line-height: 1.5; }
+    label { display: block; font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .stripe-element { border: 1.5px solid #ddd; border-radius: 6px; padding: 12px; background: #fff; }
+    .stripe-element.StripeElement--focus { border-color: #c47d0a; }
+    .stripe-element.StripeElement--invalid { border-color: #c0392b; }
+    .btn { width: 100%; background: #c47d0a; color: #fff; border: none; border-radius: 6px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 20px; transition: background .15s; }
+    .btn:hover { background: #a86808; }
+    .btn:disabled { opacity: .6; cursor: default; }
+    .error-msg { background: #fff0f0; border: 1px solid #f5c6c6; color: #c0392b; border-radius: 6px; padding: 10px 12px; font-size: 13px; margin-top: 14px; display: none; }
+    .success-box { text-align: center; display: none; }
+    .success-box .icon { font-size: 52px; margin-bottom: 12px; }
+    .success-box .msg { font-size: 17px; font-weight: 700; color: #130520; margin-bottom: 8px; }
+    .success-box .sub { font-size: 13.5px; color: #666; }
+    .secure { font-size: 11.5px; color: #aaa; text-align: center; margin-top: 12px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Industry<span>BossPro</span></div>
+
+  <div id="form-view">
+    <div class="title">Update Payment Info</div>
+    <div class="sub">Please enter your new card details below. Your information is encrypted and secured by Stripe.</div>
+    <label>Card Information</label>
+    <div id="card-element" class="stripe-element"></div>
+    <div class="error-msg" id="card-error"></div>
+    <button class="btn" id="pay-btn" onclick="submitCard()">Save Card</button>
+    <p class="secure">Secured by Stripe &nbsp;·&nbsp; We never store your card number</p>
+  </div>
+
+  <div id="success-view" class="success-box">
+    <div class="icon">✅</div>
+    <div class="msg">Payment Info Updated!</div>
+    <div class="sub">Your new card has been saved to your account. You're all set.</div>
+  </div>
+
+  <div id="error-view" style="display:none; text-align:center;">
+    <div style="font-size:42px; margin-bottom:12px;">⚠️</div>
+    <div style="font-size:16px; font-weight:700; color:#c0392b; margin-bottom:8px;">Invalid or Expired Link</div>
+    <div style="font-size:13.5px; color:#666;">This link is no longer valid. Please contact us to request a new one.</div>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL  = 'https://knjdbgroiyhvqwrpqzcx.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuamRiZ3JvaXlodnF3cnBxemN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTczMDMsImV4cCI6MjA5NTA3MzMwM30.zoExtkem-XZqU86S4yJjA_xOOaS1G0IPU2M9OAAza2g';
+  var EDGE_BASE     = SUPABASE_URL + '/functions/v1';
+
+  var params = new URLSearchParams(window.location.search);
+  var cs  = params.get('cs');
+  var cid = params.get('cid');
+  var uid = params.get('uid');
+  var pk  = params.get('pk');
+  var token = params.get('t');
+
+  var stripe, cardElement;
+
+  function showInvalid() {
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('error-view').style.display = 'block';
+  }
+
+  function mountCard() {
+    stripe      = Stripe(pk);
+    var elements    = stripe.elements();
+    cardElement = elements.create('card', {
+      style: { base: { fontSize: '15px', fontFamily: '\'Segoe UI\', Arial, sans-serif', color: '#333', '::placeholder': { color: '#aaa' } } }
+    });
+    cardElement.mount('#card-element');
+    cardElement.on('change', function(e) {
+      var el = document.getElementById('card-error');
+      el.style.display = e.error ? 'block' : 'none';
+      el.textContent   = e.error ? e.error.message : '';
+    });
+  }
+
+  (async function initCard() {
+    // New branded short links carry a token (?t=...) — resolve it to the real params.
+    if (token) {
+      try {
+        var r = await fetch(EDGE_BASE + '/resolve-cc-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
+          body: JSON.stringify({ token: token })
+        });
+        var d = await r.json();
+        if (d.error) { showInvalid(); return; }
+        cs = d.cs; cid = d.cid; uid = d.uid; pk = d.pk;
+      } catch (_) { showInvalid(); return; }
+    }
+    if (!cs || !cid || !uid || !pk) { showInvalid(); return; }
+    mountCard();
+  })();
+
+  async function submitCard() {
+    var btn = document.getElementById('pay-btn');
+    var errEl = document.getElementById('card-error');
+    btn.disabled = true; btn.textContent = 'Saving…'; errEl.style.display = 'none';
+
+    try {
+      var result = await stripe.confirmCardSetup(cs, { payment_method: { card: cardElement } });
+      if (result.error) throw new Error(result.error.message);
+
+      var paymentMethodId  = result.setupIntent.payment_method;
+      var stripeCustomerId = result.setupIntent.customer;
+
+      var res = await fetch(EDGE_BASE + '/stripe-setup-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON, 'apikey': SUPABASE_ANON },
+        body: JSON.stringify({
+          action: 'save_card',
+          payment_method_id:  paymentMethodId,
+          stripe_customer_id: stripeCustomerId,
+          customer_id:        cid,
+          user_id:            uid,
+        }),
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Save Card';
+      errEl.style.display = 'block'; errEl.textContent = e.message;
+    }
+  }
+</script>
+</body>
+</html>
