@@ -91,16 +91,33 @@
   var cid = params.get('cid');
   var uid = params.get('uid');
   var pk  = params.get('pk');
+  var token = params.get('t');
 
   var stripe, cardElement;
   var dayBeforeChoice = null, onTheWayChoice = null;
 
-  if (!cs || !cid || !uid || !pk) {
+  function showInvalid() {
     document.getElementById('main-view').style.display = 'none';
     document.getElementById('error-view').style.display = 'block';
-  } else {
-    init();
   }
+
+  (async function bootstrap() {
+    // New branded short links carry a token (?t=...) — resolve it to the real params.
+    if (token) {
+      try {
+        var r = await fetch(EDGE + '/resolve-cc-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SKEY, 'apikey': SKEY },
+          body: JSON.stringify({ token: token })
+        });
+        var d = await r.json();
+        if (d.error) { showInvalid(); return; }
+        cs = d.cs; cid = d.cid; uid = d.uid; pk = d.pk;
+      } catch (_) { showInvalid(); return; }
+    }
+    if (!cs || !cid || !uid || !pk) { showInvalid(); return; }
+    init();
+  })();
 
   async function init() {
     var sb = supabase.createClient(SURL, SKEY);
