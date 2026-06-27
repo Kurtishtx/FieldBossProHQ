@@ -28,7 +28,7 @@ async function findAccount(userId: string | undefined, customerId: string | unde
 
 // Map a Stripe subscription status -> our access flags.
 //   trialing / active  -> full access
-//   past_due           -> still allowed (inside the 10-day grace while Stripe retries)
+//   past_due           -> still allowed (inside the 14-day grace while Stripe retries)
 //   unpaid / canceled  -> LOCKED OUT, must update card to pay the overdue invoice
 function flagsFor(status: string) {
   if (status === 'active' || status === 'trialing') return { active: true,  locked: false, sub_status: status }
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
       }
 
       case 'invoice.payment_failed': {
-        // Stripe moves the subscription to past_due and starts the retry window (your 10-day
+        // Stripe moves the subscription to past_due and starts the retry window (your 14-day
         // grace, set in Stripe billing settings). The subscription.updated event handles flags.
         const inv = event.data.object
         const account = await findAccount(inv.subscription_details?.metadata?.user_id, inv.customer)

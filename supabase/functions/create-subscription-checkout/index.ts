@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     // Create a Checkout Session in subscription mode.
     // The 14-day free trial already happened in-app (no card), so this runs at trial-end:
     // Stripe charges the first $199 immediately, then auto-charges every month on that same
-    // cycle date. Declines are retried over your 10-day grace window (set in billing settings),
+    // cycle date. Declines are retried over your 14-day grace window (set in billing settings),
     // and the cycle date never shifts because a late-paid sub is marked unpaid, not canceled.
     const session = await stripePost('/checkout/sessions', {
       mode: 'subscription',
