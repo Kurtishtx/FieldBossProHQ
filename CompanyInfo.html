@@ -525,7 +525,15 @@
     set('max-man-hours', d.maxManHours);    set('multiday-days', d.multidayDays);
     set('enable-classes', d.enableClasses); set('product-print', d.productPrint);
     set('delete-password', d.deletePassword);
-    set('stripe-pub-key', d.stripePubKey);  set('stripe-secret-key', d.stripeSecretKey);
+    set('stripe-pub-key', d.stripePubKey);
+    // Don't render the secret back into the page. Show whether one is already on file.
+    var _sec = document.getElementById('stripe-secret-key');
+    if (_sec) {
+      _sec.value = '';
+      _sec.placeholder = d.stripeSecretKey
+        ? '•••••••• secret key on file — leave blank to keep, or paste a new one to replace'
+        : 'sk_live_...';
+    }
   }
 
   var MAPBOX_TOKEN = 'pk.eyJ1Ijoia3VydGlzaHR4IiwiYSI6ImNtcGtlbmk5bTFmNGUyc29sajJrYmhuMDcifQ.mBdbJJeL2dlZaTZuJGgYbQ';
@@ -570,8 +578,10 @@
       longitude:              d.longitude          || null,
       delete_password:        d.deletePassword     || null,
       stripe_publishable_key: d.stripePubKey       || null,
-      stripe_secret_key:      d.stripeSecretKey    || null,
     };
+    // Only overwrite the secret key when a new one was actually typed.
+    // Leaving the field blank keeps the key already saved (prevents wiping it).
+    if (d.stripeSecretKey) payload.stripe_secret_key = d.stripeSecretKey;
     var { data: sessionData } = await sb.auth.getSession();
     var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
     payload.user_id = uid;
