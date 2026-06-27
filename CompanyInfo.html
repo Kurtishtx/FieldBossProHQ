@@ -603,8 +603,19 @@
 
   /* ── Init ── */
   (async function initCompany() {
-    var { data: sessionData } = await sb.auth.getSession();
-    var uid = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    // The auth session can be unhydrated on first paint (the "Multiple GoTrueClient"
+    // race), which used to make this bail out and show an all-blank form. Retry until
+    // the session is ready before loading the company data.
+    var uid = null;
+    for (var _try = 0; _try < 20 && !uid; _try++) {
+      var ses = await sb.auth.getSession();
+      uid = ses && ses.data && ses.data.session ? ses.data.session.user.id : null;
+      if (!uid) {
+        var usr = await sb.auth.getUser();
+        uid = usr && usr.data && usr.data.user ? usr.data.user.id : null;
+      }
+      if (!uid) await new Promise(function(r) { setTimeout(r, 250); });
+    }
     if (!uid) return;
     var { data } = await sb.from('company_info').select('*').eq('user_id', uid).single();
     if (!data) return;
